@@ -1,0 +1,62 @@
+﻿<h2>The <i>Single-column Key</i> visualisation (vis2)</h2>
+<p>
+    <img src="##tombiopath##vis2/resources/one-column.png" style="float: right; width: 300px" />
+    This visualisation lays a multi-access key over a taxonomic knowledge-base. Taxa,
+    represented by rectangles, are ranked
+    in the column according to how well they match any characters states you specify,
+    with the best overall matches appearing at the top. This visualisation is
+    particularly useful if you want to explore how character states you specify
+    match against each of the taxa because every score for each taxon/character
+    combination is displayed (as described next).
+</p>
+<p>
+    Each time you specify a state value(s) for a character, the matching score for that
+    character, for each taxon, is displayed in a circle in the rectangle. Scores can
+    range between -1 and 1. By default the <b>unweighted scores</b> are displayed, but you
+    can change this to display the <b>weighted scores</b> by right-clicking your mouse, with
+    the mouse cursor anywhere within the visualisation, to invoke <b>context-menu</b> that
+    allows you to switch between weighted and unweighted scores. For more information on
+    how scores are calculated and what weighting does, see a later section. On the left-hand
+    side of each taxon rectangle is a small coloured rectangle indicating the
+    <b>overall weighted matching score</b> for the taxon.
+</p>
+<p>
+    The background colour of the circles containing the character/taxon scores changes
+    to give a quick visual reference for the scores: blue indicates
+    the best overall matching score for that character and vermilion the worst, whilst a score of zero is
+    coloured pale yellow. Intermediate scores are shown with intermediate colours. The same
+    is true of the colour of the rectangles with the overall matching scores for the taxon.
+</p>
+<p>
+    <img src="##tombiopath##vis2/resources/char-score-details.png" style="float: right; width: 250px" />
+    If you click on any of the circles showing the taxon/character scores, a window appears
+    containing more details of the value of the character in the knowledge-base for this taxon,
+    the weighting and
+    strictness (if applicable) applying to this character, the state value(s)
+    you have specified and both the weighted and unweighted scores.
+</p>
+<p>
+    If at least one picture for a taxon has been specified in the knowledge-base then a small
+    camera icon will be visible on the left of the rectangle representing that taxon.
+    Clicking this will open an 'image group' for this taxon as a separate
+    window. (See 'Working with image groups' below.)
+</p>
+
+<h2>Knowledge-base character state values</h2>
+<p>
+    <img src="##tombiopath##vis2/resources/kb-values.png" style="float: right; width: 250px" />
+    You can see the character states specified against any taxon in the knowledge-base
+    by clicking on the taxon
+    name in the visualisation. This pops out a window displaying the characters
+    and the valid state values for that taxon.
+</p>
+<h2>Right-click context menu</h2>
+<p>
+    <img src="##tombiopath##vis2/resources/context-menu.png" style="float: right" />
+    As with all visualisations in this tool, important functionality is often made available
+    from a context menu which can be invoked by right-clicking the mouse when the pointer
+    is anywhere within the visualisation. The functions available from the context menu for this
+    visualisation have been described elsewhere in the relevant sections.
+</p>
+
+

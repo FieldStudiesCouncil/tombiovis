@@ -1,0 +1,95 @@
+﻿<h2>The <i>Side by Side Comparison</i> visualisation (vis3)</h2>
+<p>
+    <img src="##tombiopath##vis3/resources/compare.png" style="float: right; width: 300px" />
+    This visualisation is not a key but it is, none-the-less, a visualisation for exploring a taxonomic
+    knowledge-base and a useful tool for comparing and identifying taxa. 
+    The premise is to provide a means of viewing information contained in the
+    knowledge-base for two or more taxa side-by-side and facilitating comparison of them.
+</p>
+<p>
+    When the tool is first invoked you see a single table column down the left
+    side which lists all of the characters in the knowledge-base
+    that are marked for use in visualisations. Select a taxon from the drop-down
+    <img src="##tombiopath##vis3/resources/plus.png" style="float: left; margin: 5px" />
+    list above this and then click the plus button to add a new column to the
+    right of this one that will display the corresponding character state
+    values for that taxon. If you do the same again, selecting a second
+    taxon that you wish to compare against the first, another new column
+    is added to display character state
+    values for the second taxon. 
+</p>
+<p>
+    This is where the tool comes into its own - the cells in the columns representing the
+    character state values for the taxa are coloured to reflect a comparison between
+    the taxa which means that commonalities and differences between taxa can be
+    picked out at a glance.
+</p>
+<p>
+    The taxon on the left is that against which any other taxa in the table
+    are compared. As such, all the cells in for this taxon are coloured either
+    blue or white: blue is used for any characters in the knowledge-base that have
+    a characters state specified for this taxon and white is used where either no value
+    is specified or where the character is not applicable for this taxon.
+</p>
+<p>
+    The cells for all taxa to the right of the first taxon are coloured on the basis
+    of a comparison between their character state values and those specified for
+    the first taxon. Exact matches are coloured blue whilst those that do not
+    match at all are coloured vermillion.Partial matches are coloured intermediately
+    depending on the degree of overlap/closeness. 
+</p>
+<p>
+    The order in which the taxa are presented in the table can be changed simply by dragging
+    the taxon's coloumn header (containing the taxon's name) to a different position
+    in the table. If you drag a taxon so that it becomes the first taxon column in
+    the table, then <i>it</i> becomes the one against which all others are compared.
+</p>
+<p>
+    You can remove an idividual taxon from the table completely by clicking the cross on
+    the right side of the taxon's column header.
+</p>
+
+<h2>Context menu for selecting taxa</h2>
+<p>
+    <img src="##tombiopath##vis3/resources/context-menu.png" style="float: right; margin-left: 5px" />
+    The context menu, which can be invoked by right-clicking the mouse with the mouse
+    cursor anywhere in this vislualisation, is particularly valuable because it 
+    provides access to some very handy methods for selecting taxa for comparison.
+</p>
+
+<p>
+    The item <b>Rank those shown against first</b> will re-order whatever
+    taxa are currently displayed so that those matching the first taxon most
+    closely are closest to it and those that differ most are furthest away.
+</p>
+<p>
+    The <b>Show all</b> item creates a column for every taxon in the knowledge base. You
+    will probably only consider using this if there are relatively few taxa in the
+    knowledge-base. The corresponding <b>Remove all</b> item removes all taxa
+    from the display.
+</p>
+<p>
+    The <b>Show closest <i>*num*</i> to first</b> items are ideal when you have 
+    already selected a single taxon and you want to display the <i>*num*</i>
+    taxa from the knowledge-base that most closely match it.
+    It's a great way of exploring a taxon to see what other
+    taxa it could most likely be confused with.
+</p>
+<p>
+    The <b>Show top <i>*num*</i> from key</b> items are designed to be used in
+    conjunction with other key-type visualisations. Where a key visualisation
+    has been used to rank taxa against charcter state input supplied by you, 
+    you can switch to this visualisation and then quickly select the top 
+    <i>*num*</i> taxa matching your input in order to compare them in this
+    visualisation.
+</p>
+<h2>Displaying images</h2>
+<p>
+    If at least one picture for a taxon has been specified in the knowledge-base then a small
+    camera icon will be visible in the first cell under the header cell representing that taxon.
+    Clicking this will open an image group in the cell where you can see and compare
+    images for taxa. (See 'Working with image groups' below.) Images can be resized by
+    changing the width of a taxon column by dragging the right margin of the header cell
+    to the right. When you change the width of one taxon column in this way, the widths of
+    all the other taxon columns are changed so that they have the same width.
+</p>

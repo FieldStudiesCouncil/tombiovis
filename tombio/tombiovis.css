@@ -1,0 +1,390 @@
+﻿
+body {
+    font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+}
+
+.tombioNoSelect { 
+    /*To prevent object selection by accidental dragging*/
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+
+/*Background mask for modal dialog*/
+.ui-widget-overlay {
+    /*background: #077678 repeat;*/
+    opacity: 0.7;
+}
+
+.ui-widget {
+    font-size: 12px;
+}
+
+.ui-icon-plusx { 
+    background-image: url('resources/plus.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-icon-info20 { 
+    background-image: url('resources/info20.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-icon-reset { 
+    background-image: url('resources/reset.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-icon-back { 
+    background-image: url('resources/back.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-icon-forward { 
+    background-image: url('resources/forward.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-icon-options { 
+    background-image: url('resources/options.png') !important; 
+    background-size: 15px 15px;
+}
+
+.ui-dialog .ui-resizable-se {
+    width: 14px;
+    height: 14px;
+    right: 3px;
+    bottom: 3px;
+    background-position: -80px -224px;
+}
+
+#tombioMain {
+    font-size: 12px;
+    overflow: visible;
+    /*border: 2px solid green;*/
+}
+
+#tombioControls {
+    vertical-align: top;
+    display: inline-block;
+    /*border: 2px solid magenta;*/
+}
+
+#tombioControlsAndTaxa {
+    position: relative;
+    /*border: 2px solid blue;*/
+}
+
+#headerTaxa {
+    height: 20px;
+    position: relative;
+    font-size: 1.4em;
+    color: rgb(128, 128, 128);
+}
+
+#tombioTaxa {  
+    vertical-align: top;
+    display: inline-block;
+    /*border: 2px solid red;*/
+}
+
+#tombioType2Svg {
+    overflow: visible;
+}
+
+#tombioInfoDialog {
+    padding: 0 0 0 0;
+}
+
+div#tombioInfo {
+    position: absolute;
+    top: 0;
+    z-index: 13;
+    margin: 0 0 0 0;
+    font-size: 12px;
+}
+
+#tombioVisualisation {
+    width: 250px;
+    display: table-cell; 
+    vertical-align: middle;
+    border-left: 10px solid transparent;
+}
+
+#tombioVisualisationLabel {
+    font-weight: bold;
+    display: table-cell; 
+    vertical-align: middle;
+}
+
+.tombioMainBarCell {
+    display:  table-cell; 
+    vertical-align: middle;
+    border-left: 10px solid transparent;
+}
+
+#visHelp, #tombioRefresh {
+    position: relative;
+    top: -1px;
+}
+
+/* tombioVisualisation select with custom icons */
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item {
+    padding: 0.5em 0 0.5em 3em;
+}
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item .ui-icon {
+    height: 24px;
+    width: 24px;
+    top: 0.1em;
+}
+.ui-icon.options {
+    background: url("resources/options.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+.ui-icon.info {
+    background: url("resources/info20.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+.ui-icon.vis {
+    background: url("resources/lightbulb.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioCloseInfo {
+    float:right;
+    height: 16px;
+    margin-left: 5px;
+}
+
+.tombioMainButtons {
+    width: 147px;
+    vertical-align: top;
+}
+
+#tombioReset {
+    position: absolute;
+    right: 0;
+    margin-right: 5px;
+}
+
+#tombioControlTabs { 
+    position: relative; 
+    padding-left: 7.5em; 
+    border-width: 0px; 
+} 
+#tombioControlTabs .ui-tabs-nav { 
+    background: none; 
+    border-left: none;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    position: absolute; 
+    left: 0.25em; 
+    top: 0.25em; 
+    bottom: 0.25em; 
+    width: 7em; 
+    padding: 0.2em 0 0.2em 0.2em; 
+    -moz-border-radius: 0px 0px 0px 0px; 
+    -webkit-border-radius: 0px 0px 0px 0px; 
+    border-radius: 0px 0px 0px 0px; 
+} 
+#tombioControlTabs .ui-tabs-nav li { 
+    right: 1px; 
+    width: 100%;  
+    border-bottom-width: 1px !important; 
+    -moz-border-radius: 4px 0px 0px 4px; 
+    -webkit-border-radius: 4px 0px 0px 4px; 
+    border-radius: 4px 0px 0px 4px; 
+    overflow: hidden; 
+} 
+#tombioControlTabs .ui-tabs-nav li.ui-tabs-selected, 
+#tombioControlTabs .ui-tabs-nav li.ui-state-active { 
+    xborder-right: 1px solid transparent; 
+} 
+#tombioControlTabs .ui-tabs-nav li a { 
+    float: right; 
+    width: 100%; 
+    text-align: right; 
+} 
+#tombioControlTabs .ui-tabs-panel { 
+    xheight: 2000px; 
+}
+
+#tombioControlTabs li { 
+    margin-bottom: 4px; 
+}
+
+#tombioControlTabs  { 
+    background: white repeat;
+}
+
+.ui-widget .pq-select-button {
+    background: rgb(237, 245, 245) repeat;
+    margin-bottom: 10px;
+}
+.pq-select-button .ui-icon-triangle-1-s {
+    display: none;
+}
+
+/*Next is needed to counteract style put on in Drupal*/
+.pq-select-option-label {
+    font-weight: normal;
+}
+
+.ui-spinner {
+    /*width: 246px;*/
+    width: 204px;
+    margin-bottom: 10px;
+}
+
+.spinclear {
+    width: 9px;
+    height: 11px;
+    padding: 0.4em 0.8em 0.4em 0.8em !important;
+    margin-bottom: 10px;
+    margin-left: 3px;
+    margin-right: 0px;
+}
+
+.ui-spinner-input {
+    margin-bottom: 4px;
+}
+
+#charvisibility {
+     margin-bottom: 10px;
+}
+
+#tombioControlTabs .ui-tabs-panel { 
+    padding:  3px 5px 5px 7px;
+    xborder: 1px solid lightgrey;
+    xwidth: 245px;
+}
+
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+    padding-right: 3px;
+}
+
+.characterlabel {
+    font-weight: bold;
+}
+.characterhelp {
+    cursor: help;
+}
+
+.characterhelptooltip {
+    z-index: 1500000;
+}
+
+.taxarect {
+    fill: lightgrey;
+    rx: 5;
+    ry: 5;
+}
+
+.indicator {
+    /*stroke: black;
+    stroke-width: 1;*/
+    rx: 3;
+    ry: 3;
+}
+
+.taxonimage {
+    rx: 3;
+    ry: 3;
+}
+
+.scientificnames {
+    font-family: Arial;
+    font-size: 13px;
+    stroke-width: 0px;
+    font-style: italic;
+    fill: black;
+}
+
+.scientificnames:hover {
+    fill: #D55E00;
+    font-style: italic;
+}
+
+.indtext {
+    font-family: Arial;
+    font-size: 11px;
+    stroke-width: 0px;
+    fill: black;
+}
+
+.confidenceLevel {
+    font-family: "sans-serif";
+    font-weight: bold;
+    display: inline-block;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    border: solid 1px black;
+    font-size: 12px;
+    color: black;
+    line-height: 12px;
+    text-align: center;
+    background: #D55E00; /*Vermillion*/
+    margin-left: 10px;
+}
+
+figure { 
+    display: block;
+    overflow: hidden;
+}
+
+figcaption { 
+    display: block;
+    font-size: 0.9em;
+    color: black;
+}
+
+.taxonImageCaption {
+    color: white;
+    font-size: 0.9em;
+}
+
+.taxonImageLink {
+    cursor: pointer;
+}
+
+.pq-grid-row:hover{
+    background: none;
+    outline: thin dotted red;
+}
+
+.pq-yellow {
+    background-color: green;
+}
+
+.vis3removeIcon {
+    float: right; 
+    width: 14px; 
+    cursor: pointer
+}
+
+.downloadspin {
+    position:    fixed;
+    left:        50%;        /* Start with top left in the center */
+    top:         50%;
+    width:       200px;      /* The fixed width... */
+    height:      200px;      /* ...and height */
+    margin-left: -100px;     /* Shift over half the width */
+    margin-top:  -10px;      /* Shift up half the height */
+}
+
+.tombioValid3 {
+    background-color: #FF9797;
+    margin: 5px 0;
+}
+.tombioValid2 {
+    background-color: #FFBD82;
+    margin: 5px 0;
+}
+.tombioValid1 {
+    background-color: #A8CFFF;
+    margin: 5px 0;
+}

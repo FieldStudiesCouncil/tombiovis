@@ -1,0 +1,50 @@
+﻿<div style="position: relative">
+
+    <div id="tombioHelpAndInfoDialog" style="display:none"></div>
+
+    <div id="tombioVisInfoDialog" style="display:none"></div>
+
+    <div id="tombioImage" style="display:none"></div>
+
+    <div id="tombioKBReport" style="display:none"><button id="tombioReload">Reload</button><button id="tombioContinue">Continue</button></div>
+
+    <div id="tombioMain" style="display:none">
+
+        <div class="tombioNoSelect">
+            <span class="ui-widget" id="tombioVisualisationLabel">Select a tool:</span>
+
+            <span class="tombioMainBarCell">
+                <select id="tombioVisualisation">
+                    <!--<option value="vis1" class="visualisation" icon-type="vis"></option>
+                    <option value="vis2" class="visualisation" icon-type="vis"></option>
+                    <option value="vis3" class="visualisation" icon-type="vis"></option>-->
+                    <!--<option value="visT" class="visualisation" icon-type="vis">Template visualisation</option>-->
+
+                    <!--<option value="visTypeOptions" icon-type="options">Tool options</option>-->
+                    <!--<option value="kbInfo" class="html" icon-type="info">About the Knowledge-base</option>
+                    <option value="visInfo" class="html" icon-type="info">About Tom.bio ID Visualisations</option>
+                    <option value="tombioCitation" class="citation" icon-type="info">Get citation text</option>-->
+                </select>
+            </span>
+            <span class="tombioMainBarCell">
+                <button id="visHelp">About this visualisation tool</button>
+            </span>
+            <span class="tombioMainBarCell">
+                <button id="tombioRefresh">Reload</button>
+            </span>
+        </div>
+
+        <div class="tombioNoSelect" id="tombioControlsAndTaxa" style="margin-top: 5px">
+            <div id="tombioControls">
+                <div id="tombioControlTabs">
+                    <ul id="tombioControlsListElements"></ul>
+                </div>
+            </div>
+            <div id="tombioTaxa"></div>
+        </div>
+
+        <div class="ui-widget" id="kbInfo" style="display:none"></div>
+        <div class="ui-widget" id="visInfo" style="display:none"></div>
+        <div class="ui-widget" id="tombioCitation" style="display:none"></div>
+    </div>
+</div>

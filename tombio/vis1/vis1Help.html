@@ -1,0 +1,68 @@
+﻿<h2>The <i>Two-column Key</i> visualisation (vis1)</h2>
+<p>
+    <img src="##tombiopath##vis1/resources/two-column.png" style="float: right; width: 300px"/>
+    This visualisation lays a multi-access key over a taxonomic knowledge-base. It has a simple two-column design
+    that separates taxa into more and less likely groups when matched against character state
+    values supplied by you. The more likely group - <b>Evidence balance positive</b> - consists of those 
+    taxa  where the overall score is greater than one. The less likely
+    group - <b>Evidence balance negative</b> - consists of those taxa where the overall score is less
+    than one. (See below for a bit more about how scoring works.) 
+</p>
+<p>
+    The visualisation also allows you to represent the taxa with a picture (see below) - so it's a nice
+    one to use if you want a multi-access key where the taxa are represented with a picture.
+</p>
+<p>
+    Each taxon is represented by a rectangle and the numbers which appear in
+    the top left of these rectangles indicate the overall matching score (overall 'for' score minus the overall
+    'against' score). These are also coloured to give a quick visual reference: blue indicates
+    the best overall matching score and vermilion the worst, whilst an overall matching score of zero is
+    coloured pale yellow. Intermediate scores are shown with intermediate colours. Taxa are ranked
+    in each list according to their scores with the best matches appearing at the top.
+</p>
+<p>
+    As you specify character states, those taxa appearing at the top of the 'evidence balance
+    positive' column (on the left) are those which are the most likely matches. 
+    The more states you specify, and the 
+    higher this score (and more characters you specify), the more reliable the match is.
+</p>
+<h2>In-line images</h2>
+<p>
+    <img src="##tombiopath##vis1/resources/in-line-image.png" style="float: right"/>
+    If at least one picture for a taxon has been specified in the knowledge-base then clicking on
+    the rectangle representing the taxon will cause the rectangle to expand to accommodate
+    an 'in-line' picture. If more than one picture is specified in the knowledge-base then the one with the
+    highest specified 'priority' is displayed. 
+</p>
+<p>
+    A short-cut to expand <i>all</i> taxon rectangles for which a picture is available is to
+    right-click the mouse in the visualisation to see the context menu. Select the
+    <b>'Expand all taxon items'</b> item from the context menu. Note that if the key is
+    implemented on the Internet, then it could take a while for all the pictures to
+    be streamed down, but you can carry on working with the key whilst this happens in
+    the background. Similarly a context menu item to contract all rectangles, hiding the 
+    pictures, is available when at least one image is displayed - <b>'Contract all taxon items'</b>.
+</p>
+<p>
+    When an image is displayed in a rectangle, you will see a little camera icon on the
+    top-right of the image. Clicking this will 'pop out' the image into its own
+    window as an 'image group'. (See 'Working with image groups' below.) 
+</p>
+<h2>Knowledge-base character state values</h2>
+<p>
+    <img src="##tombiopath##vis1/resources/kb-values.png" style="float: right; width: 250px" />
+    You can see the character states specified against any taxon in the knowledge-base
+    by clicking on the taxon
+    name in the visualisation. This pops out a window displaying the characters
+    and the valid state values for that taxon.
+</p>
+<h2>Right-click context menu</h2>
+<p>
+    <img src="##tombiopath##vis1/resources/context-menu.png" style="float: right" />
+    As with all visualisations in this tool, important functionality is often made available
+    from a context menu which can be invoked by right-clicking the mouse when the pointer
+    is anywhere within the visualisation. The functions available from the context menu for this
+    visualisation have been described elsewhere in the relevant sections.
+</p>
+
+
