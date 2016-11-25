@@ -14,6 +14,8 @@
         version: 0.4
     }
 
+    core.tombiover = "none";
+
     //Variables for the tools to be included
     var defaultTools = ["vis1", "vis2", "vis3", "vis4"];
     var includedTools = [];
@@ -224,9 +226,9 @@
         "dependencies/jquery.mousewheel.min.js",
         "dependencies/pqselect.min.js",
         "dependencies/pqgrid.min.js",
-        "tombiovis.js?ver=" + tombiover,
-        "score.js?ver=" + tombiover,
-        "visP.js?ver=" + tombiover
+        "tombiovis.js?ver=" + core.tombiover,
+        "score.js?ver=" + core.tombiover,
+        "visP.js?ver=" + core.tombiover
     ]
     loadScript(scripts[iScript], nextScript, function () {
         mainScriptsLoaded = true;
@@ -247,9 +249,9 @@
             scripts = [];
             includedTools.forEach(function (tool) {
                 //Add javascript to list to be loaded sequentially
-                scripts.push(tool + "/" + tool + ".js?ver=" + tombiover);
+                scripts.push(tool + "/" + tool + ".js?ver=" + core.tombiover);
                 //Load any associated css now
-                var toolCSS = tool + "/" + tool + ".css?ver=" + tombiover;
+                var toolCSS = tool + "/" + tool + ".css?ver=" + core.tombiover;
                 jQuery.ajax({
                     url: tombiopath + toolCSS,
                     type: 'HEAD',
@@ -280,7 +282,7 @@
                 });
 
                 //Load the import HTML
-                jQuery.get(tombiopath + "import.html?ver=" + tombiover, function (data) {
+                jQuery.get(tombiopath + "import.html?ver=" + core.tombiover, function (data) {
 
                     jQuery("#tombiod3vis").html(data);
 

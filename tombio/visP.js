@@ -700,7 +700,7 @@
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tombiover, function (data) {
+            $.get(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover, function (data) {
                 container.html(data);
             });
         } else {
