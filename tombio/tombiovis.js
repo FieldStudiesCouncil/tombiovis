@@ -1053,9 +1053,15 @@
         //If the user has selected to show kb info and not yet loaded,
         //then load.
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
+            var title = $('<h2>').text(core.kbmetadata['title']);
+            $('#kbInfo').html(title);
             $.get(tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').html(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));  
+                $('#kbInfo').append(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));  
             }).always(function () {
+                //Citation
+                var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
+                $('#kbInfo').append(citation);
+                $('#kbInfo').append(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
                 //Add the revision history
                 var header = $('<h3>').attr("id", "tombioKbRevisionHistory").text("Knowledge-base revision history");
                 $('#kbInfo').append(header);
