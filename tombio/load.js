@@ -11,7 +11,7 @@
         publisher: "Field Studies Council",
         location: "Shrewsbury, England",
         contact: "richardb@field-studies-council.org",
-        version: 0.4
+        version: 1.1
     }
 
     core.tombiover = "none";
@@ -286,7 +286,7 @@
 
                     jQuery("#tombiod3vis").html(data);
 
-                    console.log("load", jQuery.fn.jquery)
+                    //console.log("load", jQuery.fn.jquery)
 
                     //Finally invoke function in tombiovis.js to get things going
                     core.loadComplete();

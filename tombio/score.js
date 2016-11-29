@@ -2,41 +2,36 @@
 
     "use strict";
 
-    exports.numberVsRange = function(stateval, rng, kbStrictness) {
+    exports.numberVsRange = function (stateval, rng, wholeRange, kbStrictness) {
         //Numeric characters are scored thus:
         //If the specified number is within the range specified for the taxon, the character scores 1.
-        //Otherwise the score depends on how far outside the range it is, expressed as a proportion
-        //of the mid point of the range and adjusted by a strictness value.
-        //Take the smaller of the differences between the specified number and the 
-        //upper and lower limits of the range (diff).
-        //Calculate the ratio of the value diff to the mid-point of the specified range (prop).
-        //If prop is 1 or more, the character scores 0.
-        //Otherwise the character scores (1 - prop) * strictness.
+        //Otherwise the score depends on how far outside the range it is. The maximum distance
+        //outside the range at which a specified value can score is here called 'latitude'.
+        //If outside the latitude, the specified value scores 0.
+        //The latitude is equal to the whole range of the character across all taxa, 
+        //reduced by an amount proportional to the strictness value. For maximum strictness value (10)
+        //latitude is zero. For minimum strictness value (0) latitude is equal to the whole range.
+        //The score of a specified number is equal to its distance outside the range, divided by its
+        //latitude.
 
-        //The strictness value indicates how important it is to be within the specified range.
-        //It is expressed in the kb as a number between 1 and 10.
-        //A strictness value of 1 gives maximum latitude, 10 maximum strictness (least latitude).
-        //It is converted thus for use as a factor in the calculations: (1 - strictness / 10).
-
-        //Only scores with values are passed in, so no need to deal with missing values
+        //Only scores with values are passed in, so no need to deal with missing values.
 
         var scorefor;
-        var strictness = (1 - kbStrictness / 10);
+        var latitude = (1 - kbStrictness / 10) * wholeRange;
         if (stateval >= rng.min && stateval <= rng.max) {
             scorefor = 1;
-        } else {
-            var diff = Math.min(Math.abs(stateval - rng.min), Math.abs(stateval - rng.max));
-            var prop = diff / rng.mid;
-            if (prop >= 1) {
-                scorefor = 0;
-            } else {
-                scorefor = strictness * (1 - prop);
-            }
+        } else if (stateval < rng.min - latitude) {
+            scorefor = 0;
+        } else if (stateval < rng.min) {
+            scorefor = 1 - ((rng.min - stateval) / latitude);
+        } else if (stateval > rng.max + latitude) {
+            scorefor = 0;
+        } else { //stateval> rng.max
+            scorefor = 1 - ((stateval - rng.max) / latitude);
         }
         //Score against is simply 1 minus the score for
         var scoreagainst = 1 - scorefor;
-        //var scoreagainst = 0;
-
+       
         //Return array with both values
         return [scorefor, scoreagainst];
     }
@@ -48,57 +43,33 @@
         //posStates are the ordinal states that can be taken on by this character.
         //kbStrictness is the strictness for this character in the KB.
 
-        //The ordinal score of a selected value against a value in the knowledge base is:
-        //  1 - (d / (n-1))
-        //Where d is the difference in ranks between the two values and n is the number
-        //values in the ordinal series.
+        //For an ordinal value, only one value should be selected by the user (single selects)
+        //but more than one could be specified in the kb to express a range. 
 
-        //For an ordinal value, only one value should be selected by the user (single selects0
-        //but more than one could be specified in the kb to express a range. So the selected
-        //value should be scored against each in the KB and the best score returned.
-
-        //The strictness value indicates how important it is to match the ordinal value.
-        //It is expressed in the kb as a number between 1 and 10.
-        //A strictness value of 1 gives maximum latitude, 10 maximum strictness (least latitude).
-        //It is converted thus for use as a factor in the calculations: (1 - strictness / 10).
+        //This function changes all the ordinal states into scores and then simply refers
+        //the resulting numbers to the numberVsRange function.
 
         //Deal first with missing KB values
         if (kbTaxonStates.length == 0) {
             return [0, 0];
         }
 
-        //Work out scores for taxa with specified states
-        var scorefor = 0, scoreagainst;
-
-        kbTaxonStates.forEach(function (kbTaxonState) {
-
-            var thisScore, selStateRank, kbStateRank;
-
-            for (var i = 0; i < posStates.length; i++) {
-                if (selState == posStates[i])
-                    selStateRank = i;
-
-                if (kbTaxonState == posStates[i])
-                    kbStateRank = i;
+        var stateval;
+        var rng = {min: null, max: null}
+        posStates.forEach(function (state, rank) {
+            if (state == selState) {
+                stateval = rank;
             }
-            //1 - (d / (n - 1))
-            thisScore = 1 - (Math.abs(selStateRank - kbStateRank) / (posStates.length - 1));
-
-            if (thisScore > scorefor)
-                scorefor = thisScore;
-        });
-        //Adjust for strictness
-        var strictness = (1 - kbStrictness / 10);
-        if (scorefor < 1) {
-            scorefor = strictness * scorefor;
-        }
-        scoreagainst = 1 - scorefor;
-        //scoreagainst = 0;
-
-        //console.log(selState, kbTaxonStates, posStates, kbStrictness);
-        //console.log(scorefor, scoreagainst);
-
-        return [scorefor, scoreagainst];
+            kbTaxonStates.forEach(function (taxState) {
+                if (!rng.min && taxState == state) {
+                    rng.min = rank;
+                }
+                if (taxState == state) {
+                    rng.max = rank;
+                }
+            })
+        })
+        return exports.numberVsRange(stateval, rng, posStates.length -1, kbStrictness)
     }
 
     exports.character = function (selectedStates, kbTaxonStates) {
@@ -116,19 +87,23 @@
         }
 
         //Work out scores for taxa with specified states
-        var scorefor = 0, scoreagainst = 0;
+        var scorefor, scoreagainst;
+        var intersect = [];
         selectedStates.forEach(function (selState) {
-            var match = false;
             kbTaxonStates.forEach(function (kbState) {
                 if (selState == kbState) {
-                    scorefor = 1;
-                    match = true;
+                    intersect.push(selState);
                 }
             });
-            if (!match) scoreagainst = 1;
         });
+        if (intersect.length > 0) {
+            scorefor = 1;
+        } else {
+            scorefor = 0;
+        }
+        scoreagainst = 1 - scorefor;
         return [scorefor, scoreagainst];
-        //return [scorefor, 0];
+            
     }
 
     exports.jaccard = function(setA, setB) {

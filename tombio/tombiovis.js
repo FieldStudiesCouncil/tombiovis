@@ -1,7 +1,5 @@
 ﻿(function ($, core) {
 
-    console.log("tombiovis", $.fn.jquery)
-
     "use strict";
 
     //Global object to reference all the global variables.
@@ -167,7 +165,7 @@
         //Check that all characters (column headers) on the taxa tab have corresponding values in the characters tab.
         charactersFromTaxaTab.forEach(function (character, iCol) {
             if (charactersFromCharactersTab.indexOf(character) == -1) {
-                errors.append($('<li class="tombioValid3">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Names are case sensitive."));
+                errors.append($('<li class="tombioValid3">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Names are case sensitive. Note that rows will not be seen unless the <b>Group</b> column has a value."));
                 characters = false;
             }
         })
@@ -191,8 +189,15 @@
             var ControlTypeOK = true;
 
             //Check that all characters in characters tab that are used in the key have a weight value.
-            if (Number(c.Weight) < 1) {
+            var regexWeight = /^([1-9]|10)$/;
+            if (!regexWeight.test(c.Weight)) {
                 errors.append($('<li class="tombioValid3">').html("You must specify a 'Weight' value for <b>'" + c.Character + "'</b> because it has a 'Status' value of 'key'."));
+                characters = false;
+            }
+            //Check that all numeric and ordinal characters have a strictness value between 0 and 10.
+            var regexStrictness = /^([0-9]|10)$/;
+            if ((c.ValueType == "numeric" || c.ValueType == "ordinal") && !regexStrictness.test(c.Strictness)) {
+                errors.append($('<li class="tombioValid3">').html("For numeric or ordinal characters, you must specify a 'Strictness' value of between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
                 characters = false;
             }
             //Check that all characters in characters tab that are used in the key a valid value type.
@@ -376,6 +381,24 @@
             character.CharacterStateValues = [];
             //stateSet attribute
             character.stateSet = false;
+            //minVal is the minimum value for numeric values
+            character.minVal = null;
+            //maxVal is the maximum value for numeric values
+            character.maxVal = null;
+            //Set minVal & maxVal for numeric characters
+            if (character.ValueType == "numeric") {
+                core.taxa.forEach(function (taxon) {
+                    var minTax = taxon[character.Character].getRange().min;
+                    var maxTax = taxon[character.Character].getRange().max;
+
+                    if (!character.minVal || minTax < character.minVal) {
+                        character.minVal = minTax;
+                    }
+                    if (!character.maxVal || maxTax > character.maxVal) {
+                        character.maxVal = maxTax;
+                    }
+                })
+            }
         });
         //Map characters to properties of an object for easy reference by name (Character property)
         core.oCharacters = {};
@@ -1613,7 +1636,8 @@
                         var stateval = Number($(this).val());
                         var rng = taxon[statespinnerID].getRange();
                         var kbStrictness = Number(core.oCharacters[statespinnerID].Strictness);
-                        var score = tombioScore.numberVsRange(stateval, rng, kbStrictness);
+                        var wholeRange = core.oCharacters[statespinnerID].maxVal - core.oCharacters[statespinnerID].minVal;
+                        var score = tombioScore.numberVsRange(stateval, rng, wholeRange, kbStrictness);
                         scorefor = score[0];
                         scoreagainst = score[1];
                         charused = 1;
