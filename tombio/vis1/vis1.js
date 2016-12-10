@@ -385,8 +385,8 @@
                     return 0;
                 }
             })
-            .each("end", function (d, i) {
-                if (d3.select(this).attr("opacity") == 0) {
+            .on("end", function (d, i) {
+                if (d3.select(this).style("opacity") == 0) {
                     d3.select(this).attr("display", "none");
                 } else {
                     d3.select(this).attr("display", "");
@@ -412,7 +412,7 @@
                 return d.y + indVoffset;
             })
             .attr("width", taxwidth - 2 * margin)
-            .each("end", function (d, i) {
+            .on("end", function (d, i) {
                 //If we don't set height of image to zero, it interfers
                 //with click events on other taxa.
                 if (d.height == taxheight) {
