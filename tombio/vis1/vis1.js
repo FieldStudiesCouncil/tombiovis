@@ -279,16 +279,16 @@
         var minOverall = d3.min(this.taxa, function (d) { return d.scoreoverall; });
 
         //Colours from http://colorbrewer2.org/
-        var scaleOverall = d3.scale.linear()
+        var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(['#fc8d59', '#ffffbf', '#91bfdb']);
-        var scaleFor = d3.scale.linear()
+        var scaleFor = d3.scaleLinear()
             .domain([0, maxFor])
             .range(['#ffffbf', '#91bfdb']);
-        var scaleAgainst = d3.scale.linear()
+        var scaleAgainst = d3.scaleLinear()
             .domain([0, maxAgainst])
             .range(['#ffffbf', '#fc8d59']);
-        var scaleCharacters = d3.scale.linear()
+        var scaleCharacters = d3.scaleLinear()
             .domain([0, 10])
             .range(['#ffffbf', '#91bfdb']);
 

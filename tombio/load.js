@@ -87,7 +87,7 @@
     }
 
     //Load D3 and then use it to load the KB
-    loadScript("dependencies/d3.min.js", loadKB);
+    loadScript("dependencies/d3-4.4.0/d3.min.js", loadKB);
     function loadKB() {
         //Read in the data
         var antiCache = "none"; //Allow caching because of new reload function

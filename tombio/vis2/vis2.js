@@ -61,7 +61,7 @@
 
         //Set up scale for characters indiators indicator
         //Colours from http://colorbrewer2.org/
-        var scaleCharInd = d3.scale.linear()
+        var scaleCharInd = d3.scaleLinear()
             .domain([-1, 0, 1])
             .range(['#fc8d59', '#ffffbf', '#91bfdb']);
 
@@ -69,7 +69,7 @@
         //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
         var maxOverall = d3.max(this.taxa, function (d) { return d.scoreoverall; });
         var minOverall = d3.min(this.taxa, function (d) { return d.scoreoverall; });
-        var scaleOverall = d3.scale.linear()
+        var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(['#fc8d59', '#ffffbf', '#91bfdb']);
 

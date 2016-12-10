@@ -507,7 +507,7 @@
 
             //Colour up the cell columns to show how well each matches against first taxon
             //in list.
-            var scaleOverall = d3.scale.linear()
+            var scaleOverall = d3.scaleLinear()
                 .domain([-1, 0, 1])
                 .range(['#fc8d59', '#ffffbf', '#91bfdb']);
 
