@@ -125,13 +125,14 @@
         var mt = d3.select("#vis2Svg").selectAll(".type2VisTaxon")
             .data(sortedTaxa, function (d, i) { return d.Taxon; });
 
+        var rrr = [];
         //Initialize entering taxa. 
         mt.enter()
             //Create taxon grouping objects
             .append("g")
                 .attr("class", "type2VisTaxon")
                 .style("opacity", 0)
-                .each(function (d) {
+                .each(function (d,i) {
 
                     d3.select(this).append("rect")
                         .attr("class", "taxarect");
@@ -174,14 +175,10 @@
                        })
                        .style("display", function () {
                            //Check if there are any images for this taxon
-
-                           console.log("Check images for", d.Taxon.value)
                            var charImages = _this.media.filter(function (m) {
                                //Return images for matching taxon
-                               console.log('match')
                                if (m.Taxon == d.Taxon.value)  return true;
                            });
-                           console.log(charImages.length);
                            if (charImages.length > 0) {
                                return null;
                            } else {
@@ -259,84 +256,6 @@
                            })
                 })
 
-        //#######################################################################
-        //mt.each(function (d, i) {
-        //    //Enter taxon character state indicators
-        //    var iTaxon = i;
-        //    var taxon = d;
-        //    var taxonTag = d.Taxon.value.replace(/[|&;$%@"<>()+:.,' ]/g, '');
-        //    var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
-        //        .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });
-
-        //    var mig = mi.enter()
-        //        .append("g")
-        //        .attr("class", "type2VisIndicators-" + taxonTag)
-        //        .style("cursor", "pointer")
-        //        .on("click", function (d, i) {
-        //            _this.showCharacterScoreDetails(taxon, d);
-        //        });
-
-        //    mig.append("circle")
-        //        .attr("r", indSpacing / 2 - 2 * gap)
-        //        .attr("class", "type2VisInd")
-        //        .attr("fill", "white")
-        //        .style("opacity", 0);
-
-        //    mig.append("text")
-        //        .style("opacity", 0)
-        //        .attr("class", "type2VisIndtext")
-        //        .attr("text-anchor", "middle")
-        //        .attr("alignment-baseline", "central");
-
-        //    //Transition taxon character state indicators
-        //    mi.select(".type2VisInd")
-        //        .transition()
-        //        .duration(1000)
-        //        .attr("cx", function (d, i) {
-        //            return taxonWidth + gap + (i + 0.5) * indSpacing;
-        //        })
-        //        .attr("cy", function (d, i) {
-        //            //return taxonHeight + (i + 1) * indSpacing -5;
-        //            return characterHeight + (iTaxon + 0.5) * indSpacing;
-        //        })
-        //        .attr("fill", function (d, i) {
-        //            return scaleCharInd(taxon.matchscore[d.Character].scoreoverall);
-        //        })
-        //        .style("opacity", 1);
-
-        //    mi.select(".type2VisIndtext").transition()
-        //        .duration(1000)
-        //        .attr("text", function (d) {
-        //            //Text can't be transitioned - have to grab the object and change it
-        //            if (_this.showWeightedScores) {
-        //                var weight = Number(_this.oCharacters[d.Character].Weight) / 10;
-        //            } else {
-        //                var weight = 1;
-        //            }
-        //            var score = taxon.matchscore[d.Character].scoreoverall * weight * 10;
-        //            score = Math.round(score) / 10;
-
-        //            d3.select(this).text(score);
-        //            //return true;
-        //        })
-        //        .attr("x", function (d, i) {
-        //            return taxonWidth + gap + (i + 0.5) * indSpacing;
-        //        })
-        //        .attr("y", function (d, i) {
-        //            return characterHeight + (iTaxon + 0.5) * indSpacing;
-        //        })
-        //        .style("opacity", 1);
-
-        //    //Exit taxon character state indicators
-        //    mi.exit()
-        //        .transition()
-        //        .duration(1000)
-        //        .style("opacity", 0)
-        //        .remove();
-        //})
-
-        //############################################################################
-
         //Transition exiting taxa
         mt.exit().transition()
             .duration(1000)
@@ -346,6 +265,83 @@
         $(".type2VisOverallInd").tooltip();
         $(".type2VisOverallIndText").tooltip();
 
+
+        //Character state indicators
+        mt.each(function (d, i) {
+            var iTaxon = i;
+            var taxon = d;
+            var taxonTag = d.Taxon.value.replace(/[|&;$%@"<>()+:.,' ]/g, '');
+            var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
+                .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });
+            mi.enter()
+                .append("g")
+                .attr("class", "type2VisIndicators-" + taxonTag)
+                .style("cursor", "pointer")
+                .on("click", function (d, i) {
+                    _this.showCharacterScoreDetails(taxon, d);
+                })
+                .each(function () {
+
+                    d3.select(this).append("circle")
+                        .attr("r", indSpacing / 2 - 2 * gap)
+                        .attr("class", "type2VisInd")
+                        .attr("fill", "white")
+                        .style("opacity", 0);
+                    d3.select(this).append("text")
+                        .style("opacity", 0)
+                        .attr("class", "type2VisIndtext")
+                        .attr("text-anchor", "middle")
+                        .attr("alignment-baseline", "central");
+                })
+            .merge(mi)
+                .each(function (d, i) {
+                    d3.select(this).select(".type2VisInd")
+                        .transition()
+                        .duration(1000)
+                        .attr("cx", function () {
+                            return taxonWidth + gap + (i + 0.5) * indSpacing;
+                        })
+                        .attr("cy", function () {
+                            //return taxonHeight + (i + 1) * indSpacing -5;
+                            return characterHeight + (iTaxon + 0.5) * indSpacing;
+                        })
+                        .attr("fill", function () {
+                            return scaleCharInd(taxon.matchscore[d.Character].scoreoverall);
+                        })
+                        .style("opacity", 1);
+
+                    d3.select(this).select(".type2VisIndtext")
+                        .transition()
+                        .duration(1000)
+                        .attr("text", function () {
+                            //Text can't be transitioned - have to grab the object and change it
+                            if (_this.showWeightedScores) {
+                                var weight = Number(_this.oCharacters[d.Character].Weight) / 10;
+                            } else {
+                                var weight = 1;
+                            }
+                            var score = taxon.matchscore[d.Character].scoreoverall * weight * 10;
+                            score = Math.round(score) / 10;
+
+                            d3.select(this).text(score);
+                            //return true;
+                        })
+                        .attr("x", function () {
+                            return taxonWidth + gap + (i + 0.5) * indSpacing;
+                        })
+                        .attr("y", function () {
+                            return characterHeight + (iTaxon + 0.5) * indSpacing;
+                        })
+                        .style("opacity", 1);
+                })
+
+            //Exit taxon character state indicators
+            mi.exit()
+                .transition()
+                .duration(1000)
+                .style("opacity", 0)
+                .remove();
+        })
         
         //Select characters and bind to data.
         var mc = d3.select("#vis2Svg").selectAll(".type2VisCharacter")
