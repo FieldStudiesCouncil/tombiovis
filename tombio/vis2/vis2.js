@@ -276,7 +276,7 @@
             mi.enter()
                 .append("g")
                 .attr("class", "type2VisIndicators-" + taxonTag)
-                .style("cursor", "pointer")
+                .style("cursor", "pointer") 
                 .on("click", function (d, i) {
                     _this.showCharacterScoreDetails(taxon, d);
                 })
