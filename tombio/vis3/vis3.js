@@ -35,8 +35,9 @@
 
                 //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
                 //average of the two overall scores.
-                var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), oCharacter.Strictness);
-                var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), oCharacter.Strictness);
+                var wholeRange = oCharacter.maxVal - oCharacter.minVal;
+                var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
                 charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
 
             } else if (oCharacter.ValueType == "ordinal") {
@@ -53,7 +54,7 @@
                 });
                 charScore = scoreTotal / iCount;
 
-            } else {//Character type
+            } else {//text type
                 var iCount = 0, scoreTotal = 0;
                 ["male", "female", ""].forEach(function (sex) {
                     scoreTotal += tombioScore.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
@@ -135,11 +136,11 @@
                 orderedTaxa = _this.taxa
             }
 
-            //Reorder those currently displayed matching each against the first.
+            //Reorder taxa matching each against the first.
             orderedTaxa.forEach(function (taxon) {
 
                 if (taxon.Taxon == taxon0.Taxon) {
-                    taxon.vis3CompScore = 999999; //Top score!
+                    taxon.vis3CompScore = 999999; //Top score! 
                 } else {
                     taxon.vis3CompScore = 0;
                     _this.characters.forEach(function (character) {
