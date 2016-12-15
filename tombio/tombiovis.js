@@ -601,18 +601,14 @@
             //If this is the 'All' tab, add radio buttons for visibility
             if (chargrouplink == "tombioControlTab-All") {
 
-                var vislabel = $("<div/>").text("Un-used characters:");
-                tab.append(vislabel);
-
-                var radios = $("<div/>").attr("id", "charvisibility").css("display", "inline-block");
-                var input1 = $("<input/>").attr("type", "radio").attr("name", "charvisibility").attr("id", "charvisible").attr("value", "visible").attr("checked", "checked");
-                var label1 = $("<label/>").attr("for", "charvisible").text("show");
-                radios.append(input1).append(label1);
-                var input2 = $("<input/>").attr("type", "radio").attr("name", "charvisibility").attr("id", "charinvisible").attr("value", "invisible");
-                var label2 = $("<label/>").attr("for", "charinvisible").text("hide");
-                radios.append(input2).append(label2);
+                tab.append($("<div>").text("Un-used characters:"));
+                var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none");
+                radios.append($("<label>").attr("for", "charvisible").text("show"));
+                radios.append($("<input>").attr("type", "radio").attr("name", "charvisibility").attr("id", "charvisible").attr("value", "visible").attr("checked", "checked"));
+                radios.append($("<label>").attr("for", "incharvisible").text("hide"));
+                radios.append($("<input>").attr("type", "radio").attr("name", "charvisibility").attr("id", "incharvisible").attr("value", "invisible"));
                 tab.append(radios);
-                radios.buttonset();
+                $("[name='charvisibility']").checkboxradio({ icon: false });
                 radios.on("change", setCloneVisibility);
 
                 //Reset button
@@ -678,7 +674,7 @@
 
                     var div = $("<div></div>");
                     var spincontrol = $("<input></input>").attr("class", "spinner").attr("id", spinID);
-                    var spinclear = $("<input value='x'></input>").attr("class", "spinclear").attr("id", spinID + "-clear");
+                    var spinclear = $("<div value='x'>").attr("class", "widget").attr("class", "spinclear").attr("id", spinID + "-clear");
                     div.append(spincontrol)
                     div.append(spinclear);
                     tab.append(div);
@@ -687,7 +683,7 @@
                     //Clone this to the 'All' tab
                     var div2 = $("<div></div>");
                     var clonespincontrol = $("<input></input>").attr("class", "spinner").attr("id", "clone-" + spinID);
-                    var clonespinclear = $("<input value='x'></input>").attr("class", "spinclear").attr("id", "clone-" + spinID + "-clear");
+                    var clonespinclear = $("<div value='x'>").attr("class", "widget").attr("class", "spinclear").attr("id", "clone-" + spinID + "-clear");
                     div2.append(clonespincontrol)
                     div2.append(clonespinclear);
                     cloneDiv.append(div2);
@@ -779,7 +775,7 @@
 
             var selOpt = $('<option>')
                 .attr("value", visObj.visName)
-                .attr("icon-type", "vis")
+                .attr("data-class", "vis")
                 .addClass("visualisation")
                 .text(visObj.metadata.title);
             if (core.kbconfig.selectedTool && visObj.visName == core.kbconfig.selectedTool) {
@@ -790,9 +786,9 @@
             global.visualisations[visObj.visName] = visObj;
         })
         //Add the various info tools
-        toolOptions.push('<option value="kbInfo" class="html" icon-type="info">About the Knowledge-base</option>');
-        toolOptions.push('<option value="visInfo" class="html" icon-type="info">About Tom.bio ID Visualisations</option>');
-        toolOptions.push('<option value="tombioCitation" class="html" icon-type="info">Get citation text</option>');
+        toolOptions.push('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>');
+        toolOptions.push('<option value="visInfo" class="html" data-class="info">About Tom.bio ID Visualisations</option>');
+        toolOptions.push('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>');
 
         $("#tombioVisualisation").append(toolOptions);
             
@@ -800,7 +796,8 @@
         //examples for adding widgets to selectmenu items.
         $.widget("custom.iconselectmenu", $.ui.selectmenu, {
             _renderItem: function (ul, item) {
-                var li = $("<li>", { text: item.label });
+                var li = $("<li>"),
+                  wrapper = $("<div>", { text: item.label });
 
                 if (item.disabled) {
                     li.addClass("ui-state-disabled");
@@ -808,11 +805,11 @@
 
                 $("<span>", {
                     style: item.element.attr("data-style"),
-                    "class": "ui-icon " + item.element.attr("icon-type")
+                    "class": "ui-icon " + item.element.attr("data-class")
                 })
-                  .appendTo(li);
+                  .appendTo(wrapper);
 
-                return li.appendTo(ul);
+                return li.append(wrapper).appendTo(ul);
             }
         });
         //Add custom icons to visualisation select menu
@@ -821,8 +818,7 @@
               change: function () {visChanged();}
           })
           .iconselectmenu("menuWidget")
-            .addClass("ui-menu-icons");
-
+            .addClass("ui-menu-icons customicons");
 
         var tabs = $("#tombioControlTabs").tabs({
             activate: function (event, ui) {
@@ -1354,7 +1350,10 @@
         //    }
         //});
 
-        var button = $("#" + id + "-clear").button();
+        var button = $("#" + id + "-clear").button({
+            icon: "ui-icon-close",
+            showLabel: false
+        });
         button.on("click", function () {
             spinner.spinner("value", "");
 

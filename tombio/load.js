@@ -68,10 +68,10 @@
     //Load the CSS files
     var iCSS = 0;
     var css = [
-        "dependencies/jquery-ui.css",
-        "dependencies/jquery-ui.theme.css",
-        "dependencies/pqselect.min.css", //Required for vis3
-        "dependencies/pqgrid.min.css", //Required for vis3
+        "dependencies/jquery-ui-1.12.1/jquery-ui.min.css",
+        "dependencies/jquery-ui-1.12.1/jquery-ui.theme.min.css",
+        "dependencies/pqselect-1.3.2/pqselect.min.css", 
+        "dependencies/pqgrid-2.1.0/pqgrid.min.css", //Required for vis3
         "tombiovis.css"
     ]
     css.forEach(function (cssFile) {
@@ -221,11 +221,11 @@
     //Start loading other scripts sequentially
     iScript = 0;
     scripts = [
-        "dependencies/jquery-1.11.2.min.js",
-        "dependencies/jquery-ui.min.js",
+        "dependencies/jquery-3.1.1/jquery-3.1.1.min.js",
+        "dependencies/jquery-ui-1.12.1/jquery-ui.min.js",
         "dependencies/jquery.mousewheel.min.js",
-        "dependencies/pqselect.min.js",
-        "dependencies/pqgrid.min.js",
+        "dependencies/pqselect-1.3.2/pqselect.min.js",
+        "dependencies/pqgrid-2.1.0/pqgrid.min.js",
         "tombiovis.js?ver=" + core.tombiover,
         "score.js?ver=" + core.tombiover,
         "visP.js?ver=" + core.tombiover

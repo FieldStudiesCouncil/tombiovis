@@ -130,7 +130,7 @@ div#tombioInfo {
 }
 
 /* tombioVisualisation select with custom icons */
-.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item {
+.ui-selectmenu-menu .ui-menu.customicons .ui-menu-item-wrapper {
     padding: 0.5em 0 0.5em 3em;
 }
 .ui-selectmenu-menu .ui-menu.customicons .ui-menu-item .ui-icon {
@@ -138,6 +138,7 @@ div#tombioInfo {
     width: 24px;
     top: 0.1em;
 }
+
 .ui-icon.options {
     background: url("resources/options.png") 0 0 no-repeat;
     background-size: 16px 16px;
@@ -163,9 +164,7 @@ div#tombioInfo {
 }
 
 #tombioReset {
-    position: absolute;
-    right: 0;
-    margin-right: 5px;
+    margin-left: 5px;
 }
 
 #tombioControlTabs { 
@@ -239,8 +238,8 @@ div#tombioInfo {
 }
 
 .spinclear {
-    width: 9px;
-    height: 11px;
+    width: 26px;
+    height: 26px;
     padding: 0.4em 0.8em 0.4em 0.8em !important;
     margin-bottom: 10px;
     margin-left: 3px;

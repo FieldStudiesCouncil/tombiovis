@@ -246,18 +246,16 @@
 
         //Radio buttons to group characters or not
         if (_this.charactersGrouped) {
-            var radios = $("<div/>").attr("id", "groupvisibility").css("display", "inline-block").css("vertical-align", "top").css("margin-left", 20);
-            var input1 = $("<input/>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible");
-            var label1 = $("<label/>").attr("for", "groupvisible").text("group");
-            radios.append(input1).append(label1);
-            var input2 = $("<input/>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupinvisible").attr("value", "invisible").attr("checked", "checked");
-            var label2 = $("<label/>").attr("for", "groupinvisible").text("ungroup");
-            radios.append(input2).append(label2);
-            radios.buttonset();
+            var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top").css("margin-left", 20);
+            radios.append($("<label>").attr("for", "groupvisible").text("group"));
+            radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
+            radios.append($("<label>").attr("for", "groupinvisible").text("ungroup"));
+            radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupinvisible").attr("value", "invisible").attr("checked", "checked"));
+            this.controlsDiv.append(radios);
+            $("[name='groupvisibility']").checkboxradio({ icon: false });
             radios.on("change", function () {
                 _this.refresh();
-            });
-            this.controlsDiv.append(radios);
+            });   
         }
 
         //Grid div

@@ -1,1 +1,1 @@
-npm install connect serve-static
+npm install http-server -g
