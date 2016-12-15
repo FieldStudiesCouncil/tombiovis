@@ -7,7 +7,7 @@ Studies Council is a UK-based environmental education
 charity. We are committed to moving the project forward 
 as an open-source collaborative venture.
 ## Documentation
-All documentation for the project is found in the
+All documentation for this project is found in the
 'documentation' sub-folder and includes the following:
 * Quickstart Guide
 * Getting started (more detailed than the Quickstart Guide)
