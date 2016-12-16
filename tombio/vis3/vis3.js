@@ -79,7 +79,7 @@
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
-        this.metadata.version = '1.0';
+        this.metadata.version = '1.1.0';
     }
 
     exports.Obj.prototype = Object.create(core.visP.Obj.prototype);

@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Migrated to latest release of pqGrid (2.1.0).
 - Migrated to latest release of pqSelect (1.3.2).
 
+## [1.2.1] - 2016-12-16
+
+### Changed
+- Updated version numbers on core software (in load.js) and 
+for vis3.
+- Small change to vis.html text.
+- Updated template KB images to change case of all image extensions to
+lower case to deal with hosts that are case sensitive.
+
 ## [1.2.0] - 2016-12-16
 
 ### Added
