@@ -11,7 +11,7 @@
         publisher: "Field Studies Council",
         location: "Shrewsbury, England",
         contact: "richardb@field-studies-council.org",
-        version: 1.1
+        version: "1.2.1"
     }
 
     core.tombiover = "none";
