@@ -1,0 +1,382 @@
+﻿<div style="position: relative">
+
+    <div id="tombioOptionsDialog">
+        
+        <table class="noborder">
+            <tr>
+                <td>Tolerance</td>
+                <td><input class="spinner" id="tolerance"></td>
+            </tr>
+        </table>
+        <p>
+            (Consult the information dialog for details of how the
+            tolerance value affects the display of species in the 'possible species'
+            and 'unlikely species' lists.)
+        </p>
+    </div>
+
+    <div id="tombioConfidenceDialog">
+        <p>
+            <span class="confidenceLevel" style="margin-left:0">!</span> You've 
+            specified <b><span id="charCount"></span></b> out
+            of a possible <b>10</b> characters.
+        </p>
+        <p>
+            The confidence indicator is a coarse visual cue indicative of the confidence
+            you can ascribe to a determination based on the number of characters used. 
+            If you specify few characters, the indicator will tend towards vermillion (red). If you specify
+            lots, it will tend towards blue.
+        </p>
+        <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+            <img src="##tombiopath##visEarthworm/resources/sherlock.png" style="float: right; width: 120px; padding: 0 0 10px 10px" />
+        </a>
+        
+        <p>
+            Although, in some cases, it is possible to identify an earthworm based on very few
+            morphological characters, you should always compare as many characters of your
+            specimen as possible against those recorded for the species. 
+        </p>
+        <p>
+            Earthworms vary. For example they can be damaged in life and regenerate parts
+            of themselves. So sometimes extra segments can be present - or missing - leading
+            to character states that differ from the more typical
+            examples described in the knowledge base. In other cases, segments can just
+            be difficult to distinguish. To guard against these situations, you should always
+            check as many characters as possible in order to give yourself the best chance
+            of recognising atypical specimens for what they are.
+        </p>
+        <p>
+            Ideally you should always check your determinations against the full species
+            accounts in Emma Sherlock's key.
+        </p>
+    </div>
+
+    <div id="tombioPopup">
+        <div id="tombioPopupTabs">
+            <ul>
+                <li><a href="#tombioPopupTabs1">Map</a></li>
+                <li><a href="#tombioPopupTabs2">Information</a></li>
+            </ul>
+            <div id="tombioPopupTabs1">
+                
+                <div id="tombioMapDiv"></div>
+
+                <div id="tombioMapControls">
+                    <select name="tombioMapBack" id="tombioMapBack">
+                        <option value="gbi" selected="selected">No background</option>
+                        <option value="gbi100kgrid">100 km square</option>
+                        <option value="vicecounty">Vice Counties</option>
+                    </select>
+                    <br />
+                    <select name="tombioMapData" id="tombioMapData">
+                        <option value="all">All datasets</option>
+                        <!--<option value="esb">ESB only</option>-->
+                        <option value="GA001471,GA001466" selected="selected">ESB datasets</option>
+                        <option value="GA000910">OPAL dataset</option>
+                    </select>
+                    <br />
+                    <img src="##tombiopath##visEarthworm/resources/nbn-logo.png" width="50px" style="padding: 15px 0 0 15px" />
+                </div>
+            </div>
+            <div id="tombioPopupTabs2">
+                <div id="tombioSpInfo">
+                    <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+                        <img src="##tombiopath##visEarthworm/resources/sherlock.png" style="float: left; width: 120px; padding: 0 10px 10px 0" />
+                    </a>
+                    <p>
+                        More information on the morphology and ecology of <i><span id="tombioInfoSpName"></span></i>
+                        can be found in Emma Sherlock's FSC AIDGAP publication, 
+                        <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+                            <span class="booklink">Key to the earthworms of UK and Ireland</span></a>, on
+                        <b>pages <span id="tombioInfoSpAccount"></span> (species account) and
+                            <span id="tombioInfoSpTable"></span> (species comparison chart)</b>.
+                        (The knowledge base behind this visualisation is drawn from Emma Sherlock's key.)
+                    </p>
+                    <p>
+                        Additional information can be found in the Linnean Society synopsis, 
+                        <a href="http://www.field-studies-council.org/publications/pubs/earthworms-synopsis.aspx" target="_blank">
+                            <span class="booklink">Earthworms</span></a>,
+                        by Sims and Gerard, also published by FSC.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tombioHelpDialog">
+        <div id="tombioHelpTabs">
+            <ul>
+                <li><a href="#tombioHelpTab-headtype">Head type</a></li>
+                <li><a href="#tombioHelpTab-malepore">Male pore</a></li>
+                <li><a href="#tombioHelpTab-clitellum">Clitellum</a></li>
+                <li><a href="#tombioHelpTab-tp">TP</a></li>
+                <li><a href="#tombioHelpTab-setae">Setae</a></li>
+                <li><a href="#tombioHelpTab-size">Size</a></li>
+            </ul>
+            <div id="tombioHelpTab-headtype">
+                <div class="help-pictures-div">
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/head-epilobic.jpg">
+                    <div class="help-picture-caption">Epilobic head</div>
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/head-tanylobic.jpg">
+                    <div class="help-picture-caption">Tanylobic head</div>
+                </div>
+                <div class="help-text">
+                    <p>
+                        The first segment on an earthworm, also called the <b>head</b>,
+                        consists of the <b>peristomium</b> and the <b>prostomium</b>. The prostomium is a sort
+                        of flap over the mouth projecting forward from main part of the first
+                        segment (the peristomium). From the dorsal side of the earthworm the prostomium also projects
+                        backwards through the peristomium towards the boundary between first and second
+                        segments.
+                    </p>
+                    <p>
+                        Where this projection ends before the boundary with the second segment,
+                        the head is said to be <b>epilobic</b>. Where it reaches the boundary with the second
+                        segment, it is said to be <b>tanylobic</b>.
+                    </p>
+                </div>
+            </div>
+            <div id="tombioHelpTab-malepore">
+                <div class="help-pictures-div">
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/earthworm.jpg">
+                    <div class="help-picture-caption">Front end of an earthworm<br />showing  male pore and clitellum</div>
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/male-pore.jpg">
+                    <div class="help-picture-caption">Close up of the male pore</div>
+                </div>
+                <div class="help-text">
+                    <p>
+                        The <b>male pore</b> an is a more or less obvious opening visible as a slit, sometimes
+                        with swollen lips. The segment on which this falls can be used as a character
+                        in the key. For some species (e.g. <i>Lumbricus</i> sp.) it can be very hard to see.
+                    </p>
+                    <p>
+                        Sometimes the swellings around the male pore encroach onto the previous
+                        segment and/or the segment after. For the purposes of the key, it is the segment
+                        that the actual pore falls on that you must note.
+                    </p>
+                    <p>
+                        In some species, e.g. <i>Lumbricus</i> sp., the male pore can be very difficult
+                        to see.
+                    </p>
+                </div>
+            </div>
+            <div id="tombioHelpTab-clitellum">
+                <div class="help-pictures-div">
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/earthworm.jpg">
+                    <div class="help-picture-caption">Front end of an earthworm<br />showing  male pore and clitellum</div>
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/clitellum.jpg">
+                    <div class="help-picture-caption">Clitellum</div>
+                </div>
+                <div class="help-text">
+                    <p>
+                        The position of the <b>clitellum</b>, also called the <b>saddle</b>, is a key
+                        identification feature. The position is specified by the number of the segment,
+                        counted from the head end, on which the <b>clitellum starts</b> and the number of the
+                        segment on which the <b>clitellum ends</b>.
+                    </p>
+                    <p>
+                        Care is necessary when deciding which segment the clitellum starts on. Sometimes the
+                        clitellum covers more segments on the dorsal side of the earthworm than it does
+                        on the ventral side, in which case it is the coverage on the dorsal side that matters.
+                        Because a well developed clitellum often masks the segments that it covers, it
+                        is sometimes hard to discern the segment that it finishes on. In such cases, it
+                        can help to view the ventral side of the earthworm since the segmentation is
+                        often less masked here.
+                    </p>
+                    <p>
+                        In this multi-access key, you can specify the <b>length of the clitellum</b> - i.e. the number
+                        of segments it covers - even if you can't discern the start and end segments, which
+                        can be the case when the earthworm is damaged before the clitellum. If you know the start
+                        and end segments, it
+                        is best to specify these rather than the length, since they provide information on both
+                        position and length.
+                        If you've specified the start and end segments, there's no need to specify the length.
+                    </p>
+                    <p>
+                        Nonsensical values, e.g. clitellum end less than clitellum start, are shown
+                        in vermillion (red).
+                    </p>
+                    <p>
+                        The clitellum develops on mature earthworms, so immature specimens may not have
+                        a discernible clitellum which makes identification difficult.
+                    </p>
+                </div>
+            </div>
+            <div id="tombioHelpTab-tp">
+                <div class="help-pictures-div">
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/tp1.jpg"><br />
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/tp2.jpg">
+                    <div class="help-picture-caption">Two examples of the<br />TP (tubercula pubertatis)</div>
+                </div>
+                <div class="help-text">
+                    <p>
+                        The <b>TP</b>, full name <b>tubercula pubertatis</b>,
+                        is situated on the clitellum. It normally appears as one, or a series of, raised
+                        areas. The actual structure is very variable between species. Sometimes it can be
+                        very difficult to see.
+                    </p>
+                    <p>
+                        The segment on which the <b>TP starts</b> and that on which the <b>TP ends</b> are important
+                        identification features. The actual shape/structure of the TP is a useful confirmation feature
+                        for identification, but with one or two exceptions, is not diagnostic. In this multi-access
+                        key, the segments on which the TP starts and ends can be used as an ID character, but the TP
+                        shape can't (although it can be used as a visualisation character).
+                    </p>
+                    <p>
+                        In some species of earthworms, the TP is visible before
+                        the clitellum develops and can sometimes help to identify even immature
+                        specimens.
+                    </p>
+
+                </div>
+            </div>
+            <div id="tombioHelpTab-setae">
+                <div class="help-pictures-div">
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/setae-close.jpg">
+                    <div class="help-picture-caption">Closely-paired setae</div>
+                    <img class="help-picture" src="##tombiopath##visEarthworm/resources/morphology/setae-wide.jpg">
+                    <div class="help-picture-caption">Widely-paired setae</div>
+                </div>
+                <div class="help-text">
+                    <p>
+                        Earthworms in the family Lumbricidae have four pairs of <b>setae</b>, also called <b>chaetae</b>,
+                        on each segment. Whether or not the setae in each pair are <b>widely spaced</b> or
+                        <b>closely spaced</b> is an important identification feature.
+                    </p>
+                    <p>
+                        When looking for the character, it is important to look at the <b>tail end</b> of the earthworm -
+                        the setae on other parts can have different spacing to that indicated in the key.
+                    </p>
+                    <p>
+                        Setae can be hard to see. Try adjusting the angle of the lighting and viewing against
+                        different colour backgrounds - e.g. both black and white.
+                    </p>
+
+                </div>
+
+            </div>
+            <div id="tombioHelpTab-size">
+                <div class="help-text">
+                    <p>
+                        The size of earthworms can be variable even within a single species, but there are
+                        some gross differences which can be useful identification characters.
+                    </p>
+                    <p>
+                        In this multi-access key you can specify both the <b>length</b> and the <b>diameter</b> (i.e.
+                        the thickness)
+                        of the earthworm. Because of the variability of these characters it is best not to use them as
+                        diagnostic features on their own. But they are useful confirmation characters and may
+                        be particularly useful where other morphological characters are not discernible.
+                    </p>
+                    <p>
+                        All measurements are in <b>millimetres (mm)</b>.
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+   </div>
+
+    <div id="tombioMain">
+        <div id="tombioControls">
+            <table id="tombioControlsTable" class="noborder">
+
+                <tr><td></td><td colspan="2"><button class="earthwormButton" id="tombioOptions">Options</button></td></tr>
+                <tr><td></td><td colspan="2"><button class="earthwormButton" id="tombioResetW">Reset all</button></td></tr>
+
+                <tr>
+                    <td class="morphoLabel" morphokey="headtype">Head type</td>
+                    <td>
+                        <select name="headtype" id="headtype" multiple="multiple">
+                            <option value="" selected="selected">&nbsp;</option>
+                            <option>Tanylobic</option>
+                            <option>Epilobic</option>
+                        </select>
+                    </td>
+                    <td><img class="resetImage" id="headtypeReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="setae">Setae spacing</td>
+                    <td>
+                        <select name="setaespacing" id="setaespacing">
+                            <option selected="selected">&nbsp;</option>
+                            <option>Close</option>
+                            <option>Wide</option>
+                            <option>Other</option>
+                        </select>
+                    </td>
+                    <td><img class="resetImage" id="setaespacingReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="malepore">Male pore</td>
+                    <td><input class="spinner" id="malepore"></td>
+                    <td><img class="resetImage" id="maleporeReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="clitellum">Clitellum start</td>
+                    <td><input class="spinner" id="clitstart"></td>
+                    <td><img class="resetImage" id="clitstartReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="clitellum">Clitellum end</td>
+                    <td><input class="spinner" id="clitend"></td>
+                    <td><img class="resetImage" id="clitendReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="clitellum">Clitellum length</td>
+                    <td><input class="spinner" id="clitwidth"></td>
+                    <td><img class="resetImage" id="clitwidthReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="tp">TP Start</td>
+                    <td><input class="spinner" id="tpstart"></td>
+                    <td><img class="resetImage" id="tpstartReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="tp">TP End</td>
+                    <td><input class="spinner" id="tpend"></td>
+                    <td><img class="resetImage" id="tpendReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="size">Length</td>
+                    <td><input class="spinner" id="bodylength"></td>
+                    <td><img class="resetImage" id="bodylengthReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabel" morphokey="size">Diameter</td>
+                    <td><input class="spinner" id="bodydiameter"></td>
+                    <td><img class="resetImage" id="bodydiameterReset" /></td>
+                </tr>
+                <tr>
+                    <td class="morphoLabelNoLink" morphokey="forcolour">Colour by</td>
+                    <td>
+                        <select name="colourby" id="colourby">
+                            <option selected="selected">&nbsp;</option>
+                            <option value="Family">Family</option>
+                            <option value="Genus">Genus</option>
+                            <option value="EcoGroup">Ecology</option>
+                            <option value="Colour">Colour</option>
+                            <option value="TPShape">TP shape</option>
+                            <option value="HeadShape">Head shape</option>
+                            <option value="SetaeSpacing">Setae spacing</option>
+                            <option value="Length">Length</option>
+                            <option value="Diameter">Diameter</option>
+                        </select>
+                    </td>
+                    <td><img class="resetImage" id="colourbyReset" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <svg id="legend"></svg>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="headerTaxaW"><span id="candidateTaxaW">Possible species  <span class="confidenceLevel" id="confidenceLevelButton">!</span></span><span id="excludedTaxaW">Unlikely species</span></div>
+        <svg id="multiaccess"></svg>
+
+    </div>
+
+</div>
