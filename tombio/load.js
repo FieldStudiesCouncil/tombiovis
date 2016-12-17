@@ -224,6 +224,7 @@
         "dependencies/jquery-3.1.1/jquery-3.1.1.min.js",
         "dependencies/jquery-ui-1.12.1/jquery-ui.min.js",
         "dependencies/jquery.mousewheel.min.js",
+        "dependencies/jquery.ui.touch-punch.min.js",
         "dependencies/pqselect-1.3.2/pqselect.min.js",
         "dependencies/pqgrid-2.1.0/pqgrid.min.js",
         "tombiovis.js?ver=" + core.tombiover,
