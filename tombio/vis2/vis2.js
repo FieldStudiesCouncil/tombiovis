@@ -19,6 +19,7 @@
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.0';
     }
+
     exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
 
     exports.Obj.prototype.initialise = function () {
@@ -122,142 +123,143 @@
         d3.selectAll(".tmpCharacterText").remove();
 
         //Rebind taxa and data
-        var mt = d3.select("#vis2Svg").selectAll(".type2VisTaxon")
+        var mtU = d3.select("#vis2Svg").selectAll(".type2VisTaxon")
             .data(sortedTaxa, function (d, i) { return d.Taxon; });
+        var mtE = mtU.enter();
+        var mtX = mtU.exit();
 
-        var rrr = [];
-        //Initialize entering taxa. 
-        mt.enter()
-            //Create taxon grouping objects
-            .append("g")
-                .attr("class", "type2VisTaxon")
-                .style("opacity", 0)
-                .each(function (d,i) {
+        //Initialize entering taxa.  
+        //Create taxon grouping objects
+        var mtM = mtE.append("g")
+            .attr("class", "type2VisTaxon")
+            .style("opacity", 0)
+            .each(function (d, i) {
 
-                    d3.select(this).append("rect")
-                        .attr("class", "taxarect");
+                d3.select(this).append("rect")
+                    .attr("class", "taxarect");
 
-                    d3.select(this).append("text")
-                        //Create taxon texts
-                        .attr("class", "scientificnames")
-                        .text(function () {
-                            return d.Taxon;
-                        })
-                        .style("cursor", "pointer")
-                        .on("click", function () {
-                            _this.showTaxonCharacterValues(d);
+                d3.select(this).append("text")
+                    //Create taxon texts
+                    .attr("class", "scientificnames")
+                    .text(function () {
+                        return d.Taxon;
+                    })
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        _this.showTaxonCharacterValues(d);
+                    });
+
+                d3.select(this).append("rect")
+                    .attr("class", "type2VisOverallInd")
+                    .attr("width", (indRad + gap) * 2)
+                    .attr("height", indRad * 2)
+                    .attr("x", gap)
+                    .attr("title", "Overall weighted score");
+
+                d3.select(this).append("text")
+                    .attr("class", "type2VisOverallIndText")
+                    .attr("text-anchor", "middle")
+                    .attr("alignment-baseline", "central")
+                    .attr("x", gap + indRad)
+                    .attr("opacity", 0)
+                    .attr("text", 0)
+                    .attr("cursor", "default")
+                    .attr("title", "Overall weighted score");
+
+                d3.select(this).append("svg:image")
+                    .attr("xlink:href", tombiopath + "resources/camera.png")
+                    .attr("class", "taxonImageLink")
+                    .attr("width", camImgSize)
+                    .attr("height", camImgSize)
+                    .attr("x", function () {
+                        return gap * 5 + indRad * 2;
+                    })
+                    .style("display", function () {
+                        //Check if there are any images for this taxon
+                        var charImages = _this.media.filter(function (m) {
+                            //Return images for matching taxon
+                            if (m.Taxon == d.Taxon.value) return true;
                         });
+                        if (charImages.length > 0) {
+                            return null;
+                        } else {
+                            return "none";
+                        }
+                    })
+                    .on("click", function () {
+                        var offset = $("#tombioMain").offset();
+                        var x = d3.event.clientX - offset.left + document.body.scrollLeft;
+                        var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                    d3.select(this).append("rect")
-                        .attr("class", "type2VisOverallInd")
-                        .attr("width", (indRad + gap) * 2)
-                        .attr("height", indRad * 2)
-                        .attr("x", gap)
-                        .attr("title", "Overall weighted score");
+                        _this.showFloatingImages(d.Taxon, x, y);
+                    })
+            })
+            .merge(mtU);
 
-                    d3.select(this).append("text")
-                        .attr("class", "type2VisOverallIndText")
-                        .attr("text-anchor", "middle")
-                        .attr("alignment-baseline", "central")
-                        .attr("x", gap + indRad)
-                        .attr("opacity", 0)
-                        .attr("text", 0)
-                        .attr("cursor", "default")
-                        .attr("title", "Overall weighted score");
-
-                    d3.select(this).append("svg:image")
-                       .attr("xlink:href", tombiopath + "resources/camera.png")
-                       .attr("class", "taxonImageLink")
-                       .attr("width", camImgSize)
-                       .attr("height", camImgSize)
-                       .attr("x", function () {
-                           return gap * 5 + indRad * 2;
-                       })
-                       .style("display", function () {
-                           //Check if there are any images for this taxon
-                           var charImages = _this.media.filter(function (m) {
-                               //Return images for matching taxon
-                               if (m.Taxon == d.Taxon.value)  return true;
-                           });
-                           if (charImages.length > 0) {
-                               return null;
-                           } else {
-                               return "none";
-                           }
-                       })
-                       .on("click", function () {
-                           var offset = $("#tombioMain").offset();
-                           var x = d3.event.clientX - offset.left + document.body.scrollLeft;
-                           var y = d3.event.clientY - offset.top + document.body.scrollTop;;
-
-                           _this.showFloatingImages(d.Taxon, x, y);
-                       })
-                 })
-            .merge(mt)
-                .transition()
-                .duration(1000)
-                .style("opacity", 1)
-                .each(function (d, i) {
-                    d3.select(this).select(".taxarect")
-                        .transition()
-                        .duration(1000)
-                        .attr("x", function () {
-                            return 0;
-                        })
-                        .attr("y", function () {
-                            return characterHeight + i * indSpacing + gap;
-                        })
-                        .attr("width", function () {
-                            return taxonWidth + gap + usedCharacters.length * indSpacing;
-                        })
-                        .attr("height", function () {
-                            return indSpacing - 2 * gap;
-                        });
-                    d3.select(this).select(".scientificnames")
-                        .transition()
-                        .duration(1000)
-                        .attr("x", function () {
-                            var bbox = this.getBBox();
-                            return taxonWidth - bbox.width;
-                        })
-                        .attr("y", function () {
-                            var bbox = this.getBBox();
-                            return characterHeight + i * indSpacing + bbox.height + (indSpacing - bbox.height) / 3;
-                        });
-                    d3.select(this).select(".type2VisOverallInd")
+        mtM.transition()
+            .duration(1000)
+            .style("opacity", 1)
+            .each(function (d, i) {
+                d3.select(this).select(".taxarect")
+                    .transition()
+                    .duration(1000)
+                    .attr("x", function () {
+                        return 0;
+                    })
+                    .attr("y", function () {
+                        return characterHeight + i * indSpacing + gap;
+                    })
+                    .attr("width", function () {
+                        return taxonWidth + gap + usedCharacters.length * indSpacing;
+                    })
+                    .attr("height", function () {
+                        return indSpacing - 2 * gap;
+                    });
+                d3.select(this).select(".scientificnames")
+                    .transition()
+                    .duration(1000)
+                    .attr("x", function () {
+                        var bbox = this.getBBox();
+                        return taxonWidth - bbox.width;
+                    })
+                    .attr("y", function () {
+                        var bbox = this.getBBox();
+                        return characterHeight + i * indSpacing + bbox.height + (indSpacing - bbox.height) / 3;
+                    });
+                d3.select(this).select(".type2VisOverallInd")
+                    .transition()
+                    .duration(1000)
+                    .attr("y", function () {
+                        return characterHeight + 2 * gap + i * indSpacing;
+                    })
+                    .attr("fill", function () {
+                        return scaleOverall(d.scoreoverall);
+                    })
+                d3.select(this).select(".type2VisOverallIndText")
+                    .transition()
+                    .duration(1000)
+                    .attr("y", function () {
+                        return characterHeight + (i + 0.5) * indSpacing;
+                    })
+                    .attr("text", function () {
+                        //Text can't be transitioned - have to grab the object and change it
+                        var score = d.scoreoverall * 100;
+                        score = Math.round(score) / 100;
+                        d3.select(this).text(score);
+                    })
+                    .attr("opacity", 1);
+                d3.select(this).select(".taxonImageLink")
+                        //Transition taxon image link icon
                         .transition()
                         .duration(1000)
                         .attr("y", function () {
-                            return characterHeight + 2 * gap + i * indSpacing;
+                            var iGap = (indSpacing - 2 * gap - camImgSize) / 2;
+                            return characterHeight + i * indSpacing + gap + iGap;
                         })
-                        .attr("fill", function () {
-                            return scaleOverall(d.scoreoverall);
-                        })
-                    d3.select(this).select(".type2VisOverallIndText")
-                        .transition()
-                        .duration(1000)
-                        .attr("y", function () {
-                            return characterHeight + (i + 0.5) * indSpacing;
-                        })
-                        .attr("text", function () {
-                            //Text can't be transitioned - have to grab the object and change it
-                            var score = d.scoreoverall * 100;
-                            score = Math.round(score) / 100;
-                            d3.select(this).text(score);
-                        })
-                        .attr("opacity", 1);
-                    d3.select(this).select(".taxonImageLink")
-                           //Transition taxon image link icon
-                           .transition()
-                           .duration(1000)
-                           .attr("y", function () {
-                               var iGap = (indSpacing - 2 * gap - camImgSize) / 2;
-                               return characterHeight + i * indSpacing + gap + iGap;
-                           })
-                })
+            })
 
         //Transition exiting taxa
-        mt.exit().transition()
+        mtX.transition()
             .duration(1000)
             .style("opacity", 0)
             .remove();
@@ -265,9 +267,9 @@
         $(".type2VisOverallInd").tooltip();
         $(".type2VisOverallIndText").tooltip();
 
-
         //Character state indicators
-        mt.each(function (d, i) {
+        mtM.each(function (d, i) {
+
             var iTaxon = i;
             var taxon = d;
             var taxonTag = d.Taxon.value.replace(/[|&;$%@"<>()+:.,' ]/g, '');

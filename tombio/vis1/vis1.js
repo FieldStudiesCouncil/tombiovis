@@ -278,7 +278,6 @@
         var maxOverall = d3.max(this.taxa, function (d) { return d.scoreoverall; });
         var minOverall = d3.min(this.taxa, function (d) { return d.scoreoverall; });
 
-        //Colours from http://colorbrewer2.org/
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(['#fc8d59', '#ffffbf', '#91bfdb']);
