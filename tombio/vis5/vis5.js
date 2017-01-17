@@ -8,7 +8,7 @@
     var exports = core[visName] = {};
 
     var spiders = { "name": "spiders", "taxonLevel": "order", "children": [] };
-    var tt, root, focus, svg, pack, circleU, circleE, circleM, text, label, pack, view, node, diameter, bSuspendEventHandlers, margin, taxaRoot, g, color;
+    var textM, root, focus, svg, pack, circleU, circleE, circleM, text, label, pack, view, node, diameter, bSuspendEventHandlers, margin, taxaRoot, g, color;
 
     exports.Obj = function (parent, contextMenu, core) {
 
@@ -41,7 +41,7 @@
 
         //Add circle pack stuff
         var zoom = d3.zoom()
-          .scaleExtent([1, 100])
+          //.scaleExtent([1, 100])
           .on('zoom', zoomFn);
 
         svg = d3.select("#" + this.visName)
@@ -49,6 +49,7 @@
             .attr("id", "vis5Svg")
             .attr("width", "500")
             .attr("height", "500")
+            .attr("overflow", "visible")
             .call(zoom);
 
         margin = 20;
@@ -139,6 +140,7 @@
             .attr("title", function(d) {
                 return d.data.id;
             })
+            .attr("id", function (d) { return _this.taxonTag(d.data.id); })
             .on("click", function (d) {
                 if (focus !== d) {
                     zoom(d);
@@ -146,9 +148,6 @@
                 }
             });
 
-        //circleE.append("title").text(function (d) {
-        //    return d.data.id;
-        //})
 
         circleM = circleE.merge(circleU);
 
@@ -165,31 +164,38 @@
                 }
             })
 
-        $(".node").tooltip({
+        var textU = g.selectAll("text")
+            .data(nodes, function (d) { return d.data.id });
+
+        textM = textU.enter().append("text") //Actual text value is set after zoom.
+            .attr("class", "label")
+            .attr("title", function (d) {
+                return d.data.id;
+            })
+            .attr("circleId", function (d) { return _this.taxonTag(d.data.id); })
+            .attr("taxonName", function (d) { return d.data.id; })
+            .style("fill-opacity", function (d) { return d.parent === root ? 1 : 0; })
+            .style("display", function (d) { return d.parent === root ? "inline" : "none"; })
+            .merge(textU);
+
+        $("circle, text").tooltip({
             track: true,
             position: { my: "left+20 center", at: "right center" },
             open: function (event, ui) {
-            setTimeout(function () {
-                $(ui.tooltip).hide({ effect: "fade", duration: 500 });
-            }, 3000);
-        }
+                setTimeout(function () {
+                    $(ui.tooltip).hide({ effect: "fade", duration: 500 });
+                }, 3000);
+            }
         });
 
-        text = g.selectAll("text")
-            .data(nodes, function (d) { return d.data.id })
-            .enter().append("text")
-            .attr("class", "label")
-            .style("fill-opacity", function (d) { return d.parent === root ? 1 : 0; })
-            .style("display", function (d) { return d.parent === root ? "inline" : "none"; })
-            .text(function (d) {
-                return d.data.id;
-            });
-
-        svg
-            .style("background", color(-2))
+        svg //.style("background", color(-2))
             .on("click", function () { zoom(root); });
 
-        zoomTo([root.x, root.y, root.r * 2 + margin], t);
+        if (view) {
+            zoomTo(view, view, t, null);
+        } else {
+            zoomTo([root.x, root.y, root.r * 2 + margin], [root.x, root.y, root.r * 2 + margin], t, null);
+        }
     }
 
     function zoom(d) {
@@ -201,7 +207,7 @@
             .duration(d3.event.altKey ? 7500 : 750)
             .tween("zoom", function () {
                 var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
-                return function (t) { zoomTo(i(t)); };
+                return function (t) { zoomTo(i(t), [focus.x, focus.y, focus.r * 2 + margin], null, null); };
             });
 
         transition.selectAll(".label")
@@ -228,28 +234,52 @@
             });
     }
 
-    function zoomTo(v, t) {
+    function zoomTo(newView, endView, transition, pan) {
 
-       
-
-        var k = diameter / v[2]; view = v;
-
-        if (t) {
-            g.selectAll("circle,text").transition(t)
-                .duration(750)
-                .attr("transform", function (d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; })
-                .attr("r", function (d) { return d.r * k; })
-        } else {
-            g.selectAll("circle,text")
-                .attr("transform", function (d) { return "translate(" + (d.x - v[0]) * k + "," + (d.y - v[1]) * k + ")"; })
-                .attr("r", function (d) { return d.r * k; })
+        //If the new view and end view match, then this is not called by a tween and
+        //we can redraw text - unless pan argument is set in which case this is a
+        //pan and text visibility does not need to be recomputed.
+        //This all done to minimise the text visibility computations which are
+        //computationally expensive and therefore slow panning and zooming down.
+        if (Math.round(newView[0] * 100) / 100 == Math.round(endView[0] * 100) / 100 &&
+            Math.round(newView[1] * 100) / 100 == Math.round(endView[1] * 100) / 100 &&
+            Math.round(newView[2] * 100) / 100 == Math.round(endView[2] * 100) / 100 &&
+            !pan) {
+            var redrawText = true;
         }
 
-        $(".node").tooltip("close");
+        var k = diameter / newView[2]; view = newView;
+
+        //Because text always needs to be drawn on top of all circles, it has to be
+        //drawn afterwards.
+        if (transition) {
+            g.selectAll("circle,text").transition(transition).duration(750)
+                .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
+                .attr("r", function (d) { return d.r * k; });
+
+            if (redrawText) {
+                g.selectAll("text").transition(transition).duration(750)
+                    .on("end", function (d) {
+                        displayText(d3.select(this), d)
+                    });
+            }
+        } else {
+            g.selectAll("circle,text")
+                .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
+                .attr("r", function (d) { return d.r * k; });
+
+            if (redrawText) {
+                g.selectAll("text").each(function (d) {
+                    displayText(d3.select(this), d)
+                });
+            }
+        }
+
+        //Remove any tool tip currently shown
+        $(".node").tooltip("close"); 
     }
 
     function zoomFn() {
-
         var dx = d3.event.sourceEvent.movementX * (view[2]/diameter);
         var dy = d3.event.sourceEvent.movementY * (view[2]/diameter);
 
@@ -265,6 +295,93 @@
         }
         var newView = [view[0] - dx, view[1] - dy, view[2] * delta];
     
-        zoomTo(newView);
+        zoomTo(newView, newView, null, (delta == 1));
     }
+
+    function displayText(text, d) {
+
+        if (text.style("display") == "none") return;
+        var circle = d3.select("#" + text.attr("circleId"));
+
+        name = text.attr("taxonName");
+        wrapText(text, name);
+
+        //If the text does not fit within circle, call again
+        //with abbreviated text
+        if (text.node().getBBox().width > circle.node().getBBox().width) {
+            var nameParts = name.split(/\s+/).reverse();
+            if (nameParts.length > 1) {
+
+                var firstPart = nameParts.pop();
+                var abbrv = firstPart.substring(0, 1) + ". " + nameParts.join(" ");
+                wrapText(text, abbrv);
+            }
+        }
+
+        if (text.node().getBBox().width > circle.node().getBBox().width) {
+            var nameParts = name.split(/\s+/).reverse();
+            if (nameParts.length > 1) {
+
+                var firstPart = nameParts.pop();
+                var abbrv = firstPart.substring(0, 1) + ".";
+                var namePart;
+                while (namePart = nameParts.pop()) {
+                    abbrv += " " + namePart.substring(0, 3) + ".";
+                }
+                wrapText(text, abbrv);
+            }
+        }
+
+        if (text.node().getBBox().width > circle.node().getBBox().width) {
+            var nameParts = name.split(/\s+/).reverse();
+            if (nameParts.length > 1) {
+
+                var firstPart = nameParts.pop();
+                var abbrv = firstPart.substring(0, 1);
+                var namePart;
+                while (namePart = nameParts.pop()) {
+                    abbrv += namePart.substring(0, 1);
+                }
+                wrapText(text, abbrv);
+            }
+        }
+
+        if (d.data.data.taxon && text.node().getBBox().width > 1.2 * circle.node().getBBox().width) {
+            text.text(null);
+        }
+
+
+        function wrapText(text, name) {
+
+            //Based on https://bl.ocks.org/mbostock/7555321
+
+            var words = name.split(/\s+/).reverse();
+            var word,
+            line = [],
+            lineNumber = 1,
+            lineHeight = 1, // ems
+            y = text.attr("y"),
+            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y);
+
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > circle.node().getBBox().width) {
+                    line.pop();
+                    if (line.length > 0) {
+                        tspan.text(line.join(" "));
+                    } else {
+                        tspan.remove();
+                        lineNumber--;
+                    }
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).text(word);
+                    if (++lineNumber > 1) tspan.attr("dy", lineHeight + "em");
+                }
+            }
+            //Vertically align the text
+            text.attr("dy", ((1.5 - lineNumber) / 2) + "em");
+        }
+    }
+
 })(jQuery, this.tombiovis)

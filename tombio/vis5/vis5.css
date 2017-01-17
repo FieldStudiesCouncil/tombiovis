@@ -1,4 +1,4 @@
-﻿.node {
+﻿.node, text {
   cursor: pointer;
 }
 
@@ -7,9 +7,9 @@
   stroke-width: 1.5px;
 }
 
-.node--leaf {
+/*.node--leaf {
   fill: white;
-}
+}*/
 
 .label {
   font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -17,8 +17,8 @@
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
 }
 
-.label,
+/*.label,
 .node--root,
 .node--leaf {
   xpointer-events: none;
-}
+}*/
