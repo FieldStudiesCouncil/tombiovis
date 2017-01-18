@@ -17,7 +17,7 @@
     core.tombiover = "none";
 
     //Variables for the tools to be included
-    var defaultTools = ["vis1", "vis2", "vis3", "vis4", "vis5"];
+    var defaultTools = ["vis1", "vis2", "vis3", "vis4"];
     var includedTools = [];
 
     //Other tracking variables
