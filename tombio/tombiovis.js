@@ -1512,7 +1512,8 @@
         global.contextMenu.contexts = {};
 
         //Initialise the ul element which will form basis of menu
-        global.contextMenu.menu = $("<ul>").css("white-space","nowrap").css("padding","0").appendTo('#tombioMain')
+        global.contextMenu.menu = $("<ul>").css("white-space","nowrap").appendTo('#tombioMain')
+            .addClass("contextMenu")
             .css("position", "absolute")
             .css("display", "none")
             .css("z-index", 999999);
@@ -1553,7 +1554,7 @@
             //Add item if it does not already exist
             if (!(label in global.contextMenu.items)) {
 
-                var item = $("<li>").text(label).click(f);
+                var item = $("<li>").append($("<div>").text(label).click(f));
                 global.contextMenu.menu.append(item);
                 global.contextMenu.menu.menu("refresh");
                 global.contextMenu.items[label] = item;
