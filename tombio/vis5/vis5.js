@@ -160,7 +160,7 @@
                 if (d.children) {
                     return color(d.depth);
                 } else {
-                    return scaleOverall(d.data.data.taxon.scoreoverall);
+                    return scaleOverall(d.data.data.taxon.scoreoverall);     
                 }
             })
 
