@@ -1,5 +1,6 @@
 ﻿(function ($, core) {
 
+
     "use strict";
 
     //Global object to reference all the global variables.
