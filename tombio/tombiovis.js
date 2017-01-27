@@ -137,7 +137,7 @@
         });
         //Check that numeric attributes all contain valid values
         var value;
-        //Following base on this regexp for any valid javascript 
+        //Following is based on this regexp for any valid javascript 
         //number (from eloquent Javascript) /^(\+|-|)(\d+(\.\d*)?|\.\d+)([eE](\+|-|)\d+)?$/
         var regexNumericValue = /^(\d+(\.\d*)?|\.\d+)$/;
         var regexNumericRange = /^\[(\d+(\.\d*)?|\.\d+)-(\d+(\.\d*)?|\.\d+)\]$/;
@@ -148,6 +148,7 @@
                 if (!(value == "" ||
                     value == "n/a" ||
                     value == "?" ||
+                    value.substr(0,1) == "#" || //ignores comment out character state values
                     regexNumericValue.test(value) ||
                     regexNumericRange.test(value))) {
                     errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a' and no value.)"));
@@ -490,6 +491,11 @@
                         translatedValues = translatedValues + " | " + translatedValue;
                     } else {
                         translatedValues = translatedValue;
+                    }
+
+                    //If value starts with a hash, it is a comment and to be ignored
+                    if (translatedValues.length > 0 && translatedValues.substr(0, 1) == "#") {
+                        translatedValues = "";
                     }
                 });
 

@@ -7,11 +7,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Changed
+
+### Added
+
+### Fixed
+
+## [1.2.2] - 2017-01-18
+
+### Added
+
+- Added touch punch javascript library to improve performance on touch screen devices.
+- Added an Excel version 97-2003 of the biscuits DB for people on older versions.
+
+### Changed
+
 - Migrated to latest release of D3 (4.4.0).
 - Migrated to latest release of jQuery (3.1.1).
 - Migrated to latest release of jQuery UI (1.12.1).
 - Migrated to latest release of pqGrid (2.1.0).
 - Migrated to latest release of pqSelect (1.3.2).
+
+## Fixed
+
+- Updated load.js to deal with problems with CSVs generated older versions of Excel.
 
 ## [1.2.1] - 2016-12-16
 
