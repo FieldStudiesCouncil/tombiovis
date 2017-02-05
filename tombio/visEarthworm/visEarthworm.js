@@ -1,7 +1,7 @@
 ﻿
 (function ($, core) {
 
-    console.log("visEarthworms", $.fn.jquery)
+    //console.log("visEarthworm", $.fn.jquery)
 
     //Template visualisation that inherits from visP.
     "use strict";
@@ -90,13 +90,6 @@
             { kbname: "Colour", label: "Colour" },
             { kbname: "TPShape", label: "TP shape" }
         ];
-
-        //Load the CSS file
-        //var l = document.createElement('link');
-        //l.rel = 'stylesheet';
-        //l.type = 'text/css';
-        //l.href = tombiopath + '/visEarthworm/earthworms.css';
-        //document.querySelector('head').appendChild(l);
 
         //Load the imported HTML
         $(document).ready(function () {
@@ -258,148 +251,147 @@
             });
             $("#tombioHelpTabs").tabs();
 
-            //Load data and create worm objects
-            d3.csv(tombiopath + "/visEarthworm/earthworms.csv?ver=" + core.tombiover, function (data) {
+            //Add visEarthworm object to each core.taxa object to specifically
+            //store stuff related to the visEarthworm visualisation.
+            core.taxa.forEach(function (t) {
+                t.visEarthworm = {};
+            });
 
-                tombio.data = data;
+            //Initialise 
+            tombio.worms = d3.select("#multiaccess").selectAll(".worm")
+                .data(core.taxa)
+                .enter()
+                .append("g")
+                .attr("class", "worm")
+                .on("click", function (d) {
+                    if (d.visEarthworm.height == tombio.taxheight) {
+                        d.visEarthworm.height = tombio.taxexpanded;
+                    } else {
+                        d.visEarthworm.height = tombio.taxheight;
+                    }
+                    configureChart();
+                });
 
-                tombio.worms = d3.select("#multiaccess").selectAll(".worm")
-                    .data(data)
-                    .enter()
-                    .append("g")
-                    .attr("class", "worm")
-                    .on("click", function (d) {
-                        if (d.height == tombio.taxheight) {
-                            d.height = tombio.taxexpanded;
-                        } else {
-                            d.height = tombio.taxheight;
-                        }
-                        configureChart();
-                    });
+            tombio.worms.append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("height", tombio.taxheight)
+                .attr("width", tombio.taxwidth);
 
-                tombio.worms.append("rect")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("rx", 5)
-                    .attr("ry", 5)
-                    .attr("height", tombio.taxheight)
-                    .attr("width", tombio.taxwidth);
+            //Label with scientific names
+            tombio.worms.append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("class", "scientificnames")
+                .style("opacity", 0)
+                .text(function (d) {
+                    return d.Taxon.kbValue;
+                });
 
-                //Label with scientific names
+            //Add text that specifies the knowledgebase values for 
+            //each taxon
+            for (var i = 0; i < characters.length; i++) {
                 tombio.worms.append("text")
                     .attr("x", 0)
                     .attr("y", 0)
-                    .attr("class", "scientificnames")
+                    .attr("class", "charactervalue")
                     .style("opacity", 0)
                     .text(function (d) {
-                        return d.ScientificName;
+                        var val = String(d[characters[i].kbname].kbValue);
+                        return characters[i].label + ": " + val.replace("[", "").replace("]", "").replace(" |", ",").replace("|", ",");
                     });
+            }
 
-                //Add text that specifies the knowledgebase values for 
-                //each taxon
-                for (var i = 0; i < characters.length; i++) {
-                    tombio.worms.append("text")
-                        .attr("x", 0)
-                        .attr("y", 0)
-                        .attr("class", "charactervalue")
-                        .style("opacity", 0)
-                        .text(function (d) {
-                            var val = String(d[characters[i].kbname]);
-                            return characters[i].label + ": " + val.replace("[", "").replace("]", "");
-                        });
-                }
+            //Add the Info image
+            tombio.worms.append("image")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", tombio.imagedim)
+                .attr("height", tombio.imagedim)
+                .style("opacity", 0)
+                .attr("xlink:href", tombiopath + "/visEarthworm/resources/info20.png")
+                .attr("class", "infoimage")
+                .attr("id", function (d, i) {
+                    return "infoimage-" + i;
+                })
+                .on("click", function (d, i) {
 
-                //Add the Info image
-                tombio.worms.append("image")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("width", tombio.imagedim)
-                    .attr("height", tombio.imagedim)
-                    .style("opacity", 0)
-                    .attr("xlink:href", tombiopath + "/visEarthworm/resources/info20.png")
-                    .attr("class", "infoimage")
-                    .attr("id", function (d, i) {
-                        return "infoimage-" + i;
-                    })
-                    .on("click", function (d, i) {
+                    if ($(this).css("opacity") > 0) {
+                        d3.event.stopPropagation();
 
-                        if ($(this).css("opacity") > 0) {
-                            d3.event.stopPropagation();
+                        $("#tombioPopup").dialog("open");
 
-                            $("#tombioPopup").dialog("open");
+                        $('#tombioPopupTitleText').html(d.Taxon.kbValue);
+                        $('#tombioInfoSpName').html(d.Taxon.kbValue);
+                        $('#tombioInfoSpAccount').html(d.AccountPage.kbValue);
+                        $('#tombioInfoSpTable').html(d.TablePage.kbValue);
 
-                            $('#tombioPopupTitleText').html(d.ScientificName);
-                            $('#tombioInfoSpName').html(d.ScientificName);
-                            $('#tombioInfoSpAccount').html(d.AccountPage);
-                            $('#tombioInfoSpTable').html(d.TablePage);
+                        $("#tombioPopup").dialog('option', 'title', d.Taxon.kbValue);
 
-                            $("#tombioPopup").dialog('option', 'title', d.ScientificName);
+                        tombio.tvk = d.TVK.kbValue;
+                        injectMap();
+                    }
+                });
 
-                            tombio.tvk = d.TVK;
-                            injectMap();
+            //Indicator circles
+            for (var i = 1; i <= 10; i++) {
+                var g = tombio.worms.append("g").attr("class", "indg");
+
+                g.append("circle")
+                    .attr("class", "indicator" + i)
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("r", function () {
+                        if (i < 3) {
+                            return tombio.indrad;
+                        } else if (i < 9) {
+                            return tombio.indrad * 0.8;
+                        } else {
+                            return tombio.indrad * 0.6;
                         }
                     });
+                g.append("text").attr("class", "indText");
+            }
 
-                //Indicator circles
-                for (var i = 1; i <= 10; i++) {
-                    var g = tombio.worms.append("g").attr("class", "indg");
+            d3.select("#multiaccess")
+                .attr("width", tombio.taxwidth * 2 + tombio.taxspace * 3);
 
-                    g.append("circle")
-                        .attr("class", "indicator" + i)
-                        .attr("cx", 0)
-                        .attr("cy", 0)
-                        .attr("r", function () {
-                            if (i < 3) {
-                                return tombio.indrad;
-                            } else if (i < 9) {
-                                return tombio.indrad * 0.8;
-                            } else {
-                                return tombio.indrad * 0.6;
-                            }
-                        });
-                    g.append("text").attr("class", "indText");
-                }
+            d3.select("#legend")
+                .attr("width", 130);
 
-                d3.select("#multiaccess")
-                    .attr("width", tombio.taxwidth * 2 + tombio.taxspace * 3);
+            //Add attributes
+            for (var i = 0; i < core.taxa.length; i++) {
+                core.taxa[i].visEarthworm.height = tombio.taxheight;
+            }
 
-                d3.select("#legend")
-                        .attr("width", 130);
+            //Morpho label configuration
+            $(".morphoLabel")
+                .hover(
+                    function () {
+                        // do this on hover
+                        $(this).animate({
+                            'color': '#D55E00'
+                        }, 'fast');
+                    },
+                    function () {
+                        // do this on hover out
+                        $(this).animate({
+                            'color': 'black'
+                        }, 'fast');
+                    }
+                )
+                .click(function () {
+                    //Open help dialog with the correct tab pre-selected
+                    var index = $('#tombioHelpTabs a[href="#tombioHelpTab-' + $(this).attr("morphoKey") + '"]').parent().index();
+                    $("#tombioHelpTabs").tabs("option", "active", index);
+                    $("#tombioHelpDialog").dialog("open");
+                });
+            //Initialise option
+            $('#tolerance').spinner("value", 2);
 
-
-                //Add attributes
-                for (var i = 0; i < tombio.data.length; i++) {
-                    tombio.data[i].height = tombio.taxheight;
-                }
-
-                //Morpho label configuration
-                $(".morphoLabel")
-                    .hover(
-                        function () {
-                            // do this on hover
-                            $(this).animate({
-                                'color': '#D55E00'
-                            }, 'fast');
-                        },
-                        function () {
-                            // do this on hover out
-                            $(this).animate({
-                                'color': 'black'
-                            }, 'fast');
-                        }
-                    )
-                    .click(function () {
-                        //Open help dialog with the correct tab pre-selected
-                        var index = $('#tombioHelpTabs a[href="#tombioHelpTab-' + $(this).attr("morphoKey") + '"]').parent().index();
-                        $("#tombioHelpTabs").tabs("option", "active", index);
-                        $("#tombioHelpDialog").dialog("open");
-                    });
-                
-                //Initialise option
-                $('#tolerance').spinner("value", 2);
-
-                configureChart();
-            });
+            configureChart();
         }
 
         function makeMenuSelect(id) {
@@ -523,6 +515,7 @@
 
             if (val.indexOf('[') === 0) {
 
+                //A numeric range
                 var r1 = val.substr(1, val.length - 2);
                 var delim;
                 if (val.indexOf("-") > -1) {
@@ -534,6 +527,15 @@
                 for (var i = 0; i < r2.length; i++) {
                     retList.push(r2[i].trim());
                 }
+            } else if (val.indexOf('|') > 0) {
+                //The 'or' character is used. For earthworms at the time of writing
+                //this is only used for text characters and only two options in 
+                //every case. So these are treated as a range for the purposes of
+                //colouration. Return an array containing the two values.
+                var splitVals = val.split("|");
+                retList = splitVals.map(function(v) {
+                    return v.trim();
+                });
             } else {
                 retList.push(val);
             }
@@ -619,35 +621,16 @@
             }
         }
 
-        function sortTaxa2(array, lastPosAttr) {
+        function sortTaxa(array, lastPosAttr) {
             return array.sort(function (a, b) {
 
-                var aScore = a.matcharray.reduce(segScore, 0);
-                var bScore = b.matcharray.reduce(segScore, 0);
+                var aScore = a.visEarthworm.matcharray.reduce(segScore, 0);
+                var bScore = b.visEarthworm.matcharray.reduce(segScore, 0);
 
                 if (bScore > aScore) return -1;
                 if (aScore > bScore) return 1;
                 if (bScore == aScore) {
-                    if (a[lastPosAttr] > b[lastPosAttr]) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                }
-            });
-        }
-
-        function sortTaxa(array, lastPosAttr) {
-            return array.sort(function (a, b) {
-
-                if (a.for > b.for) return -1;
-                if (b.for > a.for) return 1;
-                if (a.for == b.for) {
-                    //if (a.ScientificName > b.ScientificName) return 1;
-                    //if (b.ScientificName > a.ScientificName) return -1;
-                    // return 0;
-
-                    if (a[lastPosAttr] > b[lastPosAttr]) {
+                    if (a.visEarthworm[lastPosAttr] > b.visEarthworm[lastPosAttr]) {
                         return 1;
                     } else {
                         return -1;
@@ -707,37 +690,37 @@
 
             //Update data array to reflect whether or not each taxa meets
             //the criteria specified by user.
-            for (i = 0; i < tombio.data.length; i++) {
+            for (i = 0; i < core.taxa.length; i++) {
 
-                var taxon = tombio.data[i];
+                var taxon = core.taxa[i];
 
                 //Taxon-level initialisations
-                taxon.matcharray = [null, null, null, null, null, null, null, null, null, null];
+                taxon.visEarthworm.matcharray = [null, null, null, null, null, null, null, null, null, null];
 
-                if (taxon.HeadShape == headtype) {
-                    taxon.matcharray[0] = 0;
+                if (taxon.HeadShape.kbValue == headtype) {
+                    taxon.visEarthworm.matcharray[0] = 0;
                 } else if (headtype != "") {
-                    taxon.matcharray[0] = 100;
+                    taxon.visEarthworm.matcharray[0] = 100;
                 }
 
-                if (taxon.SetaeSpacing == setaespacing) {
-                    taxon.matcharray[1] = 0;
+                if (taxon.SetaeSpacing.kbValue == setaespacing) {
+                    taxon.visEarthworm.matcharray[1] = 0;
                 } else if (setaespacing != "") {
-                    taxon.matcharray[1] = 100;
+                    taxon.visEarthworm.matcharray[1] = 100;
                 }
-                taxon.matcharray[2] = segDiff(malepore, taxon.MalePore);
-                taxon.matcharray[3] = segDiff(clitstart, taxon.CliStart);
-                taxon.matcharray[4] = segDiff(clitend, taxon.CliEnd);
-                taxon.matcharray[5] = segDiff(clitwidth, taxon.CliWidth);
-                taxon.matcharray[6] = segDiff(tpstart, taxon.TPStart);
-                taxon.matcharray[7] = segDiff(tpend, taxon.TPEnd);
+                taxon.visEarthworm.matcharray[2] = segDiff(malepore, taxon.MalePore.kbValue);
+                taxon.visEarthworm.matcharray[3] = segDiff(clitstart, taxon.CliStart.kbValue);
+                taxon.visEarthworm.matcharray[4] = segDiff(clitend, taxon.CliEnd.kbValue);
+                taxon.visEarthworm.matcharray[5] = segDiff(clitwidth, taxon.CliWidth.kbValue);
+                taxon.visEarthworm.matcharray[6] = segDiff(tpstart, taxon.TPStart.kbValue);
+                taxon.visEarthworm.matcharray[7] = segDiff(tpend, taxon.TPEnd.kbValue);
 
-                taxon.matcharray[8] = sizeDiff(bodylength, taxon.Length);
-                taxon.matcharray[9] = sizeDiff(bodydiameter, taxon.Diameter);
+                taxon.visEarthworm.matcharray[8] = sizeDiff(bodylength, taxon.Length.kbValue);
+                taxon.visEarthworm.matcharray[9] = sizeDiff(bodydiameter, taxon.Diameter.kbValue);
 
-                if (taxon.matcharray[0] + taxon.matcharray[1] > 0) {
+                if (taxon.visEarthworm.matcharray[0] + taxon.visEarthworm.matcharray[1] > 0) {
                     taxaout.push(taxon);
-                } else if (taxon.matcharray.reduce(segDiscrepancy, 0) > tombio.tolerance) {
+                } else if (taxon.visEarthworm.matcharray.reduce(segDiscrepancy, 0) > tombio.tolerance) {
                     taxaout.push(taxon);
                 } else {
                     taxain.push(taxon);
@@ -810,20 +793,20 @@
             //Sort the lists of taxa that are in and taxa that are out based
             //their matching scores and their previous positions.
             //These lists reference the actual items in the data array.
-            sortTaxa2(taxain, "lastPosInTaxain");
-            sortTaxa2(taxaout, "lastPosInTaxaout");
+            sortTaxa(taxain, "visEarthworm.lastPosInTaxain");
+            sortTaxa(taxaout, "visEarthworm.lastPosInTaxaout");
 
             //Record the current position in each list so that when next sorted, this
             //can be taken into account in order to minimise travel through list. If
             //this is not used, then priority will be given to taxa that come first in
             //KB which is arbitrary.
             for (var i = 0; i < taxain.length; i++) {
-                taxain[i].lastPosInTaxain = i;
-                taxain[i].lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
+                taxain[i].visEarthworm.lastPosInTaxain = i;
+                taxain[i].visEarthworm.lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
             }
             for (var i = 0; i < taxaout.length; i++) {
-                taxaout[i].lastPosInTaxaout = i;
-                taxaout[i].lastPosInTaxain = 100 + i; //Ensures enters at the bottom (all else being equal)
+                taxaout[i].visEarthworm.lastPosInTaxaout = i;
+                taxaout[i].visEarthworm.lastPosInTaxain = 100 + i; //Ensures enters at the bottom (all else being equal)
             }
 
             //Update the data array items to reflect the position of each taxon
@@ -831,17 +814,17 @@
             //in the D3 functions.
             var yCursor = 0;
             for (i = 0; i < taxain.length; i++) {
-                taxain[i].x = tombio.taxspace;
-                taxain[i].y = yCursor + tombio.taxspace;
-                yCursor = taxain[i].y + taxain[i].height;
+                taxain[i].visEarthworm.x = tombio.taxspace;
+                taxain[i].visEarthworm.y = yCursor + tombio.taxspace;
+                yCursor = taxain[i].visEarthworm.y + taxain[i].visEarthworm.height;
             }
 
             yCursor = 0;
             for (i = 0; i < taxaout.length; i++) {
-                taxaout[i].x = tombio.taxwidth + 2 * tombio.taxspace;
+                taxaout[i].visEarthworm.x = tombio.taxwidth + 2 * tombio.taxspace;
                 //taxaout[i].y = i * (tombio.taxheight + tombio.taxspace) + tombio.taxspace;
-                taxaout[i].y = yCursor + tombio.taxspace;
-                yCursor = taxaout[i].y + taxaout[i].height;
+                taxaout[i].visEarthworm.y = yCursor + tombio.taxspace;
+                yCursor = taxaout[i].visEarthworm.y + taxaout[i].visEarthworm.height;
             }
 
             //Render the graphics elements
@@ -851,13 +834,13 @@
                 .duration(1000)
                 .delay(tombio.delay)
                 .attr("x", function (d) {
-                    return d.x;
+                    return d.visEarthworm.x;
                 })
                 .attr("y", function (d) {
-                    return d.y;
+                    return d.visEarthworm.y;
                 })
                 .attr("height", function (d) {
-                    return d.height;
+                    return d.visEarthworm.height;
                 });
 
             //Scientific names
@@ -867,15 +850,15 @@
                 .delay(tombio.delay)
                 .style("opacity", 1)
                 .attr("x", function (d) {
-                    return d.x + tombio.taxspace;
+                    return d.visEarthworm.x + tombio.taxspace;
                 })
                 .attr("y", function (d, i) {
-                    return 1 + d.y + tombio.taxheight / 2 - 2;
+                    return 1 + d.visEarthworm.y + tombio.taxheight / 2 - 2;
                 });
 
             tombio.worms.select("text")
                 .text(function (d) {
-                    return d.ScientificName + " - ";
+                    return d.Taxon.kbValue + " - ";
                 })
                 .append("tspan")
                 .style("font-style", "normal")
@@ -885,7 +868,7 @@
                 .text(function (d) {
 
                     //console.log(d.ScientificName + " - " + d.matcharray);
-                    return d.matcharray.reduce(totalSegDiscrepancy, 0);
+                    return d.visEarthworm.matcharray.reduce(totalSegDiscrepancy, 0);
                 });
 
             //Character values
@@ -894,7 +877,7 @@
                 .duration(1000)
                 .delay(tombio.delay)
                 .style("opacity", function (d, i, j) {
-                    if (d.height == tombio.taxheight) {
+                    if (d.visEarthworm.height == tombio.taxheight) {
                         //Taxon not expanded
                         return 0;
                     } else {
@@ -903,10 +886,10 @@
                     }
                 })
                 .attr("x", function (d) {
-                    return d.x + 2 * (tombio.taxspace + tombio.indrad);
+                    return d.visEarthworm.x + 2 * (tombio.taxspace + tombio.indrad);
                 })
                 .attr("y", function (d, i) {
-                    return (d.y + tombio.taxheight + tombio.indrad - 1) + (i * (2 * (tombio.indrad + tombio.taxspace)));
+                    return (d.visEarthworm.y + tombio.taxheight + tombio.indrad - 1) + (i * (2 * (tombio.indrad + tombio.taxspace)));
                 });
 
             //Images
@@ -915,7 +898,7 @@
                 .duration(1000)
                 .delay(tombio.delay)
                 .style("opacity", function (d, i, j) {
-                    if (d.height == tombio.taxheight) {
+                    if (d.visEarthworm.height == tombio.taxheight) {
                         //Taxon not expanded
                         return 0;
                     } else {
@@ -924,10 +907,10 @@
                     }
                 })
                 .attr("x", function (d) {
-                    return d.x + tombio.taxwidth - tombio.imagedim - 3;
+                    return d.visEarthworm.x + tombio.taxwidth - tombio.imagedim - 3;
                 })
                 .attr("y", function (d, i) {
-                    return d.y + tombio.imagedim / 2 - 2;
+                    return d.visEarthworm.y + tombio.imagedim / 2 - 2;
                 });
 
             ///
@@ -945,53 +928,53 @@
                 .duration(1000)
                 .delay(tombio.delay)
                 .attr("cx", function (d, i, j) {
-                    if (d.height == tombio.taxheight) {
+                    if (d.visEarthworm.height == tombio.taxheight) {
                         //Taxon not expanded, so arrange indicators in a row
                         //return d.x + tombio.taxspace + tombio.indrad + (i * (2 * tombio.indrad + tombio.taxspace));
 
                         if (i < 2) {
-                            var startPos = d.x;
+                            var startPos = d.visEarthworm.x;
                             var j = i;
                             var radFactor = 1;
                         } else if (i < 8) {
-                            var startPos = d.x + 2 * (2 * tombio.indrad + tombio.taxspace);
+                            var startPos = d.visEarthworm.x + 2 * (2 * tombio.indrad + tombio.taxspace);
                             var j = i - 2;
                             var radFactor = 0.8;
                         } else {
-                            var startPos = d.x + 2 * (2 * tombio.indrad + tombio.taxspace) + 6 * (1.6 * tombio.indrad + tombio.taxspace);
+                            var startPos = d.visEarthworm.x + 2 * (2 * tombio.indrad + tombio.taxspace) + 6 * (1.6 * tombio.indrad + tombio.taxspace);
                             var j = i - 8;
                             var radFactor = 0.6;
                         }
                         return startPos + tombio.taxspace + radFactor * tombio.indrad + (j * (2 * radFactor * tombio.indrad + tombio.taxspace));
                     } else {
                         //Taxon expanded, so arrange indicators in a column
-                        return d.x + tombio.taxspace + tombio.indrad;
+                        return d.visEarthworm.x + tombio.taxspace + tombio.indrad;
                     }
                 })
                 .attr("cy", function (d, i, j) {
-                    if (d.height == tombio.taxheight) {
+                    if (d.visEarthworm.height == tombio.taxheight) {
                         //Taxon not expanded, so arrange indicators in a row
-                        return d.y + tombio.taxheight - tombio.indrad - 2;
+                        return d.visEarthworm.y + tombio.taxheight - tombio.indrad - 2;
                     } else {
                         //Taxon expanded, so arrange indicators in a column
-                        return (d.y + tombio.taxheight) + (i * (2 * (tombio.indrad + tombio.taxspace)));
+                        return (d.visEarthworm.y + tombio.taxheight) + (i * (2 * (tombio.indrad + tombio.taxspace)));
                     }
                 })
                 .style("fill", function (d, i) {
-                    if (d.matcharray[i] != null) {
+                    if (d.visEarthworm.matcharray[i] != null) {
                         if (i < 2) {
-                            return indOthColour(d.matcharray[i]);
+                            return indOthColour(d.visEarthworm.matcharray[i]);
                         } else if (i < 8) {
-                            if (d.matcharray[i] > tombio.tolerance + 1) {
+                            if (d.visEarthworm.matcharray[i] > tombio.tolerance + 1) {
                                 return indSegColour(tombio.tolerance + 1);
                             } else {
-                                return indSegColour(d.matcharray[i]);
+                                return indSegColour(d.visEarthworm.matcharray[i]);
                             }
                         } else {
-                            if (d.matcharray[i] > 1) {
+                            if (d.visEarthworm.matcharray[i] > 1) {
                                 return 1;
                             } else {
-                                return indSizeColour(d.matcharray[i]);
+                                return indSizeColour(d.visEarthworm.matcharray[i]);
                             }
                         }
                     } else {
@@ -1002,9 +985,9 @@
             //Indicator circles
             tombio.worms.selectAll(".indText")
                 .text(function (d, i) {
-                    if (d.matcharray[i] != null) {
+                    if (d.visEarthworm.matcharray[i] != null) {
                         if (i > 1 && i < 8) {
-                            return d.matcharray[i];
+                            return d.visEarthworm.matcharray[i];
                         } else {
                             return "";
                         }
@@ -1023,12 +1006,12 @@
                     if (taxaout.length == 0) {
                         heightout = 0;
                     } else {
-                        heightout = taxaout[taxaout.length - 1].y + taxaout[taxaout.length - 1].height
+                        heightout = taxaout[taxaout.length - 1].visEarthworm.y + taxaout[taxaout.length - 1].visEarthworm.height
                     }
                     if (taxain.length == 0) {
                         heightin = 0;
                     } else {
-                        heightin = taxain[taxain.length - 1].y + taxain[taxain.length - 1].height
+                        heightin = taxain[taxain.length - 1].visEarthworm.y + taxain[taxain.length - 1].visEarthworm.height
                     }
                     return Math.max(heightin, heightout);
                 });
@@ -1047,7 +1030,7 @@
 
             ind.attr("oR", ind.attr("r"));
             ind.attr("r", function () {
-                if (d.matcharray[i] != null) {
+                if (d.visEarthworm.matcharray[i] != null) {
                     if (i > 1 && i < 8) {
                         return Number(ind.attr("r")) + tombio.taxspace;
                     } else {
@@ -1058,7 +1041,7 @@
                 }
             })
                 .attr("cursor", function () {
-                    if (d.matcharray[i] != null) {
+                    if (d.visEarthworm.matcharray[i] != null) {
                         if (i > 1 && i < 8) {
                             return "none";
                         } else {
@@ -1092,17 +1075,11 @@
             var uniqueobjs = [];
             var uniquevals = [];
 
-            var legenditems = d3.select("#legend").selectAll(".legenditem")
-                .data(uniqueobjs);
-
-            legenditems.exit()
-                .remove();
-
             //Get the unique values for the selected attribute
             if (colourby != "") {
-                for (i = 0; i < tombio.data.length; i++) {
+                for (i = 0; i < core.taxa.length; i++) {
 
-                    var val = tombio.data[i][colourby];
+                    var val = core.taxa[i][colourby].kbValue;
                     var vals = getList(val);
                     for (var j = 0; j < vals.length; j++) {
 
@@ -1126,9 +1103,9 @@
                 var domainMin = 1000;
                 var domainMax = 0;
                 //colourDomain 
-                for (var i = 0; i < tombio.data.length; i++) {
+                for (var i = 0; i < core.taxa.length; i++) {
 
-                    iRange = getList(tombio.data[i][colourby]);
+                    iRange = getList(core.taxa[i][colourby].kbValue);
 
                     if (iRange != "") {
                         iMin = iRange[0];
@@ -1183,7 +1160,7 @@
                             //Value of colourby column is blank for this taxon
                             return "lightgrey";
                         } else {
-                            var colours = getList(d[colourby]);
+                            var colours = getList(d[colourby].kbValue);
                             if (colours.length == 1) {
                                 if (colourby == "Length)") {
                                     return colour(Math.log(colours[0]));
@@ -1193,9 +1170,9 @@
                             } else {
                                 //There are two colours - make a gradient between them.
                                 if (colourby == "Length") {
-                                    return "url(#" + getGradient(colour(Math.log(colours[0])), colour(Math.log(colours[1])), d[colourby]) + ")";
+                                    return "url(#" + getGradient(colour(Math.log(colours[0])), colour(Math.log(colours[1])), d[colourby].kbValue) + ")";
                                 } else {
-                                    return "url(#" + getGradient(colour(colours[0]), colour(colours[1]), d[colourby]) + ")";
+                                    return "url(#" + getGradient(colour(colours[0]), colour(colours[1]), d[colourby].kbValue) + ")";
                                 }
                             }
                         }
@@ -1206,9 +1183,8 @@
                 });
 
             //Create the legend objects
-            //d3.selectAll('#legenditem')
 
-            //var legenditems = d3.select("#legend").selectAll(".legenditem");
+            d3.select("#legend").selectAll(".legenditem").remove();
 
             if (colourby == "Length" || colourby == "Diameter") {
                 var keyColour = [];
@@ -1229,11 +1205,11 @@
                 var legenditems = d3.select("#legend").selectAll(".legenditem").data(uniqueobjs);
             }
 
-            legenditems.enter()
+            var legenditemsEnter = legenditems.enter()
                 .append("g")
                 .attr("class", "legenditem");
 
-            legenditems.append("rect")
+            legenditemsEnter.append("rect")
                 .attr("x", 0)
                 .attr("y", function (d, i) {
                     return tombio.taxspace + i * (tombio.taxheight + tombio.taxspace)
@@ -1243,7 +1219,6 @@
                 .attr("height", tombio.taxheight)
                 .attr("width", 130)
                 .attr("fill", function (d) {
-
                     if (d.colval == "") {
                         return "lightgrey";
                     } else if (d.colval.substr(0, 5) == "url(#") {
@@ -1253,13 +1228,14 @@
                     }
                 });
 
-            legenditems.append("text")
+            legenditemsEnter.append("text")
                 .attr("class", "legend")
                 .attr("x", tombio.taxspace)
                 .attr("y", function (d, i) {
                     return tombio.taxspace + i * (tombio.taxheight + tombio.taxspace) + tombio.taxheight * 2 / 3;
                 })
                 .text(function (d) {
+                    
                     if (d.colval.substr(0, 5) == "url(#") {
                         return keyGradientText;
                     } else {
