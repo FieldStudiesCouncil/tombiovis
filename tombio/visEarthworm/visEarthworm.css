@@ -1,0 +1,300 @@
+﻿
+body {
+    font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; 
+}
+
+.help-pictures-div {
+    float: right;
+    margin-left: 2em;
+}
+.help-picture {
+    width: 180px;
+}
+.help-text {
+    position: relative;
+    top: -1em;
+}
+.help-picture-caption{;
+    margin: 0 0 1.5em 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.ui-widget-overlay {
+    background: #077678 repeat;
+    opacity: 0.7;
+}
+
+.booklink {
+    font-style:italic;
+    text-decoration: underline;
+}
+
+#tombioHelpDialog {
+    padding: 0;
+}
+
+#tombioHelpTabs { 
+    position: relative; 
+    padding-left: 7.5em; 
+    border-width: 0px; 
+} 
+#tombioHelpTabs .ui-tabs-nav { 
+    background: none; 
+    border-left: none;
+    border-top: none;
+    border-bottom: none;
+    position: absolute; 
+    left: 0.25em; 
+    top: 0.25em; 
+    bottom: 0.25em; 
+    width: 7em; 
+    padding: 0.2em 0 0.2em 0.2em; 
+    -moz-border-radius: 0px 0px 0px 0px; 
+    -webkit-border-radius: 0px 0px 0px 0px; 
+    border-radius: 0px 0px 0px 0px; 
+} 
+#tombioHelpTabs .ui-tabs-nav li { 
+    right: 1px; 
+    width: 100%; 
+    border-right: none; 
+    border-bottom-width: 1px !important; 
+    -moz-border-radius: 4px 0px 0px 4px; 
+    -webkit-border-radius: 4px 0px 0px 4px; 
+    border-radius: 4px 0px 0px 4px; 
+    overflow: hidden; 
+} 
+#tombioHelpTabs .ui-tabs-nav li.ui-tabs-selected, 
+#tombioHelpTabs .ui-tabs-nav li.ui-state-active { 
+    border-right: 1px solid transparent; 
+} 
+#tombioHelpTabs .ui-tabs-nav li a { 
+    float: right; 
+    width: 100%; 
+    text-align: right; 
+} 
+#tombioHelpTabs .ui-tabs-panel { 
+    height: 200px; 
+}
+
+#tombioPopup { 
+    overflow:hidden;   /*Stops scroll-bars appearing */
+} 
+#tombioPopupTabs { 
+    padding: 0px; 
+    background: none; 
+    border-width: 0px; 
+} 
+#tombioPopupTabs .ui-tabs-nav { 
+    padding-left: 0px; 
+    background: transparent; 
+    border-width: 0px 0px 1px 0px; 
+    -moz-border-radius: 0px; 
+    -webkit-border-radius: 0px; 
+    border-radius: 0px; 
+} 
+#tombioPopupTabs .ui-tabs-panel { 
+    border-width: 0px;
+}
+
+#tombioPopupTabs1 {
+    position: relative;
+}
+
+#tombioPopupTabs2 {
+    position: relative;
+}
+
+#tombioMapDiv { 
+    position: relative;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+} 
+#tombioPopupMap {
+    position: relative;
+    top: -40px;
+    left: -20px;
+}
+
+#tombioControlsTable {
+     margin: 0;
+}
+
+table {
+     background-color: transparent;
+     border: 0px;
+}
+tr {
+     background-color: transparent;
+     border: 0px;
+}
+td {
+     background-color: transparent;
+     border: 0px;
+}
+
+tbody {
+     border: 0px;
+}
+
+#tombioMapControls {
+    position: absolute;
+    top: 10px;
+    left: 0px;
+}
+
+#tombioSpInfo {
+    position: absolute;
+    top: 10px;
+    left: 0px;
+}
+
+.scientificnames {
+    font-family: Arial;
+    font-size: 13px;
+    stroke-width: 0px;
+    font-style: italic;
+    fill: black;
+    pointer-events: none;
+}
+
+.legend {
+    font-family: Arial;
+    font-size: 13px;
+    stroke-width: 0px;
+    fill: black;
+}
+
+.charactervalue {
+    font-family: Arial;
+    font-size: 11px;
+    stroke-width: 0px;
+    fill: black;
+    pointer-events: none;
+}
+
+
+.ui-widget {
+    font-size: 12px;
+}
+
+#tombioMain {
+    font-size: 12px;
+    margin-left: 50px;
+}
+
+td {
+    padding: 2px;
+}
+select {
+    width: 130px;
+}
+.earthwormButton {
+    width: 150px;
+}
+
+#tombiod3Earthworm .ui-spinner {
+    margin-bottom: 0px;
+    width: 127px;
+}
+
+#tombiod3Earthworm .ui-selectmenu-button {
+    width: 102px !important;
+}
+
+.morphoLabel{    
+    cursor: help;
+}
+svg#legend {
+    max-height: 2000px;
+}
+
+.morphoLabelNoLink, .morphoLabel{
+    font-size: 1.2em;
+    text-align: right;
+    padding-right: 0.5em;
+    color: rgb(50, 50, 50);
+}
+
+#multiaccess {
+    /*overflow: visible;*/
+}
+
+#legend {
+    /*background-color: red;*/
+    float:right;
+}
+
+#tombioControls {
+    float: left;
+}
+
+.worm {
+    fill: lightgrey;
+}
+rect {
+    opacity: 0.5;
+}
+
+
+.indText {
+    text-anchor: middle;
+    /*alignment-baseline: central;*/
+    pointer-events: none;
+    fill: white;
+    font-weight: bold;
+}
+.indmatch {
+    fill: #0072B2; /*Blue http://jfly.iam.u-tokyo.ac.jp/color/ */
+}
+.indnomatch {
+    fill: #D55E00; /*Vermillion http://jfly.iam.u-tokyo.ac.jp/color/ */
+}
+
+.indnone {
+    fill: white;
+}
+
+.resetImage {
+    width: 16px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+#headerTaxaW {
+    float: left;
+    height: 20px;
+    position: relative;
+    font-size: 1.4em;
+    color: rgb(128, 128, 128);
+}
+
+#candidateTaxaW {
+    position: absolute;
+}
+
+#excludedTaxaW {
+    position: absolute;
+}
+
+.confidenceLevel {
+    font-family: "sans-serif";
+    font-weight: bold;
+    display: inline-block;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    border: solid 1px black;
+    font-size: 12px;
+    color: black;
+    line-height: 12px;
+    text-align: center;
+    background: #D55E00; /*Vermillion*/
+    margin-left: 10px;
+}
+
+
+
