@@ -194,13 +194,15 @@ select {
 .earthwormButton {
     width: 150px;
 }
-.ui-spinner {
+
+#tombiod3Earthworm .ui-spinner {
+    margin-bottom: 0px;
     width: 127px;
 }
-input.spinner {
-    height: 15px;
-}
 
+#tombiod3Earthworm .ui-selectmenu-button {
+    width: 102px !important;
+}
 
 .morphoLabel{    
     cursor: help;
@@ -294,7 +296,5 @@ rect {
     margin-left: 10px;
 }
 
-#tombiod3Earthworm .ui-spinner {
-    margin-bottom: 0px;
-}
+
 

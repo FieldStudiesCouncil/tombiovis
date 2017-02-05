@@ -22,6 +22,7 @@
         this.metadata.contact = 'richardb@field-studies-council.org';
         this.metadata.version = '3.0';
     }
+
     exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
 
     exports.Obj.prototype.initialise = function () {
@@ -36,6 +37,10 @@
         this.helpFiles = [
             tombiopath + "visEarthworm/visEarthwormHelp.html",
         ]
+
+        //This visualisation is unusual because it was created before the
+        //ID framework. It generates its own user-input interface rather
+        //than using that created by the framework.
 
         //Call the 'old' visualisation (earthworms version 2)
         //First create a div element into which it will be injected.
@@ -87,11 +92,11 @@
         ];
 
         //Load the CSS file
-        var l = document.createElement('link');
-        l.rel = 'stylesheet';
-        l.type = 'text/css';
-        l.href = tombiopath + '/visEarthworm/earthworms.css';
-        document.querySelector('head').appendChild(l);
+        //var l = document.createElement('link');
+        //l.rel = 'stylesheet';
+        //l.type = 'text/css';
+        //l.href = tombiopath + '/visEarthworm/earthworms.css';
+        //document.querySelector('head').appendChild(l);
 
         //Load the imported HTML
         $(document).ready(function () {
@@ -189,6 +194,10 @@
             makeSpinner('clitwidth', 0, 13, 1);
             makeMenuSelect('headtype');
             makeMenuSelect('setaespacing');
+
+            //var headtype = $("#headtype").val();
+            //var setaespacing = $("#setaespacing").val();
+            //console.log("headtype", ">>" + headtype + "<<", "setaespacing", ">>" + setaespacing + "<<")
 
             //Option spinner
             var spinner = $("#tolerance").spinner({
@@ -385,11 +394,11 @@
                         $("#tombioHelpTabs").tabs("option", "active", index);
                         $("#tombioHelpDialog").dialog("open");
                     });
-
-
-                configureChart();
+                
                 //Initialise option
                 $('#tolerance').spinner("value", 2);
+
+                configureChart();
             });
         }
 
@@ -678,6 +687,7 @@
         }
 
         function configureChart() {
+
             //Initialisations
             tombio.tolerance = $("#tolerance").spinner("value");
 
@@ -685,13 +695,13 @@
             var taxaout = [];
 
             var headtype = $("#headtype").val();
+            var setaespacing = $("#setaespacing").val();
             var malepore = Number($("#malepore").val());
             var clitstart = Number($("#clitstart").val());
             var clitend = Number($("#clitend").val());
             var clitwidth = Number($("#clitwidth").val());
             var tpstart = Number($("#tpstart").val());
             var tpend = Number($("#tpend").val());
-            var setaespacing = $("#setaespacing").val();
             var bodylength = Number($("#bodylength").val());
             var bodydiameter = Number($("#bodydiameter").val());
 
@@ -709,6 +719,7 @@
                 } else if (headtype != "") {
                     taxon.matcharray[0] = 100;
                 }
+
                 if (taxon.SetaeSpacing == setaespacing) {
                     taxon.matcharray[1] = 0;
                 } else if (setaespacing != "") {
@@ -1144,22 +1155,22 @@
                 //If the selected colour variable is 'TPShape', it's a special case
                 //and we use a coloru scale that groups different TP shapes.
                 var colourArray = ["3 mounds", "2 mounds", "2 humps", "3 discs", "2 discs", "Band", "Raised band", "Thick band", "Thin band", "Thin bands", "Long, thin band", "Ridge", "Thin ridge", "Raised area", "Swelling", "None", ""]
-                var colour = d3.scale.ordinal()
+                var colour = d3.scaleOrdinal()
                     .domain(colourArray)
                     .range(["#006BB2", "#2379AF", "#4585AD", "#FF7700", "#FF9232", "#009E00", "#0F9B0F", "#1E991E", "#2D992D", "#3D993D", "#4C994C", "#D30003", "#D1292C", "#6100BC", "#6F25BA", "yellow", "lightgrey"]);  //#891600
             } else if (colourby == "Colour") {
                 //If the selected colour variable is 'Colour', it's a special case
                 //so we use a colour scale to reflect the real colours.
                 var colourArray = ["Pale", "Pink", "Pinky grey", "Red", "Dull red", "Green", "Grey", "Blue grey", "Phosphorescent", "Almost black", ""]
-                var colour = d3.scale.ordinal()
+                var colour = d3.scaleOrdinal()
                     .domain(colourArray)
                     .range(["#FFF996", "#FF56F9", "#CC7EA0", "#FF0000", "#CC3B3B", "#43A31A", "#999999", "#4C6B99", "#4CFFA7", "#000000", "lightgrey"]);
             } else if (uniquevals.length <= 10) {
                 //Otherwise if there's 10 or less use the category10 scale
-                var colour = d3.scale.category10().domain(uniquevals);
+                var colour = d3.scaleOrdinal(d3.schemeCategory10).domain(uniquevals);
             } else {
                 //Otherwise the catebory20 scale
-                var colour = d3.scale.category20().domain(uniquevals);
+                var colour = d3.scaleOrdinal(d3.schemeCategory20).domain(uniquevals);
             }
 
             //Colour the taxa
