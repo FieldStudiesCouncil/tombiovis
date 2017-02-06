@@ -3,3 +3,4 @@ tombio/visEarthworm/
 node_modules/
 documentation/videos/
 vis-*.html
+*.*~
