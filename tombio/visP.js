@@ -689,9 +689,17 @@
             return html;
         } else {
             //Otherwise create dialog and display
-            $("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
-            $("#tombioHelpAndInfoDialog").html(html);
-            $("#tombioHelpAndInfoDialog").dialog("open");
+
+	// Clear
+            $("#tombioHelpAndInfoDialog").html("");
+            $("#tombioHelpAndInfoDialog").append("<h2>"+taxon.Taxon+"</h2>");		
+            //$("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
+		
+            $("#tombioHelpAndInfoDialog").append(html);
+		// Need to make it visible
+		$("#tombioHelpAndInfoDialog").show();
+           // $("#tombioHelpAndInfoDialog").dialog("open");
+		//$('#tombioHelpAndInfoDialog').appendTo(html);
         }  
     }
 

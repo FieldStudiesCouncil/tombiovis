@@ -956,9 +956,9 @@
             //$("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
             //$("#tombioVisInfoDialog").html(help);
            // $("#tombioVisInfoDialog").dialog("open");
-		document.getElementById(tombioVisInfoDialog).html("");
-		document.getElementById(tombioVisInfoDialog).appendChild($("#tombioVisualisation option:selected").text());
-		document.getElementById(tombioVisInfoDialog).appendChild(help);
+		document.getElementById('tombioVisInfoDialog').html("");
+		document.getElementById('tombioVisInfoDialog').appendChild($("#tombioVisualisation option:selected").text());
+		document.getElementById('tombioVisInfoDialog').appendChild(help);
 
         }
     }
