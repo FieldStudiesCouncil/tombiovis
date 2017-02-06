@@ -953,9 +953,13 @@
         });    
         if (allHelpFilesLoaded) {
             help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
-            $("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
-            $("#tombioVisInfoDialog").html(help);
-            $("#tombioVisInfoDialog").dialog("open");
+            //$("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
+            //$("#tombioVisInfoDialog").html(help);
+           // $("#tombioVisInfoDialog").dialog("open");
+		document.getElementById(tombioVisInfoDialog).html("");
+		document.getElementById(tombioVisInfoDialog).appendChild($("#tombioVisualisation option:selected").text());
+		document.getElementById(tombioVisInfoDialog).appendChild(help);
+
         }
     }
 
@@ -1434,10 +1438,27 @@
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
+
+
+
+
     function showCharacterHelp(character) {
 
         //Clear existing HTML
-        $("#tombioHelpAndInfoDialog").html("");
+        $("#tombioHelpAndInfoDialog").html('');
+	// Hide the help
+	//$("#tombioHelpAndInfoDialog").hide();
+	$("#tombioControlsAndTaxa").hide();
+	
+	// Now put a clear help button at the top
+	$("#tombioHelpAndInfoDialog").html('<button id="tombioHideHelp">Exit Help</button>');
+
+	// and assign an action
+	
+		$('#tombioHideHelp').click(function (event) {
+		$("#tombioControlsAndTaxa").show();
+		$("#tombioHelpAndInfoDialog").hide(); 
+		});
 
         //Header for character
         $('<h3/>', { text: core.oCharacters[character].Label }).appendTo('#tombioHelpAndInfoDialog');
@@ -1501,9 +1522,14 @@
         });
 
         //Display the help dialog
-        $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character help and information');
-        $("#tombioHelpAndInfoDialog").dialog("open");
+	$("#tombioHelpAndInfoDialog").show();
+        //$("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character help and information');
+        //$("#tombioHelpAndInfoDialog").dialog("open");
     }
+
+
+
+
 
     function createContextMenu() {
 
