@@ -637,9 +637,6 @@
         html += "<p>Weighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * character.Weight * 10) / 100 + "</b></p>";
         //console..log(taxon);
 
-        //$("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
-        //$("#tombioHelpAndInfoDialog").html(html);
-        //$("#tombioHelpAndInfoDialog").dialog("open");
 	// Hide the work in progress
 	$("#tombioControlsAndTaxa").hide();	
 	//Clear existing dialog HTML
