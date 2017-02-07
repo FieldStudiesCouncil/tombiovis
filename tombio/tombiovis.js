@@ -874,10 +874,6 @@
                       helpFiles[i] = html;
                       helpFileLoaded(helpFiles);
                   });
-		// Once the help files are loaded show the dialog
-	      //document.getElementById('tombioVisInfoDialog').show();
-	      //alert("test"+ helpFile);
-
 
               });
           });
@@ -961,11 +957,7 @@
         });    
         if (allHelpFilesLoaded) {
             help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
-            //$("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
-            //$("#tombioVisInfoDialog").html(help);
-           //$("#tombioVisInfoDialog").dialog("open");
-
-		// convert all calls to a dialog box to inserting text on a page
+		// Insert text on a page
 		// hide the work in progress
 		$("#tombioControlsAndTaxa").hide();
 		// Clear the insert point
@@ -982,7 +974,7 @@
 			});
 
 		$('#tombioVisInfoDialog').append("<h2>" +$("#tombioVisualisation option:selected").text() +"</h2>");
-		$('#tombioVisInfoDialog').append("<div>"+help + "</div>");
+		$('#tombioVisInfoDialog').append("<div>"+help + "</div>"); // The enclosing div element needed to coerce the help variable to text
 		$('#tombioVisInfoDialog').show();
 		
 
@@ -1473,9 +1465,8 @@
         //Clear existing HTML
         $("#tombioHelpAndInfoDialog").html('');
 	// Hide the help
-	//$("#tombioHelpAndInfoDialog").hide();
 	$("#tombioControlsAndTaxa").hide();	
-	// Now put a clear help button at the top
+	// Now put an exit button at the top
 	$("#tombioHelpAndInfoDialog").html('<button id="tombioHideHelp">Exit Help</button>');
 
 	// and assign an action
@@ -1548,8 +1539,7 @@
 
         //Display the help dialog
 	$("#tombioHelpAndInfoDialog").show();
-        //$("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character help and information');
-        //$("#tombioHelpAndInfoDialog").dialog("open");
+
     }
 
 
