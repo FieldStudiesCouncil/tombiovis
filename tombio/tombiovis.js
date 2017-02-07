@@ -844,7 +844,9 @@
               icons: { primary: null, secondary: 'ui-icon-info20' }
           })
           .click(function (event) {
-              $("#tombioInfoDialog").dialog("open");
+             // $("#tombioInfoDialog").dialog("open");
+	      $("#tombioInfoDialog").show();
+	      	
           });
 
         $('#visHelp')
@@ -871,6 +873,9 @@
                       helpFiles[i] = html;
                       helpFileLoaded(helpFiles);
                   });
+		// Once the help files are loaded show the dialog
+	      $("#tombioVisInfoDialog").show();
+	      
               });
           });
         $('#tombioRefresh')
@@ -957,8 +962,10 @@
             //$("#tombioVisInfoDialog").html(help);
            // $("#tombioVisInfoDialog").dialog("open");
 		document.getElementById('tombioVisInfoDialog').html("");
-		document.getElementById('tombioVisInfoDialog').appendChild($("#tombioVisualisation option:selected").text());
+		//document.getElementById('tombioVisInfoDialog').appendChild($("#tombioVisualisation option:selected").text());
+		document.getElementById('tombioVisInfoDialog').appendChild("option selected");
 		document.getElementById('tombioVisInfoDialog').appendChild(help);
+		document.getElementById('tombioVisInfoDialog').show();
 
         }
     }
@@ -1448,8 +1455,7 @@
         $("#tombioHelpAndInfoDialog").html('');
 	// Hide the help
 	//$("#tombioHelpAndInfoDialog").hide();
-	$("#tombioControlsAndTaxa").hide();
-	
+	$("#tombioControlsAndTaxa").hide();	
 	// Now put a clear help button at the top
 	$("#tombioHelpAndInfoDialog").html('<button id="tombioHideHelp">Exit Help</button>');
 
