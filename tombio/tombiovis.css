@@ -266,7 +266,13 @@ div#tombioInfo {
 
 .characterlabel {
     font-weight: bold;
+	display: block;
+	margin-top: 0.5em;
+	height: 2em;
+
 }
+
+
 .characterhelp {
     cursor: help;
 }
