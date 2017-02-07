@@ -970,7 +970,8 @@
 	
 			$('#tombioHideVizInfo').click(function (event) {
 			$("#tombioControlsAndTaxa").show();
-			$("#tombioVisInfoDialog").hide(); 
+			$("#tombioVisInfoDialog").hide();
+ 			$("#tombioHelpAndInfoDialog").hide();
 			});
 
 		$('#tombioVisInfoDialog').append("<h2>" +$("#tombioVisualisation option:selected").text() +"</h2>");
@@ -1473,7 +1474,8 @@
 	
 		$('#tombioHideHelp').click(function (event) {
 		$("#tombioControlsAndTaxa").show();
-		$("#tombioHelpAndInfoDialog").hide(); 
+		$("#tombioHelpAndInfoDialog").hide()
+ 		$("#tombioVisInfoDialog").hide()
 		});
 
         //Header for character

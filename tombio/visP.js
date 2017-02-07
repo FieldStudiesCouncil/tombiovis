@@ -650,7 +650,8 @@
 	
 		$('#tombioHideHelp').click(function (event) {
 		$("#tombioControlsAndTaxa").show();
-		$("#tombioHelpAndInfoDialog").hide(); 
+		$("#tombioHelpAndInfoDialog").hide();
+		$("#tombioVisInfoDialog").hide();		 
 		});
 
 	// Append the details
@@ -720,7 +721,8 @@
 	
 			$('#tombioHideInfoDialog').click(function (event) {
 			$("#tombioControlsAndTaxa").show();
-			$("#tombioHelpAndInfoDialog").hide(); 
+			$("#tombioHelpAndInfoDialog").hide();
+ 			$("#tombioVisInfoDialog").hide();
 			});
 
 	     
