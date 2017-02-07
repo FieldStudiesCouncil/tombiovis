@@ -637,9 +637,29 @@
         html += "<p>Weighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * character.Weight * 10) / 100 + "</b></p>";
         //console..log(taxon);
 
-        $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
-        $("#tombioHelpAndInfoDialog").html(html);
-        $("#tombioHelpAndInfoDialog").dialog("open");
+        //$("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
+        //$("#tombioHelpAndInfoDialog").html(html);
+        //$("#tombioHelpAndInfoDialog").dialog("open");
+	// Hide the work in progress
+	$("#tombioControlsAndTaxa").hide();	
+	//Clear existing dialog HTML
+        $("#tombioHelpAndInfoDialog").html('');
+	// Show the dialog
+	$("#tombioHelpAndInfoDialog").show();	
+	// Now put a clear help button at the top
+	$("#tombioHelpAndInfoDialog").append('<button id="tombioHideHelp">Exit Help</button>');
+
+	// and assign an action
+	
+		$('#tombioHideHelp').click(function (event) {
+		$("#tombioControlsAndTaxa").show();
+		$("#tombioHelpAndInfoDialog").hide(); 
+		});
+
+	// Append the details
+	$("#tombioHelpAndInfoDialog").append(html);
+	
+
     }
 
     exports.Obj.prototype.showTaxonCharacterValues = function (taxon, returnAsHtml) {
@@ -690,8 +710,23 @@
         } else {
             //Otherwise create dialog and display
 
-	// Clear
+	    // Replace the dialog
+
+	    //Hide the work in progress
+	    $("#tombioControlsAndTaxa").hide();
+	    // clear the insert point
             $("#tombioHelpAndInfoDialog").html("");
+	    // Add a clear help button
+	    $("#tombioHelpAndInfoDialog").append('<button id="tombioHideInfoDialog">Exit Help</button>');
+
+		// and assign an action
+	
+			$('#tombioHideInfoDialog').click(function (event) {
+			$("#tombioControlsAndTaxa").show();
+			$("#tombioHelpAndInfoDialog").hide(); 
+			});
+
+	     
             $("#tombioHelpAndInfoDialog").append("<h2>"+taxon.Taxon+"</h2>");		
             //$("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
 		
