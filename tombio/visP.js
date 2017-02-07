@@ -727,14 +727,13 @@
 			});
 
 	     
-            $("#tombioHelpAndInfoDialog").append("<h2>"+taxon.Taxon+"</h2>");		
-            //$("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
+            $("#tombioHelpAndInfoDialog").append("<h2>"+taxon.Taxon+"</h2>");	// Enclosing elements needed to coerce variable into text	
+
 		
             $("#tombioHelpAndInfoDialog").append(html);
 		// Need to make it visible
 		$("#tombioHelpAndInfoDialog").show();
-           // $("#tombioHelpAndInfoDialog").dialog("open");
-		//$('#tombioHelpAndInfoDialog').appendTo(html);
+
         }  
     }
 
