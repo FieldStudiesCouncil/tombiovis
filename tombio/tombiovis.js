@@ -855,6 +855,7 @@
           })
           .click(function (event) {
               //Get the current visualisation object
+		
               var selectedVisName = $("#tombioVisualisation").val();
               var selectedVis = global.visualisations[selectedVisName];
 
@@ -874,8 +875,10 @@
                       helpFileLoaded(helpFiles);
                   });
 		// Once the help files are loaded show the dialog
-	      $("#tombioVisInfoDialog").show();
-	      
+	      //document.getElementById('tombioVisInfoDialog').show();
+	      //alert("test"+ helpFile);
+
+
               });
           });
         $('#tombioRefresh')
@@ -960,12 +963,28 @@
             help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
             //$("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
             //$("#tombioVisInfoDialog").html(help);
-           // $("#tombioVisInfoDialog").dialog("open");
-		document.getElementById('tombioVisInfoDialog').html("");
-		//document.getElementById('tombioVisInfoDialog').appendChild($("#tombioVisualisation option:selected").text());
-		document.getElementById('tombioVisInfoDialog').appendChild("option selected");
-		document.getElementById('tombioVisInfoDialog').appendChild(help);
-		document.getElementById('tombioVisInfoDialog').show();
+           //$("#tombioVisInfoDialog").dialog("open");
+
+		// convert all calls to a dialog box to inserting text on a page
+		// hide the work in progress
+		$("#tombioControlsAndTaxa").hide();
+		// Clear the insert point
+		$('#tombioVisInfoDialog').html("");
+		// We need to add a button to get back
+
+			$("#tombioVisInfoDialog").html('<button id="tombioHideVizInfo">Exit Help</button>');
+
+			// and assign an action
+	
+			$('#tombioHideVizInfo').click(function (event) {
+			$("#tombioControlsAndTaxa").show();
+			$("#tombioVisInfoDialog").hide(); 
+			});
+
+		$('#tombioVisInfoDialog').append("<h2>" +$("#tombioVisualisation option:selected").text() +"</h2>");
+		$('#tombioVisInfoDialog').append("<div>"+help + "</div>");
+		$('#tombioVisInfoDialog').show();
+		
 
         }
     }
