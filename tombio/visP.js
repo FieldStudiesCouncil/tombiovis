@@ -637,9 +637,27 @@
         html += "<p>Weighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * character.Weight * 10) / 100 + "</b></p>";
         //console..log(taxon);
 
-        $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
-        $("#tombioHelpAndInfoDialog").html(html);
-        $("#tombioHelpAndInfoDialog").dialog("open");
+	// Hide the work in progress
+	$("#tombioControlsAndTaxa").hide();	
+	//Add insert point
+        $("#tombiod3").after("<div id='tombioHelpAndInfoDialog'></div>");
+	// Show the dialog
+	$("#tombioHelpAndInfoDialog").show();	
+	// Now put a clear help button at the top
+	$("#tombioHelpAndInfoDialog").append('<button id="tombioHideHelp">Exit Help</button>');
+
+	// and assign an action
+	
+		$('#tombioHideHelp').click(function (event) {
+		$("#tombioControlsAndTaxa").show();
+		$("#tombioHelpAndInfoDialog").remove();
+		$("#tombioVisInfoDialog").remove();		 
+		});
+
+	// Append the details
+	$("#tombioHelpAndInfoDialog").append(html);
+	
+
     }
 
     exports.Obj.prototype.showTaxonCharacterValues = function (taxon, returnAsHtml) {
@@ -689,9 +707,32 @@
             return html;
         } else {
             //Otherwise create dialog and display
-            $("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
-            $("#tombioHelpAndInfoDialog").html(html);
-            $("#tombioHelpAndInfoDialog").dialog("open");
+
+	    // Replace the dialog
+
+	    //Hide the work in progress
+	    $("#tombioControlsAndTaxa").hide();
+	    // Add the insert point
+            $("#tombiod3").after("<div id='tombioHelpAndInfoDialog'></div>");
+	    // Add a clear help button
+	    $("#tombioHelpAndInfoDialog").append('<button id="tombioHideInfoDialog">Exit Help</button>');
+
+		// and assign an action
+	
+			$('#tombioHideInfoDialog').click(function (event) {
+			$("#tombioControlsAndTaxa").show();
+			$("#tombioHelpAndInfoDialog").remove();
+ 			$("#tombioVisInfoDialog").remove();
+			});
+
+	     
+            $("#tombioHelpAndInfoDialog").append("<h2>"+taxon.Taxon+"</h2>");	// Enclosing elements needed to coerce variable into text	
+
+		
+            $("#tombioHelpAndInfoDialog").append(html);
+		// Need to make it visible
+		$("#tombioHelpAndInfoDialog").show();
+
         }  
     }
 

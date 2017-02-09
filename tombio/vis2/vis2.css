@@ -38,3 +38,10 @@
     stroke-width: 0px;
     fill: black;
 }
+
+/*Add generous default size */
+#vis2Svg {
+width: 500px;
+height: 3000px;
+
+}
