@@ -639,8 +639,8 @@
 
 	// Hide the work in progress
 	$("#tombioControlsAndTaxa").hide();	
-	//Clear existing dialog HTML
-        $("#tombioHelpAndInfoDialog").html('');
+	//Add insert point
+        $("#tombiod3").after("<div id='tombioHelpAndInfoDialog'></div>");
 	// Show the dialog
 	$("#tombioHelpAndInfoDialog").show();	
 	// Now put a clear help button at the top
@@ -650,8 +650,8 @@
 	
 		$('#tombioHideHelp').click(function (event) {
 		$("#tombioControlsAndTaxa").show();
-		$("#tombioHelpAndInfoDialog").hide();
-		$("#tombioVisInfoDialog").hide();		 
+		$("#tombioHelpAndInfoDialog").remove();
+		$("#tombioVisInfoDialog").remove();		 
 		});
 
 	// Append the details
@@ -712,8 +712,8 @@
 
 	    //Hide the work in progress
 	    $("#tombioControlsAndTaxa").hide();
-	    // clear the insert point
-            $("#tombioHelpAndInfoDialog").html("");
+	    // Add the insert point
+            $("#tombiod3").after("<div id='tombioHelpAndInfoDialog'></div>");
 	    // Add a clear help button
 	    $("#tombioHelpAndInfoDialog").append('<button id="tombioHideInfoDialog">Exit Help</button>');
 
@@ -721,8 +721,8 @@
 	
 			$('#tombioHideInfoDialog').click(function (event) {
 			$("#tombioControlsAndTaxa").show();
-			$("#tombioHelpAndInfoDialog").hide();
- 			$("#tombioVisInfoDialog").hide();
+			$("#tombioHelpAndInfoDialog").remove();
+ 			$("#tombioVisInfoDialog").remove();
 			});
 
 	     

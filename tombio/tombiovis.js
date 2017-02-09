@@ -960,8 +960,8 @@
 		// Insert text on a page
 		// hide the work in progress
 		$("#tombioControlsAndTaxa").hide();
-		// Clear the insert point
-		$('#tombioVisInfoDialog').html("");
+		// Add the insert point
+        	$("#tombiod3").after("<div id='tombioVisInfoDialog'></div>");
 		// We need to add a button to get back
 
 			$("#tombioVisInfoDialog").html('<button id="tombioHideVizInfo">Exit Help</button>');
@@ -970,8 +970,8 @@
 	
 			$('#tombioHideVizInfo').click(function (event) {
 			$("#tombioControlsAndTaxa").show();
-			$("#tombioVisInfoDialog").hide();
- 			$("#tombioHelpAndInfoDialog").hide();
+			$("#tombioVisInfoDialog").remove();
+ 			$("#tombioHelpAndInfoDialog").remove();
 			});
 
 		$('#tombioVisInfoDialog').append("<h2>" +$("#tombioVisualisation option:selected").text() +"</h2>");
@@ -1463,10 +1463,9 @@
 
     function showCharacterHelp(character) {
 
-        //Clear existing HTML
-        $("#tombioHelpAndInfoDialog").html('');
-	// Hide the help
-	$("#tombioControlsAndTaxa").hide();	
+        //Add insert point
+        $("#tombiod3").after("<div id='tombioHelpAndInfoDialog'></div>");
+	
 	// Now put an exit button at the top
 	$("#tombioHelpAndInfoDialog").html('<button id="tombioHideHelp">Exit Help</button>');
 
@@ -1474,8 +1473,8 @@
 	
 		$('#tombioHideHelp').click(function (event) {
 		$("#tombioControlsAndTaxa").show();
-		$("#tombioHelpAndInfoDialog").hide()
- 		$("#tombioVisInfoDialog").hide()
+		$("#tombioHelpAndInfoDialog").remove()
+ 		$("#tombioVisInfoDialog").remove()
 		});
 
         //Header for character
@@ -1539,6 +1538,8 @@
             });
         });
 
+	// Hide the work in progress
+	$("#tombioControlsAndTaxa").hide();
         //Display the help dialog
 	$("#tombioHelpAndInfoDialog").show();
 
