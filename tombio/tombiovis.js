@@ -775,8 +775,11 @@
         global.visualisations = {} //Stores the actual visualisation HTML
         var toolOptions = []; //Drop-down menu options for the visualisations
 
+        //Add clear option
+        toolOptions.push('<option value="reload" class="html" data-class="reload">Reload</option>');
+
         //Add the required visualisation tools
-        core.requiredVisTools.forEach(function (tool) {
+        core.requiredVisTools.forEach(function (tool, iTool) {
             var visObj = new tool.Obj("#tombioTaxa", global.contextMenu, core);
 
             var selOpt = $('<option>')
@@ -786,12 +789,15 @@
                 .text(visObj.metadata.title);
             if (core.kbconfig.selectedTool && visObj.visName == core.kbconfig.selectedTool) {
                 selOpt.attr("selected", "selected");
+            } else if (!core.kbconfig.selectedTool && iTool == 0) {
+                selOpt.attr("selected", "selected");
             }
             toolOptions.push(selOpt);
             
             global.visualisations[visObj.visName] = visObj;
         })
         //Add the various info tools
+        toolOptions.push('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>');
         toolOptions.push('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>');
         toolOptions.push('<option value="visInfo" class="html" data-class="info">About Tom.bio ID Visualisations</option>');
         toolOptions.push('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>');
@@ -847,43 +853,6 @@
               $("#tombioInfoDialog").dialog("open");
           });
 
-        $('#visHelp')
-          .button({
-              icons: { primary: 'ui-icon-info20', secondary: null }
-          })
-          .click(function (event) {
-              //Get the current visualisation object
-              var selectedVisName = $("#tombioVisualisation").val();
-              var selectedVis = global.visualisations[selectedVisName];
-
-              //Dimension and empty array to accommodate all the help
-              //files referenced by this object.
-              var helpFiles = new Array(selectedVis.helpFiles.length);
-
-              selectedVis.helpFiles.forEach(function (helpFile, i) {
-
-                  //Load each of the help files and call the helpFileLoaded function
-                  //upon loading of each one. This function will only do it's thing
-                  //once all the files are loaded. This is important because the 
-                  //JQuery get methods works asynchronously, so we cannot predict the
-                  //when the loading is done.
-                  $.get(helpFile, function (html) {
-                      helpFiles[i] = html;
-                      helpFileLoaded(helpFiles);
-                  });
-              });
-          });
-        $('#tombioRefresh')
-          .button({
-              icons: { primary: 'ui-icon-reset', secondary: null }
-          })
-          .click(function (event) {
-              //Force reload of entire page - ignoring cache.
-              window.location.reload(true);
-          })
-          .attr("title", "If you are unsure whether or not you are seeing the latest version, use this button to reload (ignores your browser's cache)")
-          .tooltip();
-
         $("#tombioHelpAndInfoDialog").dialog({
             modal: false,
             width: global.helpAndInfoDialogWidth,
@@ -922,8 +891,6 @@
         $('#tombioOptions')
             .button({ icons: { primary: null, secondary: 'ui-icon-options' }, disabled: false })
             .click(function (event) {
-
-
             });
 
         //Context menu
@@ -953,9 +920,7 @@
         });    
         if (allHelpFilesLoaded) {
             help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
-            $("#tombioVisInfoDialog").dialog('option', 'title', $("#tombioVisualisation option:selected").text());
-            $("#tombioVisInfoDialog").html(help);
-            $("#tombioVisInfoDialog").dialog("open");
+            $('#currentVisInfo').html(help);
         }
     }
 
@@ -1066,9 +1031,14 @@
     function visChanged() {
         var selectedToolName = $("#tombioVisualisation").val();
 
+        //If reload selected, then
+        if (selectedToolName == "reload") {
+            //Force reload of entire page - ignoring cache.
+            window.location.reload(true);
+        }
+
         //Get the selected visualisation
         var selectedTool = global.visualisations[selectedToolName];
-
 
         //If the user has selected to show citation then generate.
         if (selectedToolName == "tombioCitation") {
@@ -1120,11 +1090,33 @@
             });
         }
 
-        //If the user has selected to general tombio vis info and not yet loaded,
+        //If the user has selected to show general tombio vis info and not yet loaded,
         //then load.
         if (selectedToolName == "visInfo" && $('#visInfo').html().length == 0) {
             $.get(tombiopath + "visInfo.html", function (html) {
                 $('#visInfo').html(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));
+            });
+        }
+
+        //If the user has selected to show info for current visualisation and not yet loaded,
+        //then load.
+        if (selectedToolName == "currentVisInfo") {
+           
+            //Dimension and empty array to accommodate all the help
+            //files referenced by this object.
+            var helpFiles = new Array(global.lastVisualisation.helpFiles.length);
+
+            global.lastVisualisation.helpFiles.forEach(function (helpFile, i) {
+
+                //Load each of the help files and call the helpFileLoaded function
+                //upon loading of each one. This function will only do it's thing
+                //once all the files are loaded. This is important because the 
+                //JQuery get methods works asynchronously, so we cannot predict the
+                //when the loading is done.
+                $.get(helpFile, function (html) {
+                    helpFiles[i] = html;
+                    helpFileLoaded(helpFiles);
+                });
             });
         }
 
@@ -1158,9 +1150,13 @@
         //Store current tool
         global.currentTool = selectedToolName;
 
-        //Store the last used visualisation
+        //Store the last used visualisation and change the name of the menu
+        //item for getting info about it.
         if (Object.keys(global.visualisations).indexOf(selectedToolName) > -1) {
+
             global.lastVisualisation = global.visualisations[selectedToolName];
+            $("#optCurrentVisInfo").text("About " + global.lastVisualisation.metadata.title);
+            $("#tombioVisualisation").iconselectmenu("refresh");
         }
 
         //Refresh context menu

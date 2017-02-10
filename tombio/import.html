@@ -12,25 +12,8 @@
 
         <div class="tombioNoSelect" style="background-color:rgba( 255,255, 255, 0.7); z-index: 500; position: relative; display: inline-block; padding: 5px">
             <span class="ui-widget" id="tombioVisualisationLabel">Select a tool:</span>
-
             <span class="tombioMainBarCell">
-                <select id="tombioVisualisation">
-                    <!--<option value="vis1" class="visualisation" icon-type="vis"></option>
-                    <option value="vis2" class="visualisation" icon-type="vis"></option>
-                    <option value="vis3" class="visualisation" icon-type="vis"></option>-->
-                    <!--<option value="visT" class="visualisation" icon-type="vis">Template visualisation</option>-->
-
-                    <!--<option value="visTypeOptions" icon-type="options">Tool options</option>-->
-                    <!--<option value="kbInfo" class="html" icon-type="info">About the Knowledge-base</option>
-                    <option value="visInfo" class="html" icon-type="info">About Tom.bio ID Visualisations</option>
-                    <option value="tombioCitation" class="citation" icon-type="info">Get citation text</option>-->
-                </select>
-            </span>
-            <span class="tombioMainBarCell">
-                <button id="visHelp">About this visualisation tool</button>
-            </span>
-            <span class="tombioMainBarCell">
-                <button id="tombioRefresh">Reload</button>
+                <select id="tombioVisualisation"></select>
             </span>
         </div>
 
@@ -43,6 +26,7 @@
             <div id="tombioTaxa"></div>
         </div>
 
+        <div class="ui-widget" id="currentVisInfo" style="display:none"></div>
         <div class="ui-widget" id="kbInfo" style="display:none"></div>
         <div class="ui-widget" id="visInfo" style="display:none"></div>
         <div class="ui-widget" id="tombioCitation" style="display:none"></div>
