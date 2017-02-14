@@ -1161,7 +1161,7 @@
         if (Object.keys(global.visualisations).indexOf(selectedToolName) > -1) {
 
             global.lastVisualisation = global.visualisations[selectedToolName];
-            $("#optCurrentVisInfo").text("About " + global.lastVisualisation.metadata.title);
+            $("#optCurrentVisInfo").text("Using the " + global.lastVisualisation.metadata.title);
             $("#tombioVisualisation").iconselectmenu("refresh");
         }
 
