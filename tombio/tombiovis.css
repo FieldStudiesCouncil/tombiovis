@@ -156,6 +156,10 @@ div#tombioInfo {
     background: url("resources/lightbulb.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
+.ui-icon.reload {
+    background: url("resources/reset.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
 
 #tombioCloseInfo {
     float:right;
