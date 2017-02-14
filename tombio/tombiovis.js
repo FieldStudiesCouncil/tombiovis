@@ -784,6 +784,13 @@
                 .attr("data-class", "vis")
                 .addClass("visualisation")
                 .text(visObj.metadata.title);
+
+            //If a selectedTool has been specified as a query parameter then select it,
+            //otherwise look to see if one is specified in the knowlege base.
+
+            var paramSelectedTool = getURLParameter("selectedTool");
+            console.log("paramSelectedTool", paramSelectedTool)
+
             if (core.kbconfig.selectedTool && visObj.visName == core.kbconfig.selectedTool) {
                 selOpt.attr("selected", "selected");
             }
@@ -1776,6 +1783,20 @@
             console.log.apply(console, arguments);
         }
     }
+
+    function getURLParameter(sParam)
+    {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++)
+        {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam)
+            {
+                return sParameterName[1];
+            }
+        }
+    }​
 
     //Define StateValue object
     var StateValue = function (value) {
