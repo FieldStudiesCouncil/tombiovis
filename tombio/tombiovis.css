@@ -105,6 +105,10 @@ div#tombioInfo {
     font-size: 12px;
 }
 
+#tombioVisualisation-menu{
+    padding-right: 10px;
+}
+
 #tombioVisualisation {
     width: 250px;
     display: table-cell; 
