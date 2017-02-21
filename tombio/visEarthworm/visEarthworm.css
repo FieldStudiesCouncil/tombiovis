@@ -180,10 +180,6 @@ tbody {
     font-size: 12px;
 }
 
-#tombioMain {
-    font-size: 12px;
-    margin-left: 50px;
-}
 
 td {
     padding: 2px;
@@ -201,7 +197,7 @@ select {
 }
 
 #tombiod3Earthworm .ui-selectmenu-button {
-    width: 102px !important;
+    width: 103px;
 }
 
 .morphoLabel{    

@@ -28,6 +28,8 @@
     //First things first, start firing up the spinner
     loadScript("dependencies/spin.js", addDownloadSpinner);
     function addDownloadSpinner() {
+        //Empty out any thing (e.g. nbsp; already in div)
+        document.getElementById('tombiod3').innerHTML = "";
 
         //Div for wait spinner
         var waitDiv = document.createElement('div');

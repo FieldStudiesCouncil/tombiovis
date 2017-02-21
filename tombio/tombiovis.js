@@ -1010,7 +1010,7 @@
 
     function getCitation(metadata, sType, coreTitle) {
         
-        var html = $("<div>"), t;
+        var html = $("<div class='tombioCitation'>"), t;
         var d = new Date();
  
         t = metadata.authors + " ";
@@ -1126,13 +1126,13 @@
             });
         }
 
-        if (selectedTool && selectedTool.helpFiles && selectedTool.helpFiles.length > 0) {
-            //Show/flash the vis help button
-            $('#visHelp').fadeIn().effect("highlight", {}, 3000);
-        } else {
-            //hide the vis help button
-            $('#visHelp').fadeOut();
-        }
+        //if (selectedTool && selectedTool.helpFiles && selectedTool.helpFiles.length > 0) {
+        //    //Show/flash the vis help button
+        //    $('#visHelp').fadeIn().effect("highlight", {}, 3000);
+        //} else {
+        //    //hide the vis help button
+        //    $('#visHelp').fadeOut();
+        //}
 
         //Change tool if necessary 
         if (selectedToolName != global.currentTool) {
