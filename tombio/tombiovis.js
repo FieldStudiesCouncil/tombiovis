@@ -835,8 +835,8 @@
           .iconselectmenu({
               change: function () {
                   visChanged();
-              },
-              width: "100%"
+              }
+              //width: "100%"
           })
           .iconselectmenu("menuWidget")
             .addClass("ui-menu-icons customicons");

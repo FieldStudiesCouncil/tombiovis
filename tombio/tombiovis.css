@@ -114,8 +114,14 @@ div#tombioInfo {
 }
 
 #tombioVisualisation-button {
-    /*width: 100%;*/
+    width: 100%;
+    padding-right:0px;
+    padding-left:0px;
     margin-bottom: 10px;
+}
+#tombioVisualisation-button .ui-selectmenu-text{
+    position: relative;
+    left: 1em;
 }
 
 /*#tombioVisualisation {
