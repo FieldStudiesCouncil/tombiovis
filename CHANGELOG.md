@@ -4,19 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.3.0] - 2017-2-22
 
 ### Changed
- - Tool help is now displayed inline rather than in dialog.
+ - Tool help is now displayed in-line rather than in dialog.
  - Invocation of tool help removed from button to drop-down option.
  - Reload button replaced by drop-down option.
+ - Documentation to reflect a change to recommended method of running a local server from node.js to Google Chrome add-in (to facilitate more consistent installation/configuration across platforms).
 
 ### Added
  - Tool can now be selected by supplying 'selectedTool' param to URL of page, e.g. 'vis.html?selectedTool=vis2'.
  - Character values on taxa tab of knowledge base can now be commented out by using the hash character ('#').
+ - visEarthworm (visualisation specific to earthworm knowledge-base) added to repository, but excluded from release.
 
 ### Fixed
  - Minor cosmetic changes to improve appearance.
+ - Bug with vis2 (single column key) when a taxon name contained forward slash.
 
 ## [1.2.2] - 2017-01-18
 
