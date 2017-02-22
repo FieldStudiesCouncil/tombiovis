@@ -70,6 +70,9 @@ body {
     display: inline-block;
     /*border: 2px solid magenta;*/
 }
+#tombioControlTabs .characterlabel{
+    line-height: 21px;
+}
 
 #tombioControlsAndTaxa {
     position: relative;
