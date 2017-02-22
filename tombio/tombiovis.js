@@ -833,7 +833,10 @@
         //Add custom icons to visualisation select menu
         $("#tombioVisualisation")
           .iconselectmenu({
-              change: function () {visChanged();}
+              change: function () {
+                  visChanged();
+              },
+              width: "100%"
           })
           .iconselectmenu("menuWidget")
             .addClass("ui-menu-icons customicons");
