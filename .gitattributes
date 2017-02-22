@@ -1,4 +1,4 @@
 documentation/*.docx export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
-tombio/visEarthworm/
+tombio/visEarthworm export-ignore
