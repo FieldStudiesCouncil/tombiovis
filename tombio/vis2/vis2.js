@@ -272,7 +272,8 @@
 
             var iTaxon = i;
             var taxon = d;
-            var taxonTag = d.Taxon.value.replace(/[|&;$%@"<>()+:.,' ]/g, '');
+            var taxonTag = d.Taxon.value.replace(/[\/|&;$%@"<>()+:.,' ]/g, '');
+
             var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
                 .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });
             mi.enter()

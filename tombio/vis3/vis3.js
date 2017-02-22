@@ -233,7 +233,7 @@
         //    .css("vertical-align", "top");
 
         //Add and minus buttons for add/remove taxa
-        var addButton = $("<button>Plus</button>").button({ text: false, icons: { secondary: 'ui-icon-plusx' } })
+        var addButton = $("<button id='addTaxon'>Add selected taxon to dispaly</button>").button({ text: false, icons: { secondary: 'ui-icon-plusx' } })
             .css("vertical-align", "top").css("margin-left", 1).css("width", 40).css("font-weight", "bold").css("font-size", 12)
             .on("click", function () {
                 var selectedName = $("#taxaSel").find(":selected").text();

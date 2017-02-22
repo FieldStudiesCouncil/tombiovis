@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Changed
+ - Tool help is now displayed inline rather than in dialog.
+ - Invocation of tool help removed from button to drop-down option.
+ - Reload button replaced by drop-down option.
 
 ### Added
+ - Tool can now be selected by supplying 'selectedTool' param to URL of page, e.g. 'vis.html?selectedTool=vis2'.
+ - Character values on taxa tab of knowledge base can now be commented out by using the hash character ('#').
 
 ### Fixed
+ - Minor cosmetic changes to improve appearance.
 
 ## [1.2.2] - 2017-01-18
 
@@ -23,7 +29,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Migrated to latest release of D3 (4.4.0).
 - Migrated to latest release of jQuery (3.1.1).
-- Migrated to latest release of jQuery UI (1.12.1).
 - Migrated to latest release of pqGrid (2.1.0).
 - Migrated to latest release of pqSelect (1.3.2).
 

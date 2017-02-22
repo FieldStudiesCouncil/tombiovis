@@ -60,7 +60,7 @@ body {
 }
 
 #tombioMain {
-    font-size: 12px;
+    font-size: 12px; 
     overflow: visible;
     /*border: 2px solid green;*/
 }
@@ -69,6 +69,9 @@ body {
     vertical-align: top;
     display: inline-block;
     /*border: 2px solid magenta;*/
+}
+#tombioControlTabs .characterlabel{
+    line-height: 21px;
 }
 
 #tombioControlsAndTaxa {
@@ -105,18 +108,28 @@ div#tombioInfo {
     font-size: 12px;
 }
 
-#tombioVisualisation {
+#tombioVisualisation-menu{
+    padding-right: 10px;
+    padding-top: 5px;
+}
+
+#tombioVisualisation-button {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/*#tombioVisualisation {
     width: 250px;
     display: table-cell; 
     vertical-align: middle;
     border-left: 10px solid transparent;
-}
+}*/
 
-#tombioVisualisationLabel {
+/*#tombioVisualisationLabel {
     font-weight: bold;
     display: table-cell; 
     vertical-align: middle;
-}
+}*/
 
 .tombioMainBarCell {
     display:  table-cell; 
@@ -149,6 +162,10 @@ div#tombioInfo {
 }
 .ui-icon.vis {
     background: url("resources/lightbulb.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+.ui-icon.reload {
+    background: url("resources/reset.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
