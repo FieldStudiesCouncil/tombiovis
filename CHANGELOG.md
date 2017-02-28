@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+### Added
+ - New visualisation - circle pack key (vis 6) completed.
+ - In test harness HTML the title is now replaces with the name of the knowledge-base and the footer by the knowledge-base citation.
+
+### Fixed
+
+### Removed
+
 ## [1.3.1] - 2017-02-22
 
 ### Fixed
