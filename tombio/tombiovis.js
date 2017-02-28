@@ -357,6 +357,11 @@
 
     core.loadComplete = function (force) {
 
+        //Replace content in header and footer tags with tombiod3 id's - this is
+        //most relevant for test harness.
+        $("#tombiod3-header").text(core.kbmetadata.title);
+        $("#tombiod3-footer").html(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+
         //Check the validity of the knowledge-base
         if (!force) {
             if (!checkKnowledgeBase()) return;

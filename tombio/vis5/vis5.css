@@ -3,13 +3,9 @@
 }
 
 .node:hover {
-  stroke: #000;
+  stroke: #ffd800;
   stroke-width: 1.5px;
 }
-
-/*.node--leaf {
-  fill: white;
-}*/
 
 .label {
   font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -17,8 +13,7 @@
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
 }
 
-/*.label,
-.node--root,
-.node--leaf {
-  xpointer-events: none;
-}*/
+#vis5 {
+    z-index: 60;
+    position: relative;
+}
