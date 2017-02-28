@@ -68,6 +68,8 @@ body {
 #tombioControls {
     vertical-align: top;
     display: inline-block;
+    position: relative;
+    z-index: 70;
     /*border: 2px solid magenta;*/
 }
 #tombioControlTabs .characterlabel{
@@ -118,6 +120,7 @@ div#tombioInfo {
     padding-right:0px;
     padding-left:0px;
     margin-bottom: 10px;
+    z-index: 50;
 }
 #tombioVisualisation-button .ui-selectmenu-text{
     position: relative;
