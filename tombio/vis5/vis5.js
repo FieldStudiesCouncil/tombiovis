@@ -20,8 +20,11 @@
         view, 
         node, 
         diameter, 
-        margin, 
-        taxaRoot, 
+        margin,
+        taxonRanks,
+        taxaRoot,
+        taxaRootFlat,
+        taxaRootCurrent,
         g, 
         color,
         lastZoomWasPan,
@@ -88,14 +91,14 @@
         //that is suitable for passing to the d3.hierachy function.
 
         //First build an array of all the Taxonomy characters.
-        var taxonRanks = [];
+        taxonRanks = [];
         core.characters.forEach(function (c) {
             if (c.Group == "Taxonomy" || c.Character == "Taxon"){
                 taxonRanks.push(c.Character);
             }
         })
 
-        var stratTable = [{ name: "All taxa", parent: ""}], ir = 0;
+        var stratTable = [{name: "All taxa", parent: ""}], ir = 0;
         //Create a table suitable for input into the d3.stratify function
         taxonRanks.forEach(function (r, iR) {
             core.taxa.forEach(function (t, iT) {
@@ -132,13 +135,25 @@
             .parentId(function (d) { return d.parent; })
             (stratTable);
 
-        //Initialise context menu items
-        taxonRanks.forEach(function (rank) {
-            _this.contextMenu.addItem("Show names for each " + core.oCharacters[rank].Label, function () {
-                displayTextForRank(rank);
-                _this.refresh();
-            }, [_this.visName]);
-        });
+        //Carry out a d3.stratify to give us a flat version
+        taxaRootFlat = d3.stratify()
+            .id(function (d) { return d.name; })
+            .parentId(function (d) {
+                if (d.parent == "") {
+                    return "";
+                } else {
+                    return "All taxa";
+                }    
+            })
+            (stratTable);
+
+        //Weed out all higher level ranks from the flat version
+        var filteredChildren = taxaRootFlat.children.filter(function (child) {
+            return child.data.rankColumn == "Taxon";
+        })
+        taxaRootFlat.children = filteredChildren;
+
+        taxaRootCurrent = taxaRoot;
     }
 
     exports.Obj.prototype.refresh = function () {
@@ -147,6 +162,40 @@
 
         var maxOverall = d3.max(core.taxa, function (d) { return d.scoreoverall; });
         var minOverall = d3.min(core.taxa, function (d) { return d.scoreoverall; });
+
+        //console.log(taxonRanks.length, )
+
+        //Initialise context menu items
+        if (taxonRanks.length > 1 && taxaRootCurrent == taxaRoot) {
+
+            _this.contextMenu.addItem("Ignore higher taxa", function () {
+                taxaRootCurrent = taxaRootFlat;
+                displayTextForRank("Taxon");
+                _this.refresh();
+            }, [_this.visName]);
+
+            taxonRanks.forEach(function (rank) {
+                _this.contextMenu.addItem("Show names for each " + core.oCharacters[rank].Label, function () {
+                    displayTextForRank(rank);
+                    _this.refresh();
+                }, [_this.visName]);
+            });
+
+            _this.contextMenu.removeItem("Show higher taxa");
+
+        } else if (taxonRanks.length > 1 && taxaRootCurrent == taxaRootFlat) {
+            _this.contextMenu.addItem("Show higher taxa", function () {
+                taxaRootCurrent = taxaRoot;
+                displayTextForRank("Taxon");
+                _this.refresh();
+            }, [_this.visName]);
+
+            taxonRanks.forEach(function (rank) {
+                _this.contextMenu.removeItem("Show names for each " + core.oCharacters[rank].Label);
+            });
+
+            _this.contextMenu.removeItem("Ignore higher taxa");
+        }
 
         //Prepare scales for the indicators
         //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
@@ -158,7 +207,7 @@
         //the correction is the absolute value of the minimum overall score.
         var correction = minOverall < 0 ? 0 - minOverall : 0;
 
-        root = d3.hierarchy(taxaRoot)
+        root = d3.hierarchy(taxaRootCurrent)
              .sum(function (d) {
                  //This is the part which helps determine the size of the circles in the circle pack.
                  //If the taxon has the minimum overall score, then the addition of the correction makes zero,
@@ -181,7 +230,8 @@
         circleE = circleU.enter().append("circle")
             //Assign the correct class dependent on whether root, leaf or mid node.
             .attr("class", function (d) {
-                var cls = d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
+                //var cls = d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
+                var cls = d.children ? "node node-higher-taxa" : "node";
                 cls += " " + d.data.data.rankColumn;
                 return cls;
             })
@@ -202,10 +252,20 @@
                 } else {
                     return d.data.id;
                 }
-            } else { 
+            } else {
+                console.log(d)
                 return taxonTooltip(d)
             }
         });
+
+        // circleU.exit().remove(); 
+        //Can't remove on exit because if re-created on enter, they nodes for higher levels can
+        // get drawn over leaf nodes. So just make them invisible instead.
+        if (taxaRootCurrent == taxaRoot && taxonRanks.length > 1) {
+            $(".node-higher-taxa").css("visibility", "visible")
+        } else {
+            $(".node-higher-taxa").css("visibility", "hidden")
+        }
 
         var transitionRefresh = d3.transition().duration(750);
 
@@ -245,7 +305,9 @@
                     return taxonTooltip(d);
                 }
             })
-            
+          
+        textU.exit().remove();
+
         $("circle, text").tooltip({
             track: true,
             position: { my: "left+20 center", at: "right center" },
@@ -273,6 +335,9 @@
         highlightTopScorers(transitionRefresh);
 
         function taxonTooltip(d) {
+
+            console.log(d)
+
             //For leaf nodes (i.e. those representing actual taxa, set the title attribute
             //to some HTML that reflects the name and its overall score - including a colour
             //swatch behind the score. Further on, we use the 'option' attribute of the 
@@ -293,7 +358,7 @@
                 return d.data.data.taxon;
             })
             .style("stroke", function(d) {
-                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "white";
+                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "black";
                 if (selectedRank == "Taxon") return "black";
                 return null;
             })
@@ -301,6 +366,14 @@
                 if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "2px";
                 if (selectedRank == "Taxon") return "1px";
                 return "0px";
+            })
+            .style("stroke-linecap", function(d) {
+                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "round";
+                return null;
+            })
+            .style("stroke-dasharray", function(d) {
+                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "1, 5";
+                return null;
             })
     }
 
