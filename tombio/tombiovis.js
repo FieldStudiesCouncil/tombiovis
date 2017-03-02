@@ -1319,18 +1319,18 @@
         });
         spinner.addClass("statespinner");
 
-        spinner.on("spinchange", function () {
+        //spinner.on("spinchange", function () {
             
-            //Set state set flag
-            if (id.substring(0, 6) == "clone-") {
-                var character = id.substring(6);
-            } else {
-                var character = id;
-            }
-            core.oCharacters[character].stateSet = true;
-            refreshVisualisation();
-            setCloneVisibility();
-        });
+        //    //Set state set flag
+        //    if (id.substring(0, 6) == "clone-") {
+        //        var character = id.substring(6);
+        //    } else {
+        //        var character = id;
+        //    }
+        //    core.oCharacters[character].stateSet = true;
+        //    refreshVisualisation();
+        //    setCloneVisibility();
+        //});
 
         spinner.on("spinstop", function (event, ui) {
 

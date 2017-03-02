@@ -25,6 +25,7 @@
         taxaRoot,
         taxaRootFlat,
         taxaRootCurrent,
+        abbrvNames = true,
         g, 
         color,
         lastZoomWasPan,
@@ -166,6 +167,13 @@
         //console.log(taxonRanks.length, )
 
         //Initialise context menu items
+
+        //Add context menu item for abbreviation toggle
+        _this.contextMenu.addItem("Toggle name abbreviation", function () {
+            abbrvNames = !abbrvNames;
+            _this.refresh();
+        }, [_this.visName]);
+
         if (taxonRanks.length > 1 && taxaRootCurrent == taxaRoot) {
 
             _this.contextMenu.addItem("Ignore higher taxa", function () {
@@ -500,7 +508,7 @@
     function getAbbrv(text, level, isLeafNode) {
 
         //This function is used to derived abbreviations for taxon names.
-        if (!isLeafNode) return text;
+        //if (!isLeafNode) return text;
 
         var nameParts = text.split(/\s+/).reverse();
 
@@ -570,16 +578,20 @@
     function setTextObjectTextValue(text, d) {
 
         if (text.style("display") == "none") return;
-
+        
         var circle = d3.select("#" + text.attr("circleId"));
-
         var width = circle.node().getBBox().width;
         //Version below gets width of a circle without calling getBBox - but needs zoomFactor
         //global variable (set from k in ...)
         //var width = circle._groups[0][0].__data__.r * zoomFactor * 2;
 
+        if (!abbrvNames) {
+            wrapText(text, width, d.data.data.abbrv[0]);
+            return;
+        }
+
         //If circle below a minimum threshold, then make text invisible (but only for leaf nodes)
-        if (width < 20 && d.data.data.taxon) {
+        if (width < 20 && abbrvNames) { //&& d.data.data.taxon
             text.text(null);
             return;
         }
