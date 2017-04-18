@@ -322,15 +322,31 @@
             .css("width", "30px")
             .css("background", "rgba(0,0,0,0.3)")
             .css("cursor", "pointer")
-            .css("opacity", 0)
+	    .css("opacity", 0)
+
+
+
             .hover(function () {
+		if (/Mobi/.test(navigator.userAgent)) {
+               	moveright.stop().css("opacity", 1);
+                moveleft.stop().css("opacity", 1);
+		} else {
                 moveright.stop().fadeTo(400, 1);
                 moveleft.stop().fadeTo(400, 1);
+		}
             },
             function () {
+
+		if (/Mobi/.test(navigator.userAgent)) {
+               	moveright.stop().css("opacity", 1);
+                moveleft.stop().css("opacity", 1);
+		} else {
                 moveright.stop().fadeTo(400, 0);
                 moveleft.stop().fadeTo(400, 0);
-            })
+  		}
+
+
+          })
             .click(function () {
                 var imageIndex = Number(pane.attr("indexSelected"));
 		// Remove onMouseOver functions to work with mobile devices
@@ -360,6 +376,11 @@
                     }
                 );
             });
+
+	
+	if (/Mobi/.test(navigator.userAgent)) {
+		moveleft.css("opacity", 1);
+		}
 
         var moveleftimg = $('<img src="' + tombiopath + 'resources/moveleft.png">')
             .css("position", "absolute")
@@ -398,6 +419,13 @@
                     }
                 );
             });
+
+
+	if (/Mobi/.test(navigator.userAgent)) {
+		moveright.css("opacity", 1);
+		}
+
+
 
         var moverightimg = $('<img src="' + tombiopath + 'resources/moveright.png">')
             .css("position", "absolute")
@@ -461,7 +489,14 @@
             .css("margin-right", 30)
             .css("margin-top", 6)
             .css("margin-left", 6)
-            .css("display", "none")
+
+
+	// Remove onMouseOver functions to work with mobile devices
+		if (/Mobi/.test(navigator.userAgent)) {
+            		controlsInner.css("display", "intial");
+		} else {
+			controlsInner.css("display", "none");
+		}
         //.css("border", "1px solid green")
 
         var controlsImageSelectors = $('<div/>')
