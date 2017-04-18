@@ -366,7 +366,8 @@
    			// mobile!
                         moveright.stop().css("opacity", 1);;
                         moveleft.stop().css("opacity", 1);;
-                        controlsInner.stop().css("opacity", 1);;
+                        controlsInner.stop().css("opacity", 1);
+			controlsInner.css("display", "intial");
 			} else {
 			//Desktop!
                         moveright.stop().fadeTo(400, 1);
@@ -413,9 +414,19 @@
                 var imageIndex = Number(pane.attr("indexSelected"));
                 imageSelected((taxonImages.length + imageIndex + 1) % taxonImages.length,
                     function () {
+
+			if (/Mobi/.test(navigator.userAgent)) {
+                        moveright.stop().css("opacity", 1);
+                        moveleft.stop().css("opacity", 1);
+                        controlsInner.stop().css("opacity", 1);
+			controlsInner.css("display", "intial");
+
+			} else {
                         moveright.stop().fadeTo(400, 1);
                         moveleft.stop().fadeTo(400, 1);
                         controlsInner.stop().fadeIn(10).fadeOut(800);
+			}
+
                     }
                 );
             });
@@ -494,6 +505,7 @@
 	// Remove onMouseOver functions to work with mobile devices
 		if (/Mobi/.test(navigator.userAgent)) {
             		controlsInner.css("display", "intial");
+			controlsInner.css("opacity", 1);
 		} else {
 			controlsInner.css("display", "none");
 		}
