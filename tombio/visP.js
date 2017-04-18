@@ -333,13 +333,30 @@
             })
             .click(function () {
                 var imageIndex = Number(pane.attr("indexSelected"));
-                moveright.stop().css("opacity", 0);
-                moveleft.stop().css("opacity", 0);
+		// Remove onMouseOver functions to work with mobile devices
+			if (/Mobi/.test(navigator.userAgent)) {
+   			// mobile!			
+		        moveright.stop().css("opacity", 1);
+		        moveleft.stop().css("opacity", 1);
+			} else {
+			//Desktop!
+		        moveright.stop().css("opacity", 0);
+		        moveleft.stop().css("opacity", 0);
+			}
                 imageSelected((taxonImages.length + imageIndex - 1) % taxonImages.length,
                     function () {
+		// Remove onMouseOver functions to work with mobile devices
+			if (/Mobi/.test(navigator.userAgent)) {
+   			// mobile!
+                        moveright.stop().css("opacity", 1);;
+                        moveleft.stop().css("opacity", 1);;
+                        controlsInner.stop().css("opacity", 1);;
+			} else {
+			//Desktop!
                         moveright.stop().fadeTo(400, 1);
                         moveleft.stop().fadeTo(400, 1);
                         controlsInner.stop().fadeIn(10).fadeOut(800);
+			}
                     }
                 );
             });
