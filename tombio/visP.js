@@ -409,8 +409,13 @@
                 moveleft.stop().fadeTo(400, 0);
             })
             .click(function () {
-                moveright.stop().css("opacity", 0);
-                moveleft.stop().css("opacity", 0);
+			if (/Mobi/.test(navigator.userAgent)) {
+                        moveright.stop().css("opacity", 1);
+                        moveleft.stop().css("opacity", 1);
+		}else {
+		        moveright.stop().css("opacity", 0);
+		        moveleft.stop().css("opacity", 0);
+		}
                 var imageIndex = Number(pane.attr("indexSelected"));
                 imageSelected((taxonImages.length + imageIndex + 1) % taxonImages.length,
                     function () {
@@ -492,7 +497,11 @@
                 $(this).find(".tombioImageControls").stop().fadeIn(400);
             },
             function () {
+		if (/Mobi/.test(navigator.userAgent)) {
+                $(this).find(".tombioImageControls").stop().css("opacity", 1);
+		} else {
                 $(this).find(".tombioImageControls").stop().fadeOut(400);
+		}
             });
 
         var controlsInner = $('<div/>')
