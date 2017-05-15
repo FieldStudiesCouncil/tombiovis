@@ -90,6 +90,10 @@
         var initialSelectorImage;
         var taxonImages = this.getTaxonImages(taxon);
 
+        //Updated to provide different image navigation controls behaviour
+        //when viewed on a mobile and desktop devices.
+        //https://github.com/burkmarr/tombiovis/pull/7
+
         //Helper functions
 
         function imageSelected(imageIndex, f) {
@@ -322,27 +326,64 @@
             .css("width", "30px")
             .css("background", "rgba(0,0,0,0.3)")
             .css("cursor", "pointer")
-            .css("opacity", 0)
+	        .css("opacity", 0)
             .hover(function () {
-                moveright.stop().fadeTo(400, 1);
-                moveleft.stop().fadeTo(400, 1);
-            },
-            function () {
-                moveright.stop().fadeTo(400, 0);
-                moveleft.stop().fadeTo(400, 0);
-            })
+                if (/Mobi/.test(navigator.userAgent)) {
+                    //Mobile
+               	    moveright.stop().css("opacity", 1);
+                    moveleft.stop().css("opacity", 1);
+                } else {
+                    //Desktop
+                    moveright.stop().fadeTo(400, 1);
+                    moveleft.stop().fadeTo(400, 1);
+		        }
+                },
+                function () {
+                    if (/Mobi/.test(navigator.userAgent)) {
+                        //Mobile
+               	        moveright.stop().css("opacity", 1);
+                        moveleft.stop().css("opacity", 1);
+                    } else {
+                        //Desktop
+                        moveright.stop().fadeTo(400, 0);
+                        moveleft.stop().fadeTo(400, 0);
+  		            }
+                })
             .click(function () {
                 var imageIndex = Number(pane.attr("indexSelected"));
-                moveright.stop().css("opacity", 0);
-                moveleft.stop().css("opacity", 0);
+			    if (/Mobi/.test(navigator.userAgent)) {
+   			        //Mobile		
+		            moveright.stop().css("opacity", 1);
+		            moveleft.stop().css("opacity", 1);
+			    } else {
+			        //Desktop
+		            moveright.stop().css("opacity", 0);
+		            moveleft.stop().css("opacity", 0);
+			    }
                 imageSelected((taxonImages.length + imageIndex - 1) % taxonImages.length,
                     function () {
-                        moveright.stop().fadeTo(400, 1);
-                        moveleft.stop().fadeTo(400, 1);
-                        controlsInner.stop().fadeIn(10).fadeOut(800);
+		                // Remove onMouseOver functions to work with mobile devices
+			            if (/Mobi/.test(navigator.userAgent)) {
+   			                //Mobile
+                            moveright.stop().css("opacity", 1);;
+                            moveleft.stop().css("opacity", 1);;
+                            controlsInner.stop().css("opacity", 1);
+			                controlsInner.css("display", "intial");
+			            } else {
+			                //Desktop
+                            moveright.stop().fadeTo(400, 1);
+                            moveleft.stop().fadeTo(400, 1);
+                            controlsInner.stop().fadeIn(10).fadeOut(800);
+			            }
                     }
                 );
             });
+
+	
+        if (/Mobi/.test(navigator.userAgent)) {
+            //Mobile
+		    moveleft.css("opacity", 1);
+		}
 
         var moveleftimg = $('<img src="' + tombiopath + 'resources/moveleft.png">')
             .css("position", "absolute")
@@ -370,17 +411,38 @@
                 moveleft.stop().fadeTo(400, 0);
             })
             .click(function () {
-                moveright.stop().css("opacity", 0);
-                moveleft.stop().css("opacity", 0);
+                if (/Mobi/.test(navigator.userAgent)) {
+                    //Mobile
+                    moveright.stop().css("opacity", 1);
+                    moveleft.stop().css("opacity", 1);
+                } else {
+                    //Desktop
+		            moveright.stop().css("opacity", 0);
+		            moveleft.stop().css("opacity", 0);
+		        }
                 var imageIndex = Number(pane.attr("indexSelected"));
                 imageSelected((taxonImages.length + imageIndex + 1) % taxonImages.length,
                     function () {
-                        moveright.stop().fadeTo(400, 1);
-                        moveleft.stop().fadeTo(400, 1);
-                        controlsInner.stop().fadeIn(10).fadeOut(800);
+                        if (/Mobi/.test(navigator.userAgent)) {
+                            //Mobile
+                            moveright.stop().css("opacity", 1);
+                            moveleft.stop().css("opacity", 1);
+                            controlsInner.stop().css("opacity", 1);
+			                controlsInner.css("display", "intial");
+                        } else {
+                            //Desktop
+                            moveright.stop().fadeTo(400, 1);
+                            moveleft.stop().fadeTo(400, 1);
+                            controlsInner.stop().fadeIn(10).fadeOut(800);
+			            }
                     }
                 );
             });
+
+        if (/Mobi/.test(navigator.userAgent)) {
+            //Mobile
+		    moveright.css("opacity", 1);
+		}
 
         var moverightimg = $('<img src="' + tombiopath + 'resources/moveright.png">')
             .css("position", "absolute")
@@ -436,7 +498,13 @@
                 $(this).find(".tombioImageControls").stop().fadeIn(400);
             },
             function () {
-                $(this).find(".tombioImageControls").stop().fadeOut(400);
+                if (/Mobi/.test(navigator.userAgent)) {
+                    //Mobile
+                    $(this).find(".tombioImageControls").stop().css("opacity", 1);
+                } else {
+                    //Desktop
+                    $(this).find(".tombioImageControls").stop().fadeOut(400);
+		        }
             });
 
         var controlsInner = $('<div/>')
@@ -444,7 +512,17 @@
             .css("margin-right", 30)
             .css("margin-top", 6)
             .css("margin-left", 6)
-            .css("display", "none")
+
+
+	    //Remove onMouseOver functions to work with mobile devices
+        if (/Mobi/.test(navigator.userAgent)) {
+            //Mobile
+            controlsInner.css("display", "intial");
+			controlsInner.css("opacity", 1);
+        } else {
+            //Desktop
+			controlsInner.css("display", "none");
+		}
         //.css("border", "1px solid green")
 
         var controlsImageSelectors = $('<div/>')
