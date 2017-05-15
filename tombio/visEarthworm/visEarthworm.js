@@ -212,7 +212,7 @@
             $("#tombioPopup").dialog({
                 autoOpen: false,
                 width: 410,
-                height: 580,
+                height: 610,
                 show: {
                     effect: "slideDown",
                     duration: 500
@@ -450,15 +450,23 @@
                 datasets = "";
             }
 
+            //The new NBN Atlas static mapping doesn't seem to include the ability to limit datasets
+            //and there's very little choice of UK background mapping.
             $('#tombioMapDiv').html(
-                "<img id='tombioPopupMap' src='" + "https://gis.nbn.org.uk/SingleSpecies/" + tombio.tvk +
-                "/atlas/circle/map?" +
-                "imagesize=4&" +
-                "datasets=" + datasets + "&" +
-                "background=" + background + "&" +
-                "fillcolour=ff0000&" +
-                "outlinecolour=000000" +
-                "' />");
+                "<img id='tombioPopupMap' src='" + "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+                "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tombio.tvk +
+                "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100'" +
+                " width='100%'/>");
+
+            //$('#tombioMapDiv').html(
+            //    "<img id='tombioPopupMap' src='" + "https://gis.nbn.org.uk/SingleSpecies/" + tombio.tvk +
+            //    "/atlas/circle/map?" +
+            //    "imagesize=4&" +
+            //    "datasets=" + datasets + "&" +
+            //    "background=" + background + "&" +
+            //    "fillcolour=ff0000&" +
+            //    "outlinecolour=000000" +
+            //    "' />");
 
             //For some reason, when the image displayed in Tom.bio Drupal website, width recalculated
             //and set too narrow. Setting width in line above or in stylesheet did not help. Has to
@@ -480,13 +488,14 @@
                 });
         }
 
-        function getNBNMap(imageID, tvk) {
+        //function getNBNMap(imageID, tvk) {
 
-            d3.select('#' + imageID)
-                .attr("width", 200)
-                .attr("height", 270)
-            .attr("xlink:href", "https://gis.nbn.org.uk/SingleSpecies/" + tvk + "/atlas/circle/map?imagesize=2");
-        }
+        //    d3.select('#' + imageID)
+        //        .attr("width", 200)
+        //        .attr("height", 270)
+        //        //.attr("xlink:href", "https://gis.nbn.org.uk/SingleSpecies/" + tvk + "/atlas/circle/map?imagesize=2");
+        //        .attr("xlink:href", "https://records-ws.nbnatlas.org/mapping/wms/image?baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk + "&extents=-11.2538,48.6754,3.0270,60.7995&outline=true&outlineColour=0x000000&pradiusmm=1&dpi=300");
+        //}
 
         function getGradient(colour1, colour2, colourValue) {
 
@@ -573,6 +582,7 @@
 
             if (val == "") return null;
             if (String(range) == "") return null;
+            if (String(range) == "n/a") return val; //Treat n/a as if specified as zero in kb
 
             if (String(range).indexOf('[') === 0) {
                 //This is a range

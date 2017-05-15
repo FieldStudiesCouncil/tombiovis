@@ -144,6 +144,9 @@ tbody {
     top: 10px;
     left: 0px;
 }
+#tombioMapControlsHidden {
+    display: none; /*Taken off with advent of NBN Atlas*/
+}
 
 #tombioSpInfo {
     position: absolute;

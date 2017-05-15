@@ -62,19 +62,21 @@
                 <div id="tombioMapDiv"></div>
 
                 <div id="tombioMapControls">
-                    <select name="tombioMapBack" id="tombioMapBack">
-                        <option value="gbi" selected="selected">No background</option>
-                        <option value="gbi100kgrid">100 km square</option>
-                        <option value="vicecounty">Vice Counties</option>
-                    </select>
-                    <br />
-                    <select name="tombioMapData" id="tombioMapData">
-                        <option value="all">All datasets</option>
-                        <!--<option value="esb">ESB only</option>-->
-                        <option value="GA001471,GA001466" selected="selected">ESB datasets</option>
-                        <!--<option value="GA000910">OPAL dataset</option>-->
-                    </select>
-                    <br />
+                    <div id="tombioMapControlsHidden">
+                        <select name="tombioMapBack" id="tombioMapBack">
+                            <option value="gbi" selected="selected">No background</option>
+                            <option value="gbi100kgrid">100 km square</option>
+                            <option value="vicecounty">Vice Counties</option>
+                        </select>
+                        <br />
+                        <select name="tombioMapData" id="tombioMapData">
+                            <option value="all">All datasets</option>
+                            <!--<option value="esb">ESB only</option>-->
+                            <option value="GA001471,GA001466" selected="selected">ESB datasets</option>
+                            <!--<option value="GA000910">OPAL dataset</option>-->
+                        </select>
+                        <br />
+                    </div>
                     <img src="##tombiopath##visEarthworm/resources/nbn-logo.png" width="50px" style="padding: 15px 0 0 15px" />
                 </div>
             </div>
