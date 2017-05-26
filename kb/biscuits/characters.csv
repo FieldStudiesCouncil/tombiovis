@@ -1,5 +1,5 @@
 Group,Character,Label,Help,Status,ValueType,ControlType,Params,Weight,Strictness,Source
-None,Taxon,Taxon,,,,,,,,
+Taxonomy,Taxon,Taxon,,,,,,,,
 Structure,Shape,Shape,"The actual shape of the biscuit can be a useful feature for identification.  There are only three options - round (circular), rectangular (or squarish), or cigar (sausage) shaped.",key,text,single,,10,,
 Structure,SingleDouble,Single or Double Biscuit,"Is the biscuit a single layer, or is it a double biscuit i.e. two biscuit layers sandwiched together with a filling?",key,text,single,,10,,
 Structure,Coating,Coating,Does the biscuit have a chocolate coating on any part of it?,key,text,single,,8,,

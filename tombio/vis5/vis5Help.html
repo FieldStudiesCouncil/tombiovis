@@ -1,0 +1,76 @@
+﻿<h2>The <i>Circle-pack Key</i> visualisation (vis5)</h2>
+<p>
+    <img src="##tombiopath##vis5/resources/circle-pack.png" style="float: right; width: 300px" />
+    This visualisation can be used as a multi-access key with a taxonomic knowledge-base and it
+    is particularly suitable for knowledge-bases that specify that taxonomic hierarchy for the
+    taxa included in it. The circle-pack design keeps taxa that are closely related to each other
+    together in the display, whatever their overall matching scores. So, for example, all taxa
+    of a given genus are displayed within a circle that represents that genus, and all genera that
+    belong to a particular family are displayed together within a circle that represents that
+    family.
+</p>
+<p>
+    The visualisation also deals quite nicely with large numbers of taxa, up to a few hundred, so
+    it can be a particularly good way to visualise taxonomic groups of that size.
+</p>
+<p>
+    Each taxon is represented by a circle which grows or shrinks in size to reflect the overall
+    matching score of the taxon in response to user input. The colours of the taxa circles also
+    change to reflect the matching score of each. Blue indicates
+    the best overall matching score and vermilion the worst, whilst an overall matching score of zero is
+    coloured pale yellow. Intermediate scores are shown with intermediate colours.
+    The score itself can be seen by moving the
+    mouse over any particular circle representing a taxon.
+    So the larger, and bluer, the circle, the better match it is to the specified user input.
+</p>
+<p>
+    The circles of the highest ranking taxa at any time are outlined in a dashed thicker line (rather
+    than the solid thinner line of all other taxa.)
+</p>
+<p>
+    You can use the mouse wheel to zoom this visualisation in or out and pan around by
+    dragging with your mouse.
+</p>
+<p>
+    Taxon names are,
+    by default, abbreviated so that they fit, more or less, within the bounds of the circle that
+    represents them. So as a circle gets smaller, the name becomes more abbreviated until, for
+    very small circles, it disappears altogether. The full name of any taxon (or taxonomic group)
+    represented by a circle will appear as a 'tool tip' whenever the mouse is moved over a circle,
+    regardless of the level of abbreviation used.
+</p>
+
+<h2>Knowledge-base character state values</h2>
+<p>
+    <img src="##tombiopath##vis5/resources/kb-values.png" style="float: right; width: 250px" />
+    You can see the character states specified against any taxon in the knowledge-base
+    by clicking on the taxon
+    name in the visualisation. This pops out a window displaying the characters
+    and the valid state values for that taxon.
+</p>
+<h2>Right-click context menu</h2>
+<p>
+    <img src="##tombiopath##vis5/resources/context-menu.png" style="float: left; margin: 0 10px 0 0" />
+    As with all visualisations in this tool, important functionality is often made available
+    from a context menu which can be invoked by right-clicking the mouse when the pointer
+    is anywhere within the visualisation.
+</p>
+<p>
+    The name abbreviation feature can be toggled on/off from this menu. When off, then
+    full name of each taxon is displayed regardless of the size of the circle.
+</p>
+<p>
+    You can also use this menu to 'ignore higher taxa' which will result is each taxa
+    being represented by a circle that is not bound to it's siblings (e.g. species
+    within a genus) by a higher level enclosing circle. When higher taxa are ignored,
+    the result is that better matching taxa are displayed closer to the centre of
+    the visualisation.
+</p>
+<p>
+    There can be a number of further menu items that will display labels for higher
+    level taxonomic groupings rather than the lowest level taxa. So for example you
+    can display labels for the circles representing genera rather than species. (Note
+    that only those taxonomic levels encoded in the knowledge-base will be represented
+    by menu items.)
+</p>
+

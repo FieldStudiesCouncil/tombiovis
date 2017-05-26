@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Changed
-
+ - (Developers note.) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
 ### Added
- - New visualisation - circle pack key (vis 6) completed.
- - In test harness HTML the title is now replaces with the name of the knowledge-base and the footer by the knowledge-base citation.
+ - New visualisation - circle pack key (vis5) completed.
+ - Added section in Building a Knowledge-base that explains how to encode taxonomy (as opposed to morphology) required for vis5 (and possible future visualisations).
+ - Added new integrity checking for taxonomy in knowledge-base. This includes a new requirement for the 'Taxon' character to be specified with the group 'Taxonomy'.
+ - In test harness HTML page (vis.html) the title is now replaced with the name of the knowledge-base and the footer by the knowledge-base citation.
+ - Knowledge-base builders now have the ability to specify a default character group to be selected where they are grouping characters (documented in Building a knowledge-base in the section on the config worksheet).
 
 ### Fixed
 

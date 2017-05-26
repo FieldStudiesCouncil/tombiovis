@@ -272,7 +272,6 @@
             });
 
         //Prepare scales for the indicators
-        //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
         var maxFor = d3.max(this.taxa, function (d) { return d.scorefor; });
         var maxAgainst = d3.max(this.taxa, function (d) { return d.scoreagainst; });
         var maxOverall = d3.max(this.taxa, function (d) { return d.scoreoverall; });
@@ -280,16 +279,16 @@
 
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(['#fc8d59', '#ffffbf', '#91bfdb']);
+            .range(_this.scoreColours);
         var scaleFor = d3.scaleLinear()
             .domain([0, maxFor])
-            .range(['#ffffbf', '#91bfdb']);
+            .range(_this.scoreColours.slice(1));
         var scaleAgainst = d3.scaleLinear()
             .domain([0, maxAgainst])
-            .range(['#ffffbf', '#fc8d59']);
+            .range(_this.scoreColours.slice(0,1).reverse());
         var scaleCharacters = d3.scaleLinear()
             .domain([0, 10])
-            .range(['#ffffbf', '#91bfdb']);
+            .range(_this.scoreColours.slice(1));
 
         var colourScales = [
             { "scale": scaleOverall, "attr": "scoreoverall" },

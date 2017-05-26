@@ -18,7 +18,8 @@
         visInfoDialogWidth : 650,
         visInfoDialogHeight: 350,
         scriptsLoaded: false,
-        htmlLoaded: false
+        htmlLoaded: false,
+        inputCharGroups: []
     };
 
     function checkKnowledgeBase() {
@@ -42,6 +43,7 @@
         var values = true;
         var taxavalues = true;
         var media = true;
+        var taxonomy = true;
         var metadata = true;
         var errors, errors2;
 
@@ -49,6 +51,7 @@
         var charactersFromCharactersTab = core.characters.map(function (character) {
             return character.Character;
         });
+
         var charactersFromTaxaTab = Object.keys(core.taxa[0]).filter(function (character) {
             return character != "";
         });
@@ -164,6 +167,12 @@
 
         //Characters
         errors = $('<ul>');
+        //Check that Taxon column has a Group value of Taxonomy
+        var taxonRows = core.characters.filter(function (c) { return (c.Character == "Taxon") });
+        if (taxonRows.length > 0 && taxonRows[0].Group != "Taxonomy") {
+            errors.append($('<li class="tombioValid3">').html("The Taxon character must have a Group value of 'Taxonomy'. It is currently set to '" + taxonRows[0].Group + "'."));
+            characters = false;
+        }
         //Check that all characters (column headers) on the taxa tab have corresponding values in the characters tab.
         charactersFromTaxaTab.forEach(function (character, iCol) {
             if (charactersFromCharactersTab.indexOf(character) == -1) {
@@ -232,7 +241,7 @@
             $('#tombioKBReport').append($('<h4>').text('On the characters worksheet...'));
             $('#tombioKBReport').append(errors);
         }
-
+       
         //Values tab
         errors = $('<ul>');
         errors2 = $('<ul>');
@@ -345,8 +354,57 @@
             $('#tombioKBReport').append(errors);
         }
 
+        //Taxonomy checks
+        errors = $('<ul>');
+        var taxonomyCharacters = core.characters.filter(function (c) { return (c.Group == "Taxonomy") });
+        var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
+        //Check that the row representing Taxon is the last Taxonomy group column on the Characters tab
+        if (lastTaxonomyCol && lastTaxonomyCol != "Taxon") {
+            errors.append($('<li class="tombioValid3">').html("The last Taxonomy row representing '" + lastTaxonomyCol + "' on the characters worksheet appears below the row representing 'Taxon' - it must come above."));
+            taxonomy = false;
+        }
+        //Check that we have a strict hierarchical taxonomy
+        //console.log(lastTaxonomyCol, taxonomyCharacters.length)
+        if (lastTaxonomyCol == "Taxon" && taxonomyCharacters.length > 2) {
+            for (var iRank = taxonomyCharacters.length - 2; iRank > 0; iRank--) {
+                //Each unique 
+                var rankCol = taxonomyCharacters[iRank].Character;
+                var rankColName = taxonomyCharacters[iRank].Label;
+                var parentRankCol = taxonomyCharacters[iRank - 1].Character;
+                var parentRankColName = taxonomyCharacters[iRank - 1].Label;
+                var uniqueRankValues = [];
+                core.taxa.forEach(function(t){
+                    if (t[rankCol] != "" && uniqueRankValues.indexOf(t[rankCol]) == -1) {
+                        uniqueRankValues.push(t[rankCol]);
+                    }
+                })
+                uniqueRankValues.forEach(function (rankVal) {
+                    var uniqueHigherRankValues = [];
+                    var taxa = core.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
+                    taxa.forEach(function(t){
+                        if (uniqueHigherRankValues.indexOf(t[parentRankCol]) == -1) {
+                            uniqueHigherRankValues.push(t[parentRankCol]);
+                        }
+                    })
+                    if (uniqueHigherRankValues.length > 1) {
+                        errors.append($('<li class="tombioValid3">').html("Taxa of " + rankColName + " " + rankVal + 
+                            " are represented by more than one " + parentRankColName + ", breaking the rules of a strict hierarchical taxonomy." +
+                            " Check that the taxonomy columns are specified in the correct order on the characters worksheet " +
+                            " (at the moment " + parentRankColName + " is specified at a higher level than " + rankColName + ")." +
+                            " If they are, then check the values for " + parentRankColName + " and " + rankColName + " on the taxa worksheet."));
+                        taxonomy = false;
+                    }
+                })
+                //console.log(rankCol, uniqueRankValues);
+            }
+        }
+        if (!taxonomy) {
+            $('#tombioKBReport').append($('<h4>').text('Taxonomy problems...'));
+            $('#tombioKBReport').append(errors);
+        }
+
         //Final output
-        if (taxa && characters && values && media && metadata) {
+        if (taxa && characters && values && media && metadata & taxonomy) {
             return true;
         } else {
             $('#tombioKBReport').show();
@@ -592,6 +650,7 @@
 
                 if (!characters[character.Group]) {
                     characters[character.Group] = [];
+                    global.inputCharGroups.push(character.Group);
                 }
                 characters[character.Group].push(character);
             }
@@ -748,7 +807,7 @@
         if (!global.charactersGrouped) {
 
             $('#tombioControlsListElements').css("display", "none");
-            $('#tombioControlTabs').css("padding-left", "0px");
+            $('#tombioControlTabs').css("padding-left", "0px"); 
         }
 
         //Help handling
@@ -859,6 +918,14 @@
                 resizeControlsAndTaxa();
             }
         });
+
+        //Select default tab
+        if (core.kbconfig.defaultControlGroup && core.kbconfig.defaultControlGroup != "") {
+            var tabIndex = global.inputCharGroups.indexOf(core.kbconfig.defaultControlGroup);
+            if (tabIndex > -1) {
+                tabs.tabs("option", "active", tabIndex +1)
+            }
+        }
 
         $('#tombioInfotoggle')
           .button({

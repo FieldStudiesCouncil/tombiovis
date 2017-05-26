@@ -508,7 +508,7 @@
             //in list.
             var scaleOverall = d3.scaleLinear()
                 .domain([-1, 0, 1])
-                .range(['#fc8d59', '#ffffbf', '#91bfdb']);
+                .range(_this.scoreColours);
 
             //Get the column model to reflect the order of the columns
             var orderedTaxa = [];

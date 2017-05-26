@@ -803,25 +803,12 @@
         return shortName;
     }
 
-    exports.Obj.prototype.shortName = function (name) {
-        //Returns a shortened name for use in visualisations
-        //where long taxa name too long.
-
-        var nameParts = name.split(" ");
-        var shortName = "";
-        nameParts.forEach(function (part, iPart) {
-            if (iPart == 0) {
-                shortName += part.substring(0, 1);
-            } else {
-                shortName += " ";
-                shortName += part.substring(0, 3);
-            }
-        })
-        return shortName;
-    }
-
     exports.Obj.prototype.taxonTag = function (taxonName) {
         return taxonName.replace(/[|&;$%@"<>()+:.,' ]/g, '');
     }
+
+    //Colour ramp for the matching indicators to be used across all visualisations
+    //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
+    exports.Obj.prototype.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
 
 })(jQuery, this.tombiovis);

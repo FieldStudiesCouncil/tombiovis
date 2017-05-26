@@ -27,7 +27,7 @@
         taxaRootCurrent,
         abbrvNames = true,
         g, 
-        color,
+        colorGreyScale,
         lastZoomWasPan,
         zoomStarted,
         selectedRank;
@@ -57,8 +57,7 @@
 
         //Help files
         this.helpFiles = [
-            //tombiopath + "vis4/vis4Help.html",
-            //tombiopath + "common/imageGroupHelp.html"
+            tombiopath + "vis5/vis5Help.html"
         ]
 
         //Add circle pack stuff
@@ -79,7 +78,7 @@
         diameter = +svg.attr("width");
         g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
-        color = d3.scaleLinear()
+        colorGreyScale = d3.scaleLinear()
            .domain([-1, 5])
            .range(["hsl(152,0%,80%)", "hsl(228,0%,40%)"])
            .interpolate(d3.interpolateHcl);
@@ -206,10 +205,9 @@
         }
 
         //Prepare scales for the indicators
-        //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(['#fc8d59', '#ffffbf', '#91bfdb']);
+            .range(_this.scoreColours);
 
         //If the minimum overall score is greater than zero, correction is zero, otherwise
         //the correction is the absolute value of the minimum overall score.
@@ -261,7 +259,7 @@
                     return d.data.id;
                 }
             } else {
-                console.log(d)
+                //console.log(d)
                 return taxonTooltip(d)
             }
         });
@@ -280,9 +278,14 @@
         circleM.transition(transitionRefresh)
             .style("fill", function (d) {
                 if (d.children) {
-                    return color(d.depth);
+                    return colorGreyScale(d.depth);
                 } else {
-                    return scaleOverall(d.data.data.taxon.scoreoverall);     
+                    if (d.data.data.taxon) {
+                        return scaleOverall(d.data.data.taxon.scoreoverall);    
+                    } else {
+                        //Can get here if bad taxonomic hierarchy is specified.
+                        return 0;
+                    }         
                 }
             })
         var textU = g.selectAll("text")
@@ -344,16 +347,21 @@
 
         function taxonTooltip(d) {
 
-            console.log(d)
+            //console.log(d)
 
             //For leaf nodes (i.e. those representing actual taxa, set the title attribute
             //to some HTML that reflects the name and its overall score - including a colour
             //swatch behind the score. Further on, we use the 'option' attribute of the 
             //jQuery tooltip command to return this as HTML.
-            return "<i>" + d.data.id + "</i> <span style='background-color: " +
+            if (d.data.data.taxon) {
+                return "<i>" + d.data.id + "</i> <span style='background-color: " +
                     scaleOverall(d.data.data.taxon.scoreoverall) +
                     "; padding: 2px 5px 2px 5px; margin-left: 5px'>" +
                     Math.round(d.data.data.taxon.scoreoverall * 100) / 100 + "</span>"
+            } else {
+                //Can get here if bad taxonomic hierarchy is specified.
+                return "<i>" + d.data.id + "</i>";
+            }
         }
     }
 
