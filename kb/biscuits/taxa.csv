@@ -1,13 +1,15 @@
-Taxon,Shape,BiscuitColour,Coating,Holes,Pattern,Words,SingleDouble,FillingColour,Width,Length,ChocTaste,TopTen
-Rich Highland Shortie,Round,Pale brown,None,Yes,Yes,No,Single,n/a,57,57,none,no
-Romany Vanilla Cream,Round,Dark brown,None,No,Yes,No,Double,White,47,47,none,no
-Shortcake,Rectangular,Pale brown,None,Yes,Yes,No,Single,n/a,37,61,none,no
-Custard Cream,Rectangular,Pale brown,None,Yes,Yes,Yes,Double,White,34,47,none,yes
-Bourbon Cream,Rectangular,Dark brown,None,Yes,No,Yes,Double,Dark brown,30,62,little,yes
-Happy Face,Round,Pale brown,None,No,Yes,No,Double,White,47,47,none,no
-Milk Chocolate Digestive,Round,Pale brown,Chocolate,No,No,No,Single,n/a,58,58,very,no
-Milk Chocolate Finger,Cigar,Pale brown,Chocolate,No,No,No,Single,n/a,15,78,very,yes
-Jam Sandwich Cream,Round,Pale brown,None,No,Yes,No,Double,White and red,47,47,none,no
-Choc Chip Cookie,Round,Pale brown,None,No,No,No,Single,n/a,57,57,moderate,no
-#Rich's fantasy biscuit 1,Triangle,Dark brown | Pale brown,Toffee,Yes,No,No,Single,n/a,[80-90],[90-100],none,no
-Rich's fantasy biscuit 2,Hexagonal,Pink | Dark brown | Pale brown,Chocolate,Yes,No,?,Double,Dark brown,[80-90],[90-100],very,no
+Taxon,Shape,BiscuitColour,Coating,Holes,Pattern,Words,SingleDouble,FillingColour,Width,Length,ChocTaste,Availability,TopTen
+Rich Highland Shortie,Round,Pale brown,None,Yes,Yes,No,Single,n/a,57,57,none,[jan-dec],no
+Romany Vanilla Cream,Round,Dark brown,None,No,Yes,No,Double,White,47,47,none,[jan-dec],no
+Shortcake,Rectangular,Pale brown,None,Yes,Yes,No,Single,n/a,37,61,none,[jan-dec],no
+Custard Cream,Rectangular,Pale brown,None,Yes,Yes,Yes,Double,White,34,47,none,[jan-dec],yes
+Bourbon Cream,Rectangular,Dark brown,None,Yes,No,Yes,Double,Dark brown,30,62,little,[jan-dec],yes
+Happy Face,Round,Pale brown,None,No,Yes,No,Double,White,47,47,none,[jan-dec],no
+Milk Chocolate Digestive,Round,Pale brown,Chocolate,No,No,No,Single,n/a,58,58,very,[jan-dec],no
+Milk Chocolate Finger,Cigar,Pale brown,Chocolate,No,No,No,Single,n/a,15,78,very,[jan-dec],yes
+Jam Sandwich Cream,Round,Pale brown,None,No,Yes,No,Double,White and red,47,47,none,[jan-dec],no
+Choc Chip Cookie,Round,Pale brown,None,No,No,No,Single,n/a,57,57,moderate,[jan-dec],no
+#Rich's fantasy biscuit 1,Triangle,Dark brown | Pale brown,Toffee,Yes,No,No,Single,n/a,[80-90],[90-100],very,[jan-dec],no
+Rich's fantasy biscuit 2,Hexagonal,Pink | Dark brown | Pale brown,Chocolate,Yes,No,?,Double,Dark brown,[80-90],[90-100],[little-very],[may-jun],no
+Rich's fantasy biscuit 3,Round,Pale brown,Chocolate,No,No,No,Double,n/a,50,50,very | moderate,aug,no
+Rich's fantasy biscuit 4,Cigar,Dark brown,Chocolate,Yes,Yes,No,Single,n/a,10,70,very,[dec-feb],no

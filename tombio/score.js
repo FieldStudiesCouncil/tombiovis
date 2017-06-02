@@ -36,7 +36,12 @@
         return [scorefor, scoreagainst];
     }
 
-    exports.ordinal = function(selState, kbTaxonStates, posStates, kbStrictness) {
+    exports.ordinal = function (selState, kbTaxonStates, posStates, kbStrictness) {
+
+        console.log("selState", selState)
+        console.log("kbTaxonStates", kbTaxonStates)
+        console.log("posStates", posStates)
+        console.log("kbStrictness", kbStrictness)
 
         //selState is the state we're assessing for a match.
         //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex).
@@ -55,7 +60,7 @@
         }
 
         var stateval;
-        var rng = {min: null, max: null}
+        var rng = { min: null, max: null }
         posStates.forEach(function (state, rank) {
             if (state == selState) {
                 stateval = rank;
@@ -69,7 +74,40 @@
                 }
             })
         })
-        return exports.numberVsRange(stateval, rng, posStates.length -1, kbStrictness)
+        return exports.numberVsRange(stateval, rng, posStates.length - 1, kbStrictness)
+    }
+
+    exports.ordinal2 = function (selStates, kbTaxonStates, posStates, kbStrictness, isCircular) {
+
+        console.log("selStates", selStates)
+        console.log("kbTaxonStates", kbTaxonStates)
+        console.log("posStates", posStates)
+        console.log("kbStrictness", kbStrictness)
+        console.log("isCircular", isCircular)
+
+        //Deal first with missing KB values
+        if (kbTaxonStates.length == 0) {
+            return [0, 0];
+        }
+
+        return [0, 0];
+
+        //var stateval;
+        //var rng = { min: null, max: null }
+        //posStates.forEach(function (state, rank) {
+        //    if (state == selState) {
+        //        stateval = rank;
+        //    }
+        //    kbTaxonStates.forEach(function (taxState) {
+        //        if (!rng.min && taxState == state) {
+        //            rng.min = rank;
+        //        }
+        //        if (taxState == state) {
+        //            rng.max = rank;
+        //        }
+        //    })
+        //})
+        //return exports.numberVsRange(stateval, rng, posStates.length - 1, kbStrictness)
     }
 
     exports.character = function (selectedStates, kbTaxonStates) {

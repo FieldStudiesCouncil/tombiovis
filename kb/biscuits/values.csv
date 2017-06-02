@@ -22,3 +22,16 @@ SingleDouble,Double,,There are two separate layers of biscuit.
 SingleDouble,Single,,There is only a single layer biscuit.
 Words,Yes,,The biscuit has words stamped on top.
 Words,No,,There are no words on the biscuit (pattern or holes may be present).
+Availability,jan,January,
+Availability,feb,February,
+Availability,mar,March,
+Availability,apr,April,
+Availability,may,May,
+Availability,jun,June,
+Availability,jul,July,
+Availability,aug,August,
+Availability,sep,September,
+Availability,oct,October,
+Availability,nov,November,
+Availability,dec,December,
+,,,

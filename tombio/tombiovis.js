@@ -1,6 +1,5 @@
 ﻿(function ($, core) {
 
-
     "use strict";
 
     //Global object to reference all the global variables.
@@ -8,14 +7,14 @@
     //Makes explicit in code which are global variables (within the scope of the closure).
     var global = {
         xbullet: "&#x26AB ",
-        bullet : "",
-        delay : 250,
-        duration : 1000,
-        infowidth : 640,
-        infoheight : 520, 
-        helpAndInfoDialogWidth : 400,
+        bullet: "",
+        delay: 250,
+        duration: 1000,
+        infowidth: 640,
+        infoheight: 520,
+        helpAndInfoDialogWidth: 400,
         helpAndInfoDialogHeight: 250,
-        visInfoDialogWidth : 650,
+        visInfoDialogWidth: 650,
         visInfoDialogHeight: 350,
         scriptsLoaded: false,
         htmlLoaded: false,
@@ -23,7 +22,7 @@
     };
 
     function checkKnowledgeBase() {
-      
+
         /*
         At this point, the following objects are available for checking
         core.taxa
@@ -37,7 +36,7 @@
         if (!(core.kbconfig.checkValidity && core.kbconfig.checkValidity == "yes")) {
             return true;
         }
-        
+
         var taxa = true;
         var characters = true;
         var values = true;
@@ -55,14 +54,27 @@
         var charactersFromTaxaTab = Object.keys(core.taxa[0]).filter(function (character) {
             return character != "";
         });
-        var charactersFromValuesTab = []; 
+        var charactersFromValuesTab = [];
         core.values.forEach(function (row) {
             if (charactersFromValuesTab.indexOf(row.Character) == -1) {
                 charactersFromValuesTab.push(row.Character);
             }
         });
+
         var numericCharactersInTaxaTab = core.characters.filter(function (character) {
             return character.ValueType == "numeric" && charactersFromTaxaTab.indexOf(character.Character) > -1;
+        }).map(function (character) {
+            return character.Character;
+        });
+
+        var allOrdinalCharactersInTaxaTab = core.characters.filter(function (character) {
+            return (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
+        }).map(function (character) {
+            return character.Character;
+        });
+
+        var circularOrdinalCharactersInTaxaTab = core.characters.filter(function (character) {
+            return (character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
@@ -151,15 +163,74 @@
                 if (!(value == "" ||
                     value == "n/a" ||
                     value == "?" ||
-                    value.substr(0,1) == "#" || //ignores comment out character state values
+                    value.substr(0, 1) == "#" || //ignores comment out character state values
                     regexNumericValue.test(value) ||
                     regexNumericRange.test(value))) {
                     errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a' and no value.)"));
-                        taxa = false;
+                    taxa = false;
                 }
             });
         });
-     
+
+        //Check that all ordinal character values on the taxa worksheet are specified in the correct
+        //format and have a corresponding value on the values worksheet.
+        var regexOrdinalRange = /^\[[^-]+-[^-]+\]$/;
+        allOrdinalCharactersInTaxaTab.forEach(function (character) {
+
+            core.taxa.forEach(function (taxon) {
+                value = taxon[character];
+                var stopChecking = false;
+                if (!(value == "" ||
+                     value == "n/a" ||
+                     value == "?" ||
+                     value.substr(0, 1) == "#")) { //ignores comment out character state values
+
+                    //Get the permitted ordinal values for this character
+                    var fullOrdinalRange = core.values.filter(function (vRow) {
+                        return vRow.Character == character;
+                    });
+
+                   
+
+                    //Split on the or character (|) and check each part
+                    var orValues = value.split("|").forEach(function (orValue) {
+                        var continueChecking = true;
+                        orValue = orValue.trim();
+                        //If value is of the format [v1-v2] then this is an ordinal range, so split it.
+                        if (regexOrdinalRange.test(orValue)) {
+                            var rangeValues = orValue.slice(1, -1).split("-").slice(0,2); //Ignore parts after first two!
+                        } else {
+                            var rangeValues = [orValue]
+                        }
+
+                        //Ensure that all specified ordinal values on the taxa tab are represented in the values tab
+                        rangeValues.forEach(function (rValue) {
+                            rValue = rValue.trim();
+                            var matchingValues = fullOrdinalRange.filter(function (vRow) {
+                                return vRow.CharacterState == rValue;
+                            });
+                            if (matchingValues.length == 0) {
+                                errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not represented in the values worksheet. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
+                                taxa = false;
+                                continueChecking = false;
+                            }
+                        })
+
+                        //For ordinal ranges, unless an ordinalCircular, then start value must come before end value
+                        if (continueChecking && rangeValues.length == 2 && circularOrdinalCharactersInTaxaTab.indexOf(character) == -1) {
+                            
+                            var fullOrdinalRangeValues = fullOrdinalRange.map(function (v) { return v.CharacterState });
+
+                            if (fullOrdinalRangeValues.indexOf(rangeValues[0]) > fullOrdinalRangeValues.indexOf(rangeValues[1])) {
+                                errors.append($('<li class="tombioValid2">').html("The ordinal range <b>'" + orValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not valid since the start of the range appears after the end in the ordinal values expressed on the values worksheet for this character."));
+                                taxa = false;
+                            }
+                        }
+                    })   
+                }
+            });
+        });
+
         if (!taxa) {
             $('#tombioKBReport').append($('<h4>').text('On the taxa worksheet...'));
             $('#tombioKBReport').append(errors);
@@ -189,12 +260,13 @@
         });
         //Check other character parameters.
         core.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
-            var validValueType = ["numeric", "ordinal", "text"];
+            var validValueType = ["numeric", "ordinal", "ordinalCircular", "text"];
             var validControlType = ["single", "multi", "spin"];
             var validControlsForValues = {
                 numeric: ["spin"],
                 text: ["single", "multi"],
-                ordinal: ["single"]
+                ordinal: ["single", "multi"],
+                ordinalCircular: ["single", "multi"]
             }
             var ValueTypeOK = true;
             var ControlTypeOK = true;
@@ -205,10 +277,10 @@
                 errors.append($('<li class="tombioValid3">').html("You must specify a 'Weight' value for <b>'" + c.Character + "'</b> because it has a 'Status' value of 'key'."));
                 characters = false;
             }
-            //Check that all numeric and ordinal characters have a strictness value between 0 and 10.
+            //Check that all numeric, ordinal and ordinal-circular characters have a strictness value between 0 and 10.
             var regexStrictness = /^([0-9]|10)$/;
-            if ((c.ValueType == "numeric" || c.ValueType == "ordinal") && !regexStrictness.test(c.Strictness)) {
-                errors.append($('<li class="tombioValid3">').html("For numeric or ordinal characters, you must specify a 'Strictness' value of between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
+            if ((c.ValueType == "numeric" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexStrictness.test(c.Strictness)) {
+                errors.append($('<li class="tombioValid3">').html("For numeric, ordinal and ordinalCircular characters, you must specify a 'Strictness' value of between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
                 characters = false;
             }
             //Check that all characters in characters tab that are used in the key a valid value type.
@@ -241,7 +313,7 @@
             $('#tombioKBReport').append($('<h4>').text('On the characters worksheet...'));
             $('#tombioKBReport').append(errors);
         }
-       
+
         //Values tab
         errors = $('<ul>');
         errors2 = $('<ul>');
@@ -253,74 +325,86 @@
             }
         });
 
-        //Check that values for a character on the values tab are also represented on the taxa tab
-        //Conversely, where a character is represented at all on the values tab, report on values
-        //in taxa tab that are not represented on values tab (for info only).
-        var taxaCharacterValues, valueCharacterValues;
-        charactersFromValuesTab.forEach(function (character) {
+        //******************************************************************************************
+        //RJB The following checks were removed 26-05-2017 because I consider them to be overkill.
+        //In the case of ordinal characters, values on the value tab may not always be represented
+        //on the taxa tab - especially in the early stages of KB building. Separate checks have
+        //now been implemented to ensure that any ordinal value on the taxa tab is represented on
+        //the values tab.
+        //If reinstated at any point they will need updating to account for changes to the specification
+        //of ordinal characters (ordinal ranges) and the fact that some checking to see that all ordinal
+        //characters represented on taxa tab are also represented on values tab have been introduced
+        //before this point.
+        //******************************************************************************************
+        ////Check that values for a character on the values tab are also represented on the taxa tab
+        ////Conversely, where a character is represented at all on the values tab, report on values
+        ////in taxa tab that are not represented on values tab. For text characters, that is 
+        ////for info only, but for ordinal characters this is a serious error.
+        //var taxaCharacterValues, valueCharacterValues;
+        //charactersFromValuesTab.forEach(function (character) {
 
-            valueCharacterValues = [];
-            core.values.forEach(function (row) {
-                if (row.Character == character) {
-                    valueCharacterValues.push(row.CharacterState);
-                }
-            });
+        //    valueCharacterValues = [];
+        //    core.values.forEach(function (row) {
+        //        if (row.Character == character) {
+        //            valueCharacterValues.push(row.CharacterState);
+        //        }
+        //    });
 
-            if (charactersFromTaxaTab.indexOf(character) > -1) {
-                taxaCharacterValues = [];
-                core.taxa.forEach(function (taxon) {
+        //    if (charactersFromTaxaTab.indexOf(character) > -1) {
+        //        taxaCharacterValues = [];
+        //        core.taxa.forEach(function (taxon) {
 
-                    var splitvalues = taxon[character].split("|");
-                    splitvalues.forEach(function (charValue) {
-                        charValue = charValue.trim();
-                        if (endsWith(charValue, "(m)") || endsWith(charValue, "(f)")) {
-                            var stateValue = charValue.substr(0, charValue.length - 4).trim();
-                        } else {
-                            var stateValue = charValue;
-                        }
+        //            var splitvalues = taxon[character].split("|");
+        //            splitvalues.forEach(function (charValue) {
+        //                charValue = charValue.trim();
+        //                if (endsWith(charValue, "(m)") || endsWith(charValue, "(f)")) {
+        //                    var stateValue = charValue.substr(0, charValue.length - 4).trim();
+        //                } else {
+        //                    var stateValue = charValue;
+        //                }
 
-                        if (taxaCharacterValues.indexOf(stateValue) == -1) {
-                            taxaCharacterValues.push(stateValue);
-                        }
-                    });
-                });
+        //                if (taxaCharacterValues.indexOf(stateValue) == -1) {
+        //                    taxaCharacterValues.push(stateValue);
+        //                }
+        //            });
+        //        });
 
-                //Are there values in values tab that are not in taxa tab?
-                valueCharacterValues.forEach(function (value) {
-                    if (taxaCharacterValues.indexOf(value) == -1) {
-                        errors.append($('<li class="tombioValid2">').html("The value <b>'" + value + "'</b> listed on the <i>values</i> worksheet for the character <b>'" + character + "'</b> is not specified for any taxa on the <i>taxa</i> worksheet."));
-                        values = false;
-                    }
-                });
+        //        //Are there values in values tab that are not in taxa tab?
+        //        valueCharacterValues.forEach(function (value) {
+        //            if (taxaCharacterValues.indexOf(value) == -1) {
+        //                errors.append($('<li class="tombioValid2">').html("The value <b>'" + value + "'</b> listed on the <i>values</i> worksheet for the character <b>'" + character + "'</b> is not specified for any taxa on the <i>taxa</i> worksheet."));
+        //                values = false;
+        //            }
+        //        });
 
-                //For characters represented on the values tab, are there values on the
-                //taxa tab which aren't represented on the values tab?
-                if (charactersFromValuesTab.indexOf(character) > -1) {
-                    taxaCharacterValues.forEach(function (value) {
-                        if (value != "" && value != "n/a" && value != "?") {
-                            if (valueCharacterValues.indexOf(value) == -1) {
-                                errors2.append($('<li class="tombioValid1">').html("The value <b>'" + value + "'</b> listed on the <i>taxa</i> worksheet for the character <b>'" + character + "'</b> is not specified on the <i>values</i> worksheet."));
-                                taxavalues = false;
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        //        //For characters represented on the values tab, are there values on the
+        //        //taxa tab which aren't represented on the values tab?
+        //        if (charactersFromValuesTab.indexOf(character) > -1) {
+        //            taxaCharacterValues.forEach(function (value) {
+        //                if (value != "" && value != "n/a" && value != "?") {
+        //                    if (valueCharacterValues.indexOf(value) == -1) {
+        //                        errors2.append($('<li class="tombioValid1">').html("The value <b>'" + value + "'</b> listed on the <i>taxa</i> worksheet for the character <b>'" + character + "'</b> is not specified on the <i>values</i> worksheet."));
+        //                        taxavalues = false;
+        //                    }
+        //                }
+        //            });
+        //        }
+        //    }
+        //});
 
         if (!values) {
             $('#tombioKBReport').append($('<h4>').text('On the values worksheet...'));
             $('#tombioKBReport').append(errors);
         }
-        if (!taxavalues) {
-            $('#tombioKBReport').append($('<h4>').text('Values on the taxa worksheet...'));
-            $('#tombioKBReport').append(errors2);
-        }
+        //if (!taxavalues) {
+        //    $('#tombioKBReport').append($('<h4>').text('Values on the taxa worksheet...'));
+        //    $('#tombioKBReport').append(errors2);
+        //}
 
         //Image media files
         errors = $('<ul>');
         core.media.filter(function (m) { return (m.Type == "image-local") }).forEach(function (m) {
-            
+
             if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
                 //A character on the media tab does not appear on the characters tab
                 errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but that character is not on the characters worksheet."));
@@ -373,7 +457,7 @@
                 var parentRankCol = taxonomyCharacters[iRank - 1].Character;
                 var parentRankColName = taxonomyCharacters[iRank - 1].Label;
                 var uniqueRankValues = [];
-                core.taxa.forEach(function(t){
+                core.taxa.forEach(function (t) {
                     if (t[rankCol] != "" && uniqueRankValues.indexOf(t[rankCol]) == -1) {
                         uniqueRankValues.push(t[rankCol]);
                     }
@@ -381,13 +465,13 @@
                 uniqueRankValues.forEach(function (rankVal) {
                     var uniqueHigherRankValues = [];
                     var taxa = core.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
-                    taxa.forEach(function(t){
+                    taxa.forEach(function (t) {
                         if (uniqueHigherRankValues.indexOf(t[parentRankCol]) == -1) {
                             uniqueHigherRankValues.push(t[parentRankCol]);
                         }
                     })
                     if (uniqueHigherRankValues.length > 1) {
-                        errors.append($('<li class="tombioValid3">').html("Taxa of " + rankColName + " " + rankVal + 
+                        errors.append($('<li class="tombioValid3">').html("Taxa of " + rankColName + " " + rankVal +
                             " are represented by more than one " + parentRankColName + ", breaking the rules of a strict hierarchical taxonomy." +
                             " Check that the taxonomy columns are specified in the correct order on the characters worksheet " +
                             " (at the moment " + parentRankColName + " is specified at a higher level than " + rankColName + ")." +
@@ -515,7 +599,7 @@
     }
 
     function enrichStateValueObjects() {
-        core.taxa.forEach(function(taxon) {
+        core.taxa.forEach(function (taxon) {
             core.characters.forEach(function (character) {
                 //Set ValueType
 
@@ -568,7 +652,7 @@
     }
 
     function addValuesToCharacters() {
- 
+
         core.values.forEach(function (val) {
 
             //console.log(val.Character);
@@ -593,11 +677,13 @@
             }
         });
 
-        //Now enrich with any character states specified in the taxa knowledge base
+        //Now enrich with any text character states specified in the taxa knowledge base
         //that aren't in the values table. These are just added to the array for 
-        //each character in the order that they are found.
+        //each character in the order that they are found. This isn't done for ordinal
+        //characters - they *must* be specified on values tab.
         core.characters.forEach(function (character) {
-            if (character.Status == "key" && (character.ValueType == "text" || character.ValueType == "ordinal")) {
+            //if (character.Status == "key" && (character.ValueType == "text" || character.ValueType == "ordinal")) {
+            if (character.Status == "key" && (character.ValueType == "text")) {
                 core.taxa.forEach(function (taxon) {
                     var allstates = taxon[character.Character].getStates("");
                     allstates.forEach(function (state) {
@@ -766,9 +852,7 @@
                     var selectID = character.Character;
 
                     //New character control
-                    //A control classified as 'ordinal' must be created as a single select regardless
-                    //of whether 'single' or 'multi' specified.
-                    if (character.ControlType == "multi" && character.ValueType == "text") {
+                    if (character.ControlType == "multi") {
                         var selectcontrol = $("<select multiple=multiple></select>").attr("class", "characterSelect");
                     } else {
                         var selectcontrol = $("<select></select>").attr("class", "characterSelect");
@@ -776,7 +860,8 @@
                     selectcontrol.attr("id", selectID);
                     tab.append(selectcontrol);
 
-                    if (character.ControlType == "single" || character.ValueType == "ordinal") {
+                    //if (character.ControlType == "single" || character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                    if (character.ControlType == "single") {
                         var option = $("<option/>").text("");
                         selectcontrol.append(option);
                     }
@@ -807,7 +892,7 @@
         if (!global.charactersGrouped) {
 
             $('#tombioControlsListElements').css("display", "none");
-            $('#tombioControlTabs').css("padding-left", "0px"); 
+            $('#tombioControlTabs').css("padding-left", "0px");
         }
 
         //Help handling
@@ -864,7 +949,7 @@
                 selOpt.attr("selected", "selected");
             }
             toolOptions.push(selOpt);
-            
+
             global.visualisations[visObj.visName] = visObj;
         })
         //Add the various info tools
@@ -874,7 +959,7 @@
         toolOptions.push('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>');
 
         $("#tombioVisualisation").append(toolOptions);
-            
+
         //This call to the jQuery widget method is taken straight from the jQuery online
         //examples for adding widgets to selectmenu items.
         $.widget("custom.iconselectmenu", $.ui.selectmenu, {
@@ -923,7 +1008,7 @@
         if (core.kbconfig.defaultControlGroup && core.kbconfig.defaultControlGroup != "") {
             var tabIndex = global.inputCharGroups.indexOf(core.kbconfig.defaultControlGroup);
             if (tabIndex > -1) {
-                tabs.tabs("option", "active", tabIndex +1)
+                tabs.tabs("option", "active", tabIndex + 1)
             }
         }
 
@@ -968,7 +1053,7 @@
                 duration: 250
             }
         })
-        
+
 
         $('#tombioOptions')
             .button({ icons: { primary: null, secondary: 'ui-icon-options' }, disabled: false })
@@ -999,7 +1084,7 @@
             } else {
                 allHelpFilesLoaded = false;
             }
-        });    
+        });
         if (allHelpFilesLoaded) {
             help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
             $('#currentVisInfo').html(help);
@@ -1037,7 +1122,7 @@
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationKb' id='tbCitationKb'>"));
         html.append($("<span>").text("Copy citation"));
         html.append($("<b>").html(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title)));
-        
+
 
         var button = $("<button>Copy citations</button>").button();
         button.on("click", function () {
@@ -1054,7 +1139,7 @@
             }
             selectElementText(document.getElementById("tbSelectedCitations"));
             $('#tbCitationInstructions').show();
-            
+
         });
 
         html.append($("<p>").append(button).append("&nbsp;The selected citations will appear together below - just copy and paste"));
@@ -1085,10 +1170,10 @@
     }
 
     function getCitation(metadata, sType, coreTitle) {
-        
+
         var html = $("<div class='tombioCitation'>"), t;
         var d = new Date();
- 
+
         t = metadata.authors + " ";
         t += "(" + metadata.year + ") ";
         t += "<i>" + metadata.title + "</i>";
@@ -1133,7 +1218,7 @@
             var title = $('<h2>').text(core.kbmetadata['title']);
             $('#kbInfo').html(title);
             $.get(tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').append(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));  
+                $('#kbInfo').append(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));
             }).always(function () {
                 //Citation
                 var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
@@ -1183,7 +1268,7 @@
         //If the user has selected to show info for current visualisation and not yet loaded,
         //then load.
         if (selectedToolName == "currentVisInfo") {
-           
+
             //Dimension and empty array to accommodate all the help
             //files referenced by this object.
             var helpFiles = new Array(global.lastVisualisation.helpFiles.length);
@@ -1358,7 +1443,7 @@
             //Set state set flag
             if (id.substring(0, 6) == "clone-") {
                 var character = id.substring(6);
-            }else{
+            } else {
                 var character = id;
             }
             core.oCharacters[character].stateSet = (select.val() != null && select.val() != "");
@@ -1387,7 +1472,7 @@
         spinner.addClass("statespinner");
 
         //spinner.on("spinchange", function () {
-            
+
         //    //Set state set flag
         //    if (id.substring(0, 6) == "clone-") {
         //        var character = id.substring(6);
@@ -1420,9 +1505,9 @@
             core.oCharacters[character].stateSet = true;
 
             //if (!isClone) {
-                //Update the taxon representation.
-                refreshVisualisation();
-                setCloneVisibility();
+            //Update the taxon representation.
+            refreshVisualisation();
+            setCloneVisibility();
             //}
         });
 
@@ -1556,7 +1641,7 @@
             var para = $('<p/>').appendTo('#tombioHelpAndInfoDialog');
             var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
             para.append(spanState);
-            var spanHelp =$('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
+            var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
             para.append(spanHelp);
 
             //Help images for character states
@@ -1596,12 +1681,12 @@
         global.contextMenu.contexts = {};
 
         //Initialise the ul element which will form basis of menu
-        global.contextMenu.menu = $("<ul>").css("white-space","nowrap").appendTo('#tombioMain')
+        global.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioMain')
             .addClass("contextMenu")
             .css("position", "absolute")
             .css("display", "none")
             .css("z-index", 999999);
-            //.append($('<li>').text("menu test"))
+        //.append($('<li>').text("menu test"))
 
         //Make it into a jQuery menu
         global.contextMenu.menu.menu();
@@ -1621,7 +1706,7 @@
             var relX = event.pageX - parentOffset.left;
             var relY = event.pageY - parentOffset.top;
             global.contextMenu.menu.css({ left: relX, top: relY });
-            
+
             global.contextMenu.menu.show();
 
             return false; //Cancel default context menu
@@ -1634,7 +1719,7 @@
 
         //Add method to add an item
         global.contextMenu.addItem = function (label, f, contexts) {
-        
+
             //Add item if it does not already exist
             if (!(label in global.contextMenu.items)) {
 
@@ -1643,7 +1728,7 @@
                 global.contextMenu.menu.menu("refresh");
                 global.contextMenu.items[label] = item;
                 global.contextMenu.contexts[label] = contexts;
-            }  
+            }
         }
 
         //Add method to remove an item
@@ -1657,7 +1742,7 @@
 
         //Add method to signal that the context has changed
         global.contextMenu.contextChanged = function (context) {
-           
+
             //Go through each item in context menu and hide it if 
             //not valid for this context.
             for (var label in global.contextMenu.items) {
@@ -1764,12 +1849,13 @@
                     && $(this).val() != null
                     && $(this).val() != "") {
 
-                    if (core.oCharacters[stateselectID].ValueType == "ordinal") {
+                    if (core.oCharacters[stateselectID].ValueType == "ordinal" || core.oCharacters[stateselectID].ValueType == "ordinalCircular") {
                         //Ordinal scoring
                         var kbStrictness = Number(core.oCharacters[stateselectID].Strictness);
 
                         var selState = $(this).val();
                         //console..log(stateselectID + " " + selState);
+                        var selectedStates = [];
 
                         if (taxon[stateselectID] == "n/a") {
 
@@ -1778,16 +1864,37 @@
                             charused = 1;
                             //Adjust for strictness
                             //scorena = scorena * (kbStrictness / 10);
+                        } else {                         
+                            if (core.oCharacters[stateselectID].ControlType == "single") {
 
-                        } else {
-                            var posStates = core.oCharacters[stateselectID].CharacterStateValues;
-                            var kbTaxonStates = taxon[stateselectID].getStates(sex);
+                                //Selected value for a single select control is a simple string value
+                                if ($(this).val() != "") {
+                                    selectedStates.push($(this).val());
+                                }
+                            } else {
+                                //Selected values for multi select control is an array of string values
+                                if ($(this).val() == null) {
+                                    selectedStates = [];
+                                } else {
+                                    selectedStates = $(this).val();
+                                }
+                            }
 
-                            var score = tombioScore.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
+                            if (selectedStates.length > 0) {
 
-                            scorefor = score[0];
-                            scoreagainst = score[1];
-                            charused = 1;
+                                var posStates = core.oCharacters[stateselectID].CharacterStateValues;
+                                //The KB states for this character and taxon.
+                                //States that are specific to male or female are represented by suffixes of (m) and (f).
+                                var kbTaxonStates = taxon[stateselectID].getStates(sex);
+
+                                //var score = tombioScore.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
+
+                                var isCircular = core.oCharacters[stateselectID].ValueType == "ordinalCircular";
+                                var score = tombioScore.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
+                                scorefor = score[0];
+                                scoreagainst = score[1];
+                                charused = 1;
+                            }
                         }
                     } else {
                         //It's a non-ordinal character.
@@ -1800,7 +1907,7 @@
                             charused = 1;
                         } else {
                             if (core.oCharacters[stateselectID].ControlType == "single") {
- 
+
                                 //Selected value for a single select control is a simple string value
                                 if ($(this).val() != "") {
                                     selectedStates.push($(this).val());
@@ -1822,8 +1929,6 @@
                                 var score = tombioScore.character(selectedStates, kbTaxonStates);
                                 scorefor = score[0];
                                 scoreagainst = score[1];
-
-                                //Increment character count
                                 charused = 1;
                             }
                         }
@@ -1945,7 +2050,7 @@
             return "<i>not applicable</i>";
         } else if (this.kbValue == "" || this.kbValue == "?") {
             return "<i>no value specified</i>"
-        } else if (this.valueType == "text" || this.valueType == "ordinal") {
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
 
             //Put bold around each token (separated by |)
             var html = this.kbValue.replace(/([^|]+)/g, "<b>$1</b>");
@@ -1980,7 +2085,7 @@
     StateValue.prototype.toHtml2 = function () {
         if (this.kbValue == "n/a") {
             return "<li><i>not applicable</i></li>";
-        } else if (this.valueType == "text" || this.valueType == "ordinal") {
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
             var html = "";
             var splitKbValues = this.kbValue.split("|");
 
