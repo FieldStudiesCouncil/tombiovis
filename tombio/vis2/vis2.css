@@ -10,7 +10,7 @@
     font-family: Arial;
     font-size: 13px;
     fill: black;
-    writing-mode: vertical-rl;
+    /*writing-mode: vertical-rl;*/
 }
 
 .type2VisIndtext {
@@ -37,4 +37,7 @@
     font-size: 11px;
     stroke-width: 0px;
     fill: black;
+}
+svg {
+    overflow: visible;
 }

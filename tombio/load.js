@@ -86,6 +86,8 @@
         l.type = 'text/css';
         l.href = tombiopath + cssFile;
         document.querySelector('head').appendChild(l);
+
+        console.log("Loading - CSS file added to head:", cssFile)
     }
 
     //Load D3 and then use it to load the KB
@@ -122,6 +124,7 @@
             function (data) {
                 //console.log("taxa", data)
                 core.taxa = data;
+                console.log("Loading - kb taxa loaded");
                 loadStatus();
             });
 
@@ -132,6 +135,7 @@
            function (data) {
                //console.log("characters", data)
                core.characters = data;
+               console.log("Loading - kb characters loaded");
                loadStatus();
            });
 
@@ -140,8 +144,9 @@
                 return filterAndClean(row);
             },
             function (data) {
-               // console.log("values", data)
+                //console.log("values", data)
                 core.values = data;
+                console.log("Loading - kb values loaded");
                 loadStatus();
             });
 
@@ -194,6 +199,7 @@
                         includedTools.push(tool);
                     }
                 })
+                console.log("Loading - kb metadata loaded");
                 loadStatus();
             });
 
@@ -204,6 +210,7 @@
             function (data) {
                 //console.log("media", data)
                 core.media = data;
+                console.log("Loading - kb media loaded");
                 loadStatus();
             });
     }
@@ -215,7 +222,7 @@
         s.onreadystatechange = s.onload = function () {
             //Cross-browser test of when element loaded from jQuery
             if (!s.readyState || /loaded|complete/.test(s.readyState)) {
-                //console.log("Loaded " + src);
+                console.log("Loading - Javascript file loaded:", src);
                 callback(allDoneCallback);
             }
         };
@@ -240,6 +247,7 @@
         "dependencies/pqselect-1.3.2/pqselect.min.js",
         "dependencies/pqgrid-2.1.0/pqgrid.min.js",
         "tombiovis.js?ver=" + core.tombiover,
+        "kbchecks.js?ver=" + core.tombiover,
         "score.js?ver=" + core.tombiover,
         "visP.js?ver=" + core.tombiover
     ]

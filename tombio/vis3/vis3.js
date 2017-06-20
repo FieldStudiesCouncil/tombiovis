@@ -40,19 +40,22 @@
                 var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
                 charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
 
-            } else if (oCharacter.ValueType == "ordinal") {
+            } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
 
                 //Match all possible states for TaxonI against taxon0 and take the average.
                 var iCount = 0, scoreTotal = 0, score;
                 ["male", "female", ""].forEach(function (sex) {
-                    taxonI[character].getStates(sex).forEach(function (state) {
-                        score = tombioScore.ordinal(state, taxon0[character].getStates(sex), oCharacter.CharacterStateValues, oCharacter.Strictness);
+                    //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
+                    taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
+                        score = tombioScore.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
+                        //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
                         scoreTotal += score[0];
                         scoreTotal -= score[1];
                         iCount++;
                     });
                 });
                 charScore = scoreTotal / iCount;
+                //console.log("overall", charScore);
 
             } else {//Character type
                 var iCount = 0, scoreTotal = 0;
@@ -566,54 +569,6 @@
                         } else {
                             tdI.css("background-color", scaleOverall(score));
                         }
-
-                        //if (taxonI[character].value == "n/a" || taxonI[character].value == "") {
-
-                        //    if (taxon0[character].value == "n/a" || taxon0[character].value == "") {
-                        //        tdI.css("background-color", "white");
-                        //    } else {
-                        //        //Any taxonI character without a value where one is specified for Taxon0, colour up as non-matching.
-                        //        tdI.css("background-color", scaleOverall(-1));
-                        //    }
-                        //} else if (taxon0[character].value == "n/a" || taxon0[character].value == "") {
-
-                        //    //Any taxonI character with a value where none specified for Taxon0, colour up as non-matching.
-                        //    tdI.css("background-color", scaleOverall(-1));
-
-                        //} else if (oCharacter.ValueType == "numeric") {
-
-                        //    //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
-                        //    //average of the two overall scores.
-                        //    var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), oCharacter.Strictness);
-                        //    var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), oCharacter.Strictness);
-                        //    var score = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
-
-                        //    tdI.css("background-color", scaleOverall(score));
-
-                        //} else if (oCharacter.ValueType == "ordinal") {
-
-                        //    //Match all possible states for TaxonI against taxon0 and take the avaerage.
-                        //    var iCount = 0, scoreTotal = 0, score;
-                        //    ["male", "female", ""].forEach(function (sex) {
-                        //        taxonI[character].getStates(sex).forEach(function (state) {
-                        //            score = tombioScore.ordinal(state, taxon0[character].getStates(sex), oCharacter.CharacterStateValues, oCharacter.Strictness);
-                        //            scoreTotal += score[0];
-                        //            scoreTotal -= score[1];
-                        //            iCount++;
-                        //        });
-                        //    });
-                        //    tdI.css("background-color", scaleOverall(scoreTotal / iCount));
-
-                        //} else {//Character type
-                        //    var iCount = 0, scoreTotal = 0;
-                        //    ["male", "female", ""].forEach(function (sex) {
-                        //        scoreTotal += tombioScore.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
-                        //        iCount++;
-                        //    });
-                        //    var meanJaccard = scoreTotal / iCount;
-                        //    //Jaccard returns a value between 0 and 1 - adjust this to range between -1 and 1.
-                        //    tdI.css("background-color", scaleOverall(meanJaccard * 2 - 1));
-                        //}
                     }
                 }
             }

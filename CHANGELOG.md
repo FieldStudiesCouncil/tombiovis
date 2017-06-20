@@ -7,15 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Changed
- - (Developers note.) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
+ - (Developers note) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
+ - (Developers note) Moved knowledge-base integrity checks to a separate javascript module to promote code clarity.
+ - Individual character scores on the single-column key visualisation are now rounded *down* to the nearest 0.1 to avoid confusion of non-perfect matches apparently scoring a perfect match.
 ### Added
+ - Added the ability for knowledge-base builders to define ordinal ranges (e.g. [march-july]).
+ - Added the concept of 'circular ordinals' e.g. months of the year where January and December must be considered adjacent - not at two ends of a range.
  - New visualisation - circle pack key (vis5) completed.
  - Added section in Building a Knowledge-base that explains how to encode taxonomy (as opposed to morphology) required for vis5 (and possible future visualisations).
  - Added new integrity checking for taxonomy in knowledge-base. This includes a new requirement for the 'Taxon' character to be specified with the group 'Taxonomy'.
  - In test harness HTML page (vis.html) the title is now replaced with the name of the knowledge-base and the footer by the knowledge-base citation.
  - Knowledge-base builders now have the ability to specify a default character group to be selected where they are grouping characters (documented in Building a knowledge-base in the section on the config worksheet).
+ - (Developers note) Added Javascript console messages to detail the order in which JS modules load to help with debugging in case of problems.
 
 ### Fixed
+ - Vertical orientation of character names in the two-column visualisation updated to make it work with Safari and IE.
 
 ### Removed
 

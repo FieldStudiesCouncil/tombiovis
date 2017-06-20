@@ -98,13 +98,25 @@
             }
         })
 
+        function findEntry(stratTable, rankValue) {
+            //This function is to replace stratTable.find(function (entry) { return entry.name == rankValue })
+            //since the array find method is not available in some relatively recent versions of Safari and IE
+            //15/06/2017
+            stratTable.forEach(function(entry) {
+                if (entry.name  == rankValue) {
+                    return true;
+                }
+            })
+            return false;
+        }
+
         var stratTable = [{name: "All taxa", parent: ""}], ir = 0;
         //Create a table suitable for input into the d3.stratify function
         taxonRanks.forEach(function (r, iR) {
             core.taxa.forEach(function (t, iT) {
                 var rankValue = t[r].kbValue;
-                if (rankValue != "" && !stratTable.find(function (entry) { return entry.name == rankValue })) {
-
+                //if (rankValue != "" && !stratTable.find(function (entry) { return entry.name == rankValue })) {
+                if (rankValue != "" && !findEntry(stratTable, rankValue)) {
                     var rvParent = "";
                     for (var iParent = iR - 1; iParent > -1; iParent -= 1) {
                         rvParent = t[taxonRanks[iParent]].kbValue;

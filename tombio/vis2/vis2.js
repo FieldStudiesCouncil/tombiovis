@@ -115,8 +115,10 @@
                 .text(c.Label);
         });
         d3.selectAll(".tmpCharacterText").each(function () {
+            //We used to use the CSS SVG writing-mode: vertical-rl to rotate the text but this
+            //didn't work with IE or Safari, so changed it to use transformation rotations instead.
             var bbox = this.getBBox();
-            if (bbox.height > characterHeight) characterHeight = bbox.height;
+            if (bbox.width > characterHeight) characterHeight = bbox.width;
         });
         d3.selectAll(".tmpCharacterText").remove();
 
@@ -321,8 +323,13 @@
                             } else {
                                 var weight = 1;
                             }
+                            //Scores use to be shown rounded to the nearest 0.1, but this could 
+                            //result in near matches showing a perfect score, 0.96 displaying as 1.0. This
+                            //could be misleading so this has been changed (15/06/2017) to round *down*
+                            //to the nearest 0.1. Still not a perfect solution, but not as potentially misleading.
                             var score = taxon.matchscore[d.Character].scoreoverall * weight * 10;
-                            score = Math.round(score) / 10;
+                            //score = Math.round(score) / 10;
+                            score = Math.floor(score) / 10;
 
                             d3.select(this).text(score);
                             //return true;
@@ -364,8 +371,14 @@
             })
             .attr("y", function () {
                 var bbox = this.getBBox();
-                return characterHeight - bbox.height;
-            });
+                return characterHeight - bbox.width;
+            })
+            .attr("transform", function (d, i) {
+                var bbox = this.getBBox();
+                var x = taxonWidth + gap + (i + 0.5) * indSpacing;
+                var y = characterHeight - bbox.width;
+                return "rotate(90 " + x + "," + y + ")";
+            })
 
         //Transition exiting characters
         mc.exit().transition()
