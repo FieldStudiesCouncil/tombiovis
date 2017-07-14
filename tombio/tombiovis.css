@@ -116,7 +116,7 @@ div#tombioInfo {
 }
 
 #tombioVisualisation-button {
-    width: 100%;
+    /*width: 100%;*/
     padding-right:0px;
     padding-left:0px;
     margin-bottom: 10px;
@@ -413,3 +413,61 @@ figcaption {
     background-color: #A8CFFF;
     margin: 5px 0;
 }
+
+.tombioFullDetailsTabs .ui-tabs-panel {
+    padding: 0.5em 0 0 0;
+}
+
+.tombioFullDetailsTabs .ui-dialog {
+    overflow: visible
+}
+
+.tombioFullDetailsTabs .ui-dialog .ui-dialog-content {
+    overflow: inherit;
+}
+
+
+/*
+    Not sure why the box-sizing was set as shown. This was interfering with 
+    tabbed dialog so removed. If required, be more specific about application.
+*/
+/** {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}*/
+
+
+
+/*#tombioTaxDetailsWrapper {
+	position: absolute;
+	z-index: 1;
+	top: 50px;
+	bottom: 50px;
+	left: 50px;
+	right: 50px;
+	background: #ccc;
+	overflow: hidden;
+}*/
+
+/*#tombioTaxDetailsScroller {
+	position: absolute;
+	z-index: 1;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	width: 100%;
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-text-size-adjust: none;
+	-moz-text-size-adjust: none;
+	-ms-text-size-adjust: none;
+	-o-text-size-adjust: none;
+	text-size-adjust: none;
+}*/

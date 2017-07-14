@@ -96,8 +96,7 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis3/vis3Help.html",
-            tombiopath + "common/imageGroupHelp.html",
+            tombiopath + "vis3/vis3Help.html"
         ]
 
         //Helper functions

@@ -32,7 +32,7 @@
         //Help files
         this.helpFiles = [
             tombiopath + "vis2/vis2Help.html",
-            tombiopath + "common/imageGroupHelp.html",
+            tombiopath + "common/taxonDetailsHelp.html",
             tombiopath + "common/stateInputHelp.html"
         ]
 
@@ -146,7 +146,8 @@
                     })
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        _this.showTaxonCharacterValues(d);
+                        //_this.showTaxonCharacterValues(d);
+                        _this.fullDetails(d.Taxon, 0);
                     });
 
                 d3.select(this).append("rect")
@@ -191,7 +192,8 @@
                         var x = d3.event.clientX - offset.left + document.body.scrollLeft;
                         var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                        _this.showFloatingImages(d.Taxon, x, y);
+                        //_this.showFloatingImages(d.Taxon, x, y);
+                        _this.fullDetails(d.Taxon, 1, x, y);
                     })
             })
             .merge(mtU);

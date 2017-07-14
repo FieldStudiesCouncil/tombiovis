@@ -1,8 +1,8 @@
-﻿.node, text {
+﻿.node-taxa, text {
   cursor: pointer;
 }
 
-.node:hover {
+.node-taxa:hover {
   stroke: #ffd800;
   stroke-width: 1.5px;
 }
@@ -16,4 +16,8 @@
 #vis5 {
     z-index: 60;
     position: relative;
+}
+
+.taxon-tooltip {
+    opacity: 1;  /*This required to correct style change on tom.bio website site*/
 }

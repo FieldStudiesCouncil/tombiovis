@@ -32,7 +32,7 @@
         //Help files
         this.helpFiles = [
             tombiopath + "vis1/vis1Help.html",
-            tombiopath + "common/imageGroupHelp.html",
+            tombiopath + "common/taxonDetailsHelp.html",
             tombiopath + "common/stateInputHelp.html"
         ]
 
@@ -141,7 +141,8 @@
             })
             .on("click", function (d) {
                 d3.event.stopPropagation();
-                _this.showTaxonCharacterValues(d);
+                //_this.showTaxonCharacterValues(d);
+                _this.fullDetails(d.Taxon, 0);
             });
 
         //Taxon image
@@ -169,22 +170,23 @@
         }
 
         //Image link (camera icon)
-        enterSelection.append("svg:image")
-            .attr("xlink:href", tombiopath + "resources/camera.png")
-            .attr("class", "taxonImageLink")
-            .attr("width", "16px")
-            .attr("height", "16px")
-            .attr("display", "none")
-            .on("click", function (d, i) {
+        //This removed 13/07 when showTaxonCharacterValues replaced with fullDetails
+        //enterSelection.append("svg:image")
+        //    .attr("xlink:href", tombiopath + "resources/camera.png")
+        //    .attr("class", "taxonImageLink")
+        //    .attr("width", "16px")
+        //    .attr("height", "16px")
+        //    .attr("display", "none")
+        //    .on("click", function (d, i) {
 
-                d3.event.stopPropagation();
+        //        d3.event.stopPropagation();
 
-                var offset = $("#tombioMain").offset();
-                var x = d3.event.clientX - offset.left + document.body.scrollLeft;
-                var y = d3.event.clientY - offset.top + document.body.scrollTop;;
+        //        var offset = $("#tombioMain").offset();
+        //        var x = d3.event.clientX - offset.left + document.body.scrollLeft;
+        //        var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                _this.showFloatingImages(d.Taxon, x, y);
-            });
+        //        _this.showFloatingImages(d.Taxon, x, y);
+        //    });
 
         //Add height state 
         this.taxa.forEach(function (taxon) {

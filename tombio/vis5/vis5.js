@@ -30,7 +30,8 @@
         colorGreyScale,
         lastZoomWasPan,
         zoomStarted,
-        selectedRank;
+        selectedRank,
+        mobile = /Mobi/.test(navigator.userAgent);
 
     exports.Obj = function (parent, contextMenu, core) {
 
@@ -57,7 +58,9 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis5/vis5Help.html"
+            tombiopath + "vis5/vis5Help.html",
+            tombiopath + "common/taxonDetailsHelp.html",
+            tombiopath + "common/stateInputHelp.html"
         ]
 
         //Add circle pack stuff
@@ -67,12 +70,16 @@
             .attr("width", "500")
             .attr("height", "500")
             .attr("overflow", "visible")
+            //.style("background-color", "cyan")
             .call(d3.zoom()
                 .on('zoom', mouseZoom)
                 .on('end', $.proxy (mouseZoomEnd, _this)) //This jQuery proxy method passes _this as a context to event handler
             );
 
-        svg.on("click", function () { zoomToNode(root); });
+        svg.on("click", function () {
+            //console.log("click");
+            zoomToNode(root);
+        });
 
         margin = 20;
         diameter = +svg.attr("width");
@@ -102,11 +109,11 @@
             //This function is to replace stratTable.find(function (entry) { return entry.name == rankValue })
             //since the array find method is not available in some relatively recent versions of Safari and IE
             //15/06/2017
-            stratTable.forEach(function(entry) {
-                if (entry.name  == rankValue) {
+            for (var i = 0; i < stratTable.length; i++) {
+                if (stratTable[i].name == rankValue) {
                     return true;
                 }
-            })
+            }
             return false;
         }
 
@@ -248,8 +255,8 @@
         circleE = circleU.enter().append("circle")
             //Assign the correct class dependent on whether root, leaf or mid node.
             .attr("class", function (d) {
-                //var cls = d.parent ? d.children ? "node" : "node node--leaf" : "node node--root";
-                var cls = d.children ? "node node-higher-taxa" : "node";
+                var cls = d.children ? "node-taxa node-higher-taxa" : "node-taxa";
+                //var cls = d.children ? "node node-higher-taxa" : "node";
                 cls += " " + d.data.data.rankColumn;
                 return cls;
             })
@@ -316,8 +323,8 @@
             .on("click", function (d) {
                 if (!d.data.data.taxon) return
                 d3.event.stopPropagation();
-                _this.showTaxonCharacterValues(d.data.data.taxon);
-                //console.log("click detected on text")
+                //_this.showTaxonCharacterValues(d.data.data.taxon);
+                _this.fullDetails(d.data.data.taxon.Taxon, 0);
             })
             
         textM = textE.merge(textU)
@@ -332,6 +339,9 @@
         textU.exit().remove();
 
         $("circle, text").tooltip({
+            classes: {
+                "ui-tooltip": "taxon-tooltip ui-corner-all ui-widget-shadow"
+            },
             track: true,
             position: { my: "left+20 center", at: "right center" },
             open: function (event, ui) {
@@ -419,7 +429,8 @@
     function zoomToView(newView, endView, transitionRefresh, drawText) {
 
         //Remove any tool tip currently shown
-        $(".node").tooltip("close");
+        $(".node-taxa").tooltip("close");
+        //$(".node").tooltip("close");
 
         var k = diameter / newView[2]; view = newView;
 
@@ -479,6 +490,8 @@
 
         var dx = d3.event.sourceEvent.movementX * (view[2]/diameter);
         var dy = d3.event.sourceEvent.movementY * (view[2]/diameter);
+        //console.log(d3.event.sourceEvent)
+        //console.log(d3.event.sourceEvent.changedTouches)
 
         var wdy = d3.event.sourceEvent.wheelDeltaY, delta;
         if (wdy) {
@@ -495,7 +508,11 @@
         lastZoomWasPan = (delta == 1);
 
         //Zoom to view without redrawing text
-        zoomToView(newView, newView, null, false);
+        if (!mobile) {
+            //Haven't yet figured out how to incorporate pinch zoom and pan
+            //console.log(newView, newView, null, false);
+            zoomToView(newView, newView, null, false);   
+        }
     }
 
     function mouseZoomEnd() {

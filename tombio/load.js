@@ -14,10 +14,19 @@
         version: "1.2.1"
     }
 
-    core.tombiover = "none";
+    //The reload option (tombiovis.js) uses window.location.reload(true)
+    //to reload the page without cache. While this seems to reload all javascript files
+    //on laptop browsers, it doesn't seem to work on Android Chrome or iOS Safari (03/07/2017)
+    //so in that case we have to specify (and change) the tombiover variable in the calling
+    //HTML page.
+    if (typeof tombiover !== 'undefined') {
+        core.tombiover = tombiover;
+    } else {
+        core.tombiover = "none";
+    }
 
     //Variables for the tools to be included
-    var defaultTools = ["vis1", "vis2", "vis3", "vis4", "vis5"];
+    var defaultTools = ["vis1", "vis2", "vis5", "vis3"];
     var includedTools = [];
 
     //Other tracking variables
@@ -74,6 +83,7 @@
         "dependencies/jquery-ui-1.12.1/jquery-ui.theme.min.css",
         "dependencies/pqselect-1.3.2/pqselect.min.css", 
         "dependencies/pqgrid-2.1.0/pqgrid.min.css", //Required for vis3
+        //"dependencies/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css",
         "tombiovis.css"
     ]
     css.forEach(function (cssFile) {
@@ -246,6 +256,7 @@
         "dependencies/jquery.ui.touch-punch.min.js",
         "dependencies/pqselect-1.3.2/pqselect.min.js",
         "dependencies/pqgrid-2.1.0/pqgrid.min.js",
+        "dependencies/hammer.min.js",
         "tombiovis.js?ver=" + core.tombiover,
         "kbchecks.js?ver=" + core.tombiover,
         "score.js?ver=" + core.tombiover,
@@ -306,8 +317,6 @@
                 jQuery.get(tombiopath + "import.html?ver=" + core.tombiover, function (data) {
 
                     jQuery("#tombiod3vis").html(data);
-
-                    //console.log("load", jQuery.fn.jquery)
 
                     //Finally invoke function in tombiovis.js to get things going
                     core.loadComplete();

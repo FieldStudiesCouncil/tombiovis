@@ -4,6 +4,26 @@
 
     var exports = core.visP = {};
 
+    function debugText(text, append) {
+        //console.log("debugText")
+        var rand = Math.floor(Math.random() * 1000);
+        text = rand + " " + text;
+
+        var d = $("#tombioDebugText");
+        if (text === null) {
+            d.html("");
+            d.hide();
+        } else {
+            if (append) {
+                d.html(d.html() + "<br/>" + text);
+            } else {
+                console.log("here")
+                d.html(text);
+            }
+            d.show();
+        }
+    }
+
     exports.Obj = function (visName, parent, contextMenu, core) {
 
         this.visName = visName;
@@ -13,9 +33,9 @@
         this.characters = core.characters;
         this.oCharacters = core.oCharacters;
         this.media = core.media;
-
         this.div = $("<div/>").attr("id", visName).css("display", "none").appendTo(parent);
         this.cssSel = parent + " > #" + visName;
+        this.mobile = /Mobi/.test(navigator.userAgent);
 
         var _this = this;
 
@@ -57,6 +77,91 @@
         this.div.append("<p>Selector is: " + this.cssSel + "</p>")
     }
 
+    exports.Obj.prototype.fullDetails = function (taxon, selected, x, y) {
+
+        var _this = this;
+
+        //Default parameters
+        x = (typeof x !== 'undefined') ?  x : 0;
+        y = (typeof y !== 'undefined') ?  y : 0;
+        selected = (typeof selected !== 'undefined') ? selected : 1;
+        
+        var tabs = $("<div>").addClass("tombioFullDetailsTabs");
+        tabs.css("border", "none");
+        var ul = $("<ul>").appendTo(tabs);
+        ul.append("<li><a href='#tabs-1'>Knowledge-base</a></li>");
+        ul.append("<li><a href='#tabs-2'>Images</a></li>");
+        ul.append("<li><a href='#tabs-3'>Details</a></li>");
+        var tab1 = $("<div>").attr("id", "tabs-1").appendTo(tabs);
+        var tab2 = $("<div>").attr("id", "tabs-2").appendTo(tabs);
+        var tab3 = $("<div>").attr("id", "tabs-3").appendTo(tabs);
+        
+        //Dialog
+        var dlg = $("<div>").append(tabs);
+        dlg.addClass("tombioFullDetailsDlg")
+        dlg.attr("title", taxon);
+        dlg.dialog({
+            height: 400,
+            width: 400,
+            modal: true,
+            resizeStop: function (event, ui) {
+                var img = tab2.find(".baseimage");
+                img.trigger("change");
+            }
+        });
+
+        //Tabs
+        tabs.tabs({
+            active: selected,
+            activate: function (event, ui) {
+                //This is necessary to initialise the image correctly
+                //if image is not on tab1.
+                var img = tab2.find(".baseimage");
+                img.trigger("change");
+                //window.setTimeout(function () {
+                //    img.trigger("change");
+                //}, 100);
+                var iframe = tab3.find("#tombioFullDetailsHTMLDiv");
+                _this.resizeIframe(iframe);
+            }
+        });
+        tab3.css("overflow", "hidden"); //Must come after tabs created.
+
+        //Taxon details
+        var divTaxonDetails = this.showTaxonCharacterValues(core.oTaxa[taxon], true)
+        tab1.append(divTaxonDetails);
+
+        //Images
+        var img = this.getTaxonImagesDiv(taxon, tab2, 0, true, true);
+        tab2.append(img);
+
+        //HTML files
+        //tab3 is passed to function that creates drop down lists so that this
+        //can be added to container before selectmenu is called, otherwise
+        //drop-down menu appears under dialog.
+        this.getHTMLFileSelectionDiv(taxon, tab3)
+
+    }
+
+    exports.Obj.prototype.fullDetailsTest = function (taxon, selected, x, y) {
+
+        //Dialog
+        var dlg = $("<div>").dialog();
+        dlg.dialog({
+            height: 400,
+            width: 300
+        });
+        var divSel = $("<div>");
+        var htmlSel = $("<select></select>").appendTo(divSel);
+        var opt = $("<option/>").text("one");
+        htmlSel.append(opt);
+        var opt = $("<option/>").text("two");
+        htmlSel.append(opt);
+        
+        dlg.append(divSel);
+        htmlSel.selectmenu();
+    }
+
     exports.Obj.prototype.refresh = function () {
 
         //Replace the following
@@ -84,15 +189,26 @@
         });
     }
 
-    exports.Obj.prototype.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize) {
+    exports.Obj.prototype.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {
 
         var imgZoomOrigLeft, imgZoomOrigTop, imgZoomOrigCentreX, imgZoomOrigCentreY;
         var initialSelectorImage;
         var taxonImages = this.getTaxonImages(taxon);
+        var _this = this;
+
+        if (taxonImages.length == 0) {
+            //If there are no images for this taxon, return a message to that effect.
+            var noImages = $("<div>").css("margin", "10px");
+            noImages.text("No images are specified in the knowledge-base for this taxon.")
+            return noImages;
+        }
 
         //Updated to provide different image navigation controls behaviour
         //when viewed on a mobile and desktop devices.
         //https://github.com/burkmarr/tombiovis/pull/7
+        //This further updated/superseded for release 1.4.0 to provide better
+        //handling of zooming (pinch zoom) and invocation of controls (by
+        //long press) on mobile devices.
 
         //Helper functions
 
@@ -157,6 +273,14 @@
 
         function updateZoomImage(imgZoom, tryViewWidth, tryViewHeight, tryWidth, tryHeight, tryCentreX, tryCentreY) {
 
+            //console.log("imgZoom", imgZoom)
+            //console.log("tryViewWidth", tryViewWidth)
+            //console.log("tryViewHeight", tryViewHeight)
+            //console.log("tryWidth", tryWidth)
+            //console.log("tryHeight", tryHeight)
+            //console.log("tryCentreX", tryCentreX)
+            //console.log("tryCentreY", tryCentreY)
+
             var currentViewWidth = Number(imgZoom.attr("viewWidth"));
             var currentViewHeight = Number(imgZoom.attr("viewHeight"));
             var currentWidth = Number(imgZoom.css("width").replace("px", ""));
@@ -177,12 +301,10 @@
                 }
                 tryCentreX = currentXProp * currentWidth;
                 tryCentreY = currentYProp * currentHeight;
-
             } else {
                 newViewWidth = currentViewWidth;
                 newViewHeight = currentViewHeight
             }
-
 
             //Zooming
             if (tryWidth) {
@@ -221,6 +343,9 @@
                 } else if (tryCentreY - currentViewHeight / 2 < 0) {
                     //Clip view would not fit on the top.
                     newCentreY = currentViewHeight / 2;
+
+                } else if (currentViewHeight == 0) {
+                    newCentreY = newHeight / 2;
                 } else {
                     //Clip view would not fit on the bottom.
                     newCentreY = newHeight - currentViewHeight / 2;
@@ -263,6 +388,8 @@
         var border = 10;
         var pane = $('<div/>')
             .attr("class", "tombioImage")
+            .css("border", "")
+            .css("position", "relative")
             .css("border-radius", border)
             .css("background-color", "grey")
             .css("overflow", "hidden");
@@ -316,7 +443,7 @@
                     updateZoomImage(imgZoom, null, null, null, null, imgZoomOrigCentreX + deltaLeft, imgZoomOrigCentreY + deltaTop);
                 }
             });
-            imgZoom.draggable("disable");
+        imgZoom.draggable("disable");
 
         var moveleft = $('<div>')
             .css("position", "absolute")
@@ -328,62 +455,36 @@
             .css("cursor", "pointer")
 	        .css("opacity", 0)
             .hover(function () {
-                if (/Mobi/.test(navigator.userAgent)) {
-                    //Mobile
-               	    moveright.stop().css("opacity", 1);
-                    moveleft.stop().css("opacity", 1);
-                } else {
-                    //Desktop
+                if (!_this.mobile) {
+                    //Use fadeTo rather than fadeOut here because
+                    //latter also hides element and then no hover
+                    //will detected.
                     moveright.stop().fadeTo(400, 1);
                     moveleft.stop().fadeTo(400, 1);
-		        }
-                },
+                }
+            },
                 function () {
-                    if (/Mobi/.test(navigator.userAgent)) {
-                        //Mobile
-               	        moveright.stop().css("opacity", 1);
-                        moveleft.stop().css("opacity", 1);
-                    } else {
-                        //Desktop
+                    if (!_this.mobile) {
                         moveright.stop().fadeTo(400, 0);
                         moveleft.stop().fadeTo(400, 0);
-  		            }
+                    }
                 })
             .click(function () {
+                //If control is not visible, then just return
+                if ($(this).css('opacity') == 0) return;
+
                 var imageIndex = Number(pane.attr("indexSelected"));
-			    if (/Mobi/.test(navigator.userAgent)) {
-   			        //Mobile		
-		            moveright.stop().css("opacity", 1);
-		            moveleft.stop().css("opacity", 1);
-			    } else {
-			        //Desktop
-		            moveright.stop().css("opacity", 0);
-		            moveleft.stop().css("opacity", 0);
-			    }
                 imageSelected((taxonImages.length + imageIndex - 1) % taxonImages.length,
                     function () {
-		                // Remove onMouseOver functions to work with mobile devices
-			            if (/Mobi/.test(navigator.userAgent)) {
-   			                //Mobile
-                            moveright.stop().css("opacity", 1);;
-                            moveleft.stop().css("opacity", 1);;
-                            controlsInner.stop().css("opacity", 1);
-			                controlsInner.css("display", "intial");
-			            } else {
-			                //Desktop
+                        if (!_this.mobile) {
                             moveright.stop().fadeTo(400, 1);
                             moveleft.stop().fadeTo(400, 1);
+                            //Flash the camera image icons
                             controlsInner.stop().fadeIn(10).fadeOut(800);
-			            }
+                        }
                     }
                 );
             });
-
-	
-        if (/Mobi/.test(navigator.userAgent)) {
-            //Mobile
-		    moveleft.css("opacity", 1);
-		}
 
         var moveleftimg = $('<img src="' + tombiopath + 'resources/moveleft.png">')
             .css("position", "absolute")
@@ -403,46 +504,38 @@
             .css("cursor", "pointer")
             .css("opacity", 0)
             .hover(function () {
-                moveright.stop().fadeTo(400, 1);
-                moveleft.stop().fadeTo(400, 1);
+                if (!_this.mobile) {
+                    //Use fadeTo rather than fadeOut here because
+                    //latter also hides element and then no hover
+                    //will detected.
+                    moveright.stop().fadeTo(400, 1);
+                    moveleft.stop().fadeTo(400, 1);
+                }
             },
             function () {
-                moveright.stop().fadeTo(400, 0);
-                moveleft.stop().fadeTo(400, 0);
+                if (!_this.mobile) {
+                    moveright.stop().fadeTo(400, 0);
+                    moveleft.stop().fadeTo(400, 0);
+                }
             })
             .click(function () {
-                if (/Mobi/.test(navigator.userAgent)) {
-                    //Mobile
-                    moveright.stop().css("opacity", 1);
-                    moveleft.stop().css("opacity", 1);
-                } else {
-                    //Desktop
-		            moveright.stop().css("opacity", 0);
-		            moveleft.stop().css("opacity", 0);
-		        }
+                //If control is not visible, then just return
+                if ($(this).css('opacity') == 0) return;
+
+                //debugText("opacity: " + $(this).css('opacity'))
+
                 var imageIndex = Number(pane.attr("indexSelected"));
                 imageSelected((taxonImages.length + imageIndex + 1) % taxonImages.length,
                     function () {
-                        if (/Mobi/.test(navigator.userAgent)) {
-                            //Mobile
-                            moveright.stop().css("opacity", 1);
-                            moveleft.stop().css("opacity", 1);
-                            controlsInner.stop().css("opacity", 1);
-			                controlsInner.css("display", "intial");
-                        } else {
-                            //Desktop
+                        if (!_this.mobile) {
                             moveright.stop().fadeTo(400, 1);
                             moveleft.stop().fadeTo(400, 1);
+                            //Flash the camera image icons
                             controlsInner.stop().fadeIn(10).fadeOut(800);
-			            }
+                        }
                     }
                 );
             });
-
-        if (/Mobi/.test(navigator.userAgent)) {
-            //Mobile
-		    moveright.css("opacity", 1);
-		}
 
         var moverightimg = $('<img src="' + tombiopath + 'resources/moveright.png">')
             .css("position", "absolute")
@@ -467,9 +560,9 @@
         //Using the mousewheel plugin, normalises behaviour across browsers
         imgZoom.mousewheel(function (event) {
             event.stopPropagation();
-
-            var currentWidth = Number($(this).css("width").replace("px", ""));
-            var currentHeight = Number($(this).css("height").replace("px", ""));
+            
+            var currentWidth = Number(imgZoom.css("width").replace("px", ""));
+            var currentHeight = Number(imgZoom.css("height").replace("px", ""));
 
             if (event.deltaY > 0) {
                 //Zoom in
@@ -485,49 +578,72 @@
             return false;
         });
 
+        //For the most part, the touch-punch JS library provides the mapping between mobile touch
+        //events and the mouse event handlers, but it doesn't translate a pinch gesture so we are
+        //using hammer.js to deal with that (cross-platform). Note hammer.js is *not* a jQuery plugin.
+        //create a pinch recognizer
+        if (_this.mobile) {
+            console.log("this is mobile!")
+
+            var mc = new Hammer(imgZoom.get(0));
+            mc.get('pinch').set({ enable: true });
+            mc.on("pinchstart", function (ev) {
+                //debugText("event: " + ev.type)
+                _this.initPinchWidth = Number(imgZoom.css("width").replace("px", ""));
+                _this.initPinchHeight = Number(imgZoom.css("height").replace("px", ""));
+            });
+            mc.on("pinch", function (ev) {
+                //debugText("event: " + ev.type, true)
+                var newWidth = _this.initPinchWidth * ev.scale;
+                var newHeight = _this.initPinchHeight * ev.scale;
+                updateZoomImage(imgZoom, null, null, newWidth, newHeight, null, null);
+            });
+        }
+
         //Image controls
+        var controlsInner = $('<div/>')
+            //.attr("class", "tombioImageControls")
+            .css("margin-right", 30)
+            .css("margin-top", 6)
+            .css("margin-left", 6)
+            .css("display", "none");
+
         var controlsOuter = $('<div/>')
             .css("position", "absolute")
             .css("top", 0)
             .css("left", 0)
             .css("width", "100%")
             .css("height", 30)
-
-            //.css("border", "1px solid red")
             .hover(function () {
-                $(this).find(".tombioImageControls").stop().fadeIn(400);
+                if (!_this.mobile) {
+                    controlsInner.stop().fadeIn(400);
+                }
             },
             function () {
-                if (/Mobi/.test(navigator.userAgent)) {
-                    //Mobile
-                    $(this).find(".tombioImageControls").stop().css("opacity", 1);
-                } else {
-                    //Desktop
-                    $(this).find(".tombioImageControls").stop().fadeOut(400);
-		        }
+                if (!_this.mobile) {
+                    controlsInner.stop().fadeOut(400);
+                }
             });
-
-        var controlsInner = $('<div/>')
-            .attr("class", "tombioImageControls")
-            .css("margin-right", 30)
-            .css("margin-top", 6)
-            .css("margin-left", 6)
-
-
-	    //Remove onMouseOver functions to work with mobile devices
-        if (/Mobi/.test(navigator.userAgent)) {
-            //Mobile
-            controlsInner.css("display", "intial");
-			controlsInner.css("opacity", 1);
-        } else {
-            //Desktop
-			controlsInner.css("display", "none");
-		}
-        //.css("border", "1px solid green")
+        
+        if (_this.mobile) {
+            mc.on("press", function (ev) {
+                //debugText("event: " + ev.type, true)
+                if (_this.imageControlsDisplayed) {
+                    controlsInner.stop().fadeOut(400);
+                    moveright.stop().fadeTo(400, 0);
+                    moveleft.stop().fadeTo(400, 0);
+                    //debugText("fade out", true)
+                } else {
+                    controlsInner.stop().fadeIn(400);
+                    moveright.stop().fadeTo(400, 1);
+                    moveleft.stop().fadeTo(400, 1)
+                    //debugText("fade in", true)
+                }
+                _this.imageControlsDisplayed = !_this.imageControlsDisplayed;
+            });
+        }
 
         var controlsImageSelectors = $('<div/>')
-        //.css("border", "1px solid blue")
-
         controlsInner.append(controlsImageSelectors);
 
         //Image selector
@@ -562,30 +678,33 @@
         });
 
         //Close image
-        var closeImage = $('<img/>');
-        closeImage.attr("src", tombiopath + "resources/remove.png")
-            .css("cursor", "pointer")
-            .css("position", "absolute")
-            .css("top", 8)
-            .css("right", 8)
-            .css("width", 20)
-            .click("click", function () {
+        if (!surpressImageRemoval) {
+            var closeImage = $('<img/>');
+            closeImage.attr("src", tombiopath + "resources/remove.png")
+                .css("cursor", "pointer")
+                .css("position", "absolute")
+                .css("top", 8)
+                .css("right", 8)
+                .css("width", 20)
+                .click("click", function () {
 
-                pane.addClass("userRemoved");
+                    pane.addClass("userRemoved");
 
-                if (container) {
-                    container.remove();
-                } else {
-                    pane.remove();
-                }
+                    if (container) {
+                        container.remove();
+                    } else {
+                        pane.remove();
+                    }
 
-                ////If no images displayed, remove context menu item
-                //if ($(".tombioImage").length == 0) {
-                //    global.contextMenu.removeItem("Close all images");
-                //}
-            });
+                    ////If no images displayed, remove context menu item
+                    //if ($(".tombioImage").length == 0) {
+                    //    global.contextMenu.removeItem("Close all images");
+                    //}
+                });
 
-        controlsInner.append(closeImage);
+            controlsInner.append(closeImage);
+        }
+
         controlsOuter.append(controlsInner);
         pane.append(controlsOuter);
 
@@ -640,7 +759,7 @@
             })
             .draggable()
             .resizable({
-                aspectRatio: true,
+                //aspectRatio: true,
                 resize: function () {
                     var img = pane.find(".baseimage");
                     img.trigger("change");
@@ -771,6 +890,63 @@
             $("#tombioHelpAndInfoDialog").html(html);
             $("#tombioHelpAndInfoDialog").dialog("open");
         }  
+    }
+
+    exports.Obj.prototype.getHTMLFileSelectionDiv = function (taxon, container) {
+
+        //It's important that the container to which the dropdown list is added, is passed
+        //to this function and added here *before* selectmenu is called, otherwise the selectmenu
+        //can appear under dialogs.
+        var htmlDiv = $('<div>').appendTo(container);
+
+        var _this = this;
+        var htmlFiles = this.getTaxonHtmlFiles(taxon);
+
+        if (htmlFiles.length == 0) {
+            //If there are no images for this taxon, return a message to that effect.
+            var noFiles = $("<div>").css("margin", "10px").appendTo(htmlDiv);
+            noFiles.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
+        } else {
+            //Control for selecting HTML file
+            var htmlIframe = $('<iframe id="tombioFullDetailsHTMLDiv" scrolling="no" width="100%" frameborder="0">');
+            if (htmlFiles.length > 1) {
+                var divSelect = $('<div style="margin-bottom: 20px">').appendTo(htmlDiv);
+                var htmlSel = $("<select id='tombioFileSelect'></select>").appendTo(divSelect);
+                htmlFiles.forEach(function (file, iFile) {
+                    //console.log(file.Caption)
+                    var opt = $("<option/>").text(file.Caption).attr("value", iFile);
+                    htmlSel.append(opt);
+                });
+                htmlSel.selectmenu({
+                    change: function (event, data) {
+                        _this.showTaxonHtmlIframe(taxon, htmlIframe, data.item.value);
+                    }
+                });
+                //htmlSel.selectmenu({ width: 300 }); //Do this separately or you get zero width
+            }
+            htmlIframe.on("load", function () {
+                _this.resizeIframe($(this));
+            });
+            htmlIframe.appendTo(htmlDiv)
+            this.showTaxonHtmlIframe(taxon, htmlIframe, 0);
+        }
+    }
+
+    exports.Obj.prototype.resizeIframe = function (iframe) {
+        iframe.height(10); //This is necessary to get the iframe to decrease in size when a smaller document is loaded.
+        iframe.height(iframe.contents().height() + 100); //The extra 100 can help avoid some documents not being displayed in full
+    }
+
+    exports.Obj.prototype.showTaxonHtmlIframe = function (taxon, iframe, iFile) {
+
+        var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
+
+        if (iFile <= taxonHtmlFiles.length - 1) {
+            //console.log(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover)
+            iframe.attr("src", tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover);
+        } else {
+            iframe.attr("src", null);
+        }
     }
 
     exports.Obj.prototype.showTaxonHtmlInfo = function (taxon, container, iFile) {
