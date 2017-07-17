@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - In the test harness HTML page (vis.html) the title is now replaced with the name of the knowledge-base and the footer by the knowledge-base citation.
  - Knowledge-base builders now have the ability to specify a default character group to be selected where they are grouping characters (documented in *Building a knowledge-base* in the section on the config worksheet).
  - (Developers note) Added Javascript console messages to detail the order in which JS modules load to help with debugging in case of problems.
+ - Updated *Deploying your visualisations* to indicate how a tool/visualisation can be selected by URL parameter.
 
 ### Fixed
  - Vertical orientation of character names in the two-column visualisation updated to make it work with Safari and IE.
