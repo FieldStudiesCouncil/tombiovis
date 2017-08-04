@@ -5,11 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-
 ### Changed
- - Individual character scores on the single-column key visualisation are now rounded *down* to the nearest 0.1 to avoid confusion of non-perfect matches apparently scoring a perfect match.
- - (Developers note) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
- - (Developers note) Moved knowledge-base integrity checks to a separate javascript module to promote code clarity.
+### Added
+### Fixed
+### Removed
+
+## [1.4.0] - 2017-08-04
 ### Added
  - Added a new visualisation - circle pack key (vis5).
  - Added a new *taxon information* dialog box that combines the presentation of knowledge-base details, images and supplementary text (HTML files) for a taxon. This replaces the floating image control and knowledge-base information dialogs of previous versions.
@@ -21,10 +22,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Knowledge-base builders now have the ability to specify a default character group to be selected where they are grouping characters (documented in *Building a knowledge-base* in the section on the config worksheet).
  - (Developers note) Added Javascript console messages to detail the order in which JS modules load to help with debugging in case of problems.
  - Updated *Deploying your visualisations* to indicate how a tool/visualisation can be selected by URL parameter.
-
 ### Fixed
  - Vertical orientation of character names in the two-column visualisation updated to make it work with Safari and IE.
  - Added better handling of the image control in mobile devices - especially iPad - by adding pinch zoom and explicit display/hiding of image controls with a press gesture.
+ ### Changed
+ - Individual character scores on the single-column key visualisation are now rounded *down* to the nearest 0.1 to avoid confusion of non-perfect matches apparently scoring a perfect match.
+ - (Developers note) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
+ - (Developers note) Moved knowledge-base integrity checks to a separate javascript module to promote code clarity.
 ### Removed
  - The 'Full details' visualisation (vis4) was made redundant (and has therefore been removed) by the addition of the new 'taxon details' dialog box that can be invoked from most of the other visualisations.
 

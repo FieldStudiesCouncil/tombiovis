@@ -160,7 +160,7 @@ tbody {
     stroke-width: 0px;
     font-style: italic;
     fill: black;
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 
 .legend {
@@ -175,7 +175,7 @@ tbody {
     font-size: 11px;
     stroke-width: 0px;
     fill: black;
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 
 
@@ -241,7 +241,7 @@ rect {
 .indText {
     text-anchor: middle;
     /*alignment-baseline: central;*/
-    pointer-events: none;
+    /*pointer-events: none;*/
     fill: white;
     font-weight: bold;
 }

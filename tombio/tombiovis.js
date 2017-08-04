@@ -456,7 +456,7 @@
         core.requiredVisTools.forEach(function (tool, iTool) {
             var visObj = new tool.Obj("#tombioTaxa", global.contextMenu, core);
 
-            var selOpt = $('<option>')
+            var selOpt = $('<option class="needsclick">')
                 .attr("value", visObj.visName)
                 .attr("data-class", "vis")
                 .addClass("visualisation")
@@ -507,6 +507,19 @@
         //Add custom icons to visualisation select menu
         $("#tombioVisualisation")
           .iconselectmenu({
+              //open: function () {
+              //    //This is a workaround to prevent problems with the 'fastclick.js' library
+              //    //loaded with Drupal 8. This was preventing menu item selection on Drupal 8 sites on iPad (including Chrome emulator).
+              //    //Couldn't find a way to disable or not load the javascript, so used this option of fastclick which
+              //    //is to add a class - needsclick - on elements that you don't want fastclick to work on.
+              //    //To make matters worse, just adding the "needsclick" class with addClass in jQuery, doesn't work -
+              //    //the addition is lost. So you have to use something like the following in this open option, to
+              //    //make it work (https://stackoverflow.com/questions/42534593/add-class-to-jquery-ui-selectmenu-li-from-original-option)
+              //    //This is very much a workaround.
+              //    $('div.ui-selectmenu-menu li.ui-menu-item').each(function(){
+              //        $(this).find("div").addClass("needsclick")
+              //    })
+              //},
               change: function () {
                   visChanged();
               }

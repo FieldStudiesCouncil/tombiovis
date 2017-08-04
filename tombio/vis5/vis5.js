@@ -29,6 +29,9 @@
         g, 
         colorGreyScale,
         lastZoomWasPan,
+        lastZoomK = 1,
+        lastZoomX = 0,
+        lastZoomY = 0,
         zoomStarted,
         selectedRank,
         mobile = /Mobi/.test(navigator.userAgent);
@@ -73,7 +76,7 @@
             //.style("background-color", "cyan")
             .call(d3.zoom()
                 .on('zoom', mouseZoom)
-                .on('end', $.proxy (mouseZoomEnd, _this)) //This jQuery proxy method passes _this as a context to event handler
+                .on('end', $.proxy(mouseZoomEnd, _this)) //This jQuery proxy method passes _this as a context to event handler  
             );
 
         svg.on("click", function () {
@@ -479,33 +482,51 @@
 
     function mouseZoom() {
         
-        //console.log("mouseZoom")
         //Double clicks get here and cause a problem because sourceEvent is null,
         //so trap these.
-        if (!d3.event.sourceEvent) return;
+        //if (!d3.event.sourceEvent) return;
 
         //This global variable set in order to detect whether or not, when mouseZoomEnd
         //is fired, it was the result of a genuine zoom.
         zoomStarted = true;
 
-        var dx = d3.event.sourceEvent.movementX * (view[2]/diameter);
-        var dy = d3.event.sourceEvent.movementY * (view[2]/diameter);
-        //console.log(d3.event.sourceEvent)
-        //console.log(d3.event.sourceEvent.changedTouches)
+        //Had to stop using sourceEvent because I realised it's not consistent across browswers
+        //(didn't work with Firefox), so using the d3.event.sourceEvent instead.
+        //var dx = d3.event.sourceEvent.movementX * (view[2]/diameter);
+        //var dy = d3.event.sourceEvent.movementY * (view[2]/diameter);
+        //var wdy = d3.event.sourceEvent.wheelDeltaY, delta;
 
-        var wdy = d3.event.sourceEvent.wheelDeltaY, delta;
+        //console.log("k", d3.event.transform.k)
+        //console.log("x", Math.floor(d3.event.transform.x))
+        //console.log("y", Math.floor(d3.event.transform.y))
+
+        var wdy, delta;
+        if (d3.event.transform.k > lastZoomK) {
+            wdy = 120;
+        } else if (d3.event.transform.k < lastZoomK) {
+            wdy = -120;
+        }
+
         if (wdy) {
             if (wdy > 0) {
                 delta =  100/wdy;
             } else {
                 delta = Math.abs(wdy/100);
             }
+            var dx = 0;
+            var dy = 0;
         } else {
             delta = 1;
+            var dx = (d3.event.transform.x - lastZoomX) * (view[2] / diameter);
+            var dy = (d3.event.transform.y - lastZoomY) * (view[2] / diameter);
         }
+
         var newView = [view[0] - dx, view[1] - dy, view[2] * delta];
     
         lastZoomWasPan = (delta == 1);
+        lastZoomK = d3.event.transform.k;
+        lastZoomX = d3.event.transform.x;
+        lastZoomY = d3.event.transform.y;
 
         //Zoom to view without redrawing text
         if (!mobile) {
