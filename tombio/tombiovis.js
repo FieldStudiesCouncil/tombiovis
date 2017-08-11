@@ -1125,6 +1125,11 @@
             } else {
                 var translatedState = state;
             }
+            //Replace any multiple spaces with single spaces. I think that this needs to be done for where double spaces
+            //have been inserted into text state values or translated values because the pqselect control does the same.
+            //Fixes https://github.com/burkmarr/tombiovis/issues/8
+            translatedState = translatedState.replace(/ +(?= )/g, '');
+
             return translatedState;
         }
         //For ordinal characters, the state could be an ordinal range, e.g. [vali-valj]

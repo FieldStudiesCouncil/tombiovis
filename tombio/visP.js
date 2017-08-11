@@ -980,7 +980,7 @@
     }
 
     exports.Obj.prototype.taxonTag = function (taxonName) {
-        return taxonName.replace(/[|&;$%@"<>()+:.,' ]/g, '');
+        return taxonName.replace(/[|&;$%@"<>()+:.,'\/ ]/g, '');
     }
 
     //Colour ramp for the matching indicators to be used across all visualisations
