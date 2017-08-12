@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 ### Added
 ### Fixed
+ - Applied fixes for issues #8 and #9.
 ### Removed
 
 ## [1.4.0] - 2017-08-04
