@@ -397,6 +397,8 @@
                     characterstates.forEach(function (state) {
 
                         var option = $("<option/>").text(global.bullet + state); //"\u058D"
+                        //option.attr("title", "value help")
+
                         selectcontrol.append(option);
                     });
                     makeSelect(selectID);
@@ -435,6 +437,13 @@
                     }, 'fast');
                 }
             )
+            .attr("title", function () {
+                //Tooltips for input characters
+                return core.oCharacters[$(this).attr("character")].Help;
+            })
+            .tooltip({
+                track: true
+            })
             .click(function () {
                 showCharacterHelp($(this).attr("character"));
             });
@@ -985,9 +994,30 @@
             }
             core.oCharacters[character].stateSet = (select.val() != null && select.val() != "");
 
-            //console..log("change>>" + select.val() + "<<");
-            //console..log("stateSet>>" + (select.val() != null && select.val() != "") + "<<");
+            //console.log("change>>" + select.val() + "<<");
+            //console.log("stateSet>>" + (select.val() != null && select.val() != "") + "<<");
 
+            //Set the tooltip for the character states selected. This has to be done every time
+            //the pqselect control creates its object.
+            [id, counterpartID].forEach(function (selID) {
+                //console.log(selID)
+                var selItems = $("#" + selID).next().children().find(".pq-select-item-text");
+                selItems.attr("title", function () {
+                    var _this = this;
+                    var charText = core.values.filter(function (v) {
+                        if (v.Character == character && v.CharacterState == $(_this).text() && v.StateHelp) return true;
+                    });
+                    if (charText.length == 1) {
+                        return charText[0].StateHelp
+                    } else {
+                        return ""
+                    }
+                })
+                selItems.tooltip({
+                    track: true
+                })
+            })
+            
             refreshVisualisation();
         });
 

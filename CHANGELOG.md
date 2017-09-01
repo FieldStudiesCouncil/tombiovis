@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 ### Added
+ - Added tooltips for input characters and character values. The tooltips display help text. This is a much more proactive way of displaying help rather than relying on users to click character names to invoke the help dialog.
 ### Fixed
 ### Removed
 

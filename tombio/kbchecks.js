@@ -141,6 +141,7 @@
         numericCharactersInTaxaTab.forEach(function (character) {
             core.taxa.forEach(function (taxon) {
                 value = taxon[character];
+                //console.log(taxon.Taxon, value)
                 if (!(value == "" ||
                     value == "n/a" ||
                     value == "?" ||
