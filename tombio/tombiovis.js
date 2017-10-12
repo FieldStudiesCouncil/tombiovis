@@ -328,11 +328,12 @@
                 var character = characters[chargroup][i];
 
                 //Create the label for the character control
-                var characterlabel = $("<div/>").attr("class", "characterlabel").text(character.Label);
-                tab.append(characterlabel);
+                var characterlabel = $("<span/>").attr("class", "characterlabel").text(character.Label);
+                var characterDiv = $("<div/>").append(characterlabel);
+                tab.append(characterDiv);
 
                 //Prepare help attrs
-                if (character.Help != "") {
+                if (characterHasHelp(character.Character)){
                     characterlabel.attr("character", character.Character);
                     characterlabel.addClass("characterhelp");
                 }
@@ -340,7 +341,7 @@
                 //Clone label on All tab. This goes in a div (with the control) so
                 //that visibility can be set as a unit.
                 var cloneDiv = $("<div/>").attr("class", "cloneInput");
-                cloneDiv.append(characterlabel.clone());
+                cloneDiv.append(characterDiv.clone());
                 $("#tombioControlTab-All").append(cloneDiv);
 
                 if (character.ValueType == "numeric") {
@@ -437,12 +438,12 @@
                     }, 'fast');
                 }
             )
-            .attr("title", function () {
-                //Tooltips for input characters
-                return core.oCharacters[$(this).attr("character")].Help;
-            })
             .tooltip({
-                track: true
+                track: true,
+                items: "span",
+                content: function () {
+                    return getCharacterToolTip($(this).attr("character"));
+                }
             })
             .click(function () {
                 showCharacterHelp($(this).attr("character"));
@@ -1005,12 +1006,12 @@
                 selItems.attr("title", function () {
                     var _this = this;
                     var charText = core.values.filter(function (v) {
-                        if (v.Character == character && v.CharacterState == $(_this).text() && v.StateHelp) return true;
+                        if (v.Character == character && v.CharacterState == $(_this).text()) return true;
                     });
                     if (charText.length == 1) {
-                        return charText[0].StateHelp
+                        return charText[0].StateHelpShort ? charText[0].StateHelpShort : charText[0].StateHelp;
                     } else {
-                        return ""
+                        return "";
                     }
                 })
                 selItems.tooltip({
@@ -1180,6 +1181,158 @@
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
+    function characterHasHelp(character) {
+
+        //Is there any character help text on characters tab?
+        var helpText = core.oCharacters[character].Help;
+        if (helpText.length > 0) {
+            return true;
+        }
+        //Is there any character state help text on values tab?
+        var charText = core.values.filter(function (v) {
+            if (v.Character == character && v.StateHelp) return true;
+        });
+        if (charText.length > 0) {
+            return true;
+        }
+        //Are there any help images on media tab?
+        var charImages = core.media.filter(function (m) {
+            if (m.Type == "image-local" && m.Character == character) {
+                return true;
+            }
+        });
+        if (charImages.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    function getCharacterToolTip(character) {
+
+        var ret = $('<div/>');
+        var tipTextPresent = false;
+
+        //Help text for character
+        //If HelpShort exists - use this for tip text, else use Help text. Must allow
+        //for KBs where HelpShort column doesn't exist for backward compatibility.
+        if (core.oCharacters[character].HelpShort && core.oCharacters[character].HelpShort != "") {
+            var helpText = core.oCharacters[character].HelpShort;
+            tipTextPresent = true;
+        } else {
+            var helpText = core.oCharacters[character].Help;
+        }
+        
+        //Retrieve collection of media image rows for this character and sort by priority.
+        var charImagesFull = core.media.filter(function (m) {
+            if (m.Type == "image-local" && m.Character == character) {
+                return true;
+            }
+        }).sort(function (a, b) {
+            return Number(a.Priority) - Number(b.Priority)
+        })
+
+        //Loop through images for this character and set image for tooltip as highest
+        //priority image for which *no state value* is set (i.e. defined for character itself)
+        //and also count the number of *other* images that would be displayed in full help window
+        //(which includes state value images) - to help determine 'click for' text to append to tip.
+        var tipImage;
+        var otherFullImageCount = 0;
+        var fullImageCount = 0;
+        charImagesFull.forEach(function (m) {
+            var isForFull = false;
+            var isForTip = false;
+            if (!m.UseFor) {
+                isForTip = m.State ? false : true;
+                isForFull = true;
+            } else {
+                m.UseFor.split(",").forEach(function (useForVal) {
+                    if (useForVal.toLowerCase().trim() == "tip") {
+                        isForTip = m.State ? false : true;
+                    }
+                    if (useForVal.toLowerCase().trim() == "full") {
+                        isForFull = true;
+                    }
+                })
+            }
+            if (isForTip && !tipImage) {
+                tipImage = m;
+            } else if (isForFull) {
+                otherFullImageCount++;
+            }
+            if (isForFull) {
+                fullImageCount++;
+            }
+        })
+
+        var figure;
+        var floating = false;
+        if (tipImage) {
+            //For tooltips, only one image - the top priority image - is displayed.
+            figure = $('<figure/>');
+            figure.addClass("helpFigure");
+            var img = $('<img/>', { src: tipImage.URI }).appendTo(figure).css("margin-top", 2);
+            if (tipImage.ImageWidth) {
+                img.css("width", tipImage.ImageWidth);
+            }
+            var cap = $('<figcaption/>', { html: tipImage.Caption }).appendTo(figure);
+
+            //If the TipStyle column exists (be prepared for it not to for older KBs)
+            //then adjust the style of the figure appropriately
+            if (tipImage.TipStyle && tipImage.TipStyle != "") {
+                //TipStyle should be something like this: right-25 or left-40
+                var tipStyleElements = tipImage.TipStyle.split("-");
+                var float = tipStyleElements[0];
+                var percent = tipStyleElements[1];
+                figure.css("width", percent + "%");
+                figure.css("float", float);
+                figure.css("margin-bottom", 5);
+                if (float == "right") {
+                    figure.css("margin-left", 5);
+                } else {
+                    figure.css("margin-right", 5);
+                }
+                floating = true;
+            }
+        }
+
+        //Add the elements in the correct order. If there is a floating image, it must come
+        //first so that it floats at the top. If not floating, it must come second.
+        var elements = [];
+        if (floating) {
+            elements.push(figure);
+        } 
+        if (helpText.length > 0) {
+            elements.push($('<span/>').html(helpText))
+        }
+        if (!floating && figure) {
+            elements.push(figure);
+        }
+        elements.forEach(function (el) {
+            ret.append(el)
+        })
+        
+        //Is there any state value help text? Required to determine 'click for' text.
+        var valueHelp = core.values.filter(function (v) {
+            if (v.Character == character && v.StateHelp) return true;
+        });
+
+        //Add 'click for' text for full help dialog. If tip text is present then there will be fuller help text.
+        //then this message should make it clear that *further* help is available. Otherwise a general message
+        //about a resizable dialog.
+
+        var clickForText = ""
+        if (tipTextPresent || otherFullImageCount > 0 || valueHelp.length > 0) {
+            var clickForText = "(Click for <b>more detailed help</b>.)"
+        } else if (tipImage && fullImageCount > 0) {
+            var clickForText = "(Click for resizeable help window.)"
+        }
+        if (clickForText) {
+            $('<div/>').css("margin-top", 5).css("font-weight", "normal").html(clickForText).appendTo(ret);
+        }
+        
+        return ret
+    }
+
     function showCharacterHelp(character) {
 
         //Clear existing HTML
@@ -1187,23 +1340,42 @@
 
         //Header for character
         $('<h3/>', { text: core.oCharacters[character].Label }).appendTo('#tombioHelpAndInfoDialog');
-
-        //Help text for character
         $('<p/>', { html: core.oCharacters[character].Help }).appendTo('#tombioHelpAndInfoDialog');
 
         //Help images for character (not necessarily illustrating particular states)
         var charImages = core.media.filter(function (m) {
             //Only return images for matching character if no state value is set
-            if (m.Type == "image-local" && m.Character == character && !m.State) return true;
+            if (m.Type == "image-local" && m.Character == character && !m.State) {
+                //Check UseFor field - it id doesn't exist (backward compatibility for older KBs) 
+                //or exists and empty then allow image.
+                //Otherwise ensure that "full" is amongst comma separated list.
+                if (!m.UseFor) {
+                    return true;
+                } else {
+                    var use = false;
+                    m.UseFor.split(",").forEach(function (useForVal) {
+                        if (useForVal.toLowerCase().trim() == "full") {
+                            use = true;
+                        }
+                    })
+                    return use;
+                }
+            }
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
 
-        charImages.forEach(function (charState) {
+        charImages.forEach(function (charState, i) {
             var fig = $('<figure/>').appendTo('#tombioHelpAndInfoDialog');
+            fig.addClass('helpFigure');
             var img = $('<img/>', { src: charState.URI })
             var cap = $('<figcaption/>', { html: charState.Caption });
             fig.append(img).append(cap);
+            if (i > 0) {
+                img.css("margin-top", 10);
+            }
+            cap.appendTo('#tombioHelpAndInfoDialog');
+
             if (charState.ImageWidth) {
                 img.css("width", charState.ImageWidth);
             }
@@ -1235,11 +1407,16 @@
                 return Number(a.Priority) - Number(b.Priority)
             });
 
-            charImages.forEach(function (charState) {
-                var fig = $('<figure/>').appendTo('#tombioHelpAndInfoDialog');
+            charImages.forEach(function (charState, i) {
+                //var fig = $('<figure/>').appendTo('#tombioHelpAndInfoDialog');
                 var img = $('<img/>', { src: charState.URI })
                 var cap = $('<figcaption/>', { html: charState.Caption });
-                fig.append(img).append(cap);
+                //fig.append(img).append(cap);
+                img.appendTo('#tombioHelpAndInfoDialog')
+                if (i > 0) {
+                    img.css("margin-top", 10);
+                }
+                cap.appendTo('#tombioHelpAndInfoDialog');
                 if (charState.ImageWidth) {
                     img.css("width", charState.ImageWidth);
                 }
@@ -1300,8 +1477,57 @@
             global.contextMenu.menu.hide();
         });
 
+        ////Add method to add an item
+        //global.contextMenu.addItem = function (label, f, contexts) {
+
+        //    //Add item if it does not already exist
+        //    if (!(label in global.contextMenu.items)) {
+
+        //        var item = $("<li>").append($("<div>").text(label).click(f));
+        //        global.contextMenu.menu.append(item);
+        //        global.contextMenu.menu.menu("refresh");
+        //        global.contextMenu.items[label] = item;
+        //        global.contextMenu.contexts[label] = contexts;
+        //    }
+        //}
+
+        ////Add method to remove an item
+        //global.contextMenu.removeItem = function (label) {
+        //    if (label in global.contextMenu.items) {
+        //        global.contextMenu.items[label].remove();
+        //        delete global.contextMenu.items[label];
+        //        delete global.contextMenu.contexts[label];
+        //    }
+        //}
+
+        ////Add method to signal that the context has changed
+        //global.contextMenu.contextChanged = function (context) {
+
+        //    //Go through each item in context menu and hide it if 
+        //    //not valid for this context.
+        //    for (var label in global.contextMenu.items) {
+
+        //        if (global.contextMenu.contexts[label].indexOf(context) > -1) {
+        //            global.contextMenu.items[label].show();
+        //            //console.log("show menu item")
+        //        } else {
+        //            global.contextMenu.items[label].hide();
+        //            //console.log("hide menu item", label)
+        //        }
+        //    }
+        //}
+
+
         //Add method to add an item
-        global.contextMenu.addItem = function (label, f, contexts) {
+        global.contextMenu.addItem = function (label, f, contexts, bReplace) {
+
+            //Replace item if already exists 
+            //(workaround to let different visualisations have same items with different functions)
+            if (bReplace && label in global.contextMenu.items) {
+                global.contextMenu.items[label].remove();
+                delete global.contextMenu.items[label];
+                delete global.contextMenu.contexts[label];
+            }
 
             //Add item if it does not already exist
             if (!(label in global.contextMenu.items)) {

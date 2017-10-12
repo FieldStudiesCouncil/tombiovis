@@ -26,6 +26,9 @@
 
         var _this = this;
 
+        //Initialise tooltip images
+        this.displayToolTips = true
+
         //Reset this value if control can work with character state input controls
         this.charStateInput = true;
 
@@ -59,7 +62,7 @@
                         .text("Evidence balance negative")
                 )
         );
-        d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");
+        d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
     }
 
     exports.Obj.prototype.refresh = function () {
@@ -144,6 +147,17 @@
                 //_this.showTaxonCharacterValues(d);
                 _this.fullDetails(d.Taxon, 0);
             });
+
+        //Tooltips
+        $(".scientificnames").tooltip({
+            track: true,
+            items: "text",
+            content: function () {
+                if (_this.displayToolTips) {
+                    return _this.getTaxonTipImage(this.textContent)
+                }
+            }
+        })
 
         //Taxon image
         enterSelection.append("svg:image")
@@ -439,6 +453,24 @@
                 return Math.max(heightin, heightout);
             });
             //.each("end", function () { resizeControlsAndTaxa() });
+
+        //Add/remove context menu item to show taxon tooltip images
+        if (this.displayToolTips) {
+            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+                $(".ui-tootip").remove(); //This is a workaround to get rid of orphaned tooltips which sometimes occur
+                _this.displayToolTips = false;
+                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Display taxon image tooltips");
+        } else {
+            this.contextMenu.addItem("Display taxon image tooltips", function () {
+                _this.displayToolTips = true;
+                _this.contextMenu.removeItem("Display taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Remove taxon image tooltips");
+        }
 
         //Add/remove context menu item to contract all items
         if (this.taxa.some(function (taxon) { return (taxon.height != taxheight) })) {

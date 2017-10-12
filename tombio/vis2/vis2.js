@@ -38,7 +38,8 @@
 
         //Other initialisations
         this.showWeightedScores = true;
-        
+        this.displayToolTips = true;
+
         //Add the SVG
         d3.select("#" + this.visName).append("svg").attr("id", "vis2Svg");
     }
@@ -91,6 +92,7 @@
                 .style("opacity", 0)
                 .text(t.Taxon);
         });
+
         d3.selectAll(".tmpTaxonText").each(function () {
             var bbox = this.getBBox();
             if (bbox.width > taxonWidth) taxonWidth = bbox.width;
@@ -149,6 +151,17 @@
                         //_this.showTaxonCharacterValues(d);
                         _this.fullDetails(d.Taxon, 0);
                     });
+
+                //Tooltips
+                $(".scientificnames").tooltip({
+                    track: true,
+                    items: "text",
+                    content: function () {
+                        if (_this.displayToolTips) {
+                            return _this.getTaxonTipImage(this.textContent)
+                        } 
+                    }
+                })
 
                 d3.select(this).append("rect")
                     .attr("class", "type2VisOverallInd")
@@ -416,6 +429,23 @@
                 _this.showWeightedScores = true;
                 _this.refresh();
             }, [this.visName]);
+        }
+
+        //Add/remove context menu item to show taxon tooltip images
+        if (this.displayToolTips) {
+            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+                _this.displayToolTips = false;
+                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Display taxon image tooltips");
+        } else {
+            this.contextMenu.addItem("Display taxon image tooltips", function () {
+                _this.displayToolTips = true;
+                _this.contextMenu.removeItem("Display taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Remove taxon image tooltips");
         }
     }
 })(jQuery, this.tombiovis)

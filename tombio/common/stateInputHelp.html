@@ -4,16 +4,16 @@
     Every character in the knowledge-base marked for use in visualisations
     is represented as a character state input control down the left-hand
     side of the visualisation. These are grouped, as specified in the knowledge-base, into sets
-    of related characters. 
+    of related characters.
 </p>
 <p>
     Each of these sets is represented by a vertically aligned tab on the far left and you can
-    select any of these tabs to see only those characters in the specified group. The <b>All</b> 
+    select any of these tabs to see only those characters in the specified group. The <b>All</b>
     group, which appears at the top, allows you to display all characters at once.
 </p>
 <p>
     When the <b>All</b> group is displayed, you can see the <b>show/hide unused characters</b> selection buttons
-    and the <b>Reset all</b> button. Selecting <b>hide</b> removes any input controls for unspecified 
+    and the <b>Reset all</b> button. Selecting <b>hide</b> removes any input controls for unspecified
     characters from the <b>All</b> tab. This is a really convenient way of quickly seeing what characters
     have been specified when there are many available. The <b>Reset all</b> button is a quick way of
     clearing all character input rather than resetting them one at a time.
@@ -34,15 +34,34 @@
 </p>
 <h2>Getting help for characters & state values</h2>
 <p>
-    Normally the author of a knowledge-base will provide help in the knowledge base that
-    helps you interpret characters and character states. This can be provide with or without
-    illustrations. Where help for a character is available, the character name will change
+    Normally the author of a knowledge-base will provide information that
+    helps you interpret characters and character states. Where help for a character is available,
+    the character name will change
     colour to vermilion when you move your mouse cursor over it and the mouse cursor changes
-    to an arrow with a question mark. If you click the mouse when this happens, a widows
-    appears with an explanation of the character and, sometimes, the permitted state values.
+    to an arrow with a question mark.
+</p>
+<p>
+    Where help has been provided for a character, you will also see it (or at least part of it)
+    in a tooltip when you move the mouse
+    pointer over the character label. Only help text provided for the character itself is
+    shown in this tooltip and it may, or may not, include images. If more help - either on
+    the character or the associated characters states - is available, then you will see a
+    message at the foot of the tooltip which says: "Click for <b>more detailed help</b>".
+</p>
+<img src="##tombiopath##common/character-help.png" style="float: right; width: 250px" />
+<p>
+    If you click the mouse when the pointer is over a character for which help is
+    provided, a resizeable window appears with the same text as appeared in the 
+    tooltip (or sometimes a more expanded version) plus, if they have been provided,
+    images and explanations of the permitted character state values.
+</p>
+<p>
+    When a value is selected on a text or ordinal state input control and you can
+    see its value on the control, moving the mouse cursor over the value will cause
+    help, if available for that state value, to be displayed in a tooltip. Sometimes
+    more extensive help is available in the resizeable window described above.
 </p>
 <h2>Hiding the character state input controls</h2>
-<img src="##tombiopath##common/character-help.png" style="float: right; width: 250px" />
 <p>
     Use the right mouse button with your mouse cursor anywhere within the visualisation
     to invoke a context menu which includes an item to hide the character input controls:
@@ -55,13 +74,13 @@
     Every character state specified by you is matched against the knowledge-base values for that character
     for each taxon. Algorithms (described elsewhere in the software documentation) are used to assign
     a score of between -1 and 1 to indicate how well the state value(s) specified by you match those specified
-    for that character for each taxon in the knowledge-base. The knowledge-base can specify a couple of moderating 
+    for that character for each taxon in the knowledge-base. The knowledge-base can specify a couple of moderating
     values for each character which affect the scores
     for a character/taxon: <b>weight</b> and <b>strictness</b>.
 </p>
 <p>
     Knowledge-base authors can provide a <b>weight</b> value for any character. It is a value, between 0 and 1, that is
-    multiplied against the score. This allows the author of the knowledge-base to assign different 
+    multiplied against the score. This allows the author of the knowledge-base to assign different
     priorities against different characters. Characters which are very constant, with little variation, and
     very important as diagnostic characters can be assigned a high weighting, whilst those that show a lot
     of variation and which provide less convincing evidence of the identity of a taxon can be given low
@@ -70,14 +89,14 @@
 <p>
     Knowledge-base authors can provide a <b>strictness</b> value for numeric (and ordinal) characters. This
     is best explained by example. Suppose a character, body length, is specified in the knowledge-base for
-    taxon A as 40-50 mm and for taxon B as 80-90 mm. Now suppose you enter a value of 35 mm. 
+    taxon A as 40-50 mm and for taxon B as 80-90 mm. Now suppose you enter a value of 35 mm.
     If the author specified the greatest
     strictness value for this character, the value you specified, since it is outside the range for both
     taxon A and taxon B, would score -1 for both of them (unweighted). But isn't it more likely to
     be indicative of taxon A than taxon B? In many cases you would wish to score taxon A higher than
     taxon B in such cases and a strictness value allows knowledge-base authors to do that. By specifying
     a lower value of strictness, non-matching numeric (and ordinal) characters that miss, but are quite
-    close, score higher than those that miss by more. For high strictness values, this latitude is small 
+    close, score higher than those that miss by more. For high strictness values, this latitude is small
     and in for low strictness values, the latitude is wide.
 </p>
 <p>

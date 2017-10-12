@@ -724,6 +724,43 @@
         return taxonImages;
     }
 
+    exports.Obj.prototype.getTaxonTipImage = function (taxon) {
+        //Return list of all media images for taxon, sorted by priority
+        var taxonImages = this.media.filter(function (m) {
+            if (m.Taxon == taxon && m.Type == "image-local") {
+                //Check UseFor field - it id doesn't exist or exists and empty then allow image
+                //Otherwise ensure that "tip" is amongst comma separated list
+                if (!m.UseFor) {
+                    return true;
+                } else {
+                    var use = false;
+                    m.UseFor.split(",").forEach(function (useForVal) {
+                        if (useForVal.toLowerCase().trim() == "tip") {
+                            use = true;
+                        }
+                    })
+                    return use;
+                }
+            }
+        }).sort(function (a, b) {
+            return Number(a.Priority) - Number(b.Priority)
+        });
+
+        //In the case of more than one image, just return the first
+        if (taxonImages.length > 0) {
+            var ret = $('<div/>');
+            var taxonImg = taxonImages[0];
+            var img = $('<img/>', { src: taxonImg.URI }).appendTo(ret).css("margin-top", 2);
+            var cap = $('<figcaption/>', { html: taxonImg.Caption }).appendTo(ret);
+            if (taxonImg.ImageWidth) {
+                img.css("width", taxonImg.ImageWidth);
+            }
+            return ret;
+        } else {
+            return null;
+        }
+    }
+
     exports.Obj.prototype.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
         var taxonHtmlFiles = this.media.filter(function (m) {

@@ -141,7 +141,13 @@
         numericCharactersInTaxaTab.forEach(function (character) {
             core.taxa.forEach(function (taxon) {
                 value = taxon[character];
-                //console.log(taxon.Taxon, value)
+                //Sometimes, unpredictably, we seem to get here and on line that tables value.substr we get a 'value.substr is
+                //not a function' error - presumably because value is undefined. Can't work out why, but put an error trap
+                //in here to put out some diagnostics.
+                if (!value) {
+                    console.log(taxon.Taxon, character, value)
+                }
+                
                 if (!(value == "" ||
                     value == "n/a" ||
                     value == "?" ||
@@ -292,6 +298,11 @@
                     characters = false;
                 }
             }
+            //Check that any character with HelpShort set also has Help set.
+            if (c.HelpShort && !c.Help) {
+                errors.append($('<li class="tombioValid2">').html("A value for 'HelpShort' is set but there is no value for 'Help' for <b>'" + c.Character + "'</b>. You can set 'Help' without setting 'HelpShort', but not the other way around."));
+                characters = false;
+            }
         })
         if (!characters) {
             $('#tombioKBReport').append($('<h4>').text('On the characters worksheet...'));
@@ -308,6 +319,14 @@
                 values = false;
             }
         });
+
+        core.values.forEach(function (v) {
+            //Check that any character with StateHelpShort set also has StateHelp set.
+            if (v.StateHelpShort && !v.StateHelp) {
+                errors.append($('<li class="tombioValid2">').html("A value for 'StateHelpShort' is set but there is no value for 'StateHelp' for <b>'" + v.Character + " - " + v.CharacterState + "'</b>. You can set 'StateHelp' without setting 'StateHelpShort', but not the other way around."));
+                values = false;
+            }
+        })
 
         //******************************************************************************************
         //RJB The following checks were removed 26-05-2017 because I consider them to be overkill.
@@ -395,11 +414,11 @@
                 media = false;
             } else if (m.Character != "") {
                 //If a character is specified on media tab, no help text specified on characters tab
-                var character = core.characters.filter(function (c) { return (c.Character == m.Character) })[0];
-                if (character.Help == "") {
-                    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but no help text is provided for that character on the characters worksheet, so it won't be displayed."));
-                    media = false;
-                }
+                //var character = core.characters.filter(function (c) { return (c.Character == m.Character) })[0];
+                //if (character.Help == "") {
+                //    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but no help text is provided for that character on the characters worksheet, so it won't be displayed."));
+                //    media = false;
+                //}
             }
 
             if (m.State != "" && m.Character == "") {

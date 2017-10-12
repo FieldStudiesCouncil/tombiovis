@@ -1,37 +1,37 @@
-Character,CharacterState,CharacterStateTranslation,StateHelp
-ChocTaste,none,No chocolate taste,
-ChocTaste,little,A slight chocolate taste,
-ChocTaste,moderate,A moderate chocolate taste,
-ChocTaste,very,A strong chocolate taste,
-BiscuitColour,Dark brown,,The overall colour of the biscuit is dark brown.
-BiscuitColour,Pale brown,,The overall colour of the biscuit is pale brown.
-Coating,Chocolate,,The biscuit has a chocolate coating.
-Coating,None,,The biscuit does not have a coating.
-Shape,Round,,The biscuit is round.
-Shape,Rectangular,,The biscuit is rectangular.
-Shape,Hexagonal,,The biscuit is hexagonal.
-Shape,Cigar,Cigar shaped,The biscuit is cigar shaped.
-FillingColour,Dark brown,,The bisuit has a dark brown filling.
-FillingColour,White,,The biscuit has a <i>white</i> filling.
-FillingColour,White and red,,The biscuit has a filling of two layers - one red and one white.
-Holes,Yes,,The biscuit has small holes on the top surface.
-Holes,No,,The biscuit has no holes in top surface.
-Pattern,Yes,,The biscuit has a clear an deliberate pattern on the top surface.
-Pattern,No,,The biscuit has no clear or deliberate pattern (words or holes may be present).
-SingleDouble,Double,,There are two separate layers of biscuit.
-SingleDouble,Single,,There is only a single layer biscuit.
-Words,Yes,,The biscuit has words stamped on top.
-Words,No,,There are no words on the biscuit (pattern or holes may be present).
-Availability,jan,January,
-Availability,feb,February,
-Availability,mar,March,
-Availability,apr,April,
-Availability,may,May,
-Availability,jun,June,
-Availability,jul,July,
-Availability,aug,August,
-Availability,sep,September,
-Availability,oct,October,
-Availability,nov,November,
-Availability,dec,December,
-,,,
+Character,CharacterState,CharacterStateTranslation,StateHelp,StateHelpShort
+ChocTaste,none,No chocolate taste,,
+ChocTaste,little,A slight chocolate taste,,
+ChocTaste,moderate,A moderate chocolate taste,,
+ChocTaste,very,A strong chocolate taste,,
+BiscuitColour,Dark brown,,"The overall colour of the biscuit is dark brown. There may be other colours present, but this is the dominant colour.",The overall colour of the biscuit is dark brown.
+BiscuitColour,Pale brown,,The overall colour of the biscuit is pale brown.,
+Coating,Chocolate,,The biscuit has a chocolate coating.,
+Coating,None,,The biscuit does not have a coating.,
+Shape,Round,,The biscuit is round.,
+Shape,Rectangular,,The biscuit is rectangular.,
+Shape,Hexagonal,,The biscuit is hexagonal.,
+Shape,Cigar,Cigar shaped,The biscuit is cigar shaped.,
+FillingColour,Dark brown,,The bisuit has a dark brown filling.,
+FillingColour,White,,The biscuit has a <i>white</i> filling.,
+FillingColour,White and red,,The biscuit has a filling of two layers - one red and one white.,
+Holes,Yes,,The biscuit has small holes on the top surface.,
+Holes,No,,The biscuit has no holes in top surface.,
+Pattern,Yes,,The biscuit has a clear an deliberate pattern on the top surface.,
+Pattern,No,,The biscuit has no clear or deliberate pattern (words or holes may be present).,
+SingleDouble,Double,,There are two separate layers of biscuit.,
+SingleDouble,Single,,There is only a single layer biscuit.,
+Words,Yes,,The biscuit has words stamped on top.,
+Words,No,,There are no words on the biscuit (pattern or holes may be present).,
+Availability,jan,January,,
+Availability,feb,February,,
+Availability,mar,March,,
+Availability,apr,April,,
+Availability,may,May,,
+Availability,jun,June,,
+Availability,jul,July,,
+Availability,aug,August,,
+Availability,sep,September,,
+Availability,oct,October,,
+Availability,nov,November,,
+Availability,dec,December,,
+,,,,

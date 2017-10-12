@@ -59,6 +59,9 @@
         //Reset this value if control can work with character state input controls
         this.charStateInput = true;
 
+        //Initialise taxon image tooltips
+        this.displayToolTips = false;
+
         //Help files
         this.helpFiles = [
             tombiopath + "vis5/vis5Help.html",
@@ -226,6 +229,23 @@
             _this.contextMenu.removeItem("Ignore higher taxa");
         }
 
+        //Add/remove context menu item to show taxon tooltip images
+        if (this.displayToolTips) {
+            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+                _this.displayToolTips = false;
+                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Display taxon image tooltips");
+        } else {
+            this.contextMenu.addItem("Display taxon image tooltips", function () {
+                _this.displayToolTips = true;
+                _this.contextMenu.removeItem("Display taxon image tooltips");
+                _this.refresh();
+            }, [this.visName], true);
+            this.contextMenu.removeItem("Remove taxon image tooltips");
+        }
+
         //Prepare scales for the indicators
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
@@ -372,21 +392,29 @@
 
         function taxonTooltip(d) {
 
-            //console.log(d)
-
             //For leaf nodes (i.e. those representing actual taxa, set the title attribute
             //to some HTML that reflects the name and its overall score - including a colour
             //swatch behind the score. Further on, we use the 'option' attribute of the 
             //jQuery tooltip command to return this as HTML.
+            var html
             if (d.data.data.taxon) {
-                return "<i>" + d.data.id + "</i> <span style='background-color: " +
+                html = "<i>" + d.data.id + "</i> <span style='background-color: " +
                     scaleOverall(d.data.data.taxon.scoreoverall) +
                     "; padding: 2px 5px 2px 5px; margin-left: 5px'>" +
                     Math.round(d.data.data.taxon.scoreoverall * 100) / 100 + "</span>"
             } else {
                 //Can get here if bad taxonomic hierarchy is specified.
-                return "<i>" + d.data.id + "</i>";
+                html = "<i>" + d.data.id + "</i>";
             }
+            if (_this.displayToolTips) {
+                var img = _this.getTaxonTipImage(d.data.id);
+                if (img) {
+                    img.css("margin-top", 5);
+                    html = html + img[0].outerHTML;
+                }
+            }
+            
+            return html
         }
     }
 
