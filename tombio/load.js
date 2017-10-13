@@ -26,7 +26,7 @@
     }
 
     //Variables for the tools to be included
-    var defaultTools = ["vis1", "vis2", "vis5", "vis3"];
+    var defaultTools = ["vis4", "vis1", "vis2", "vis5", "vis3"];
     var includedTools = [];
 
     //Other tracking variables
@@ -262,6 +262,7 @@
         "tombiovis.js?ver=" + core.tombiover,
         "kbchecks.js?ver=" + core.tombiover,
         "score.js?ver=" + core.tombiover,
+        "taxonselect.js?ver=" + core.tombiover,
         "visP.js?ver=" + core.tombiover
     ]
     loadScript(scripts[iScript], nextScript, function () {

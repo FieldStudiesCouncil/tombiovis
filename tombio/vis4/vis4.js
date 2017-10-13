@@ -45,39 +45,42 @@
         $(this.cssSel).append(this.controlsDiv);
 
         //Control for selecting taxa
-        var taxaSel = $("<select id='vis4taxon'></select>").appendTo(this.controlsDiv);
-        var opt = $("<option/>").text(selectText);
-        taxaSel.append(opt);
+        //var taxaSel = $("<select id='vis4taxon'></select>").appendTo(this.controlsDiv);
+        //var opt = $("<option/>").text(selectText);
+        //taxaSel.append(opt);
 
-        var taxa = core.taxa.map(function(taxon) {return taxon.Taxon.value}).sort();
-        taxa.forEach(function (taxon) {
-            var opt = $("<option/>").text(taxon);
-            taxaSel.append(opt);
-        });
+        var taxaSel = taxonselect.control()
+        taxaSel.appendTo(this.controlsDiv);
 
-        taxaSel.selectmenu({
-            change: function (event, data) {
-                showTaxon(_this, data.item.value);
-            }
-        }).selectmenu("menuWidget");
-        taxaSel.selectmenu({ width: 250}); //Do this separately or you get zero width
-           // .css("height", 200);
+        //var taxa = core.taxa.map(function(taxon) {return taxon.Taxon.value}).sort();
+        //taxa.forEach(function (taxon) {
+        //    var opt = $("<option/>").text(taxon);
+        //    taxaSel.append(opt);
+        //});
+
+        //taxaSel.selectmenu({
+        //    change: function (event, data) {
+        //        showTaxon(_this, data.item.value);
+        //    }
+        //}).selectmenu("menuWidget");
+        //taxaSel.selectmenu({ width: 250}); //Do this separately or you get zero width
+        //   // .css("height", 200);
       
-        createCheckBox('tbVis4Images', 'Show images', this.controlsDiv);
-        createCheckBox('tbVis4Kb', 'Show knowledge-base', this.controlsDiv);
-        createCheckBox('tbVis4Text', 'Show text', this.controlsDiv);
+        //createCheckBox('tbVis4Images', 'Show images', this.controlsDiv);
+        //createCheckBox('tbVis4Kb', 'Show knowledge-base', this.controlsDiv);
+        //createCheckBox('tbVis4Text', 'Show text', this.controlsDiv);
 
-        function createCheckBox(id, label, parent) {
-            var cb = $('<div style="display: inline-block; vertical-align:top; margin-left: 20px">').appendTo(parent);
-            cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
-            cb.append($("<span>").text(label));
-            cb.change(function () {
-                showTaxon(_this, $("#vis4taxon option:selected").text());
-            })
-        }
+        //function createCheckBox(id, label, parent) {
+        //    var cb = $('<div style="display: inline-block; vertical-align:top; margin-left: 20px">').appendTo(parent);
+        //    cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
+        //    cb.append($("<span>").text(label));
+        //    cb.change(function () {
+        //        showTaxon(_this, $("#vis4taxon option:selected").text());
+        //    })
+        //}
 
-        visTable = $('<table id="vis4Content" style="margin: 0">').append($('<tr>'));
-        $(this.cssSel).append(visTable);
+        //visTable = $('<table id="vis4Content" style="margin: 0">').append($('<tr>'));
+        //$(this.cssSel).append(visTable);
     }
 
     function showTaxon(_this, taxonName) {
