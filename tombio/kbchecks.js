@@ -144,7 +144,7 @@
                 //Sometimes, unpredictably, we seem to get here and on line that tables value.substr we get a 'value.substr is
                 //not a function' error - presumably because value is undefined. Can't work out why, but put an error trap
                 //in here to put out some diagnostics.
-                if (!value) {
+                if (!value && value != "") {
                     console.log(taxon.Taxon, character, value)
                 }
                 
