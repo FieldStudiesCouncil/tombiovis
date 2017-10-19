@@ -101,8 +101,8 @@
         dlg.addClass("tombioFullDetailsDlg")
         dlg.attr("title", taxon);
         dlg.dialog({
-            height: 400,
-            width: 400,
+            height: 550,
+            width: 600,
             modal: true,
             resizeStop: function (event, ui) {
                 var img = tab2.find(".baseimage");

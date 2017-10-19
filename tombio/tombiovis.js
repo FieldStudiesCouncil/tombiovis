@@ -10,10 +10,10 @@
         bullet: "",
         delay: 250,
         duration: 1000,
-        infowidth: 640,
-        infoheight: 520,
-        helpAndInfoDialogWidth: 400,
-        helpAndInfoDialogHeight: 250,
+        infowidth: 750,
+        infoheight: 700,
+        helpAndInfoDialogWidth: 550,
+        helpAndInfoDialogHeight: 400,
         visInfoDialogWidth: 650,
         visInfoDialogHeight: 350,
         scriptsLoaded: false,
@@ -748,7 +748,19 @@
         //If reload selected, then
         if (selectedToolName == "reload") {
             //Force reload of entire page - ignoring cache.
-            window.location.reload(true);
+            //window.location.reload(true);
+            //https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
+
+            $.ajax({
+                url: window.location.href,
+                headers: {
+                    "Pragma": "no-cache",
+                    "Expires": -1,
+                    "Cache-Control": "no-cache"
+                }
+            }).done(function () {
+                window.location.reload(true);
+            });
         }
 
         //Get the selected visualisation

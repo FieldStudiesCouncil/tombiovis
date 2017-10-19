@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Changed
 ### Added
- - Added tooltips for input characters and character values. The tooltips display help text. This is a much more proactive way of displaying help rather than relying on users to click character names to invoke the help dialog.
 ### Fixed
 ### Removed
+
+## [1.5.0] - 2017-10-19
+### Changed
+ - Updated documentation for knowledge-base builders to make use of the new tooltip help features (see below) or disable them if required.
+ - Updated documentation on deployment for knowledge-base builders.
+ - Enlarged the default sizes of help and taxon information windows.
+### Added
+ - Added tooltips for input characters and character values. The tooltips display help text. This is a much more proactive way of displaying help rather than relying on users to click character names to invoke the help dialog.
+ - Added taxon image tooltips. If an images is define for a taxon, then this appears in a tool-tip when the user moves the mouse over the taxon name for most visualisations.
+ - Added context menu items to visualisations so that the user can disable the taxon image tooltip if required.
+### Fixed
+ - Reload drop-down option is supposed to reload the entire page without using the cache (for developers), but it was still using the cache in Chrome. This has been fixed.
 
 ## [1.4.1] - 2017-08-14
 ### Fixed
