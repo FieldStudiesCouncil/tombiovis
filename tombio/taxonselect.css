@@ -1,0 +1,14 @@
+﻿.taxonSelectTaxarect {
+    fill: lightgrey;
+    rx: 5;
+    ry: 5;
+}
+
+.taxonSelectScientificnames {
+    font-family: Arial;
+    font-size: 13px;
+    stroke-width: 0px;
+    font-style: italic;
+    fill: black;
+    cursor: default;
+}

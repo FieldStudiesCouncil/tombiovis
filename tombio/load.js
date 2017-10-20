@@ -84,7 +84,8 @@
         "dependencies/pqselect-1.3.2/pqselect.min.css", 
         "dependencies/pqgrid-2.1.0/pqgrid.min.css", //Required for vis3
         //"dependencies/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css",
-        "tombiovis.css"
+        "tombiovis.css",
+        "taxonselect.css"
     ]
     css.forEach(function (cssFile) {
         loadCSSFile(cssFile);
