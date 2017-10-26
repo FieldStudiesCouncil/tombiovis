@@ -49,7 +49,7 @@
         //var opt = $("<option/>").text(selectText);
         //taxaSel.append(opt);
 
-        var taxaSel = taxonselect.control(this.controlsDiv)
+        var taxaSel = taxonselect.control(this.controlsDiv, true)
         //taxaSel.appendTo(this.controlsDiv);
 
         //var taxa = core.taxa.map(function(taxon) {return taxon.Taxon.value}).sort();

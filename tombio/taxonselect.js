@@ -3,28 +3,40 @@
     "use strict";
 
     //Variables for layout
+    var mainDiv; //jQuery object
     var gap = 4;
     var textHeightOffset = 4;
     var taxonHeight = 25;
     var taxonWidth = 200;
     var filterText = "";
     var filterMessage ="Filter names (use # for 'starts with')"
-    var svg;
+    var svg; //D3 object
     var textFilter;
+    var taxonSort;
+    var isMultiSelect;
+    var hostCallback;
+    var selectedTaxa = [];
+    var selectedTaxon;
 
+    //Create the taxon array (from core.taxa) that this control
+    //will work with.
     var taxa = []
-    core.taxa.forEach(function (t) {
+    core.taxa.forEach(function (t, i) {
         taxa.push({
             name: t.Taxon,
             abbrv: "",
-            length: 0
+            order: i
         })
     })
 
-    exports.control = function (parent) {
+    exports.control = function (parent, multi, callback) {
+
+        //Assign module-level variables
+        isMultiSelect = multi;
+        hostCallback = callback;
 
         //Main control div
-        var mainDiv = $('<div id="taxonSelect" />').appendTo(parent);
+        mainDiv = $('<div id="taxonSelect" />').appendTo(parent);
 
         //Filter textbox
         textFilter = $('<input type="text"/>').addClass("ui-widget ui-widget-content ui-corner-all");
@@ -55,15 +67,26 @@
             }
         });
 
-        //Sort radio buttons
-        //<label for="radio-1">New York</label>
-        //<input type="radio" name="radio-1" id="radio-1">
-        //<label for="radio-2">Paris</label>
-        //<input type="radio" name="radio-1" id="radio-2">
-        //<label for="radio-3">London</label>
-        //<input type="radio" name="radio-1" id="radio-3">
+        //Hidden controls
+        var hiddenControlsDiv = $('<div>').css("margin-top", 5).css("display", "none").appendTo(mainDiv);
+        var controlsArrow = $('<img>')
+            .attr("src", tombiopath + "resources/chevron-down.png")
+            .attr("class", "taxonSelectHiddenControlsArrow")
+            .appendTo(mainDiv);
 
-        var sortDiv = $('<div>').appendTo(mainDiv);
+        //Hiding and showing hidden controls
+        controlsArrow.on("click", function () {
+            if (hiddenControlsDiv.css("display") == "none") {
+                hiddenControlsDiv.slideDown(400);
+                controlsArrow.attr("src", tombiopath + "resources/chevron-up.png")
+            } else {
+                hiddenControlsDiv.slideUp(400);
+                controlsArrow.attr("src", tombiopath + "resources/chevron-down.png")
+            }
+        })
+
+        //Sort radio buttons
+        var sortDiv = $('<div>').appendTo(hiddenControlsDiv);
         $("<label>").attr("for", "radio-x").text("none").appendTo(sortDiv);
         $("<input>").attr("type", "radio").attr("name", "radioSort").attr("id", "radio-x").attr("checked", "true").appendTo(sortDiv);
         $("<label>").attr("for", "radio-a").text("a-z").appendTo(sortDiv);
@@ -72,9 +95,15 @@
         $("<input>").attr("type", "radio").attr("name", "radioSort").attr("id", "radio-z").appendTo(sortDiv);
         sortDiv.find("input").checkboxradio();
 
+        $('[name=radioSort]').on('change', function (e) {
+            taxonSort = $("[name='radioSort']").filter(":checked").attr("id");
+            sortTaxa();
+            updateTaxa();
+        });
+
         //taxon SVG
         svg = d3.select('#taxonSelect').append('svg');
-        svg.attr('width', taxonWidth)
+        svg.attr('width', taxonWidth);
 
         //The following code tests the text for the name of each taxon to ensure
         //that it will fit within the taxon rectangle and, if it doesn't, then
@@ -110,23 +139,142 @@
         //Return the main control div
         return mainDiv;
     }
+
+    function taxonClick(taxon) {
+
+        var deselectedTaxon;
+
+        //Get the rectangle and text objects corresponding to the clicked taxon
+        var rect = svg.select("rect[taxonName=\"" + taxon + "\"]");
+        var text = svg.select("text[taxonName=\"" + taxon + "\"]");
+
+        //Set a flag indicating whether or not the taxon is currently selected
+        var currentlySelected = rect.classed("taxonSelectTaxarectSelected")
+        
+        //Change the display style of the taxon
+        rect.classed("taxonSelectTaxarectDeselected", currentlySelected)
+            .classed("taxonSelectTaxarectSelected", !currentlySelected);
+        text.classed("taxonSelectScientificnamesDeselected", currentlySelected)
+            .classed("taxonSelectScientificnamesSelected", !currentlySelected);
+
+        //if the control is working in single select mode and another is currently selected,
+        //then deselect it.
+        if (!isMultiSelect && selectedTaxon && selectedTaxon != taxon) {
+            //Change the style (
+            var rectPrevious = svg.select("rect[taxonName=\"" + selectedTaxon + "\"]");
+            var textPrevious = svg.select("text[taxonName=\"" + selectedTaxon + "\"]");
+
+            //Change style to deselected
+            rectPrevious.classed("taxonSelectTaxarectDeselected", true)
+                .classed("taxonSelectTaxarectSelected", false);
+            textPrevious.classed("taxonSelectScientificnamesDeselected", true)
+                .classed("taxonSelectScientificnamesSelected", false);
+
+            //Record the fact that this has been deselected (to pass to client)
+            deselectedTaxon = selectedTaxon;
+        }
+
+        //Record the fact that the currently clicked taxon has been either
+        //selected or deselected.
+        if (currentlySelected) {
+            selectedTaxon = null;
+            deselectedTaxon = taxon;
+        } else {
+            selectedTaxon = taxon;
+        }
+
+        //Update the selectedTaxa array
+        if (deselectedTaxon) {
+            var i = selectedTaxa.length;
+            while (i--) {
+                if (selectedTaxa[i] == deselectedTaxon) {
+                    selectedTaxa.splice(i, 1);
+                }
+            }
+        }
+        if (selectedTaxon) {
+            selectedTaxa.push(selectedTaxon)
+        }
+
+        //Set return object
+        var ret = {
+            selected: selectedTaxon,
+            deselected: deselectedTaxon,
+            taxa: selectedTaxa
+        }
+
+        //Call callback function
+        if (hostCallback) {
+            hostCallback(ret)
+        }
+
+        //console.log("desel", ret.deselected)
+        //console.log("sel", ret.selected)
+        //console.log("array", ret.taxa)
+
+        //console.log(ret.selected)
+        //console.log(ret.taxa[0])
+        //console.log(ret)
+        //console.log(ret.selected)
+        //console.log(ret.taxa[0])
+    }
+
+    function sortTaxa() {
+        taxa.sort(function (a, b) {
+
+            if (taxonSort == "radio-a") {
+                var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+                var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+                return 0;
+
+            } else if (taxonSort == "radio-z") {
+                var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+                var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+                if (nameA < nameB) {
+                    return 1;
+                }
+                if (nameA > nameB) {
+                    return -1;
+                }
+                return 0;
+            } else {
+                return a.order - b.order;
+            }
+        })
+    }
+
     function updateTaxa() {
-        //taxon elements
 
         var tranTime = 300;
 
+        //D3 selection
         var mtU = svg.selectAll("g")
             .data(taxa.filter(function (d) {
+                //Matches if no filter specified, or just '#' or text is filter message
                 if (filterText == "" || filterText.toLowerCase() == filterMessage.toLowerCase() || filterText == "#") {
                     return true;
                 }
+                //Matches if filter starts with '#' and rest of filter text matches start of taxon name
                 if (filterText.startsWith("#")) {
                     if (d.name.toLowerCase().startsWith(filterText.toLowerCase().substr(1))) {
                         return true;
                     }
                 }
+                //Matches if filter doesn't start with '#' and filter occurs somewhere in taxon name
                 if (d.name.toLowerCase().indexOf(filterText.toLowerCase()) !== -1) {
                     return true;
+                }
+                //Matches if name is in the selected taxon set
+                for (var i = 0; i < selectedTaxa.length; i++) {
+                    if (selectedTaxa[i] == d.name) {
+                        return true;
+                    }
                 }
                 return false;
             }), function (d) { return d.name; })
@@ -141,19 +289,30 @@
                     .attr("x", 0)
                     .attr("width", taxonWidth)
                     .attr("height", taxonHeight)
-                    .attr("class", "taxonSelectTaxarect");
+                    .classed("taxonSelectTaxarect", true)
+                    .classed("taxonSelectTaxarectDeselected", true)
+                    .attr("taxonName", function (d) {
+                        return d.name
+                    })
+                    .on("click", function (d) {
+                        taxonClick(d.name);
+                    })
 
                 d3.select(this).append("text")
                     //Create taxon texts
                     .style("opacity", 0)
                     .attr("x", 5)
                     .classed("taxonSelectScientificnames", true)
+                    .classed("taxonSelectScientificnamesDeselected", true)
                     .classed("abbrvName", function () {
                         if (d.abbrv) {
                             return true;
                         } else {
                             return false;
                         }
+                    })
+                    .attr("taxonName", function (d) {
+                        return d.name
                     })
                     .text(function () {
                         if (d.abbrv) {
@@ -168,6 +327,9 @@
                         } else {
                             return "";
                         }
+                    })
+                    .on("click", function (d) {
+                        taxonClick(d.name);
                     })
             })
             .merge(mtU);
@@ -226,4 +388,5 @@
             })
             .attr('height', svgHeight)
     }
+
 })(this.taxonselect = {}, jQuery, this.tombiovis)
