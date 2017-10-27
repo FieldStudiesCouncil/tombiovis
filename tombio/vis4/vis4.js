@@ -7,7 +7,6 @@
     var visName = "vis4";
     var exports = core[visName] = {};
     var win, divImage, divKb, divInfo, visTable;
-    var selectText = "Select taxon"
     var selectedTaxon;
     var _this;
 
@@ -43,13 +42,15 @@
         ]
 
         //Controls div
-        //$(this.cssSel).css("display", "flex");
+        var $flexContainer = $("<div>").appendTo($(this.cssSel));
+        $flexContainer.css("display", "flex");
+        $(this.cssSel).append($flexContainer);
 
         this.controlsDiv = $("<div/>").css("width", 210);
-        $(this.cssSel).append(this.controlsDiv);
+        $flexContainer.append(this.controlsDiv);
 
         var visDiv = $("<div/>").css("flex-grow", 1);
-        $(this.cssSel).append(visDiv);
+        $flexContainer.append(visDiv);
 
         var taxSel = Object.create(core.taxonSelect);
         taxSel.control(this.controlsDiv, false, taxonSelectCallback);
@@ -89,7 +90,7 @@
         visTable.html(null);
 
         //Return if no taxon selected
-        if (taxonName == selectText) return;
+        if (!taxonName) return;
 
         //Add table columns at correct width if checkbox selected
         included.forEach(function () {

@@ -170,6 +170,18 @@
             _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.value });
         }
 
+        function taxonSelectCallback(retValue) {
+
+            if (retValue.selected && _this.vis3Taxa.indexOf(retValue.selected) == -1) {
+                _this.vis3Taxa.push(retValue.selected);
+                _this.refresh();
+            }
+            if (retValue.deselected && _this.vis3Taxa.indexOf(retValue.deselected) != -1) {
+                _this.vis3Taxa.splice(_this.vis3Taxa.indexOf(retValue.deselected), 1);
+                _this.refresh();
+            }
+        }
+
         //Initialise context menu items
         this.contextMenu.addItem("Rank those shown against first", function () {
             matchFirst();
@@ -212,16 +224,18 @@
         _this.vis3Taxa = [];
         //addTop(2);
 
-        //$(this.cssSel).css("display", "flex");
+        var $flexContainer = $("<div>").appendTo($(this.cssSel));
+        $flexContainer.css("display", "flex");
+        $(this.cssSel).append($flexContainer);
 
         this.controlsDiv = $("<div/>").css("width", 210);
-        $(this.cssSel).append(this.controlsDiv);
-
-        var taxSel = Object.create(core.taxonSelect);
-        taxSel.control(this.controlsDiv, true);
+        $flexContainer.append(this.controlsDiv);
 
         var visDiv = $("<div/>").css("flex-grow", 1);
-        $(this.cssSel).append(visDiv);
+        $flexContainer.append(visDiv);
+
+        this.taxSel = Object.create(core.taxonSelect);
+        this.taxSel.control(this.controlsDiv, true, taxonSelectCallback);
 
         //Selection of taxa
         var taxaSel = $("<select id='taxaSel'></select>");
@@ -444,6 +458,8 @@
                 if (selIndex != -1) {
                     _this.vis3Taxa.splice(selIndex, 1);
                     _this.refresh();
+                    //Deselect this taxon in the taxonselect control
+                    _this.taxSel.taxonDeselectedExternally(selectedName)
                 }
             });
 

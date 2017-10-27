@@ -201,11 +201,9 @@
 
         //Update the selectedTaxa array
         if (deselectedTaxon) {
-            var i = this.selectedTaxa.length;
-            while (i--) {
-                if (this.selectedTaxa[i] == deselectedTaxon) {
-                    this.selectedTaxa.splice(i, 1);
-                }
+            var i = this.selectedTaxa.indexOf(deselectedTaxon)
+            if (i != -1) {
+                this.selectedTaxa.splice(i, 1);
             }
         }
         if (this.selectedTaxon) {
@@ -223,16 +221,31 @@
         if (this.hostCallback) {
             this.hostCallback(ret)
         }
+    }
 
-        //console.log("desel", ret.deselected)
-        //console.log("sel", ret.selected)
-        //console.log("array", ret.taxa)
+    core.taxonSelect.taxonDeselectedExternally = function (taxon) {
 
-        //console.log(ret.selected)
-        //console.log(ret.taxa[0])
-        //console.log(ret)
-        //console.log(ret.selected)
-        //console.log(ret.taxa[0])
+        //Get the rectangle and text objects corresponding to the deselected taxon
+        var D3rect = this.D3svg.select("rect[taxonName=\"" + taxon + "\"]");
+        var D3text = this.D3svg.select("text[taxonName=\"" + taxon + "\"]");
+
+        //Change the display style of the taxon
+        D3rect.classed("taxonSelectTaxarectDeselected", true)
+            .classed("taxonSelectTaxarectSelected", false);
+        D3text.classed("taxonSelectScientificnamesDeselected", true)
+            .classed("taxonSelectScientificnamesSelected", false);
+
+        //If the deselected taxon was the last one selected, then set the
+        //selectedTaxon object variable to null.
+        if (this.selectedTaxon = taxon) {
+            this.selectedTaxon = null;
+        }
+
+        //Update the selected taxa array
+        var i = this.selectedTaxa.indexOf(taxon)
+        if (i != -1) {
+            this.selectedTaxa.splice(i, 1);
+        }
     }
 
     core.taxonSelect.sortTaxa = function () {
@@ -314,7 +327,6 @@
             .classed("taxonSelectTaxarect", true)
             .classed("taxonSelectTaxarectDeselected", true)
             .attr("taxonName", function (d) {
-                console.log("appneding rect for ", d.name)
                 return d.name
             })
             .on("click", function (d) {
@@ -338,7 +350,6 @@
                 return d.name
             })
             .text(function (d) {
-                console.log("appneding text for ", d.name)
                 if (d.abbrv) {
                     return d.abbrv;
                 } else {
@@ -400,7 +411,7 @@
                 }, 3000);
             },
             content: function () {
-                return $(_this).attr("title");
+                return $(this).attr("title");
             }
         });
 

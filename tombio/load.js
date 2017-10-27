@@ -26,7 +26,7 @@
     }
 
     //Variables for the tools to be included
-    var defaultTools = ["vis4", "vis1", "vis2", "vis5", "vis3"];
+    var defaultTools = ["vis3", "vis4", "vis1", "vis2", "vis5"];
     //var defaultTools = ["vis4", "vis1", "vis2", "vis5"];
     //var defaultTools = ["vis3", "vis1", "vis2", "vis5"];
     var includedTools = [];
