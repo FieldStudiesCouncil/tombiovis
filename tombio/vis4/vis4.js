@@ -8,6 +8,8 @@
     var exports = core[visName] = {};
     var win, divImage, divKb, divInfo, visTable;
     var selectText = "Select taxon"
+    var selectedTaxon;
+    var _this;
 
     exports.Obj = function (parent, contextMenu, core) {
 
@@ -27,7 +29,7 @@
 
     exports.Obj.prototype.initialise = function () {
 
-        var _this = this;
+        _this = this;
         var taxonName;
 
         //Reset this value if control can work with character state input controls
@@ -41,49 +43,40 @@
         ]
 
         //Controls div
-        this.controlsDiv = $("<div/>");
+        //$(this.cssSel).css("display", "flex");
+
+        this.controlsDiv = $("<div/>").css("width", 210);
         $(this.cssSel).append(this.controlsDiv);
 
-        //Control for selecting taxa
-        //var taxaSel = $("<select id='vis4taxon'></select>").appendTo(this.controlsDiv);
-        //var opt = $("<option/>").text(selectText);
-        //taxaSel.append(opt);
+        var visDiv = $("<div/>").css("flex-grow", 1);
+        $(this.cssSel).append(visDiv);
 
-        var taxaSel = taxonselect.control(this.controlsDiv, true)
-        //taxaSel.appendTo(this.controlsDiv);
-
-        //var taxa = core.taxa.map(function(taxon) {return taxon.Taxon.value}).sort();
-        //taxa.forEach(function (taxon) {
-        //    var opt = $("<option/>").text(taxon);
-        //    taxaSel.append(opt);
-        //});
-
-        //taxaSel.selectmenu({
-        //    change: function (event, data) {
-        //        showTaxon(_this, data.item.value);
-        //    }
-        //}).selectmenu("menuWidget");
-        //taxaSel.selectmenu({ width: 250}); //Do this separately or you get zero width
-        //   // .css("height", 200);
+        var taxSel = Object.create(core.taxonSelect);
+        taxSel.control(this.controlsDiv, false, taxonSelectCallback);
       
-        //createCheckBox('tbVis4Images', 'Show images', this.controlsDiv);
-        //createCheckBox('tbVis4Kb', 'Show knowledge-base', this.controlsDiv);
-        //createCheckBox('tbVis4Text', 'Show text', this.controlsDiv);
+        createCheckBox('tbVis4Images', 'Show images', visDiv);
+        createCheckBox('tbVis4Kb', 'Show knowledge-base', visDiv);
+        createCheckBox('tbVis4Text', 'Show text', visDiv);
 
-        //function createCheckBox(id, label, parent) {
-        //    var cb = $('<div style="display: inline-block; vertical-align:top; margin-left: 20px">').appendTo(parent);
-        //    cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
-        //    cb.append($("<span>").text(label));
-        //    cb.change(function () {
-        //        showTaxon(_this, $("#vis4taxon option:selected").text());
-        //    })
-        //}
+        function createCheckBox(id, label, parent) {
+            var cb = $('<div style="display: inline-block; vertical-align:top; margin-left: 20px">').appendTo(parent);
+            cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
+            cb.append($("<span>").text(label));
+            cb.change(function () {
+                showTaxon(selectedTaxon);
+            })
+        }
 
-        //visTable = $('<table id="vis4Content" style="margin: 0">').append($('<tr>'));
-        //$(this.cssSel).append(visTable);
+        visTable = $('<table id="vis4Content" style="margin: 0">').append($('<tr>'));
+        visDiv.append(visTable);
     }
 
-    function showTaxon(_this, taxonName) {
+    function taxonSelectCallback(retValue) {
+        selectedTaxon = retValue.selected
+        showTaxon(selectedTaxon)
+    }
+
+    function showTaxon(taxonName) {
 
         var includeImages = document.getElementById('tbVis4Images').checked;
         var includeKb = document.getElementById('tbVis4Kb').checked;
@@ -173,8 +166,6 @@
     }  
 
     exports.Obj.prototype.refresh = function () {
-
-        var _this = this;  
 
         //Height has to be set in the refresh method otherwise has no effect
         $('#vis4taxon').selectmenu("menuWidget").css("height", 200);

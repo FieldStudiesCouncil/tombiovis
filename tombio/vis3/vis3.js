@@ -212,8 +212,16 @@
         _this.vis3Taxa = [];
         //addTop(2);
 
-        this.controlsDiv = $("<div/>");
+        //$(this.cssSel).css("display", "flex");
+
+        this.controlsDiv = $("<div/>").css("width", 210);
         $(this.cssSel).append(this.controlsDiv);
+
+        var taxSel = Object.create(core.taxonSelect);
+        taxSel.control(this.controlsDiv, true);
+
+        var visDiv = $("<div/>").css("flex-grow", 1);
+        $(this.cssSel).append(visDiv);
 
         //Selection of taxa
         var taxaSel = $("<select id='taxaSel'></select>");
@@ -225,7 +233,7 @@
             taxaSel.append(opt);
         });
         
-        this.controlsDiv.append(taxaSel);
+        visDiv.append(taxaSel);
 
         //If done here the following results in menu of zero width. So it's done in refresh instead.
         //taxaSel.selectmenu()
@@ -245,7 +253,7 @@
                 }
             });
 
-        this.controlsDiv.append(addButton);
+        visDiv.append(addButton);
 
         //Radio buttons to group characters or not
         if (_this.charactersGrouped) {
@@ -254,7 +262,7 @@
             radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
             radios.append($("<label>").attr("for", "groupinvisible").text("ungroup"));
             radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupinvisible").attr("value", "invisible").attr("checked", "checked"));
-            this.controlsDiv.append(radios);
+            visDiv.append(radios);
             $("[name='groupvisibility']").checkboxradio({ icon: false });
             radios.on("change", function () {
                 _this.refresh();
@@ -263,7 +271,7 @@
 
         //Grid div
         var gridDiv = $("<div id='visType3Grid'></div>").css("margin-top", 10)
-        $(this.cssSel).append(gridDiv);
+        visDiv.append(gridDiv);
 
         //Create taxon state object array
         this.stateTaxa = {};
