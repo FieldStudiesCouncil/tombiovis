@@ -992,7 +992,19 @@
 
         if (iFile <= taxonHtmlFiles.length - 1) {
             $.get(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover, function (data) {
-                container.html(data);
+
+                //We need to extract the html in the body tag and ignore everything
+                //else. Trouble is when using jQuery to insert the full HTML into 
+                //an element such as a div, the body and header don't come through.
+                //So we use good old javascript searching for the body start and end
+                //tags to find it instead. Then insert that into a div and extract the
+                //HTML (which is without body).
+                var bStart = data.indexOf("<body");
+                var bEnd = data.indexOf("</body");
+                var bodyHtml = data.slice(bStart, bEnd);
+
+                var $tmpDiv = $("<div>").html(bodyHtml);
+                container.html($tmpDiv.html());
             });
         } else {
             container.html(null);

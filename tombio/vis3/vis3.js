@@ -237,41 +237,9 @@
         this.taxSel = Object.create(core.taxonSelect);
         this.taxSel.control(this.controlsDiv, true, taxonSelectCallback);
 
-        //Selection of taxa
-        var taxaSel = $("<select id='taxaSel'></select>");
-        this.taxa.forEach(function (taxon) {
-
-            //console.log(taxon);
-
-            var opt = $("<option/>").text(taxon.Taxon.value);
-            taxaSel.append(opt);
-        });
-        
-        visDiv.append(taxaSel);
-
-        //If done here the following results in menu of zero width. So it's done in refresh instead.
-        //taxaSel.selectmenu()
-        //    .selectmenu("menuWidget")
-        //    .css("height", 200)
-        //    .css("width", 250)
-        //    .css("vertical-align", "top");
-
-        //Add and minus buttons for add/remove taxa
-        var addButton = $("<button id='addTaxon'>Add selected taxon to dispaly</button>").button({ text: false, icons: { secondary: 'ui-icon-plusx' } })
-            .css("vertical-align", "top").css("margin-left", 1).css("width", 40).css("font-weight", "bold").css("font-size", 12)
-            .on("click", function () {
-                var selectedName = $("#taxaSel").find(":selected").text();
-                if (_this.vis3Taxa.indexOf(selectedName) == -1) {
-                    _this.vis3Taxa.push(selectedName);
-                    _this.refresh();
-                }
-            });
-
-        visDiv.append(addButton);
-
         //Radio buttons to group characters or not
         if (_this.charactersGrouped) {
-            var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top").css("margin-left", 20);
+            var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top");
             radios.append($("<label>").attr("for", "groupvisible").text("group"));
             radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
             radios.append($("<label>").attr("for", "groupinvisible").text("ungroup"));
@@ -302,13 +270,13 @@
             $("#visType3Grid").pqGrid("destroy")
         }
 
-        //I don't know why but this has to be done here - not in initialisation where it
-        //results in a menu of zero width.
-        $("#taxaSel").selectmenu()
-            .selectmenu("menuWidget")
-            .css("height", 200)
-            .css("width", 250)
-            .css("vertical-align", "top");
+        ////I don't know why but this has to be done here - not in initialisation where it
+        ////results in a menu of zero width.
+        //$("#taxaSel").selectmenu()
+        //    .selectmenu("menuWidget")
+        //    .css("height", 200)
+        //    .css("width", 250)
+        //    .css("vertical-align", "top");
 
         //Build the descriptions array that contains the table data.
         //We need to create an array of objects with the following structure.
@@ -449,19 +417,22 @@
         function vis3GridRefresh() {
 
             //Ensure that the header rows contain the remove icon
-            $(".pq-grid-title-row").find(".pq-td-div:not(:contains('Character'))")
-               .append("<img class='vis3removeIcon' src='" + tombiopath + "resources/minus.png'>");
+            //(Taken out 27/10/2017 since crowded display and could look bad on narrow cells and
+            //moreover, no longer needed since introduction of taxonSelect control from which taxa
+            //can be deselected.))
+            //$(".pq-grid-title-row").find(".pq-td-div:not(:contains('Character'))")
+            //   .append("<img class='vis3removeIcon' src='" + tombiopath + "resources/minus.png'>");
 
-            $(".vis3removeIcon").on("click", function () {
-                var selectedName = $(this).parent().text().trim();
-                var selIndex = _this.vis3Taxa.indexOf(selectedName);
-                if (selIndex != -1) {
-                    _this.vis3Taxa.splice(selIndex, 1);
-                    _this.refresh();
-                    //Deselect this taxon in the taxonselect control
-                    _this.taxSel.taxonDeselectedExternally(selectedName)
-                }
-            });
+            //$(".vis3removeIcon").on("click", function () {
+            //    var selectedName = $(this).parent().text().trim();
+            //    var selIndex = _this.vis3Taxa.indexOf(selectedName);
+            //    if (selIndex != -1) {
+            //        _this.vis3Taxa.splice(selIndex, 1);
+            //        _this.refresh();
+            //        //Deselect this taxon in the taxonselect control
+            //        _this.taxSel.taxonDeselectedExternally(selectedName)
+            //    }
+            //});
 
             //Handle image display
             //Declare two functions because they have each to be used in two places since everytime
