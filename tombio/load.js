@@ -11,7 +11,7 @@
         publisher: "Field Studies Council",
         location: "Shrewsbury, England",
         contact: "richardb@field-studies-council.org",
-        version: "1.2.1"
+        version: "1.6.0"
     }
 
     //The reload option (tombiovis.js) uses window.location.reload(true)
@@ -84,8 +84,7 @@
         "dependencies/jquery-ui-1.12.1/jquery-ui.min.css",
         "dependencies/jquery-ui-1.12.1/jquery-ui.theme.min.css",
         "dependencies/pqselect-1.3.2/pqselect.min.css", 
-        "dependencies/pqgrid-2.1.0/pqgrid.min.css", //Required for vis3
-        //"dependencies/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css",
+        "dependencies/pqgrid-2.1.0/pqgrid.min.css", 
         "tombiovis.css",
         "taxonselect.css"
     ]
@@ -104,7 +103,6 @@
     }
 
     //Load D3 and then use it to load the KB
-    //loadScript("dependencies/d3-4.6.0/d3.min.js", loadKB);
     loadScript("dependencies/d3-4.10.0/d3.v4.min.js", loadKB);
 
     function loadKB() {

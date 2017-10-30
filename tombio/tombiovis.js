@@ -742,8 +742,20 @@
         return html;
     }
 
+    
     function visChanged() {
+
         var selectedToolName = $("#tombioVisualisation").val();
+        console.log("Tool:", selectedToolName);
+        core.jsFiles[selectedToolName].loadReady();
+        core.showDownloadSpinner();
+        core.loadScripts(function () {
+            core.hideDownloadSpinner();
+            visModuleLoaded(selectedToolName)
+        });
+    }
+
+    function visModuleLoaded(selectedToolName) {
 
         //If reload selected, then
         if (selectedToolName == "reload") {
@@ -765,6 +777,8 @@
 
         //Get the selected visualisation
         var selectedTool = global.visualisations[selectedToolName];
+
+        //alert(selectedTool); return
 
         //If the user has selected to show citation then generate.
         if (selectedToolName == "tombioCitation") {

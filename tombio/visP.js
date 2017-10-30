@@ -222,6 +222,14 @@
             controlsImageSelectors.find("img").attr("src", tombiopath + "resources/camera.png");
 
             //Clear current image and caption
+            if (pane.css("width") != "0px") {
+                //This prevents pane reducing height to zero when
+                //image removed and helps avoid flickering/resize of
+                //surrounding contents. It is reset later.
+                console.log("resizing pane")
+                pane.css("width", pane.css("width"));
+                pane.css("height", pane.css("height"));
+            }
             img.attr("src", null);
             cap.html("");
             
@@ -241,27 +249,34 @@
                         container.css("width", img.width() + border);
                         container.css("height", img.height() + border + 30);
                     }
+                    pane.css("height", "100%");
                     pane.css("width", "100%");
                 } else {
                     pane.css("width", img.width() + border);
                     pane.css("height", img.height() + border + 30);
                 }
 
-                //Initialise zoom image
-                imgZoom
-                    .attr("src", this.src)
-                    .css("width", img.width())
-                    .css("height", img.height())
-                    .css("left", 0)
-                    .css("top", 0)
-                    .attr("viewWidth", img.width())
-                    .attr("viewHeight", img.height())
-                    .attr("xProp", 0.5)
-                    .attr("yProp", 0.5);
-
                 img.css("opacity", 0.2); //Helps with sorting out problems
 
                 pane.find("#imgLink" + imageIndex).attr("src", tombiopath + "resources/cameragreen.png");
+
+                //Initialise zoom image
+                var _this = this;
+                setTimeout(function () {
+                    //Putting this in a timeout prevents an unpredictable problem of the imgZoom
+                    //ending up smaller than img. Presumably because the code was firing when
+                    //img was not somehow at it's full size.
+                    imgZoom
+                       .attr("src", _this.src)
+                       .css("width", img.width())
+                       .css("height", img.height())
+                       .css("left", 0)
+                       .css("top", 0)
+                       .attr("viewWidth", img.width())
+                       .attr("viewHeight", img.height())
+                       .attr("xProp", 0.5)
+                       .attr("yProp", 0.5);
+                }, 50);
 
                 //If function passed to ImageSelected, execute it once
                 //image is loaded
@@ -1005,6 +1020,7 @@
 
                 var $tmpDiv = $("<div>").html(bodyHtml);
                 container.html($tmpDiv.html());
+
             });
         } else {
             container.html(null);

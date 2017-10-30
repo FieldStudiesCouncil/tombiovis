@@ -14,8 +14,6 @@
 
     core.taxonSelect.init = function () {
 
-        var _this = this;
-
         //Object level variables that change (store state) must be set at the
         //level of the calling object ([this] context). Those that need initialisation
         //are set here. Others are created on the fly.
@@ -27,12 +25,12 @@
         this.taxa = [];
 
         core.taxa.forEach(function (t, i) {
-            _this.taxa.push({
+            this.taxa.push({
                 name: t.Taxon.kbValue,
                 abbrv: "",
                 order: i
             })
-        })
+        }, this)
     }
 
     core.taxonSelect.control = function ($parent, multi, callback) {
@@ -141,12 +139,12 @@
                 var nameWidth = D3txt.node().getBBox().width;
                 charRemove++;
             }
-            while (nameWidth > _this.taxonWidth - 10);
+            while (nameWidth > this.taxonWidth - 10);
 
             if (tmpName != t.name) {
                 t.abbrv = tmpName;
             }
-        });
+        }, this);
         D3svgTmp.remove();
 
         //Initialise taxa
@@ -287,33 +285,31 @@
 
         var tranTime = 300;
 
-        //console.log(_this.filterText);
-
         //D3 selection
         var D3u = this.D3svg.selectAll("g")
             .data(this.taxa.filter(function (d) {
                 //Matches if no filter specified, or just '#' or text is filter message
-                if (_this.filterText == "" || _this.filterText.toLowerCase() == _this.filterMessage.toLowerCase() || _this.filterText == "#") {
+                if (this.filterText == "" || this.filterText.toLowerCase() == this.filterMessage.toLowerCase() || this.filterText == "#") {
                     return true;
                 }
                 //Matches if filter starts with '#' and rest of filter text matches start of taxon name
-                if (_this.filterText.startsWith("#")) {
-                    if (d.name.toLowerCase().startsWith(_this.filterText.toLowerCase().substr(1))) {
+                if (this.filterText.startsWith("#")) {
+                    if (d.name.toLowerCase().startsWith(this.filterText.toLowerCase().substr(1))) {
                         return true;
                     }
                 }
                 //Matches if filter doesn't start with '#' and filter occurs somewhere in taxon name
-                if (d.name.toLowerCase().indexOf(_this.filterText.toLowerCase()) !== -1) {
+                if (d.name.toLowerCase().indexOf(this.filterText.toLowerCase()) !== -1) {
                     return true;
                 }
                 //Matches if name is in the selected taxon set
-                for (var i = 0; i < _this.selectedTaxa.length; i++) {
-                    if (_this.selectedTaxa[i] == d.name) {
+                for (var i = 0; i < this.selectedTaxa.length; i++) {
+                    if (this.selectedTaxa[i] == d.name) {
                         return true;
                     }
                 }
                 return false;
-            }), function (d) { return d.name; })
+            }, this), function (d) { return d.name; })
         var D3e = D3u.enter();
         var D3eG = D3e.append("g");
         var D3m = D3eG.merge(D3u);
@@ -322,8 +318,8 @@
         D3eG.append("rect")
             .style("opacity", 0)
             .attr("x", 0)
-            .attr("width", _this.taxonWidth)
-            .attr("height", _this.taxonHeight)
+            .attr("width", this.taxonWidth)
+            .attr("height", this.taxonHeight)
             .classed("taxonSelectTaxarect", true)
             .classed("taxonSelectTaxarectDeselected", true)
             .attr("taxonName", function (d) {
@@ -366,8 +362,6 @@
             .on("click", function (d) {
                 _this.taxonClick(d.name);
             })
-
-        
 
         D3m.select(".taxonSelectTaxarect")
             .transition()
