@@ -15,6 +15,11 @@
     if (typeof tombiokbpath !== 'undefined') {
         core.tombiokbpath = tombiokbpath;
     }
+    if (!core.opts) {
+        //If core.opts doesn't exist, initialise to an empty object
+        //to prevent access of properties of core.opts from failing.
+        core.opts = {}
+    }
     //The reload option (tombiovis.js) uses window.location.reload(true)
     //to reload the page without cache. While this seems to reload all javascript files
     //on laptop browsers, it doesn't seem to work on Android Chrome or iOS Safari (03/07/2017)

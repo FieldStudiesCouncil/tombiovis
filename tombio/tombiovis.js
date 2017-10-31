@@ -18,7 +18,8 @@
         visInfoDialogHeight: 350,
         scriptsLoaded: false,
         htmlLoaded: false,
-        inputCharGroups: []
+        inputCharGroups: [],
+        initialising: true
     };
 
     core.loadComplete = function (force) {
@@ -120,6 +121,8 @@
 
 
         //Initialise chart
+        //visChanged can load modules which is asynchronous, so 
+        //no code should come after this.
         visChanged();
     }
 
@@ -494,11 +497,18 @@
             defaultSelection = core.kbconfig.selectedTool;
         }
         //Loop through options marked default as selected
+        var optSelected = false;
         toolOptions.forEach(function (opt) {
             if (opt.attr("value") == defaultSelection) {
                 opt.attr("selected", "selected");
+                optSelected = true;
             }
-        })
+        });
+        //If no option selected at this point, select the second
+        //option (first visualisation - the first option is to reload).
+        if (!optSelected) {
+            toolOptions[1].attr("selected", "selected");
+        }
 
         $("#tombioVisualisation").append(toolOptions);
 
@@ -781,7 +791,28 @@
         //If the user has selected to show citation or info page, pass forward to visModuleLoaded.
         if (selectedToolName == "tombioCitation" || selectedToolName == "kbInfo" ||
             selectedToolName == "currentVisInfo" || selectedToolName == "visInfo") {
-            visModuleLoaded(selectedToolName);
+
+            //The tombioCitation and currentVisInfo pages work using the global.lastVisualisation
+            //variable, but if either of these is set as the default tool in core.opts.selectedTool,
+            //then that won't yet be set first time is. If either of those two options is set, then the option
+            //core.opts.lastVisualisation must also be set.
+            if (core.opts.lastVisualisation && !global.lastVisualisation) {
+                core.showDownloadSpinner();
+                core.jsFiles[core.opts.lastVisualisation].loadReady();
+                core.loadScripts(function () {
+                    //Set the global.lastVisualisation
+                    var visObj = new core[core.opts.lastVisualisation].Obj("#tombioTaxa", global.contextMenu, core);
+                    global.lastVisualisation = visObj;
+                    //Set the title of the menu item
+                    $("#optCurrentVisInfo").text("Using the " + visObj.metadata.title);
+                    $("#tombioVisualisation").iconselectmenu("refresh");
+
+                    core.hideDownloadSpinner();
+                    visModuleLoaded(selectedToolName);
+                })
+            } else {
+                visModuleLoaded(selectedToolName);
+            }
             return;
         }
 
@@ -875,7 +906,7 @@
 
             //Dimension and empty array to accommodate all the help
             //files referenced by this object.
-            var helpFiles = new Array(global.lastVisualisation.helpFiles.length);
+            var helpFiles = new Array(global.lastVisualisation.helpFiles.length); //???
 
             global.lastVisualisation.helpFiles.forEach(function (helpFile, i) {
 
@@ -925,6 +956,23 @@
         //Refresh context menu
         global.contextMenu.contextChanged(selectedToolName);
 
+        //If this is the first time through - i.e. page just loaded then process any
+        //URL initialisation parameters.
+        if (global.initialising) {
+            //Get all the URL parameters
+            var params = {};
+            var sPageURL = window.location.search.substring(1);
+            var splitParamAndValue = sPageURL.split('&');
+            for (var i = 0; i < splitParamAndValue.length; i++) {
+                var sParamAndValue = splitParamAndValue[i].split('=');
+                params[sParamAndValue[0]] = sParamAndValue[1];
+            }
+            //Pass into selected tool
+            global.visualisations[selectedToolName].urlParams(params);
+
+            //Turn off initialising flag
+            global.initialising = false;
+        }
     }
 
     function controlsShowHide(show) {

@@ -162,6 +162,12 @@
         var D3rect = this.D3svg.select("rect[taxonName=\"" + taxon + "\"]");
         var D3text = this.D3svg.select("text[taxonName=\"" + taxon + "\"]");
 
+        //If taxon not found, warn and exit
+        if (D3rect.size() == 0) {
+            console.log("Couldn't find the taxon:", taxon)
+            return
+        }
+
         //Set a flag indicating whether or not the taxon is currently selected
         var currentlySelected = D3rect.classed("taxonSelectTaxarectSelected")
 

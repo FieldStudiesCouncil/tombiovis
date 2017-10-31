@@ -4,22 +4,19 @@
     <meta charset="utf-8">
     <title>Tom.bio ID Visualisation</title>
     <script>
-        //Change the tombiopath variable to match the installation environment
+
+        ////Legacy method
         //var tombiopath = "tombio/"
-
-        //Change the tombiokbpath variable to pick up the KB you are working with
         //var tombiokbpath = "kb/biscuits/"
-
-        //Change the tombiover variable to force refresh ignoring cache
-        //var tombiokbpath = "radomvalue"
+        //var tombiover = "radomvalue"
 
         //Set options to tailor page configuration
         var tombiovis = {
             opts: {
-                hideVisDropdown: false,
-                tools: ["vis3", "vis4"],
+                hideVisDropdown: true,
+                tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
                 selectedTool: "currentVisInfo", //visInfo, kbInfo, currentVisInfo, tombioCitation
-                lastSelectedTool: "vis4"
+                lastVisualisation: "vis2"
             },
             tombiopath: "tombio/",
             tombiokbpath: "kb/biscuits/"

@@ -50,4 +50,19 @@
         this.fireRefresh();
     }
 
+    exports.Obj.prototype.urlParams = function (params) {
+
+        var _this = this;
+
+        //Replace the following to initialise visualisation
+        //from parameters.
+        console.log("URL parameters:", params);
+
+        //Consider including
+        this.fireRefresh();
+    }
+
+
+    ?selectedTool=vis4&taxon=phalangium%20opilio&opts=images-kb-text&filter=-opilio&sort=none
+
 })(jQuery, this.tombiovis)

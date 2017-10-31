@@ -77,6 +77,13 @@
         this.div.append("<p>Selector is: " + this.cssSel + "</p>")
     }
 
+    exports.Obj.prototype.urlParams = function (params) {
+
+        //Replace the following to initialise visualisation
+        //from parameters.
+        console.log("URL parameters:", params);
+    }
+
     exports.Obj.prototype.fullDetails = function (taxon, selected, x, y) {
 
         var _this = this;
@@ -725,6 +732,11 @@
 
         //Initialise
         imageSelected(indexSelected);
+
+        //Add method to select by index
+        pane.selectByIndex = function (i) {
+            console.log("Select image", i);
+        }
 
         return pane;
     }

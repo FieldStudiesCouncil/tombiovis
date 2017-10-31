@@ -8,6 +8,8 @@
     var exports = core[visName] = {};
     var win, divImage, divKb, divInfo, visFullDetails;
     var selectedTaxon;
+    var taxSel; //control
+    var imgIndex = 0;
     var _this;
 
     exports.Obj = function (parent, contextMenu, core) {
@@ -37,8 +39,8 @@
         //Help files
         this.helpFiles = [
             core.tombiopath + "vis4/vis4Help.html",
-            core.tombiopath + "common/textGroupHelp.html",
-            core.tombiopath + "common/imageGroupHelp.html"
+            //core.tombiopath + "common/textGroupHelp.html",
+            //core.tombiopath + "common/imageGroupHelp.html"
         ]
 
         //Controls div
@@ -52,7 +54,7 @@
         var visDiv = $("<div/>").css("flex-grow", 1);
         $flexContainer.append(visDiv);
 
-        var taxSel = Object.create(core.taxonSelect);
+        taxSel = Object.create(core.taxonSelect);
         taxSel.control(this.controlsDiv, false, taxonSelectCallback);
       
         createCheckBox('tbVis4Images', 'Show images', visDiv);
@@ -106,7 +108,7 @@
             if (includeText) {
                 imageDiv.css("display", "inline-block").css("width", "50%").css("float", "right").css("padding", "0 0 10px 10px");
             }
-            imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, null, true, true));
+            imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
             //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
             //but returns HTML value (does some stuff with container)
         }
@@ -164,6 +166,40 @@
 
         //Consider including
         //this.fireRefresh();
+    }
+
+    exports.Obj.prototype.urlParams = function (params) {
+
+        var _this = this;
+
+        //Replace the following to initialise visualisation
+        //from parameters.
+        console.log("Vis 4 URL parameters:", params);
+
+        //Set the checkboxes
+        if (params.opts) {
+            var splitOpts = params.opts.split("-");
+            $('#tbVis4Text').prop("checked", splitOpts.indexOf("text") > -1);
+            $('#tbVis4Images').prop("checked", splitOpts.indexOf("image") > -1);
+            $('#tbVis4Kb').prop("checked", splitOpts.indexOf("kb") > -1);
+        }
+
+        //&taxon=Oligolophus%20hanseni&opts=text-image-kb&filter=-opilio&sort=none&imgi=4
+        //Todo:
+        //Filter and sort options
+        //Text file index
+
+        //Set the image index
+        if (params.imgi) {
+            //Set module-wide variable that is used when 
+            imgIndex = params.imgi;
+        }
+
+        //Set the taxon
+        if (params.taxon) {
+            taxSel.taxonClick(params.taxon.replace("%20", " "));
+            imgIndex = 0; //Reset module-wide variable
+        }
     }
 
 })(jQuery, this.tombiovis)
