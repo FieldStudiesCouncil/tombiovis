@@ -96,7 +96,7 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis3/vis3Help.html"
+            core.tombiopath + "vis3/vis3Help.html"
         ]
 
         //Helper functions
@@ -421,7 +421,7 @@
             //moreover, no longer needed since introduction of taxonSelect control from which taxa
             //can be deselected.))
             //$(".pq-grid-title-row").find(".pq-td-div:not(:contains('Character'))")
-            //   .append("<img class='vis3removeIcon' src='" + tombiopath + "resources/minus.png'>");
+            //   .append("<img class='vis3removeIcon' src='" + core.tombiopath + "resources/minus.png'>");
 
             //$(".vis3removeIcon").on("click", function () {
             //    var selectedName = $(this).parent().text().trim();
@@ -483,7 +483,7 @@
                     if (_this.getTaxonImages(taxonName).length > 0) {
 
                         var loadImg = $("<img>")
-                        .attr("src", tombiopath + "resources/camera.png")
+                        .attr("src", core.tombiopath + "resources/camera.png")
                         .addClass("loadImgIcon")
                         .css("cursor", "pointer")
                         .css("width", 15)

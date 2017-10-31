@@ -31,8 +31,8 @@
 
         //Help files
         this.helpFiles = [
-            //tombiopath + "vis4/vis4Help.html",
-            //tombiopath + "common/imageGroupHelp.html"
+            //core.tombiopath + "vis4/vis4Help.html",
+            //core.tombiopath + "common/imageGroupHelp.html"
         ]
 
         //Replace the following

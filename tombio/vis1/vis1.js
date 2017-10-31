@@ -34,9 +34,9 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis1/vis1Help.html",
-            tombiopath + "common/taxonDetailsHelp.html",
-            tombiopath + "common/stateInputHelp.html"
+            core.tombiopath + "vis1/vis1Help.html",
+            core.tombiopath + "common/taxonDetailsHelp.html",
+            core.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Set some variables (mostly used in refresh method)
@@ -186,7 +186,7 @@
         //Image link (camera icon)
         //This removed 13/07 when showTaxonCharacterValues replaced with fullDetails
         //enterSelection.append("svg:image")
-        //    .attr("xlink:href", tombiopath + "resources/camera.png")
+        //    .attr("xlink:href", core.tombiopath + "resources/camera.png")
         //    .attr("class", "taxonImageLink")
         //    .attr("width", "16px")
         //    .attr("height", "16px")

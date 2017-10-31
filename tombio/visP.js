@@ -219,7 +219,7 @@
             var taxonImage = taxonImages[imageIndex];
 
             //Change all image selector icons to grey image
-            controlsImageSelectors.find("img").attr("src", tombiopath + "resources/camera.png");
+            controlsImageSelectors.find("img").attr("src", core.tombiopath + "resources/camera.png");
 
             //Clear current image and caption
             if (pane.css("width") != "0px") {
@@ -258,7 +258,7 @@
 
                 img.css("opacity", 0.2); //Helps with sorting out problems
 
-                pane.find("#imgLink" + imageIndex).attr("src", tombiopath + "resources/cameragreen.png");
+                pane.find("#imgLink" + imageIndex).attr("src", core.tombiopath + "resources/cameragreen.png");
 
                 //Initialise zoom image
                 var _this = this;
@@ -416,7 +416,7 @@
             .css("position", "relative")
             .css("overflow", "hidden")
             .css("background-color", "grey")
-            .css("background-image", "url('" + tombiopath + "resources/loading.gif')")
+            .css("background-image", "url('" + core.tombiopath + "resources/loading.gif')")
             .css("background-repeat", "no-repeat")
             .css("background-position", "center");
 
@@ -501,7 +501,7 @@
                 );
             });
 
-        var moveleftimg = $('<img src="' + tombiopath + 'resources/moveleft.png">')
+        var moveleftimg = $('<img src="' + core.tombiopath + 'resources/moveleft.png">')
             .css("position", "absolute")
             .css("top", "50%")
             .css("left", 0)
@@ -552,7 +552,7 @@
                 );
             });
 
-        var moverightimg = $('<img src="' + tombiopath + 'resources/moveright.png">')
+        var moverightimg = $('<img src="' + core.tombiopath + 'resources/moveright.png">')
             .css("position", "absolute")
             .css("top", "50%")
             .css("right", 0)
@@ -669,10 +669,10 @@
             var taxonImageLink = $('<img/>');
 
             if (indexSelected == imageIndex) {
-                icon = tombiopath + "resources/cameragreen.png";
+                icon = core.tombiopath + "resources/cameragreen.png";
                 initialSelectorImage = taxonImageLink;
             } else {
-                icon = tombiopath + "resources/camera.png";
+                icon = core.tombiopath + "resources/camera.png";
             }
             taxonImageLink.attr("src", icon)
                 .css("cursor", "pointer")
@@ -695,7 +695,7 @@
         //Close image
         if (!surpressImageRemoval) {
             var closeImage = $('<img/>');
-            closeImage.attr("src", tombiopath + "resources/remove.png")
+            closeImage.attr("src", core.tombiopath + "resources/remove.png")
                 .css("cursor", "pointer")
                 .css("position", "absolute")
                 .css("top", 8)
@@ -994,8 +994,8 @@
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            //console.log(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover)
-            iframe.attr("src", tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover);
+            //console.log(core.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover)
+            iframe.attr("src", core.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover);
         } else {
             iframe.attr("src", null);
         }
@@ -1006,7 +1006,7 @@
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover, function (data) {
+            $.get(core.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.tombiover, function (data) {
 
                 //We need to extract the html in the body tag and ignore everything
                 //else. Trouble is when using jQuery to insert the full HTML into 

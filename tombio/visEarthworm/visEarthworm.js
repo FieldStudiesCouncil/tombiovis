@@ -35,7 +35,7 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "visEarthworm/visEarthwormHelp.html",
+            core.tombiopath + "visEarthworm/visEarthwormHelp.html",
         ]
 
         //This visualisation is unusual because it was created before the
@@ -93,9 +93,9 @@
 
         //Load the imported HTML
         $(document).ready(function () {
-            $.get(tombiopath + "/visEarthworm/earthworms-import.html?ver=" + core.tombiover, function (data) {
+            $.get(core.tombiopath + "/visEarthworm/earthworms-import.html?ver=" + core.tombiover, function (data) {
 
-                $("#tombiod3Earthworm").html(data.replace(/##tombiopath##/g, tombiopath));
+                $("#tombiod3Earthworm").html(data.replace(/##tombiopath##/g, core.tombiopath));
 
                 htmlLoaded();
             });
@@ -169,7 +169,7 @@
                   configureChart();
               });
 
-            $(".resetImage").attr("src", tombiopath + "/visEarthworm/resources/reset2.png");
+            $(".resetImage").attr("src", core.tombiopath + "/visEarthworm/resources/reset2.png");
 
             $('#tombioOptions')
                 .button({ icons: { primary: null, secondary: 'ui-icon-options' }, disabled: false })
@@ -311,7 +311,7 @@
                 .attr("width", tombio.imagedim)
                 .attr("height", tombio.imagedim)
                 .style("opacity", 0)
-                .attr("xlink:href", tombiopath + "/visEarthworm/resources/info20.png")
+                .attr("xlink:href", core.tombiopath + "/visEarthworm/resources/info20.png")
                 .attr("class", "infoimage")
                 .attr("id", function (d, i) {
                     return "infoimage-" + i;

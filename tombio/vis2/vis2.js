@@ -31,9 +31,9 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis2/vis2Help.html",
-            tombiopath + "common/taxonDetailsHelp.html",
-            tombiopath + "common/stateInputHelp.html"
+            core.tombiopath + "vis2/vis2Help.html",
+            core.tombiopath + "common/taxonDetailsHelp.html",
+            core.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Other initialisations
@@ -181,7 +181,7 @@
                     .attr("title", "Overall weighted score");
 
                 d3.select(this).append("svg:image")
-                    .attr("xlink:href", tombiopath + "resources/camera.png")
+                    .attr("xlink:href", core.tombiopath + "resources/camera.png")
                     .attr("class", "taxonImageLink")
                     .attr("width", camImgSize)
                     .attr("height", camImgSize)

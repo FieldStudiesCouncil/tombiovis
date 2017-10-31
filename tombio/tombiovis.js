@@ -81,7 +81,7 @@
 
         core.media.forEach(function (m) {
             if (m.Type == "image-local") {
-                m.URI = tombiokbpath + m.URI;
+                m.URI = core.tombiokbpath + m.URI;
             }
         });
 
@@ -117,6 +117,7 @@
 
         //Initialise size of controls' tab container
         resizeControlsAndTaxa();
+
 
         //Initialise chart
         visChanged();
@@ -460,37 +461,44 @@
         var toolOptions = []; //Drop-down menu options for the visualisations
 
         //Add clear option
-        toolOptions.push('<option value="reload" class="html" data-class="reload">Reload</option>');
+        toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload</option>'));
 
         //Add the required visualisation tools
-        core.requiredVisTools.forEach(function (tool, iTool) {
-            var visObj = new tool.Obj("#tombioTaxa", global.contextMenu, core);
+        core.includedTools.forEach(function (toolName, iTool) {
 
             var selOpt = $('<option class="needsclick">')
-                .attr("value", visObj.visName)
+                .attr("value", toolName)
                 .attr("data-class", "vis")
                 .addClass("visualisation")
-                .text(visObj.metadata.title);
+                .text(core.jsFiles[toolName].toolName);
 
-            //If a selectedTool has been specified as a query parameter then select it,
-            //otherwise look to see if one is specified in the knowlege base.
-            var paramSelectedTool = getURLParameter("selectedTool");
-            if (paramSelectedTool && visObj.visName == paramSelectedTool) {
-                selOpt.attr("selected", "selected");
-            } else if (!paramSelectedTool && core.kbconfig.selectedTool && visObj.visName == core.kbconfig.selectedTool) {
-                selOpt.attr("selected", "selected");
-            } else if (!core.kbconfig.selectedTool && iTool == 0) {
-                selOpt.attr("selected", "selected");
-            }
             toolOptions.push(selOpt);
-
-            global.visualisations[visObj.visName] = visObj;
         })
+
         //Add the various info tools
-        toolOptions.push('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>');
-        toolOptions.push('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>');
-        toolOptions.push('<option value="visInfo" class="html" data-class="info">About Tom.bio ID Visualisations</option>');
-        toolOptions.push('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>');
+        toolOptions.push($('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>'));
+        toolOptions.push($('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>'));
+        toolOptions.push($('<option value="visInfo" class="html" data-class="info">About Tom.bio ID Visualisations</option>'));
+        toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
+
+        //If a selectedTool has been specified as a query parameter then set as default,
+        //otherwise, if a selectedTool has been specified in top level options (in HTML) then set as default,
+        //otherwise look to see if one is specified in the knowledge base to use as default.
+        var defaultSelection;
+        var paramSelectedTool = getURLParameter("selectedTool");
+        if (paramSelectedTool) {
+            defaultSelection = paramSelectedTool;
+        } else if (core.opts.selectedTool) {
+            defaultSelection = core.opts.selectedTool;
+        } else if (core.kbconfig.selectedTool) {
+            defaultSelection = core.kbconfig.selectedTool;
+        }
+        //Loop through options marked default as selected
+        toolOptions.forEach(function (opt) {
+            if (opt.attr("value") == defaultSelection) {
+                opt.attr("selected", "selected");
+            }
+        })
 
         $("#tombioVisualisation").append(toolOptions);
 
@@ -537,6 +545,11 @@
           })
           .iconselectmenu("menuWidget")
             .addClass("ui-menu-icons customicons");
+
+        //If the hideVisDropdown option has been set, then hide the dropdown list.
+        if (core.opts.hideVisDropdown == true) {
+            $("#tombioVisualisation-button").hide()
+        }
 
         var tabs = $("#tombioControlTabs").tabs({
             activate: function (event, ui) {
@@ -633,7 +646,7 @@
             }
         });
         if (allHelpFilesLoaded) {
-            help = help.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath);
+            help = help.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath);
             $('#currentVisInfo').html(help);
         }
     }
@@ -741,28 +754,17 @@
         html.append($("<p>").html(t));
         return html;
     }
-
     
     function visChanged() {
 
         var selectedToolName = $("#tombioVisualisation").val();
-        console.log("Tool:", selectedToolName);
-        core.jsFiles[selectedToolName].loadReady();
-        core.showDownloadSpinner();
-        core.loadScripts(function () {
-            core.hideDownloadSpinner();
-            visModuleLoaded(selectedToolName)
-        });
-    }
+        console.log(selectedToolName);
 
-    function visModuleLoaded(selectedToolName) {
-
-        //If reload selected, then
+        //If reload selected, then reload the entire application.
         if (selectedToolName == "reload") {
             //Force reload of entire page - ignoring cache.
             //window.location.reload(true);
             //https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
-
             $.ajax({
                 url: window.location.href,
                 headers: {
@@ -773,12 +775,41 @@
             }).done(function () {
                 window.location.reload(true);
             });
+            return;
         }
+
+        //If the user has selected to show citation or info page, pass forward to visModuleLoaded.
+        if (selectedToolName == "tombioCitation" || selectedToolName == "kbInfo" ||
+            selectedToolName == "currentVisInfo" || selectedToolName == "visInfo") {
+            visModuleLoaded(selectedToolName);
+            return;
+        }
+
+        //If we got here, a visualisation (module) was selected from the drop-down.
+        //At this point, the tool module (and it's dependencies) may or may not be loaded.
+        //So we go through the steps of marking them as 'loadReady' and calling the
+        //loadScripts function. If they are already loaded, then that will just return
+        //(i.e. call the callback function) immediately
+        core.showDownloadSpinner();
+        core.jsFiles[selectedToolName].loadReady();
+
+        core.loadScripts(function () {
+            //Callback
+            core.hideDownloadSpinner();
+
+            //Create the visualisation object if it doesn't already exist
+            if (!global.visualisations[selectedToolName]) {
+                var visObj = new core[selectedToolName].Obj("#tombioTaxa", global.contextMenu, core);
+                global.visualisations[selectedToolName] = visObj;
+            }
+            visModuleLoaded(selectedToolName)
+        });
+    }
+
+    function visModuleLoaded(selectedToolName) {
 
         //Get the selected visualisation
         var selectedTool = global.visualisations[selectedToolName];
-
-        //alert(selectedTool); return
 
         //If the user has selected to show citation then generate.
         if (selectedToolName == "tombioCitation") {
@@ -790,8 +821,8 @@
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
             var title = $('<h2>').text(core.kbmetadata['title']);
             $('#kbInfo').html(title);
-            $.get(tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').append(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));
+            $.get(core.tombiokbpath + "info.html", function (html) {
+                $('#kbInfo').append(html.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath));
             }).always(function () {
                 //Citation
                 var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
@@ -833,8 +864,8 @@
         //If the user has selected to show general tombio vis info and not yet loaded,
         //then load.
         if (selectedToolName == "visInfo" && $('#visInfo').html().length == 0) {
-            $.get(tombiopath + "visInfo.html", function (html) {
-                $('#visInfo').html(html.replace(/##tombiopath##/g, tombiopath).replace(/##tombiokbpath##/g, tombiokbpath));
+            $.get(core.tombiopath + "visInfo.html", function (html) {
+                $('#visInfo').html(html.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath));
             });
         }
 
@@ -859,14 +890,6 @@
                 });
             });
         }
-
-        //if (selectedTool && selectedTool.helpFiles && selectedTool.helpFiles.length > 0) {
-        //    //Show/flash the vis help button
-        //    $('#visHelp').fadeIn().effect("highlight", {}, 3000);
-        //} else {
-        //    //hide the vis help button
-        //    $('#visHelp').fadeOut();
-        //}
 
         //Change tool if necessary 
         if (selectedToolName != global.currentTool) {
@@ -914,10 +937,10 @@
             display = !($("#tombioControls").is(":visible"));
         }
         if (display) {
-            $("#tombioControls").show(500, resizeControlsAndTaxa);
+            $("#tombioControls").show(0, resizeControlsAndTaxa);
         } else {
             global.controlsWidth = $("#tombioControls").width();
-            $("#tombioControls").hide(500, resizeControlsAndTaxa);
+            $("#tombioControls").hide(0, resizeControlsAndTaxa);
         }
     }
 

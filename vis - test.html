@@ -3,20 +3,35 @@
 <head>
     <meta charset="utf-8">
     <title>Tom.bio ID Visualisation</title>
+    <script>
+        //Change the tombiopath variable to match the installation environment
+        //var tombiopath = "tombio/"
 
-    <!--Change the tombiopath variable to match the installation environment-->
-    <script>var tombiopath = "tombio/"</script>
+        //Change the tombiokbpath variable to pick up the KB you are working with
+        //var tombiokbpath = "kb/biscuits/"
 
-    <!--Change the tombiokbpath variable to pick up the KB you are working with-->
-    <script>var tombiokbpath = "kb/biscuits/"</script>
+        //Change the tombiover variable to force refresh ignoring cache
+        //var tombiokbpath = "radomvalue"
+
+        //Set options to tailor page configuration
+        var tombiovis = {
+            opts: {
+                hideVisDropdown: false,
+                tools: ["vis3", "vis4"],
+                selectedTool: "currentVisInfo", //visInfo, kbInfo, currentVisInfo, tombioCitation
+                lastSelectedTool: "vis4"
+            },
+            tombiopath: "tombio/",
+            tombiokbpath: "kb/biscuits/"
+        }
+    </script>
 
     <!--Change the path to load.js to match the installation environment-->
-    <script type="text/javascript" src="tombio/load2.js"></script>
-	
+    <script type="text/javascript" src="tombio/load.js"></script>
 </head>
 <body leftmargin="100px">
-    <h1 id="tombiod3-header">Tom.bio ID Visualisation test</h1>
+    <!--<h1 id="tombiod3-header">Tom.bio ID Visualisation test</h1>-->
     <div id="tombiod3"></div>
-    <div id="tombiod3-footer" style="width: 100%">footers</div>
+    <!--<div id="tombiod3-footer" style="width: 100%">footers</div>-->
 </body>
 </html>

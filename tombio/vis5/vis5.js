@@ -64,9 +64,9 @@
 
         //Help files
         this.helpFiles = [
-            tombiopath + "vis5/vis5Help.html",
-            tombiopath + "common/taxonDetailsHelp.html",
-            tombiopath + "common/stateInputHelp.html"
+            core.tombiopath + "vis5/vis5Help.html",
+            core.tombiopath + "common/taxonDetailsHelp.html",
+            core.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Add circle pack stuff

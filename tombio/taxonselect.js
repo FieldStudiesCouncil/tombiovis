@@ -83,7 +83,7 @@
         //Hidden controls
         var $hiddenControlsDiv = $('<div>').css("margin-top", 5).css("display", "none").appendTo($mainDiv);
         var $controlsArrow = $('<img>')
-            .attr("src", tombiopath + "resources/chevron-down.png")
+            .attr("src", core.tombiopath + "resources/chevron-down.png")
             .attr("class", "taxonSelectHiddenControlsArrow")
             .appendTo($mainDiv);
 
@@ -91,10 +91,10 @@
         $controlsArrow.on("click", function () {
             if ($hiddenControlsDiv.css("display") == "none") {
                 $hiddenControlsDiv.slideDown(400);
-                $controlsArrow.attr("src", tombiopath + "resources/chevron-up.png")
+                $controlsArrow.attr("src", core.tombiopath + "resources/chevron-up.png")
             } else {
                 $hiddenControlsDiv.slideUp(400);
-                $controlsArrow.attr("src", tombiopath + "resources/chevron-down.png")
+                $controlsArrow.attr("src", core.tombiopath + "resources/chevron-down.png")
             }
         })
 
