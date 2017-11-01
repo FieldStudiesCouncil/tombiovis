@@ -236,28 +236,34 @@
         this.controlsDiv = $("<div/>").css("width", 210);
         $flexContainer.append(this.controlsDiv);
 
-        var visDiv = $("<div/>").css("flex-grow", 1);
+        var visDiv = $("<div/>").css("flex-grow", 1)
+            //The following adjustment necessary to move to top of div
+            .css("position", "relative").css("top", -13);
         $flexContainer.append(visDiv);
 
         this.taxSel = Object.create(core.taxonSelect);
         this.taxSel.control(this.controlsDiv, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
-        if (_this.charactersGrouped) {
-            var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top");
-            radios.append($("<label>").attr("for", "groupvisible").text("group"));
-            radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
-            radios.append($("<label>").attr("for", "groupinvisible").text("ungroup"));
-            radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupinvisible").attr("value", "invisible").attr("checked", "checked"));
-            visDiv.append(radios);
-            $("[name='groupvisibility']").checkboxradio({ icon: false });
-            radios.on("change", function () {
-                _this.refresh();
-            });   
-        }
+        //if (_this.charactersGrouped) {
+        //    var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top");
+        //    radios.append($("<label>").attr("for", "groupvisible").text("group"));
+        //    radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
+        //    radios.append($("<label>").attr("for", "groupinvisible").text("ungroup"));
+        //    radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupinvisible").attr("value", "invisible").attr("checked", "checked"));
+        //    visDiv.append(radios);
+        //    $("[name='groupvisibility']").checkboxradio({ icon: false });
+        //    radios.on("change", function () {
+        //        _this.refresh();
+        //    });   
+        //}
+
+        //Don't know why, but if nothing is put in here (in place of group controls above), then 
+        //pqgrid width is zero (or one or something).
+        visDiv.append($("<div>").css("display", "inline-block").css("width", 150).css("height",1));
 
         //Grid div
-        var gridDiv = $("<div id='visType3Grid'></div>").css("margin-top", 10)
+        var gridDiv = $("<div id='visType3Grid'></div>");//.css("margin-top", 10)
         visDiv.append(gridDiv);
 
         //Create taxon state object array
@@ -572,6 +578,65 @@
                 }
             }
         }
+    }
+
+    exports.Obj.prototype.urlParams = function (params) {
+
+        return
+        var _this = this;
+
+        //Replace the following to initialise visualisation
+        //from parameters.
+        console.log("Vis 3 URL parameters:", params);
+
+        //Set the checkboxes
+        if (params.opts) {
+            var splitOpts = params.opts.split("-");
+            $('#tbVis4Text').prop("checked", splitOpts.indexOf("text") > -1);
+            $('#tbVis4Images').prop("checked", splitOpts.indexOf("image") > -1);
+            $('#tbVis4Kb').prop("checked", splitOpts.indexOf("kb") > -1);
+        }
+
+        //Set the visibility of hidden controls
+        if (params.hc) {
+            taxSel.toggleHiddenControls();
+        }
+
+        //Set the sort
+        if (params.sort) {
+            taxSel.setSort(params.sort);
+        }
+
+        //Set the image index
+        if (params.imgi) {
+            //Set module-wide variable
+            imgIndex = params.imgi;
+        }
+
+        //Set the text index
+        if (params.txti) {
+            //Set module-wide variable 
+            txtIndex = params.txti;
+        }
+
+        //Set the taxon (must come after the image, text and checkbox options set)
+        if (params.taxon) {
+            taxSel.taxonClick(params.taxon.replace(/%20/g, " "));
+        }
+
+        //Set the filter (after taxon selected)
+        if (params.filter) {
+            if (params.filter.startsWith("-")) {
+                var filter = "#" + params.filter.substr(1);
+            } else {
+                var filter = params.filter;
+            }
+            console.log("setting filter", filter)
+            taxSel.setFilter(filter);
+        }
+
+        imgIndex = 0; //Reset module-wide variables
+        txtIndex = 0;
     }
 
 })(jQuery, this.tombiovis)
