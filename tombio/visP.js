@@ -203,6 +203,11 @@
         var taxonImages = this.getTaxonImages(taxon);
         var _this = this;
 
+        //Fail-safe against invalid index being specified
+        if (indexSelected >= taxonImages.length) {
+            indexSelected = 0;
+        }
+
         if (taxonImages.length == 0) {
             //If there are no images for this taxon, return a message to that effect.
             var noImages = $("<div>").css("margin", "10px");
@@ -1058,6 +1063,22 @@
 
     exports.Obj.prototype.taxonTag = function (taxonName) {
         return taxonName.replace(/[|&;$%@"<>()+:.,'\/ ]/g, '');
+    }
+
+    exports.Obj.prototype.copyTextToClipboard = function(text) {
+        //https://codepen.io/Mestika/pen/NxLzNq
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Copying text ' + msg);
+        } catch (err) {
+            console.log('Oops, unable to copy text');
+        }
+        document.body.removeChild(textArea);
     }
 
     //Colour ramp for the matching indicators to be used across all visualisations

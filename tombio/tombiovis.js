@@ -961,7 +961,7 @@
         if (global.initialising && global.visualisations[selectedToolName]) {
             //Get all the URL parameters
             var params = {};
-            var sPageURL = window.location.search.substring(1);
+            var sPageURL = decodeURI(window.location.search.substring(1));
             var splitParamAndValue = sPageURL.split('&');
             for (var i = 0; i < splitParamAndValue.length; i++) {
                 var sParamAndValue = splitParamAndValue[i].split('=');

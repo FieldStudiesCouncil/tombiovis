@@ -180,6 +180,10 @@
                 _this.vis3Taxa.splice(_this.vis3Taxa.indexOf(retValue.deselected), 1);
                 _this.refresh();
             }
+            if (retValue.taxa.length == 0) {
+                _this.vis3Taxa = [];
+                _this.refresh();
+            }
         }
 
         //Initialise context menu items
@@ -218,6 +222,7 @@
         this.contextMenu.addItem("Remove all", function () {
             _this.vis3Taxa = [];
             _this.refresh();
+            _this.taxSel.deselectAllTaxa();
         }, [this.visName]);
 
         //Initialise the list with the top two matching taxa
@@ -430,7 +435,7 @@
             //        _this.vis3Taxa.splice(selIndex, 1);
             //        _this.refresh();
             //        //Deselect this taxon in the taxonselect control
-            //        _this.taxSel.taxonDeselectedExternally(selectedName)
+            //        _this.taxSel.deselectTaxon(selectedName)
             //    }
             //});
 

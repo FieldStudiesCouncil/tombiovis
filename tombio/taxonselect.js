@@ -6,10 +6,12 @@
         //Variables for layout
         //These are constants and can be delegated to the taxonSelect object
         filterMessage: "Filter names (use # for 'starts with')",
+        filterSelectedOnly: "Show only selected taxa",
         gap: 4,
         textHeightOffset: 4,
         taxonHeight: 25,
-        taxonWidth: 200
+        taxonWidth: 200,
+        hiddenControlsShown: false
     };
 
     core.taxonSelect.init = function () {
@@ -33,6 +35,71 @@
         }, this)
     }
 
+    core.taxonSelect.checkEmptyFilter = function () {
+        if (this.filterText == "") {
+            this.filterText = this.filterMessage;
+            this.$textFilter.val(this.filterMessage);
+        }
+    }
+
+    core.taxonSelect.checkFilterColour = function () {
+        if (this.filterText == this.filterMessage || this.filterText == this.filterSelectedOnly) {
+            this.$textFilter.css("color", "silver");
+        } else {
+            this.$textFilter.css("color", "black");
+        }
+    }
+
+    core.taxonSelect.setFilter = function (filter) { 
+        this.filterText = filter;
+        this.$textFilter.val(filter);
+        //this.checkFilterColour();
+        this.updateTaxa();
+    }
+
+    core.taxonSelect.getFilter = function () {
+        if (this.filterText != this.filterMessage) {
+            return this.filterText;
+        } else {
+            return null;
+        } 
+    }
+
+    core.taxonSelect.setSort = function (sort) {
+
+        if (sort == "a-z") {
+            sort = "radio-a"
+            $("#radio-a").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        if (sort == "z-a") {
+            console.log("radio ZZ")
+            sort = "radio-z"
+            $("#radio-z").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        if (sort == "none") {
+            sort = "radio-x"
+            $("#radio-x").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        this.taxonSort = sort;
+        this.sortTaxa();
+        this.updateTaxa();
+    }
+
+    core.taxonSelect.toggleHiddenControls = function () {
+        if (this.$hiddenControlsDiv.css("display") == "none") {
+            this.$hiddenControlsDiv.slideDown(400);
+            this.$controlsArrow.attr("src", core.tombiopath + "resources/chevron-up.png")
+            this.hiddenControlsShown = true;
+        } else {
+            this.$hiddenControlsDiv.slideUp(400);
+            this.$controlsArrow.attr("src", core.tombiopath + "resources/chevron-down.png")
+            this.$hiddenControlsShown = false;
+        }
+    }
+
     core.taxonSelect.control = function ($parent, multi, callback) {
         //This function returns HTML to the caller and is the only
         //required element of the interface. Because it is the
@@ -49,7 +116,7 @@
         this.hostCallback = callback;
 
         //Main control div
-        var $mainDiv = $('<div class="taxonSelect" />').appendTo($parent);
+        var $mainDiv = $('<div class="taxonSelect" />').css("width", this.taxonWidth).appendTo($parent);
         var D3mainDiv = d3.select($mainDiv[0]);
 
         //Filter textbox
@@ -60,24 +127,21 @@
         $('<br>').appendTo($mainDiv);
 
         $textFilter.on('keyup', function () {
-            _this.filterText = this.value;
-            _this.updateTaxa();
+            _this.setFilter(this.value);
         });
 
         //Hide filter message when textbox gets focus (and change text colour to black)
         $textFilter.on('focus', function () {
-            if (this.value == _this.filterMessage) {
-                $textFilter.val("");
-                $textFilter.css("color", "black");
+            if (this.value == _this.filterMessage || this.value == _this.filterSelectedOnly) {
+                _this.setFilter("");
+                _this.checkFilterColour();
             }
         });
 
         //Show filter message when textbox loses focus and no filter specified (and change text colour to silver)
         $textFilter.on('blur', function () {
-            if (this.value == "") {
-                $textFilter.val(_this.filterMessage);
-                $textFilter.css("color", "silver");
-            }
+            _this.checkEmptyFilter();
+            _this.checkFilterColour();
         });
 
         //Hidden controls
@@ -89,13 +153,7 @@
 
         //Hiding and showing hidden controls
         $controlsArrow.on("click", function () {
-            if ($hiddenControlsDiv.css("display") == "none") {
-                $hiddenControlsDiv.slideDown(400);
-                $controlsArrow.attr("src", core.tombiopath + "resources/chevron-up.png")
-            } else {
-                $hiddenControlsDiv.slideUp(400);
-                $controlsArrow.attr("src", core.tombiopath + "resources/chevron-down.png")
-            }
+            _this.toggleHiddenControls();
         })
 
         //Sort radio buttons
@@ -113,6 +171,42 @@
             _this.sortTaxa();
             _this.updateTaxa();
         });
+
+        //Add a button to clear filter
+        $('<button>').text("Clear filter")
+            .css("margin-top", 5).css("width", "100%")
+            .appendTo($hiddenControlsDiv)
+            .button()
+            .on("click", function () {
+                _this.setFilter("");
+                _this.checkEmptyFilter();
+                _this.checkFilterColour();
+            })
+        $('<button>').text("Clear selection")
+           .css("margin-top", 5).css("width", "100%")
+           .appendTo($hiddenControlsDiv)
+           .button()
+           .on("click", function () {
+               var deselectedTaxon = _this.selectedTaxon;
+               _this.deselectAllTaxa();
+               //Invoke callback function
+               var ret = {
+                   selected: _this.selectedTaxon,
+                   deselected: deselectedTaxon,
+                   taxa: _this.selectedTaxa
+               }
+               if (_this.hostCallback) {
+                   _this.hostCallback(ret)
+               }
+           })
+        $('<button>').text("Show only selected taxa")
+           .css("margin-top", 5).css("width", "100%")
+           .appendTo($hiddenControlsDiv)
+           .button()
+           .on("click", function () {
+               _this.setFilter(_this.filterSelectedOnly);
+               _this.checkFilterColour();
+           })
 
         //taxon SVG
         this.D3svg = D3mainDiv.append("svg");
@@ -149,6 +243,11 @@
 
         //Initialise taxa
         this.updateTaxa();
+
+        //Store references to some of the controls
+        this.$textFilter = $textFilter;
+        this.$hiddenControlsDiv = $hiddenControlsDiv;
+        this.$controlsArrow = $controlsArrow;
 
         //Return the main control div
         return $mainDiv;
@@ -227,7 +326,23 @@
         }
     }
 
-    core.taxonSelect.taxonDeselectedExternally = function (taxon) {
+    core.taxonSelect.deselectAllTaxa = function () {
+
+        //Get the rectangle and text objects corresponding to the deselected taxon
+        var D3rect = this.D3svg.selectAll("rect");
+        var D3text = this.D3svg.selectAll("text");
+
+        //Change the display style of the taxon
+        D3rect.classed("taxonSelectTaxarectDeselected", true)
+            .classed("taxonSelectTaxarectSelected", false);
+        D3text.classed("taxonSelectScientificnamesDeselected", true)
+            .classed("taxonSelectScientificnamesSelected", false);
+
+        this.selectedTaxon = null;
+        this.selectedTaxa = [];
+    }
+
+    core.taxonSelect.deselectTaxon = function (taxon) {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
         var D3rect = this.D3svg.select("rect[taxonName=\"" + taxon + "\"]");
