@@ -956,9 +956,9 @@
         //Refresh context menu
         global.contextMenu.contextChanged(selectedToolName);
 
-        //If this is the first time through - i.e. page just loaded then process any
-        //URL initialisation parameters.
-        if (global.initialising) {
+        //If this is the first time through - i.e. page just loaded - and
+        //this is a visualisation too, then process any URL initialisation parameters.
+        if (global.initialising && global.visualisations[selectedToolName]) {
             //Get all the URL parameters
             var params = {};
             var sPageURL = window.location.search.substring(1);

@@ -1,0 +1,134 @@
+[
+  {
+    "outputFileName": "tombio/vis1/vis1 - Copy.min.js",
+    "inputFiles": [
+      "tombio/vis1/vis1 - Copy.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/score.min.js",
+    "inputFiles": [
+      "tombio/score.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/tombiovis.min.css",
+    "inputFiles": [
+      "tombio/tombiovis.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/kbchecks.min.js",
+    "inputFiles": [
+      "tombio/kbchecks.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/load.min.js",
+    "inputFiles": [
+      "tombio/load.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/taxonselect.min.css",
+    "inputFiles": [
+      "tombio/taxonselect.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/taxonselect.min.js",
+    "inputFiles": [
+      "tombio/taxonselect.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/tombiovis.min.js",
+    "inputFiles": [
+      "tombio/tombiovis.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/visP.min.js",
+    "inputFiles": [
+      "tombio/visP.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis1/vis1.min.css",
+    "inputFiles": [
+      "tombio/vis1/vis1.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis1/vis1.min.js",
+    "inputFiles": [
+      "tombio/vis1/vis1.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis2/vis2.min.css",
+    "inputFiles": [
+      "tombio/vis2/vis2.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis2/vis2.min.js",
+    "inputFiles": [
+      "tombio/vis2/vis2.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis3/vis3.min.css",
+    "inputFiles": [
+      "tombio/vis3/vis3.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis3/vis3.min.js",
+    "inputFiles": [
+      "tombio/vis3/vis3.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis4/vis4.min.css",
+    "inputFiles": [
+      "tombio/vis4/vis4.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis4/vis4.min.js",
+    "inputFiles": [
+      "tombio/vis4/vis4.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis5/vis5.min.css",
+    "inputFiles": [
+      "tombio/vis5/vis5.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/vis5/vis5.min.js",
+    "inputFiles": [
+      "tombio/vis5/vis5.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/visEarthworm/visEarthworm.min.css",
+    "inputFiles": [
+      "tombio/visEarthworm/visEarthworm.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/visEarthworm/visEarthworm.min.js",
+    "inputFiles": [
+      "tombio/visEarthworm/visEarthworm.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/dependencies/spin.min.js",
+    "inputFiles": [
+      "tombio/dependencies/spin.js"
+    ]
+  }
+]

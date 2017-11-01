@@ -3,6 +3,27 @@
 
     "use strict";
 
+    //ES6 polyfills
+    if (!String.prototype.endsWith) {
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
+        String.prototype.endsWith = function (searchStr, Position) {
+            // This works much better than >= because
+            // it compensates for NaN:
+            if (!(Position < this.length))
+                Position = this.length;
+            else
+                Position |= 0; // round position
+            return this.substr(Position - searchStr.length,
+                               searchStr.length) === searchStr;
+        };
+    }
+    if (!String.prototype.startsWith) {
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
+        String.prototype.startsWith = function (searchString, position) {
+            return this.substr(position || 0, searchString.length) === searchString;
+        };
+    }
+
     //For backward compatibility (prior to 1.6.0) allow for direct
     //use of tombiover, tombiopath and tombiokbpath. If they are
     //there, use them to set properties of tombiovis (core)
@@ -146,11 +167,20 @@
         var file = files[0];
         file.loading = true;
         var s = document.createElement('script');
-        s.src = file.file;
+
+        //If not working in development, minify file names
+        var jsFile;
+        if (!core.opts.devel) {
+            jsFile = minifiedName(file.file);
+        } else {
+            jsFile = file.file;
+        }
+        s.src = jsFile;
+
         s.onreadystatechange = s.onload = function () {
             //Cross-browser test of when element loaded from jQuery
             if (!s.readyState || /loaded|complete/.test(s.readyState)) {
-                console.log("Javascript file loaded:", file.file);
+                console.log("Javascript file loaded:", jsFile);
                 //Mark this file as loaded
                 file.loaded = true;
                 file.loading = false;
@@ -165,9 +195,16 @@
             var l = document.createElement('link');
             l.rel = 'stylesheet';
             l.type = 'text/css';
-            l.href = cssFile;
+            //If not working in development, minify file names
+            var cssFileName;
+            if (!core.opts.devel) {
+                cssFileName = minifiedName(cssFile);
+            } else {
+                cssFileName = cssFile;
+            }
+            l.href = cssFileName;
             document.querySelector('head').appendChild(l);
-            console.log("Loading - CSS file added to head:", cssFile)
+            console.log("Loading - CSS file added to head:", cssFileName)
         })
     }
 
@@ -232,7 +269,7 @@
     jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
 
     //Load spinner
-    jsF.add("spinner", "dependencies/spin.js");
+    jsF.add("spinner", "dependencies/spin.min.js");
 
     //These required by visP to provide various interface elements
     jsF.add("mousewheel", "dependencies/jquery.mousewheel.min.js");
@@ -300,6 +337,21 @@
         //Call jquery load
         jQueryLoad();
     });
+
+    function minifiedName(file) {
+
+        var i = file.lastIndexOf('.');
+        var fileExtension = file.substr(i + 1);
+        var fileName = file.substr(0, i);
+
+        //If file is already minified (fileName ends in .min) then
+        //no need to change name.
+        if (fileName.endsWith(".min")) {
+            return file;
+        } else {
+            return fileName + ".min." + fileExtension;
+        }  
+    }
 
     //Load jQuery
     function jQueryLoad() {
@@ -492,4 +544,5 @@
         });
     }
 
+    
 })(this.tombiovis ? this.tombiovis : this.tombiovis = {});
