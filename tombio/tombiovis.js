@@ -759,7 +759,7 @@
             t += metadata.location + ". ";
         }
         t += "Accessed " + d.toDateString() + ". ";
-        t += $(location).attr('href');
+        t += window.location.href.split('?')[0]; //$(location).attr('href');
 
         html.append($("<p>").html(t));
         return html;

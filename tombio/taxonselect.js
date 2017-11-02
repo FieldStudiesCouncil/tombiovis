@@ -53,7 +53,7 @@
     core.taxonSelect.setFilter = function (filter) { 
         this.filterText = filter;
         this.$textFilter.val(filter);
-        //this.checkFilterColour();
+        this.checkFilterColour();
         this.updateTaxa();
     }
 
@@ -95,7 +95,7 @@
         } else {
             this.$hiddenControlsDiv.slideUp(400);
             this.$controlsArrow.attr("src", core.tombiopath + "resources/chevron-down.png")
-            this.$hiddenControlsShown = false;
+            this.hiddenControlsShown = false;
         }
     }
 
@@ -339,6 +339,7 @@
 
         this.selectedTaxon = null;
         this.selectedTaxa = [];
+        this.updateTaxa(); //To reapply filter to deselected items
     }
 
     core.taxonSelect.deselectTaxon = function (taxon) {

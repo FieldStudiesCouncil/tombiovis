@@ -389,7 +389,6 @@
             groupModel: grpModel,
             selectionModel: { type: null, mode: null} ,
             columnResize: function (event, ui) {
-                return;
                 vis3ColumnResize(ui);
             },
             refresh: function () {
@@ -413,15 +412,6 @@
         //Helpers
         function vis3ColumnResize(ui) {
 
-            console.log("vis3ColumnResize")
-            _this.vis3Taxa.forEach(function (t) {
-                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
-                if (tombioImage) {
-                    console.log(t, $(tombioImage).attr("indexselected"))
-                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
-                }
-            })
-
             if (ui.dataIndx == "character") {
                 _this.vis3CharColWidth = ui.newWidth;
                 return;
@@ -432,17 +422,6 @@
         }
 
         function resizeColumns() {
-
-            console.log("Column resize")
-            //Update _this.stateTaxa[taxonName].indexSelected
-            _this.vis3Taxa.forEach(function (t) {
-                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
-                if (tombioImage) {
-                    console.log(t, $(tombioImage).attr("indexselected"))
-                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
-                }
-            })
-
             //Set all columns (except character to same size)
             $("#visType3Grid").pqGrid("getColModel").forEach(function (col) {
                 if (col.dataIndx != "group" && col.dataIndx != "character") {
@@ -473,16 +452,6 @@
             //        taxSel.deselectTaxon(selectedName)
             //    }
             //});
-
-            console.log("Refresh")
-            //Update _this.stateTaxa[taxonName].indexSelected
-            _this.vis3Taxa.forEach(function (t) {
-                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
-                if (tombioImage) {
-                    console.log(t, $(tombioImage).attr("indexselected"))
-                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
-                }
-            })
 
             $(".vis3ImageDiv")
                 .each(function () {
@@ -529,6 +498,13 @@
             //Do nothing if less than two taxa present
             if (orderedTaxa.length < 2) return;
 
+            //Colour the header columns
+            orderedTaxa.forEach(function (t, i) {
+                $("td[pq-row-indx=0][pq-col-indx=" + (i + 2) + "]")
+                    .css("background-color", "rgb(100,100,100)")
+                    .css("color", "white");
+            })
+
             var taxon0 = _this.oTaxa[orderedTaxa[0]];
             for (var i = 1; i < orderedTaxa.length; i++) {
                 var taxonI = _this.oTaxa[orderedTaxa[i]];
@@ -559,7 +535,7 @@
                                     td0.css("background-color", scaleOverall(1));
                                 }
                             } else if (oCharacter.Status == "display") {
-                                td0.css("background-color", "silver");
+                                td0.css("background-color", "lightgrey");
                             }
                         }
 
@@ -568,7 +544,7 @@
                         var score = matchingScore(taxon0, taxonI, oCharacter);
 
                         if (oCharacter.Status == "display") {
-                            tdI.css("background-color", "silver");
+                            tdI.css("background-color", "lightgrey");
                         } else if (score == null) {
                             tdI.css("background-color", "white");
                         } else {
@@ -586,10 +562,13 @@
             vis3ImageDiv.closest("td").css("background-color", "");
             loadImgIcon.fadeIn();
 
-            //_this.stateTaxa[taxon.Taxon.value].indexSelected = taxonImgDiv.attr("indexSelected");
             _this.stateTaxa[taxon.Taxon.value].imgDiv = null;
             if (taxonImgDiv.is(".userRemoved")) {
                 _this.stateTaxa[taxon.Taxon.value].displayImages = false;
+                _this.stateTaxa[taxon.Taxon.value].indexSelected = 0;
+            } else {
+                //Removed to be recreated when grid refreshed e.g. by resize
+                _this.stateTaxa[taxon.Taxon.value].indexSelected = taxonImgDiv.attr("indexSelected");
             }
         });
     }
@@ -608,7 +587,7 @@
         _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
 
         vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
-        vis3ImageDiv.closest("td").css("background-color", "grey");
+        vis3ImageDiv.closest("td").css("background-color", "lightgrey");
 
         vis3ImageDiv.append(taxonImgDiv);
 
@@ -624,7 +603,7 @@
 
         //Replace the following to initialise visualisation
         //from parameters.
-        console.log("Vis 3 URL parameters:", params);
+        //console.log("Vis 3 URL parameters:", params);
 
         //Set the visibility of hidden controls
         if (params.hc) {
@@ -644,7 +623,6 @@
         //Display images where required (must come after taxa selected)
         if (params.imgs) {
             params.imgs.split("-").forEach(function (iImage, i) {
-                console.log(i, _this.vis3Taxa[i], iImage)
                 var taxon = _this.vis3Taxa[i];
                 if (iImage != "x") {
                     _this.stateTaxa[taxon].indexSelected = iImage;
@@ -690,12 +668,21 @@
         //Tool
         params.push("selectedTool=" + visName)
 
-        //The taxa
-        params.push("taxa=" + _this.vis3Taxa.join("^"));
+        //The taxa...
+        //params.push("taxa=" + _this.vis3Taxa.join("^"));
+        //In case taxa have been reordered, we have to
+        //get the taxon names from the pqgrid to reproduce the order
+        var taxa = [];
+
+        var cells = $(".pq-grid-title-row").find(".pq-td-div");
+        for (var i = 1; i < cells.length; i++) {
+            taxa.push(cells[i].children[0].innerText);
+        }
+        params.push("taxa=" + taxa.join("^"));
 
         //Taxa images
         var imgs = [];
-        _this.vis3Taxa.forEach(function (t) {
+        taxa.forEach(function (t) {
             if (_this.stateTaxa[t].imgDiv) {
                 imgs.push(_this.stateTaxa[t].imgDiv.attr("indexSelected"))
             } else {
