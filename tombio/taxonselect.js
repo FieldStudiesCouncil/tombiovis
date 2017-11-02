@@ -73,7 +73,6 @@
             $('[name=radioSort]').checkboxradio("refresh");
         }
         if (sort == "z-a") {
-            console.log("radio ZZ")
             sort = "radio-z"
             $("#radio-z").attr("checked", "true")
             $('[name=radioSort]').checkboxradio("refresh");

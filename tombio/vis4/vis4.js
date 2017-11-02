@@ -47,7 +47,6 @@
         //Context menu
         this.contextMenu.addItem("Get URL for this view", function () {
             getViewURL();
-            _this.refresh();
         }, [this.visName]);
 
         //Controls div

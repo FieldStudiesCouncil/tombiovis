@@ -5,8 +5,9 @@
     
     var visName = "vis3";
     var exports = core[visName] = {};
+    var taxSel;
+    var _this;
 
-    //Module-wide helper function
     function matchingScore(taxon0, taxonI, oCharacter) {
 
         //This function is referenced in initialise and refresh (for different purposes)
@@ -89,7 +90,7 @@
 
     exports.Obj.prototype.initialise = function () {
 
-        var _this = this;
+        _this = this;
 
         //Control doesn't work with character state input controls
         this.charStateInput = false;
@@ -187,6 +188,9 @@
         }
 
         //Initialise context menu items
+        this.contextMenu.addItem("Get URL for this view", function () {
+            getViewURL();
+        }, [this.visName]);
         this.contextMenu.addItem("Rank those shown against first", function () {
             matchFirst();
             _this.refresh();
@@ -215,15 +219,12 @@
             addTop(10);
             _this.refresh();
         }, [this.visName]);
-        this.contextMenu.addItem("Show all", function () {
-            addTop(10000);
-            _this.refresh();
-        }, [this.visName]);
         this.contextMenu.addItem("Remove all", function () {
             _this.vis3Taxa = [];
             _this.refresh();
-            _this.taxSel.deselectAllTaxa();
+            taxSel.deselectAllTaxa();
         }, [this.visName]);
+        
 
         //Initialise the list with the top two matching taxa
         _this.vis3Taxa = [];
@@ -236,13 +237,14 @@
         this.controlsDiv = $("<div/>").css("width", 210);
         $flexContainer.append(this.controlsDiv);
 
-        var visDiv = $("<div/>").css("flex-grow", 1)
+        var visDiv = $("<div/>")
+            //.css("flex-grow", 1)
             //The following adjustment necessary to move to top of div
             .css("position", "relative").css("top", -13);
         $flexContainer.append(visDiv);
 
-        this.taxSel = Object.create(core.taxonSelect);
-        this.taxSel.control(this.controlsDiv, true, taxonSelectCallback);
+        taxSel = Object.create(core.taxonSelect);
+        taxSel.control(this.controlsDiv, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
         //if (_this.charactersGrouped) {
@@ -274,8 +276,6 @@
     }
 
     exports.Obj.prototype.refresh = function () {
-
-        var _this = this;
 
         if (!$('#visType3Grid').is(':empty')){
             $("#visType3Grid").pqGrid("destroy")
@@ -339,7 +339,7 @@
             } else {
                 var styleName = "<i>" + name + "</i>";
             }
-            
+           
             //Column widths
             if (!_this.vis3ColWidth)
                 _this.vis3ColWidth = 200;
@@ -388,7 +388,8 @@
             resizable: false,
             groupModel: grpModel,
             selectionModel: { type: null, mode: null} ,
-            columnResize: function( event, ui ) {
+            columnResize: function (event, ui) {
+                return;
                 vis3ColumnResize(ui);
             },
             refresh: function () {
@@ -406,10 +407,20 @@
         //Make the grid
         $("#visType3Grid").pqGrid(obj);
 
-        //resizeControlsAndTaxa();
+        //Ensure that the columns are all correctly sized
+        resizeColumns();
 
         //Helpers
         function vis3ColumnResize(ui) {
+
+            console.log("vis3ColumnResize")
+            _this.vis3Taxa.forEach(function (t) {
+                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
+                if (tombioImage) {
+                    console.log(t, $(tombioImage).attr("indexselected"))
+                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
+                }
+            })
 
             if (ui.dataIndx == "character") {
                 _this.vis3CharColWidth = ui.newWidth;
@@ -417,11 +428,29 @@
             }
             _this.vis3ColWidth = ui.newWidth;
 
+            resizeColumns();
+        }
+
+        function resizeColumns() {
+
+            console.log("Column resize")
+            //Update _this.stateTaxa[taxonName].indexSelected
+            _this.vis3Taxa.forEach(function (t) {
+                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
+                if (tombioImage) {
+                    console.log(t, $(tombioImage).attr("indexselected"))
+                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
+                }
+            })
+
+            //Set all columns (except character to same size)
             $("#visType3Grid").pqGrid("getColModel").forEach(function (col) {
                 if (col.dataIndx != "group" && col.dataIndx != "character") {
-                    col.width = ui.newWidth;
+                    col.width = _this.vis3ColWidth;
                 }
             });
+
+            //Call refresh
             $("#visType3Grid").pqGrid("refresh");
         }
 
@@ -441,48 +470,19 @@
             //        _this.vis3Taxa.splice(selIndex, 1);
             //        _this.refresh();
             //        //Deselect this taxon in the taxonselect control
-            //        _this.taxSel.deselectTaxon(selectedName)
+            //        taxSel.deselectTaxon(selectedName)
             //    }
             //});
 
-            //Handle image display
-            //Declare two functions because they have each to be used in two places since everytime
-            //pqGrid refreshes, image DIV has to be recreated.
-            var addRemoveHandler = function (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
-                taxonImgDiv.on("remove", function () {
-                    vis3ImageDiv.closest(".pq-td-div").css("padding", "");
-                    vis3ImageDiv.closest("td").css("background-color", "");
-                    loadImgIcon.fadeIn();
-
-                    _this.stateTaxa[taxon.Taxon.value].indexSelected = taxonImgDiv.attr("indexSelected");
-                    if (taxonImgDiv.is(".userRemoved")) {
-                        _this.stateTaxa[taxon.Taxon.value].displayImages = false;
-                    }
-                });
-            }
-
-            var addTaxonImages = function (vis3ImageDiv) {
-
-                var taxonName = vis3ImageDiv.attr("taxon");
-                var taxon = _this.oTaxa[taxonName];
-
-                if (_this.stateTaxa[taxonName].indexSelected) {
-                    var taxonImgDiv = _this.getTaxonImagesDiv(taxonName, null, _this.stateTaxa[taxonName].indexSelected);
-                } else {
-                    var taxonImgDiv = _this.getTaxonImagesDiv(taxonName);
+            console.log("Refresh")
+            //Update _this.stateTaxa[taxonName].indexSelected
+            _this.vis3Taxa.forEach(function (t) {
+                var tombioImage = $('.vis3ImageDiv[taxon="' + t + '"]').find('.tombioImage')[0];
+                if (tombioImage) {
+                    console.log(t, $(tombioImage).attr("indexselected"))
+                    _this.stateTaxa[t].imgDiv.attr("indexSelected", $(tombioImage).attr("indexselected"))
                 }
-                vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
-                vis3ImageDiv.closest("td").css("background-color", "grey");
-
-                vis3ImageDiv.append(taxonImgDiv);
-
-                var loadImgIcon = vis3ImageDiv.find(".loadImgIcon");
-                loadImgIcon.fadeOut(0);
-                addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
-
-                _this.stateTaxa[taxonName].displayImages = true;
-                return taxonImgDiv;
-            }
+            })
 
             $(".vis3ImageDiv")
                 .each(function () {
@@ -580,63 +580,165 @@
         }
     }
 
-    exports.Obj.prototype.urlParams = function (params) {
+    function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
+        taxonImgDiv.on("remove", function () {
+            vis3ImageDiv.closest(".pq-td-div").css("padding", "");
+            vis3ImageDiv.closest("td").css("background-color", "");
+            loadImgIcon.fadeIn();
 
-        return
-        var _this = this;
+            //_this.stateTaxa[taxon.Taxon.value].indexSelected = taxonImgDiv.attr("indexSelected");
+            _this.stateTaxa[taxon.Taxon.value].imgDiv = null;
+            if (taxonImgDiv.is(".userRemoved")) {
+                _this.stateTaxa[taxon.Taxon.value].displayImages = false;
+            }
+        });
+    }
+
+    function addTaxonImages (vis3ImageDiv) {
+
+        var taxonName = vis3ImageDiv.attr("taxon");
+        var taxon = _this.oTaxa[taxonName];
+
+        if (_this.stateTaxa[taxonName].indexSelected) {
+            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName, null, _this.stateTaxa[taxonName].indexSelected);
+        } else {
+            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName);
+        }
+
+        _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
+
+        vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
+        vis3ImageDiv.closest("td").css("background-color", "grey");
+
+        vis3ImageDiv.append(taxonImgDiv);
+
+        var loadImgIcon = vis3ImageDiv.find(".loadImgIcon");
+        loadImgIcon.fadeOut(0);
+        addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
+
+        _this.stateTaxa[taxonName].displayImages = true;
+        return taxonImgDiv;
+    }
+
+    exports.Obj.prototype.urlParams = function (params) {
 
         //Replace the following to initialise visualisation
         //from parameters.
         console.log("Vis 3 URL parameters:", params);
-
-        //Set the checkboxes
-        if (params.opts) {
-            var splitOpts = params.opts.split("-");
-            $('#tbVis4Text').prop("checked", splitOpts.indexOf("text") > -1);
-            $('#tbVis4Images').prop("checked", splitOpts.indexOf("image") > -1);
-            $('#tbVis4Kb').prop("checked", splitOpts.indexOf("kb") > -1);
-        }
 
         //Set the visibility of hidden controls
         if (params.hc) {
             taxSel.toggleHiddenControls();
         }
 
-        //Set the sort
-        if (params.sort) {
-            taxSel.setSort(params.sort);
+        //Set the column widths
+        _this.vis3ColWidth = params.colwidth;
+
+        //Set the taxa
+        if (params.taxa) {
+            params.taxa.split("^").forEach(function (t) {
+                taxSel.taxonClick(t.replace(/%20/g, " "));
+            })
         }
 
-        //Set the image index
-        if (params.imgi) {
-            //Set module-wide variable
-            imgIndex = params.imgi;
+        //Display images where required (must come after taxa selected)
+        if (params.imgs) {
+            params.imgs.split("-").forEach(function (iImage, i) {
+                console.log(i, _this.vis3Taxa[i], iImage)
+                var taxon = _this.vis3Taxa[i];
+                if (iImage != "x") {
+                    _this.stateTaxa[taxon].indexSelected = iImage;
+
+                    var vis3ImageDiv = $('.vis3ImageDiv[taxon="' + taxon + '"]')
+                    var loadImgIcon = vis3ImageDiv.find('.loadImgIcon')
+
+                    var taxonImgDiv = addTaxonImages(vis3ImageDiv);
+                    addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
+                }
+                
+            })
         }
 
-        //Set the text index
-        if (params.txti) {
-            //Set module-wide variable 
-            txtIndex = params.txti;
-        }
+        setTimeout(function () {
+            //For some reason the pqgrid seems to interfer with 
+            //the D3 transitions of the taxaselect tool (or the 
+            //SVG graphics or whatever) but it can be fixed
+            //by calling the taxaselect functions in a timeout.
 
-        //Set the taxon (must come after the image, text and checkbox options set)
-        if (params.taxon) {
-            taxSel.taxonClick(params.taxon.replace(/%20/g, " "));
-        }
-
-        //Set the filter (after taxon selected)
-        if (params.filter) {
-            if (params.filter.startsWith("-")) {
-                var filter = "#" + params.filter.substr(1);
-            } else {
-                var filter = params.filter;
+            //Set the filter (after taxa selected)
+            if (params.filter) {
+                if (params.filter.startsWith("-")) {
+                    var filter = "#" + params.filter.substr(1);
+                } else {
+                    var filter = params.filter;
+                }
+                taxSel.setFilter(filter);
             }
-            console.log("setting filter", filter)
-            taxSel.setFilter(filter);
+            //Set the sort
+            if (params.sort) {
+                taxSel.setSort(params.sort);
+            }
+        }, 100)
+    }
+
+    function getViewURL() {
+
+        console.log("Get the URL")
+
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //The taxa
+        params.push("taxa=" + _this.vis3Taxa.join("^"));
+
+        //Taxa images
+        var imgs = [];
+        _this.vis3Taxa.forEach(function (t) {
+            if (_this.stateTaxa[t].imgDiv) {
+                imgs.push(_this.stateTaxa[t].imgDiv.attr("indexSelected"))
+            } else {
+                imgs.push("x");
+            }
+        })
+        params.push("imgs=" + imgs.join("-"));
+
+        //Column width
+        params.push("colwidth=" + _this.vis3ColWidth);
+
+        //Filter
+        var filter = taxSel.getFilter();
+        if (filter) {
+            if (filter.startsWith("#")) {
+                var filter = "-" + filter.substr(1);
+            }
+            params.push("filter=" + filter);
         }
 
-        imgIndex = 0; //Reset module-wide variables
-        txtIndex = 0;
+        //Sort
+        if (taxSel.taxonSort) {
+            var sortType;
+            if (taxSel.taxonSort == "radio-a") {
+                var sortType = "a-z";
+            } else if (taxSel.taxonSort == "radio-z") {
+                var sortType = "z-a";
+            }
+            if (sortType) {
+                params.push("sort=" + sortType);
+            }
+        }
+
+        //Hiden controls
+        if (taxSel.hiddenControlsShown) {
+            params.push("hc=show");
+        }
+
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log("URL length:", url.length);
+        console.log(url);
     }
 
 })(jQuery, this.tombiovis)
