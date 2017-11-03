@@ -2,7 +2,7 @@
 (function (core) {
 
     "use strict";
-
+    
     //ES6 polyfills
     if (!String.prototype.endsWith) {
         //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
@@ -14,7 +14,7 @@
             else
                 Position |= 0; // round position
             return this.substr(Position - searchStr.length,
-                               searchStr.length) === searchStr;
+                                searchStr.length) === searchStr;
         };
     }
     if (!String.prototype.startsWith) {
@@ -326,17 +326,27 @@
     jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
     jsF.visEarthworm.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui];
 
-    //Because of the asynchronous nature of core.loadScripts,
-    //all functionality is called by chaining from one
-    //function to another via the callback of core.loadScripts.
+    core.startLoad = function () {
+        //Because of the asynchronous nature of core.loadScripts,
+        //all functionality is called by chaining from one
+        //function to another via the callback of core.loadScripts.
 
-    //Load and show the spinner
-    jsF.spinner.loadReady();
-    core.loadScripts(function () {
-        core.showDownloadSpinner();
-        //Call jquery load
-        jQueryLoad();
-    });
+        //Load and show the spinner
+        jsF.spinner.loadReady();
+        core.loadScripts(function () {
+            core.showDownloadSpinner();
+            //Call jquery load
+            jQueryLoad();
+        });
+    }
+
+    //If the loadWait option is set in the HTML page, then we do not call
+    //the load module immediately and wait for it to be explicitly started
+    //by the HMTL. (This is to wait for dynamic loads in the main web page.)
+    //But if that option is not set, then kick off the load immediately.
+    if (!core.opts.loadWait) {
+        core.startLoad();
+    }
 
     function minifiedName(file) {
 
