@@ -45,7 +45,7 @@
         ]
 
         //Context menu
-        this.contextMenu.addItem("Get URL for this view", function () {
+        this.contextMenu.addItem("Get URL for full details view", function () {
             getViewURL();
         }, [this.visName]);
 

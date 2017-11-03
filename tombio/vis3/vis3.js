@@ -188,7 +188,7 @@
         }
 
         //Initialise context menu items
-        this.contextMenu.addItem("Get URL for this view", function () {
+        this.contextMenu.addItem("Get URL for side by side comparison view", function () {
             getViewURL();
         }, [this.visName]);
         this.contextMenu.addItem("Rank those shown against first", function () {

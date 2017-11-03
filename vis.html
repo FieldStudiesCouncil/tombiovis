@@ -4,12 +4,24 @@
     <meta charset="utf-8">
     <title>Tom.bio ID Visualisation</title>
 
-    <!--Change the tombiopath variable to match the installation environment-->
-    <script>var tombiopath = "tombio/"</script>
+    <script>
+        //Legacy method (still supported)
+        //var tombiopath = "tombio/"
+        //var tombiokbpath = "kb/biscuits/"
 
-    <!--Change the tombiokbpath variable to pick up the KB you are working with-->
-    <script>var tombiokbpath = "kb/biscuits/"</script>
-
+        //Set options to tailor page configuration (from 1.6.0)
+        var tombiovis = {
+            opts: {
+                hideVisDropdown: false,
+                tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
+                selectedTool: "vis1", //visInfo, kbInfo, currentVisInfo, tombioCitation
+                lastVisualisation: "vis1",
+                devel: false
+            },
+            tombiopath: "tombio/",
+            tombiokbpath: "kb/biscuits/"
+        }
+    </script>
     <!--Change the path to load.js to match the installation environment-->
     <script type="text/javascript" src="tombio/load.js"></script>
 	
