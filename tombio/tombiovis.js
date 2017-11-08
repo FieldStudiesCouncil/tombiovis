@@ -55,6 +55,8 @@
             character.CharacterStateValues = [];
             //stateSet attribute
             character.stateSet = false;
+            //userInput attribute
+            character.userInput = null;
             //minVal is the minimum value for numeric values
             character.minVal = null;
             //maxVal is the maximum value for numeric values
@@ -118,7 +120,6 @@
 
         //Initialise size of controls' tab container
         resizeControlsAndTaxa();
-
 
         //Initialise chart
         //visChanged can load modules which is asynchronous, so 
@@ -321,7 +322,8 @@
 
                         //Reset stateSet flags
                         core.characters.forEach(function (character) {
-                            character.stateSet = false
+                            character.stateSet = false;
+                            character.userInput = null;
                         });
 
                         //colourChart(0);
@@ -579,10 +581,8 @@
             }
         });
 
-        console.log("core.kbconfig.defaultControlGroup", core.kbconfig.defaultControlGroup)
         //Select default tab
         //As of v1.6.0 core.kbconfig.defaultControlGroup deprecated in favour of core.opts.selectedGroup
-        console.log("typeof core.opts.selectedGroup", typeof core.opts.selectedGroup)
         if (typeof core.opts.selectedGroup === "undefined") {
             core.opts.selectedGroup = core.kbconfig.defaultControlGroup ? core.kbconfig.defaultControlGroup : null;
         }
@@ -1138,10 +1138,21 @@
             } else {
                 var character = id;
             }
-            core.oCharacters[character].stateSet = (select.val() != null && select.val() != "");
+            var stateSet = select.val() != null && select.val() != "";
+            core.oCharacters[character].stateSet = stateSet;
 
-            //console.log("change>>" + select.val() + "<<");
-            //console.log("stateSet>>" + (select.val() != null && select.val() != "") + "<<");
+            //userInput for text controls is an array of values representing the index of the 
+            //selected character states 
+            //core.oCharacters[character].userInput = stateSet ? select.val() : null;
+            if (stateSet) {
+                var values = [];
+                core.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+                    if (select.val().indexOf(stateValue) > -1) {
+                        values.push(index);
+                    }
+                })
+                core.oCharacters[character].userInput = values;
+            } 
 
             //Set the tooltip for the character states selected. This has to be done every time
             //the pqselect control creates its object.
@@ -1184,19 +1195,6 @@
         });
         spinner.addClass("statespinner");
 
-        //spinner.on("spinchange", function () {
-
-        //    //Set state set flag
-        //    if (id.substring(0, 6) == "clone-") {
-        //        var character = id.substring(6);
-        //    } else {
-        //        var character = id;
-        //    }
-        //    core.oCharacters[character].stateSet = true;
-        //    refreshVisualisation();
-        //    setCloneVisibility();
-        //});
-
         spinner.on("spinstop", function (event, ui) {
 
             //select and it's clone must match
@@ -1216,6 +1214,7 @@
                 var character = id;
             }
             core.oCharacters[character].stateSet = true;
+            core.oCharacters[character].userInput = spinner.spinner("value");
 
             //if (!isClone) {
             //Update the taxon representation.
@@ -1256,6 +1255,7 @@
                 var character = id;
             }
             core.oCharacters[character].stateSet = false;
+            core.oCharacters[character].userInput = null;
 
             refreshVisualisation();
         });
@@ -1843,7 +1843,6 @@
                                 var kbTaxonStates = taxon[stateselectID].getOrdinalRanges(sex);
 
                                 //var score = tombioScore.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
-                                console.log(taxon.Taxon.toString())
                                 var isCircular = core.oCharacters[stateselectID].ValueType == "ordinalCircular";
                                 var score = tombioScore.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
                                 scorefor = score[0];

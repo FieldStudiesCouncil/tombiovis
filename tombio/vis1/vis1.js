@@ -6,6 +6,7 @@
 
     var visName = "vis1";
     var exports = core[visName] = {};
+    var _this;
 
     exports.Obj = function (parent, contextMenu, core) {
 
@@ -20,11 +21,12 @@
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.0';
     }
+
     exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
 
     exports.Obj.prototype.initialise = function () {
 
-        var _this = this;
+        _this = this;
 
         //Initialise tooltip images
         this.displayToolTips = true
@@ -69,7 +71,7 @@
 
     exports.Obj.prototype.refresh = function () {
 
-        var _this = this;
+        //var _this = this;
 
         //Constants for laying out graphics for vis
         var margin = this.margin;
@@ -457,6 +459,9 @@
             //.each("end", function () { resizeControlsAndTaxa() });
 
         //Add/remove context menu item to show taxon tooltip images
+        this.contextMenu.addItem("Get URL for two-column key", function () {
+            getViewURL();
+        }, [this.visName]);
         if (this.displayToolTips) {
             this.contextMenu.addItem("Remove taxon image tooltips", function () {
                 $(".ui-tootip").remove(); //This is a workaround to get rid of orphaned tooltips which sometimes occur
@@ -512,6 +517,31 @@
         } else {
             this.contextMenu.removeItem("Expand all taxon items");
         }
+    }
+
+    function getViewURL() {
+        console.log("Get the URL")
+
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //Character values
+        core.characters.forEach(function(c) {
+            if (c.userInput) {
+                if (c.ControlType === "spin") {
+                    params.push(c.Character + "=" + c.userInput)
+                } else {
+                    params.push(c.Character + "=" + c.userInput.join(","));
+                }
+            }
+        })
+
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log(url);
     }
 
 })(jQuery, this.tombiovis)

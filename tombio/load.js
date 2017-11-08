@@ -428,6 +428,7 @@
            },
            function (data) {
                core.characters = data;
+               core.characters.columns = null; ///////////////////////////////
                console.log("%cLoading - kb characters loaded", "color: blue");
                loadStatus();
            });
