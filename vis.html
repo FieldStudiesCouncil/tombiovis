@@ -6,25 +6,32 @@
 
     <script>
         //Legacy method (still supported)
-        //var tombiopath = "tombio/"
-        //var tombiokbpath = "kb/biscuits/"
+        //var tombiopath = "tombio/" //deprecated from 1.6.0
+        //var tombiokbpath = "kb/biscuits/" //deprecated from 1.6.0
 
         //Set options to tailor page configuration (from 1.6.0)
         var tombiovis = {
             opts: {
                 hideVisDropdown: false,
-                tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
-                selectedTool: "vis1", //visInfo, kbInfo, currentVisInfo, tombioCitation
-                lastVisualisation: "vis1",
-                devel: false
+                //tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
+                //selectedTool: "vis1", //visInfo, kbInfo, currentVisInfo, tombioCitation
+                //lastVisualisation: "vis1",
+                selectedGroup: "Structure",
+                //tombiover: "refresh-1",
+                checkKB: true,
+                devel: true,
+                tombiopath: "tombio/",
+                tombiokbpath: "kb/biscuits/"
             },
-            tombiopath: "tombio/",
-            tombiokbpath: "kb/biscuits/"
         }
     </script>
     <!--Change the path to load.js to match the installation environment-->
     <script type="text/javascript" src="tombio/load.js"></script>
-	
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body leftmargin="100px">
     <h1 id="tombiod3-header">Tom.bio ID Visualisation test</h1>

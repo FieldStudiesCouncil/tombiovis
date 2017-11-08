@@ -39,9 +39,9 @@
 
         //Help files
         this.helpFiles = [
-            core.tombiopath + "vis4/vis4Help.html",
-            //core.tombiopath + "common/textGroupHelp.html",
-            //core.tombiopath + "common/imageGroupHelp.html"
+            core.opts.tombiopath + "vis4/vis4Help.html",
+            //core.opts.tombiopath + "common/textGroupHelp.html",
+            //core.opts.tombiopath + "common/imageGroupHelp.html"
         ]
 
         //Context menu
@@ -49,15 +49,18 @@
             getViewURL();
         }, [this.visName]);
 
-        //Controls div
+        //Controls div (reworked to avoid flexbox which IE didn't handle
+        //This solution described here: https://stackoverflow.com/questions/6938900/how-can-i-put-an-input-element-on-the-same-line-as-its-label/6938990#6938990
         var $flexContainer = $("<div>").appendTo($(this.cssSel));
-        $flexContainer.css("display", "flex");
+        //$flexContainer.css("display", "flex");//////////
         $(this.cssSel).append($flexContainer);
 
-        this.controlsDiv = $("<div/>").css("width", 210);
+        this.controlsDiv = $("<div/>").css("width", 210)
+            .css("float", "left");
         $flexContainer.append(this.controlsDiv);
 
-        var visDiv = $("<div/>").css("flex-grow", 1).css("font-size", "small");
+        //var visDiv = $("<div/>").css("flex-grow", 1); ///////////
+        var visDiv = $("<div/>").css("display", "block").css("overflow", "hidden"); 
         $flexContainer.append(visDiv);
 
         taxSel = Object.create(core.taxonSelect);
@@ -128,7 +131,8 @@
 
             var imageDiv = $('<div style="position: relative">').appendTo(visFullDetails);
             if (includeText) {
-                imageDiv.css("display", "inline-block").css("width", "50%").css("float", "right").css("padding", "0 0 10px 10px");
+                //Use a class because we will change style based on media width
+                imageDiv.attr("class", "vis4Image");
             }
             imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
             //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
@@ -199,7 +203,7 @@
 
         //Replace the following to initialise visualisation
         //from parameters.
-        console.log("Vis 4 URL parameters:", params);
+        //console.log("Vis 4 URL parameters:", params);
 
         //Set the checkboxes
         if (params.opts) {

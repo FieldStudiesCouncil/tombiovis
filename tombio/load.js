@@ -24,30 +24,32 @@
         };
     }
 
-    //For backward compatibility (prior to 1.6.0) allow for direct
-    //use of tombiover, tombiopath and tombiokbpath. If they are
-    //there, use them to set properties of tombiovis (core)
-    if (typeof tombiover !== 'undefined') {
-        core.tombiover = tombiover;
-    }
-    if (typeof tombiopath !== 'undefined') {
-        core.tombiopath = tombiopath;
-    }
-    if (typeof tombiokbpath !== 'undefined') {
-        core.tombiokbpath = tombiokbpath;
-    }
     if (!core.opts) {
         //If core.opts doesn't exist, initialise to an empty object
         //to prevent access of properties of core.opts from failing.
         core.opts = {}
     }
+
+    //For backward compatibility (prior to 1.6.0) allow for direct
+    //use of tombiover, tombiopath and tombiokbpath. If they are
+    //there, use them to set properties of tombiovis (core)
+    if (typeof tombiover !== 'undefined') {
+        core.opts.tombiover = tombiover;
+    }
+    if (typeof tombiopath !== 'undefined') {
+        core.opts.tombiopath = tombiopath;
+    }
+    if (typeof tombiokbpath !== 'undefined') {
+        core.opts.tombiokbpath = tombiokbpath;
+    }
+    
     //The reload option (tombiovis.js) uses window.location.reload(true)
     //to reload the page without cache. While this seems to reload all javascript files
     //on laptop browsers, it doesn't seem to work on Android Chrome or iOS Safari (03/07/2017)
     //so in that case we have to specify (and change) the tombiover variable in the calling
     //HTML page.
-    if (!core.tombiover) {
-        core.tombiover = "none";
+    if (!core.opts.tombiover) {
+        core.opts.tombiover = "none";
     }
 
     //Metadata about the core software. This should be updated for any
@@ -95,7 +97,7 @@
     core.jsFile = {
         init: function (id, file, toolName) {
             this.id = id;
-            this.file = core.tombiopath + file;
+            this.file = core.opts.tombiopath + file;
             this.dependencies = [];
             this.css = [];
             this.load = false;
@@ -104,14 +106,13 @@
             this.toolName = toolName;
         },
         addCSS: function (cssFile) {
-            this.css.push(core.tombiopath + cssFile)
+            this.css.push(core.opts.tombiopath + cssFile)
         },
         loadReady: function () {
             //Set the load flag for this objec to be true
             this.load = true;
             //And that of any dependencies
             this.dependencies.forEach(function (d) {
-                //console.log(d)
                 d.loadReady();
             })
         }
@@ -152,7 +153,7 @@
                 }
             })
             if (notLoaded.length > 0) {
-                console.log("Something's gone wrong, these files were not loaded...")
+                console.log("%cLoading - something's gone wrong, these files were not loaded...", "color: red")
                 notLoaded.forEach(function (f) {
                     console.log(f.id, "load: " + f.load, "loading: " + f.loading, "loaded: " + f.loaded);
                 })
@@ -180,7 +181,7 @@
         s.onreadystatechange = s.onload = function () {
             //Cross-browser test of when element loaded from jQuery
             if (!s.readyState || /loaded|complete/.test(s.readyState)) {
-                console.log("Javascript file loaded:", jsFile);
+                console.log("%cLoading - javascript file loaded: " + jsFile, "color: blue");
                 //Mark this file as loaded
                 file.loaded = true;
                 file.loading = false;
@@ -204,7 +205,7 @@
             }
             l.href = cssFileName;
             document.querySelector('head').appendChild(l);
-            console.log("Loading - CSS file added to head:", cssFileName)
+            console.log("%cLoading - CSS file added to head: " + cssFileName, "color: blue");
         })
     }
 
@@ -285,32 +286,32 @@
     jsF.pqgrid.addCSS("dependencies/pqgrid-2.1.0/pqgrid.min.css");
 
     //The main tombiovis module
-    jsF.add("tombiovis", "tombiovis.js?ver=" + core.tombiover);
+    jsF.add("tombiovis", "tombiovis.js?ver=" + core.opts.tombiover);
     jsF.tombiovis.addCSS("tombiovis.css");
 
     //Knowledge-base checks
-    jsF.add("kbchecks", "kbchecks.js?ver=" + core.tombiover);
-    jsF.add("score", "score.js?ver=" + core.tombiover);
+    jsF.add("kbchecks", "kbchecks.js?ver=" + core.opts.tombiover);
+    jsF.add("score", "score.js?ver=" + core.opts.tombiover);
 
     //Taxon selection control used by some visualisations
-    jsF.add("taxonselect", "taxonselect.js?ver=" + core.tombiover);
+    jsF.add("taxonselect", "taxonselect.js?ver=" + core.opts.tombiover);
     jsF.taxonselect.addCSS("taxonselect.css");
 
     //The prototype visualisation module
-    jsF.add("visP", "visP.js?ver=" + core.tombiover);
+    jsF.add("visP", "visP.js?ver=" + core.opts.tombiover);
 
     //The visualisation modules
-    jsF.add("vis1", "vis1/vis1.js?ver=" + core.tombiover, "Two-column key");
+    jsF.add("vis1", "vis1/vis1.js?ver=" + core.opts.tombiover, "Two-column key");
     jsF.vis1.addCSS("vis1/vis1.css");
-    jsF.add("vis2", "vis2/vis2.js?ver=" + core.tombiover, "Single-column key");
+    jsF.add("vis2", "vis2/vis2.js?ver=" + core.opts.tombiover, "Single-column key");
     jsF.vis2.addCSS("vis2/vis2.css");
-    jsF.add("vis3", "vis3/vis3.js?ver=" + core.tombiover, "Side by side comparison");
+    jsF.add("vis3", "vis3/vis3.js?ver=" + core.opts.tombiover, "Side by side comparison");
     jsF.vis3.addCSS("vis3/vis3.css");
-    jsF.add("vis4", "vis4/vis4.js?ver=" + core.tombiover, "Full taxon details");
+    jsF.add("vis4", "vis4/vis4.js?ver=" + core.opts.tombiover, "Full taxon details");
     jsF.vis4.addCSS("vis4/vis4.css");
-    jsF.add("vis5", "vis5/vis5.js?ver=" + core.tombiover, "Circle-pack key");
+    jsF.add("vis5", "vis5/vis5.js?ver=" + core.opts.tombiover, "Circle-pack key");
     jsF.vis5.addCSS("vis5/vis5.css");
-    jsF.add("visEarthworm", "visEarthworm/visEarthworm.js?ver=" + core.tombiover, true);
+    jsF.add("visEarthworm", "visEarthworm/visEarthworm.js?ver=" + core.opts.tombiover, true);
     jsF.visEarthworm.addCSS("visEarthworm/visEarthworm.css");
 
     //Specify module dependencies
@@ -411,45 +412,41 @@
             }
         }
 
-        d3.csv(core.tombiokbpath + "taxa.csv?" + antiCache,
+        d3.csv(core.opts.tombiokbpath + "taxa.csv?" + antiCache,
             function (row) {
                 return filterAndClean(row);
             },
             function (data) {
-                //console.log("taxa", data)
                 core.taxa = data;
-                console.log("Loading - kb taxa loaded");
+                console.log("%cLoading - kb taxa loaded", "color: blue");
                 loadStatus();
             });
 
-        d3.csv(core.tombiokbpath + "characters.csv?" + antiCache,
+        d3.csv(core.opts.tombiokbpath + "characters.csv?" + antiCache,
            function (row) {
                return filterAndClean(row);
            },
            function (data) {
-               //console.log("characters", data)
                core.characters = data;
-               console.log("Loading - kb characters loaded");
+               console.log("%cLoading - kb characters loaded", "color: blue");
                loadStatus();
            });
 
-        d3.csv(core.tombiokbpath + "values.csv?" + antiCache,
+        d3.csv(core.opts.tombiokbpath + "values.csv?" + antiCache,
             function (row) {
                 return filterAndClean(row);
             },
             function (data) {
-                //console.log("values", data)
                 core.values = data;
-                console.log("Loading - kb values loaded");
+                console.log("%cLoading - kb values loaded", "color: blue");
                 loadStatus();
             });
 
-        d3.csv(core.tombiokbpath + "config.csv?" + antiCache,
+        d3.csv(core.opts.tombiokbpath + "config.csv?" + antiCache,
             function (row) {
                 return filterAndClean(row);
             },
             function (data) {
-                //console.log("config", data)
                 core.kbconfig = {};
                 core.kbmetadata = {};
                 core.kbreleaseHistory = [];
@@ -502,18 +499,17 @@
                     core.includedTools = core.opts.tools;
                 }
 
-                console.log("Loading - kb metadata loaded");
+                console.log("%cLoading - kb metadata loaded", "color: blue");
                 loadStatus();
             });
 
-        d3.csv(core.tombiokbpath + "media.csv?" + antiCache,
+        d3.csv(core.opts.tombiokbpath + "media.csv?" + antiCache,
             function (row) {
                 return filterAndClean(row);
             },
             function (data) {
-                //console.log("media", data)
                 core.media = data;
-                console.log("Loading - kb media loaded");
+                console.log("%cLoading - kb media loaded", "color: blue");
                 loadStatus();
             });
     }
@@ -532,14 +528,14 @@
             core.kbmetadata &&
             core.media) {
 
-            console.log("KB is loaded!")
+            console.log("%cKB is loaded!", "color: blue");
             loadComplete();
         }
     }
 
     function loadComplete() {
         //Load the import HTML
-        jQuery.get(core.tombiopath + "import.html?ver=" + core.tombiover, function (data) {
+        jQuery.get(core.opts.tombiopath + "import.html?ver=" + core.opts.tombiover, function (data) {
             jQuery("#tombiod3vis").html(data);
 
             //Finally load tombiovis and invoke function in tombiovis.js to get things going
@@ -553,6 +549,5 @@
             });
         });
     }
-
     
 })(this.tombiovis ? this.tombiovis : this.tombiovis = {});

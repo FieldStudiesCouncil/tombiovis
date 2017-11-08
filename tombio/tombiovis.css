@@ -1,6 +1,6 @@
 ﻿
 body {
-    font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+    /*font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;*/
 }
 
 .tombioNoSelect { 
@@ -60,9 +60,8 @@ body {
 }
 
 #tombioMain {
-    font-size: 12px; 
+    /*font-size: 12px;*/ 
     overflow: visible;
-    /*border: 2px solid green;*/
 }
 
 #tombioControls {

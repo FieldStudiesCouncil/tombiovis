@@ -34,9 +34,9 @@
 
         //Help files
         this.helpFiles = [
-            core.tombiopath + "vis1/vis1Help.html",
-            core.tombiopath + "common/taxonDetailsHelp.html",
-            core.tombiopath + "common/stateInputHelp.html"
+            core.opts.tombiopath + "vis1/vis1Help.html",
+            core.opts.tombiopath + "common/taxonDetailsHelp.html",
+            core.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Set some variables (mostly used in refresh method)
@@ -52,6 +52,7 @@
                         .attr("id", "candidateTaxa")
                         .css("position", "absolute")
                         .css("left", this.margin)
+                        .css("font-size", "small")
                         .text("Evidence balance positive")
                 )
                 .append(
@@ -59,6 +60,7 @@
                         .attr("id", "excludedTaxa")
                         .css("position", "absolute")
                         .css("left", this.taxwidth + 2 * this.margin)
+                        .css("font-size", "small")
                         .text("Evidence balance negative")
                 )
         );
@@ -186,7 +188,7 @@
         //Image link (camera icon)
         //This removed 13/07 when showTaxonCharacterValues replaced with fullDetails
         //enterSelection.append("svg:image")
-        //    .attr("xlink:href", core.tombiopath + "resources/camera.png")
+        //    .attr("xlink:href", core.opts.tombiopath + "resources/camera.png")
         //    .attr("class", "taxonImageLink")
         //    .attr("width", "16px")
         //    .attr("height", "16px")

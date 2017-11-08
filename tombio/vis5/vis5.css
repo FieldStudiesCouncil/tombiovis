@@ -21,3 +21,7 @@
 .taxon-tooltip {
     opacity: 1;  /*This required to correct style change on tom.bio website site*/
 }
+
+#vis5Svg {
+    overflow: visible;
+}

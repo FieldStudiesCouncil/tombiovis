@@ -90,11 +90,11 @@
     core.taxonSelect.toggleHiddenControls = function () {
         if (this.$hiddenControlsDiv.css("display") == "none") {
             this.$hiddenControlsDiv.slideDown(400);
-            this.$controlsArrow.attr("src", core.tombiopath + "resources/chevron-up.png")
+            this.$controlsArrow.attr("src", core.opts.tombiopath + "resources/chevron-up.png")
             this.hiddenControlsShown = true;
         } else {
             this.$hiddenControlsDiv.slideUp(400);
-            this.$controlsArrow.attr("src", core.tombiopath + "resources/chevron-down.png")
+            this.$controlsArrow.attr("src", core.opts.tombiopath + "resources/chevron-down.png")
             this.hiddenControlsShown = false;
         }
     }
@@ -146,7 +146,7 @@
         //Hidden controls
         var $hiddenControlsDiv = $('<div>').css("margin-top", 5).css("display", "none").appendTo($mainDiv);
         var $controlsArrow = $('<img>')
-            .attr("src", core.tombiopath + "resources/chevron-down.png")
+            .attr("src", core.opts.tombiopath + "resources/chevron-down.png")
             .attr("class", "taxonSelectHiddenControlsArrow")
             .appendTo($mainDiv);
 

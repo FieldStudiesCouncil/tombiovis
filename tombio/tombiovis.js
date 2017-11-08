@@ -27,7 +27,7 @@
         //Replace content in header and footer tags with tombiod3 id's - this is
         //most relevant for test harness.
         $("#tombiod3-header").text(core.kbmetadata.title);
-        $("#tombiod3-footer").html(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+        $("#tombiod3-footer").html(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
 
         //Check the validity of the knowledge-base
         if (!force) {
@@ -82,7 +82,7 @@
 
         core.media.forEach(function (m) {
             if (m.Type == "image-local") {
-                m.URI = core.tombiokbpath + m.URI;
+                m.URI = core.opts.tombiokbpath + m.URI;
             }
         });
 
@@ -124,6 +124,11 @@
         //visChanged can load modules which is asynchronous, so 
         //no code should come after this.
         visChanged();
+
+        //Fire any callback defined in core.loadCallback 
+        if (core.loadCallback) {
+            core.loadCallback();
+        }
     }
 
     function enrichStateValueObjects() {
@@ -574,9 +579,15 @@
             }
         });
 
+        console.log("core.kbconfig.defaultControlGroup", core.kbconfig.defaultControlGroup)
         //Select default tab
-        if (core.kbconfig.defaultControlGroup && core.kbconfig.defaultControlGroup != "") {
-            var tabIndex = global.inputCharGroups.indexOf(core.kbconfig.defaultControlGroup);
+        //As of v1.6.0 core.kbconfig.defaultControlGroup deprecated in favour of core.opts.selectedGroup
+        console.log("typeof core.opts.selectedGroup", typeof core.opts.selectedGroup)
+        if (typeof core.opts.selectedGroup === "undefined") {
+            core.opts.selectedGroup = core.kbconfig.defaultControlGroup ? core.kbconfig.defaultControlGroup : null;
+        }
+        if (core.opts.selectedGroup) {
+            var tabIndex = global.inputCharGroups.indexOf(core.opts.selectedGroup);
             if (tabIndex > -1) {
                 tabs.tabs("option", "active", tabIndex + 1)
             }
@@ -656,7 +667,7 @@
             }
         });
         if (allHelpFilesLoaded) {
-            help = help.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath);
+            help = help.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath);
             $('#currentVisInfo').html(help);
         }
     }
@@ -672,7 +683,7 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationCore' id='tbCitationCore'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(getCitation(core.metadata, "Software")));
+        html.append($("<b>").html(core.getCitation(core.metadata, "Software")));
 
         //Generate the citation for the current tool
         html.append($("<h3>").text("Citation for last selected visualisation tool"))
@@ -682,7 +693,7 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' type='checkbox' name='tbCitationVis' id='tbCitationVis'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title)));
+        html.append($("<b>").html(core.getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title)));
 
         //Generate the citation for the knowledge-base
         html.append($("<h3>").text("Citation for knowledge-base"))
@@ -691,21 +702,20 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationKb' id='tbCitationKb'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title)));
-
+        html.append($("<b>").html(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title)));
 
         var button = $("<button>Copy citations</button>").button();
         button.on("click", function () {
             $("#tbSelectedCitations").html("");//Clear
 
             if (document.getElementById('tbCitationCore').checked) {
-                $("#tbSelectedCitations").append(getCitation(core.metadata, "Software"));
+                $("#tbSelectedCitations").append(core.getCitation(core.metadata, "Software"));
             }
             if (document.getElementById('tbCitationVis').checked) {
-                $("#tbSelectedCitations").append(getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title));
+                $("#tbSelectedCitations").append(core.getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title));
             }
             if (document.getElementById('tbCitationKb').checked) {
-                $("#tbSelectedCitations").append(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+                $("#tbSelectedCitations").append(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
             }
             selectElementText(document.getElementById("tbSelectedCitations"));
             $('#tbCitationInstructions').show();
@@ -739,7 +749,7 @@
         window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
     }
 
-    function getCitation(metadata, sType, coreTitle) {
+    core.getCitation = function (metadata, sType, coreTitle) {
 
         var html = $("<div class='tombioCitation'>"), t;
         var d = new Date();
@@ -761,14 +771,16 @@
         t += "Accessed " + d.toDateString() + ". ";
         t += window.location.href.split('?')[0]; //$(location).attr('href');
 
-        html.append($("<p>").html(t));
+        html.append($("<div>").html(t));
         return html;
     }
     
     function visChanged() {
+        //console.log("last visualisation:", global.lastVisualisation)
+        core.visChanged($("#tombioVisualisation").val());
+    }
 
-        var selectedToolName = $("#tombioVisualisation").val();
-        console.log(selectedToolName);
+    core.visChanged = function (selectedToolName, lastVisualisation) {
 
         //If reload selected, then reload the entire application.
         if (selectedToolName == "reload") {
@@ -788,46 +800,73 @@
             return;
         }
 
-        //If the user has selected to show citation or info page, pass forward to visModuleLoaded.
-        if (selectedToolName == "tombioCitation" || selectedToolName == "kbInfo" ||
-            selectedToolName == "currentVisInfo" || selectedToolName == "visInfo") {
-
-            //The tombioCitation and currentVisInfo pages work using the global.lastVisualisation
-            //variable, but if either of these is set as the default tool in core.opts.selectedTool,
-            //then that won't yet be set first time is. If either of those two options is set, then the option
-            //core.opts.lastVisualisation must also be set.
-            if (core.opts.lastVisualisation && !global.lastVisualisation) {
-                core.showDownloadSpinner();
-                core.jsFiles[core.opts.lastVisualisation].loadReady();
-                core.loadScripts(function () {
-                    //Set the global.lastVisualisation
-                    var visObj = new core[core.opts.lastVisualisation].Obj("#tombioTaxa", global.contextMenu, core);
-                    global.lastVisualisation = visObj;
-                    //Set the title of the menu item
-                    $("#optCurrentVisInfo").text("Using the " + visObj.metadata.title);
-                    $("#tombioVisualisation").iconselectmenu("refresh");
-
-                    core.hideDownloadSpinner();
-                    visModuleLoaded(selectedToolName);
-                })
-            } else {
-                visModuleLoaded(selectedToolName);
-            }
+        if (selectedToolName == "visInfo" || selectedToolName == "kbInfo") {
+            visModuleLoaded(selectedToolName);
             return;
         }
 
-        //If we got here, a visualisation (module) was selected from the drop-down.
+        //If the user has selected to show citation or info page, first make sure that
+        //the visualisation on which these are associated (last visualisation) is loaded,
+        //then pass forward to visModuleLoaded.
+        if (selectedToolName == "tombioCitation" ||  selectedToolName == "currentVisInfo") {
+
+            //The tombioCitation and currentVisInfo pages work using the lastVis variable.
+            //If a lastVisualisation parameter is passed in to this function, then use that.
+            //Otherwise, if a global.lastVisualisation has been set, then use that. Otherwise
+            //if a high-level option core.opts.lastVisualisation is set, then use that.
+            var lastVis;
+            if (lastVisualisation) {
+                lastVis = lastVisualisation;
+            } else if (global.lastVisualisation) {
+                lastVis = global.lastVisualisation.visName;
+            } else if (core.opts.lastVisualisation) {
+                lastVis = core.opts.lastVisualisation;
+            } else {
+                lastVis = "vis1";
+            }
+            //console.log("global.lastVisualisation", lastVis)
+            //console.log("lastVis", lastVis)
+          
+            //Load lastVis if not already loaded
+            core.showDownloadSpinner();
+            if (core.jsFiles[lastVis]) {
+                core.jsFiles[lastVis].loadReady();
+            }
+            core.loadScripts(function () {
+                //Callback
+                core.hideDownloadSpinner();
+                //Create the visualisation object if it doesn't already exist
+                if (!global.visualisations[lastVis]) {
+                    var visObj = new core[lastVis].Obj("#tombioTaxa", global.contextMenu, core);
+                    global.visualisations[lastVis] = visObj;
+                }
+                global.lastVisualisation = global.visualisations[lastVis];
+                visModuleLoaded(selectedToolName);      
+            })
+            return;
+        }
+
+        //If we got here, a visualisation (module) was selected.
         //At this point, the tool module (and it's dependencies) may or may not be loaded.
         //So we go through the steps of marking them as 'loadReady' and calling the
         //loadScripts function. If they are already loaded, then that will just return
         //(i.e. call the callback function) immediately
-        core.showDownloadSpinner();
-        core.jsFiles[selectedToolName].loadReady();
 
+        if ($('#tombioVisualisation').val() != selectedToolName) {
+            $('#tombioVisualisation').val(selectedToolName); 
+        }
+
+        //If the drop-down tool select doesn't match the selected value
+        //(because latter set by parameter), then set the value.
+        //If this isn't done before the next step, something strange
+        //occurs and svg's don't usually display properly.
+        core.showDownloadSpinner();
+        if (core.jsFiles[selectedToolName]) {
+            core.jsFiles[selectedToolName].loadReady();
+        }
         core.loadScripts(function () {
             //Callback
             core.hideDownloadSpinner();
-
             //Create the visualisation object if it doesn't already exist
             if (!global.visualisations[selectedToolName]) {
                 var visObj = new core[selectedToolName].Obj("#tombioTaxa", global.contextMenu, core);
@@ -852,13 +891,14 @@
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
             var title = $('<h2>').text(core.kbmetadata['title']);
             $('#kbInfo').html(title);
-            $.get(core.tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').append(html.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath));
+            $.get(core.opts.tombiokbpath + "info.html", function (html) {
+                $('#kbInfo').append(html.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath));
             }).always(function () {
+
                 //Citation
                 var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
                 $('#kbInfo').append(citation);
-                $('#kbInfo').append(getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+                $('#kbInfo').append(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
                 //Add the revision history
                 var header = $('<h3>').attr("id", "tombioKbRevisionHistory").text("Knowledge-base revision history");
                 $('#kbInfo').append(header);
@@ -895,8 +935,8 @@
         //If the user has selected to show general tombio vis info and not yet loaded,
         //then load.
         if (selectedToolName == "visInfo" && $('#visInfo').html().length == 0) {
-            $.get(core.tombiopath + "visInfo.html", function (html) {
-                $('#visInfo').html(html.replace(/##tombiopath##/g, core.tombiopath).replace(/##tombiokbpath##/g, core.tombiokbpath));
+            $.get(core.opts.tombiopath + "visInfo.html", function (html) {
+                $('#visInfo').html(html.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath));
             });
         }
 
@@ -936,6 +976,14 @@
             controlsShowHide(true);
         } else {
             controlsShowHide(false);
+        }
+
+        //If no visualisation is selected then hide the entire tombioControlsAndTaxa element
+        //(otherwise it takes up space at top of info pages).
+        if (selectedTool) {
+            $("#tombioControlsAndTaxa").show();
+        } else {
+            $("#tombioControlsAndTaxa").hide();
         }
 
         //Refresh the selected tool

@@ -64,9 +64,9 @@
 
         //Help files
         this.helpFiles = [
-            core.tombiopath + "vis5/vis5Help.html",
-            core.tombiopath + "common/taxonDetailsHelp.html",
-            core.tombiopath + "common/stateInputHelp.html"
+            core.opts.tombiopath + "vis5/vis5Help.html",
+            core.opts.tombiopath + "common/taxonDetailsHelp.html",
+            core.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Add circle pack stuff
@@ -75,7 +75,7 @@
             .attr("id", "vis5Svg")
             .attr("width", "500")
             .attr("height", "500")
-            .attr("overflow", "visible")
+            //.attr("overflow", "visible")
             //.style("background-color", "cyan")
             .call(d3.zoom()
                 .on('zoom', mouseZoom)

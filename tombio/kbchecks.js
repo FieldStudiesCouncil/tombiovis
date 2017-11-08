@@ -14,7 +14,11 @@
         core.kbconfig
         */
         //Only carry out the validity checks if core.kbconfig.checkValidity set to yes.
-        if (!(core.kbconfig.checkValidity && core.kbconfig.checkValidity == "yes")) {
+        //Deprecated in version 1.6.0 in favour of top level core.opts.checkKB flag (which therefore has precedence).
+        if (typeof core.opts.checkKB  === "undefined") {
+            core.opts.checkKB = core.kbconfig.checkValidity && core.kbconfig.checkValidity == "yes";
+        }
+        if (!core.opts.checkKB) {
             return true;
         }
 

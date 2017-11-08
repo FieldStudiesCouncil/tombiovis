@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
+## [1.6.0] - 2017-11-11
+### Changed
+ - Replaced the taxon selection drop-downs in the 'full-details' (vis4) and 'side by side comparison' (vis3) visualisations with a completely new taxon selection control that much improves the user experience of these two tools. Taxa are selectable/deselectable much more rapidly and individual taxa, even from long lists, can quickly be found with a filter feature. Updated tool user documentation to reflect this.
+ - The load.js module has been reworked (along with changes in tombiovis.js) to facilitate dynamic loading of javascript and css files when they are needed. So, for example, a javascript file that is only required by a particular visualisation is not loaded until that visualisation is engaged. This is to keep the initial overhead of loading resources to a minimum.
+ - The load.js module has been changed to look for minified javascript and CSS files and load them in preference to non-minified versions. (This behaviour can be overriden by a top level initialisation option in order to assist developers during debugging.) Again, this is to reduce the overhead of initial loading of resources.
+
+### Added
+ - Reinstated a new version of the 'full details' (vis4) visualisation (removed in release 1.5.0). This improved version has a more intelligent and responsive layout of the three elements: text, images and knowledge-base values. It also makes use of the new taxon selection control (see changed section).
+ - Added new initialisation options to tombiovis so that people implementing the framework can easily control certain features from the calling web page, e.g. which tools are included and which is selected by default (previously this could only be done from the kb), and whether or not to show the visualisation selection drop-down. These new options are documented in the 'Deplolying your visualisations' document. The 'Building a knowledge-base' document has also been updated to reflect the fact that some similar kb 'config' options have been deprecated.
+ - Added a new developer's API feature so that tool selection can be controlled from without the tombiovis.js module, e.g. by a hosting website. This API feature is documented in the 'Deploying your visualisations' document.
+ - Added a new right-click context menu to all visualisations whereby users can generate a URL (automatically copied into buffer) that will take them to the same visualisation with the same options selected. This allows users to post URLs to social media etc that take people exactly to what they want to see, e.g. a certain image of a partiuclar taxon.
+
 ## [1.5.0] - 2017-10-19
 ### Changed
  - Updated documentation for knowledge-base builders to make use of the new tooltip help features (see below) or disable them if required.
