@@ -1,8 +1,15 @@
-﻿
-(function (core) {
+﻿(function (core) {
 
     "use strict";
     
+    //The following fix is required to stop IE11 throwing its arms up if
+    //console.log is used without console being open.
+    if (!window.console) {
+        window.console = {
+            log: function () { }
+        };
+    }
+
     //ES6 polyfills
     if (!String.prototype.endsWith) {
         //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
@@ -179,7 +186,7 @@
         s.src = jsFile;
 
         s.onreadystatechange = s.onload = function () {
-            //Cross-browser test of when element loaded from jQuery
+            //Cross-browser test of when element loaded correctly from jQuery
             if (!s.readyState || /loaded|complete/.test(s.readyState)) {
                 console.log("%cLoading - javascript file loaded: " + jsFile, "color: blue");
                 //Mark this file as loaded
@@ -187,6 +194,8 @@
                 file.loading = false;
                 //Recursively call this function, passing on the callback.
                 core.loadScripts(callback);
+            } else {
+                console.log("%cLoading - javascript file load failed: " + jsFile, "color: red");
             }
         };
         document.querySelector('head').appendChild(s);

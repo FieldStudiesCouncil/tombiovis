@@ -77,11 +77,8 @@
         this.div.append("<p>Selector is: " + this.cssSel + "</p>")
     }
 
-    exports.Obj.prototype.urlParams = function (params) {
+    exports.Obj.prototype.urlParams = function () {
 
-        //Replace the following to initialise visualisation
-        //from parameters.
-        //console.log("URL parameters:", params);
     }
 
     exports.Obj.prototype.fullDetails = function (taxon, selected, x, y) {

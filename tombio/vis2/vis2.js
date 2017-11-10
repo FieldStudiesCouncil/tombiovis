@@ -5,6 +5,7 @@
 
     var visName = "vis2";
     var exports = core[visName] = {};
+    var _this;
 
     exports.Obj = function (parent, contextMenu, core) {
 
@@ -24,7 +25,7 @@
 
     exports.Obj.prototype.initialise = function () {
 
-        var _this = this;
+        _this = this;
 
         //Controls works with character state input controls
         this.charStateInput = true;
@@ -33,6 +34,7 @@
         this.helpFiles = [
             core.opts.tombiopath + "vis2/vis2Help.html",
             core.opts.tombiopath + "common/taxonDetailsHelp.html",
+            core.opts.tombiopath + "common/full-details.html",
             core.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
@@ -46,7 +48,7 @@
 
     exports.Obj.prototype.refresh = function () {
 
-        var _this = this;
+        _this = this;
 
         //Variables for layout
         var indSpacing = 34;
@@ -416,6 +418,11 @@
 
         //resizeControlsAndTaxa();
 
+        //Context menu item to get URL
+        this.contextMenu.addItem("Get URL for single-column key", function () {
+            getViewURL();
+        }, [this.visName]);
+
         //Context menu for showing weighted/unweighted values
         if (this.showWeightedScores) {
             this.contextMenu.removeItem("Show weighted scores");
@@ -447,5 +454,51 @@
             }, [this.visName], true);
             this.contextMenu.removeItem("Remove taxon image tooltips");
         }
+    }
+
+    exports.Obj.prototype.urlParams = function (params) {
+
+        //Weighted scores
+        if (params["weighted"]) {
+            _this.showWeightedScores =params["weighted"] === "true";
+        }
+
+        //Taxon image tooltips
+        if (params["imgtips"]) {
+            _this.displayToolTips = params["imgtips"] === "true";
+        }
+
+        //Set the state controls
+        core.initControlsFromParams(params);
+
+        //Bit of a hack to ensure that tombioControlsAndTaxa is resized enough
+        //to accommodate the reset character values.
+        setTimeout(function () {
+            var controlsWidth = $('#tombioControls').width();
+            $('#tombioControlsAndTaxa').css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
+        }, 500)
+       
+    }
+
+    function getViewURL() {
+
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //Get user input control params
+        Array.prototype.push.apply(params, core.setParamsFromControls());
+
+        //Weighted scores?
+        params.push("weighted=" + _this.showWeightedScores);
+        
+        //Image tooltips
+        params.push("imgtips=" + _this.displayToolTips);
+
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log(url);
     }
 })(jQuery, this.tombiovis)

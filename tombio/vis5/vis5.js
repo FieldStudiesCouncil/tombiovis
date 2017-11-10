@@ -6,6 +6,7 @@
 
     var visName = "vis5";
     var exports = core[visName] = {};
+    var _this;
 
     var root, 
         focus, 
@@ -25,7 +26,6 @@
         taxaRoot,
         taxaRootFlat,
         taxaRootCurrent,
-        abbrvNames = true,
         g, 
         colorGreyScale,
         lastZoomWasPan,
@@ -33,7 +33,6 @@
         lastZoomX = 0,
         lastZoomY = 0,
         zoomStarted,
-        selectedRank,
         mobile = /Mobi/.test(navigator.userAgent);
 
     exports.Obj = function (parent, contextMenu, core) {
@@ -54,7 +53,10 @@
 
     exports.Obj.prototype.initialise = function () {
 
-        var _this = this;
+        _this = this;
+
+        //Initialisations
+        this.abbrvnames = true;
 
         //Reset this value if control can work with character state input controls
         this.charStateInput = true;
@@ -66,6 +68,7 @@
         this.helpFiles = [
             core.opts.tombiopath + "vis5/vis5Help.html",
             core.opts.tombiopath + "common/taxonDetailsHelp.html",
+            core.opts.tombiopath + "common/full-details.html",
             core.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
@@ -183,7 +186,7 @@
 
     exports.Obj.prototype.refresh = function () {
 
-        var _this = this;
+        _this = this;
 
         var maxOverall = d3.max(core.taxa, function (d) { return d.scoreoverall; });
         var minOverall = d3.min(core.taxa, function (d) { return d.scoreoverall; });
@@ -192,9 +195,14 @@
 
         //Initialise context menu items
 
+        //Context menu item to get URL
+        _this.contextMenu.addItem("Get URL for circle-pack key", function () {
+            getViewURL();
+        }, [_this.visName]);
+
         //Add context menu item for abbreviation toggle
         _this.contextMenu.addItem("Toggle name abbreviation", function () {
-            abbrvNames = !abbrvNames;
+            _this.abbrvnames = !_this.abbrvnames;
             _this.refresh();
         }, [_this.visName]);
 
@@ -428,12 +436,12 @@
             })
             .style("stroke", function(d) {
                 if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "black";
-                if (selectedRank == "Taxon") return "black";
+                if (_this.selectedRank == "Taxon") return "black";
                 return null;
             })
             .style("stroke-width", function(d) {
                 if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "2px";
-                if (selectedRank == "Taxon") return "1px";
+                if (_this.selectedRank == "Taxon") return "1px";
                 return "0px";
             })
             .style("stroke-linecap", function(d) {
@@ -647,7 +655,9 @@
 
     function displayTextForRank(rank) {
 
-        selectedRank = rank;
+        console.log("displayTextForRank", rank)
+
+        _this.selectedRank = rank;
 
         d3.selectAll(".label")
             .style("display", "none");
@@ -671,13 +681,13 @@
         //global variable (set from k in ...)
         //var width = circle._groups[0][0].__data__.r * zoomFactor * 2;
 
-        if (!abbrvNames) {
+        if (!_this.abbrvnames) {
             wrapText(text, width, d.data.data.abbrv[0]);
             return;
         }
 
         //If circle below a minimum threshold, then make text invisible (but only for leaf nodes)
-        if (width < 20 && abbrvNames) { //&& d.data.data.taxon
+        if (width < 20 && _this.abbrvnames) { //&& d.data.data.taxon
             text.text(null);
             return;
         }
@@ -749,6 +759,65 @@
         }
         //Vertically align the text
         text.attr("dy", ((1.5 - lineNumber) / 2) + "em");
+    }
+
+    exports.Obj.prototype.urlParams = function (params) {
+
+        //Abbreviated names
+        if (params["abbrvnames"]) {
+            _this.abbrvnames = params["abbrvnames"] === "true";
+        }
+
+        //selected rank
+        if (params["rank"]) {
+            _this.selectedRank = params["rank"];
+            displayTextForRank(_this.selectedRank);
+        }
+
+        //Higher taxa
+        if (params["highertaxa"]) {
+            taxaRootCurrent = taxaRootFlat;
+        }
+
+        //Taxon image tooltips
+        if (params["imgtips"]) {
+            _this.displayToolTips = params["imgtips"] === "true";
+        }
+
+        //Set the state controls
+        core.initControlsFromParams(params);
+    }
+
+    function getViewURL() {
+
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //Get user input control params
+        Array.prototype.push.apply(params, core.setParamsFromControls());
+
+        //Abbreviated names?
+        params.push("abbrvnames=" + _this.abbrvnames);
+
+        //Selected rank
+        params.push("rank=" + _this.selectedRank);
+
+        //Higher taxa
+        if (taxaRootCurrent == taxaRootFlat) {
+            //Only need to record the non-default case
+            params.push("highertaxa=false")
+        }
+
+        //Image tooltips
+        params.push("imgtips=" + _this.displayToolTips);
+
+        //
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log(url);
     }
 
 })(jQuery, this.tombiovis)

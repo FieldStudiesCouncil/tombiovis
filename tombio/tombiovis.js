@@ -292,8 +292,8 @@
             //If this is the 'All' tab, add radio buttons for visibility
             if (chargrouplink == "tombioControlTab-All") {
 
-                tab.append($("<div>").text("Un-used characters:"));
-                var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none");
+                tab.append($("<div>").text("Un-used characters:").css("font-weight", "bold"));
+                var radios = $("<fieldset>").attr("id", "visCheckboxes").css("display", "inline-block").css("padding", "0px").css("border", "none");
                 radios.append($("<label>").attr("for", "charvisible").text("show"));
                 radios.append($("<input>").attr("type", "radio").attr("name", "charvisibility").attr("id", "charvisible").attr("value", "visible").attr("checked", "checked"));
                 radios.append($("<label>").attr("for", "incharvisible").text("hide"));
@@ -311,7 +311,7 @@
 
                         $(".statespinner").spinner("value", "");
 
-                        //Can't do below below refreshData fails on uninitiased values
+                        //Can't do below refreshData fails on uninitiased values
                         //so have to use an each loop instead.
                         //$(".stateselect").val("").pqSelect('refreshData');
                         $(".stateselect").each(function () {
@@ -749,6 +749,85 @@
         window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
     }
 
+    core.initControlsFromParams = function (params) {
+
+        //Set values from character state parameters in core.characters
+        for (name in params) {
+            if (name.startsWith("c-")) {
+
+                var cIndex = name.split("-")[1];
+                var char = core.characters[cIndex];
+
+                if (char.ControlType === "spin") {
+                    char.userInput = params[name];
+                } else {
+                    char.userInput = params[name].split(",");
+                }
+                char.stateSet = true;
+            }
+        }
+
+        //Set the character state input controls
+        core.characters.forEach(function (c, cIndex) {
+            if (c.userInput) {
+                if (c.ControlType === "spin") {
+                    var control = $("#" + c.Character + ".statespinner");
+                    var clone = $("#clone-" + c.Character + ".statespinner");
+                    control.spinner("value", c.userInput);
+                    clone.spinner("value", c.userInput);
+                } else {
+                    var control = $("#" + c.Character + ".stateselect");
+                    var clone = $("#clone-" + c.Character + ".stateselect");
+
+                    var stateValues = c.userInput.map(function (valueIndex) {
+                        return c.CharacterStateValues[valueIndex];
+                    })
+                    control.val(stateValues).pqSelect('refreshData');
+                    clone.val(stateValues).pqSelect('refreshData');
+                }
+            }
+        })
+
+        //Set selected group
+        $("#tombioControlTabs").tabs("option", "active", params["grp"]);
+
+        //Visibility of unused controls (clones)
+        $("[name='charvisibility']")
+            .removeProp('checked')
+            .filter('[value="' + params["cvis"] + '"]')
+            .prop('checked', true);
+
+        $("[name='charvisibility']").checkboxradio('refresh');
+
+        setCloneVisibility();
+        refreshVisualisation();
+    }
+
+    core.setParamsFromControls = function () {
+
+        var params = [];
+
+        //User input values
+        core.characters.forEach(function(c, cIndex) {
+            if (c.userInput) {
+                var paramName = "c-" + cIndex
+                if (c.ControlType === "spin") {
+                    params.push(paramName + "=" + c.userInput)
+                } else {
+                    params.push(paramName + "=" + c.userInput.join(","));
+                }
+            }
+        })
+
+        //Selected control tab
+        params.push("grp=" + $("#tombioControlTabs").tabs("option", "active"));
+
+        //Control visibility
+        params.push("cvis=" + $("input[name=charvisibility]:checked").val());
+
+        return params
+    }
+
     core.getCitation = function (metadata, sType, coreTitle) {
 
         var html = $("<div class='tombioCitation'>"), t;
@@ -851,13 +930,11 @@
         //So we go through the steps of marking them as 'loadReady' and calling the
         //loadScripts function. If they are already loaded, then that will just return
         //(i.e. call the callback function) immediately
-
-        if ($('#tombioVisualisation').val() != selectedToolName) {
-            $('#tombioVisualisation').val(selectedToolName); 
-        }
-
         //If the drop-down tool select doesn't match the selected value
         //(because latter set by parameter), then set the value.
+        if ($('#tombioVisualisation').val() != selectedToolName) {
+            $('#tombioVisualisation').val(selectedToolName);
+        }
         //If this isn't done before the next step, something strange
         //occurs and svg's don't usually display properly.
         core.showDownloadSpinner();
@@ -872,7 +949,8 @@
                 var visObj = new core[selectedToolName].Obj("#tombioTaxa", global.contextMenu, core);
                 global.visualisations[selectedToolName] = visObj;
             }
-            visModuleLoaded(selectedToolName)
+            console.log("Starting", selectedToolName)
+            visModuleLoaded(selectedToolName);
         });
     }
 
@@ -1086,14 +1164,17 @@
         //console..log("Controls height: " + );
     }
 
-    function resizeControlsAndTaxa() {
+    function resizeControlsAndTaxa () {
 
         //console.log("resize")
         //Because we want to prevent normal flow where tombioTaxa div would be moved
         //under tombioControls div, we set a min width of their parent div to accommodate
         //them both.
+       // console.log($("#tombioControls").is(":visible"), $('#tombioTaxa').width())
+
         if ($("#tombioControls").is(":visible")) {
             var controlsWidth = $('#tombioControls').width();
+            
             $('#tombioControlsAndTaxa').css("min-width", controlsWidth + $('#tombioTaxa').width() + 50);
         } else {
             //var controlsWidth = 0;
@@ -1143,7 +1224,6 @@
 
             //userInput for text controls is an array of values representing the index of the 
             //selected character states 
-            //core.oCharacters[character].userInput = stateSet ? select.val() : null;
             if (stateSet) {
                 var values = [];
                 core.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {

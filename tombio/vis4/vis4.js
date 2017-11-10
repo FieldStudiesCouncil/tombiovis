@@ -40,8 +40,8 @@
         //Help files
         this.helpFiles = [
             core.opts.tombiopath + "vis4/vis4Help.html",
-            //core.opts.tombiopath + "common/textGroupHelp.html",
-            //core.opts.tombiopath + "common/imageGroupHelp.html"
+            core.opts.tombiopath + "common/full-details.html",
+            core.opts.tombiopath + "common/taxon-select-help.html"
         ]
 
         //Context menu
@@ -198,12 +198,6 @@
     }
 
     exports.Obj.prototype.urlParams = function (params) {
-
-        var _this = this;
-
-        //Replace the following to initialise visualisation
-        //from parameters.
-        //console.log("Vis 4 URL parameters:", params);
 
         //Set the checkboxes
         if (params.opts) {

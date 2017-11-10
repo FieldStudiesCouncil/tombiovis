@@ -64,13 +64,7 @@ body {
     overflow: visible;
 }
 
-#tombioControls {
-    vertical-align: top;
-    display: inline-block;
-    position: relative;
-    z-index: 70;
-    /*border: 2px solid magenta;*/
-}
+
 #tombioControlTabs .characterlabel{
     line-height: 21px;
 }
@@ -78,6 +72,17 @@ body {
 #tombioControlsAndTaxa {
     position: relative;
     /*border: 2px solid blue;*/
+}
+#tombioControls {
+    vertical-align: top;
+    display: inline-block;
+    position: relative;
+    z-index: 70;
+}
+
+#tombioTaxa {  
+    vertical-align: top;
+    display: inline-block;
 }
 
 #headerTaxa {
@@ -87,11 +92,7 @@ body {
     color: rgb(128, 128, 128);
 }
 
-#tombioTaxa {  
-    vertical-align: top;
-    display: inline-block;
-    /*border: 2px solid red;*/
-}
+
 
 #tombioType2Svg {
     overflow: visible;

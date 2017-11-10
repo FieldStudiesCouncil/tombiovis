@@ -97,7 +97,8 @@
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis3/vis3Help.html"
+            core.opts.tombiopath + "vis3/vis3Help.html",
+            core.opts.tombiopath + "common/taxon-select-help.html"
         ]
 
         //Helper functions
@@ -115,6 +116,12 @@
                 var slicedTaxa = sortedTaxa;
             }
             _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.value });
+
+            //Match taxon selection control to selection
+            taxSel.deselectAllTaxa();
+            _this.vis3Taxa.forEach(function (t) {
+                taxSel.taxonClick(t);
+            })
         }
 
         function matchFirst(topNo) {
@@ -169,6 +176,12 @@
             }
 
             _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.value });
+
+            //Match taxon selection control to selection
+            taxSel.deselectAllTaxa();
+            _this.vis3Taxa.forEach(function (t) {
+                taxSel.taxonClick(t);
+            })
         }
 
         function taxonSelectCallback(retValue) {
@@ -232,13 +245,12 @@
 
         var $flexContainer = $("<div>").appendTo($(this.cssSel));
         $flexContainer.css("display", "flex");
-        $(this.cssSel).append($flexContainer);
 
         this.controlsDiv = $("<div/>").css("width", 210);
+            //.css("float", "left");
         $flexContainer.append(this.controlsDiv);
 
         var visDiv = $("<div/>")
-            //.css("flex-grow", 1)
             //The following adjustment necessary to move to top of div
             .css("position", "relative").css("top", -13);
         $flexContainer.append(visDiv);
@@ -600,10 +612,6 @@
     }
 
     exports.Obj.prototype.urlParams = function (params) {
-
-        //Replace the following to initialise visualisation
-        //from parameters.
-        //console.log("Vis 3 URL parameters:", params);
 
         //Set the visibility of hidden controls
         if (params.hc) {

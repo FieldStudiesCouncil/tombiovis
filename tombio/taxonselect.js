@@ -7,9 +7,9 @@
         //These are constants and can be delegated to the taxonSelect object
         filterMessage: "Filter names (use # for 'starts with')",
         filterSelectedOnly: "Show only selected taxa",
-        gap: 4,
+        gap: 6,
         textHeightOffset: 4,
-        taxonHeight: 25,
+        taxonHeight: 30,
         taxonWidth: 200,
         hiddenControlsShown: false
     };

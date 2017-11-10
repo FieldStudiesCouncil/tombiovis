@@ -28,8 +28,10 @@
 
         _this = this;
 
-        //Initialise tooltip images
-        this.displayToolTips = true
+        //Initialise
+        this.displayToolTips = true;
+        this.taxheight = 35;
+        this.indVoffset = 18;
 
         //Reset this value if control can work with character state input controls
         this.charStateInput = true;
@@ -38,6 +40,7 @@
         this.helpFiles = [
             core.opts.tombiopath + "vis1/vis1Help.html",
             core.opts.tombiopath + "common/taxonDetailsHelp.html",
+            core.opts.tombiopath + "common/full-details.html",
             core.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
@@ -69,6 +72,29 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
     }
 
+    function expandTaxon(d, i) {
+
+        var taxonImages = _this.getTaxonImages(d.Taxon);
+        if (taxonImages.length > 0) {
+
+            var imgLoad = new Image;
+            imgLoad.onload = function () {
+
+                d3.select("#vis1Svg").select("#taxon-" + i).select(".taxonimage")
+                    .attr("xlink:href", this.src)
+                    .style("z-index", 1000)
+                    .attr("height", (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width);
+
+                //Store the height of the rectangle which will come into effect later
+                d.height = (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width + _this.indVoffset + _this.margin;
+
+                //This is asynchronous, so refresh must be called here            
+                _this.refresh();
+            };
+            imgLoad.src = taxonImages[0].URI;
+        }
+    }
+
     exports.Obj.prototype.refresh = function () {
 
         //var _this = this;
@@ -77,13 +103,13 @@
         var margin = this.margin;
         var indWidth = 30;
         var indHeight = 12;
-        var indVoffset = 18;
+        var indVoffset = this.indVoffset;
         var indTextVoffset = 10;
         var indTextHoffset = 2;
         var nameOffset = 13;
         var taxspace = 5;
         var taxwidth = this.taxwidth;
-        var taxheight = 35;
+        var taxheight = this.taxheight;
         var taxexpanded = 105;
         var delay = 250;
 
@@ -104,25 +130,8 @@
             .style("cursor", "pointer")
             .on("click", function (d, i) {
                 if (d.height == taxheight) {
-                    var taxonImages = _this.getTaxonImages(d.Taxon);
-                    if (taxonImages.length > 0) {
 
-                        var imgLoad = new Image;
-                        imgLoad.onload = function () {
-
-                            d3.select("#vis1Svg").select("#taxon-" + i).select(".taxonimage")
-                                .attr("xlink:href", this.src)
-                                .style("z-index", 1000)
-                                .attr("height", (taxwidth - 2 * margin) * imgLoad.height / imgLoad.width);
-
-                            //Store the height of the rectangle which will come into effect later
-                            d.height = (taxwidth - 2 * margin) * imgLoad.height / imgLoad.width + indVoffset + margin;
-
-                            //This is asynchronous, so refresh must be called here            
-                            _this.refresh();
-                        }; 
-                        imgLoad.src = taxonImages[0].URI;
-                    }
+                    expandTaxon(d, i);
                 } else {
                     d.height = taxheight;
                     _this.refresh();
@@ -519,24 +528,89 @@
         }
     }
 
+    exports.Obj.prototype.urlParams = function (params) {
+
+        //Taxon image tooltips
+        if (params["imgtips"]) {
+            _this.displayToolTips = params["imgtips"] === "true";
+        }
+
+
+        //Expanded taxa
+        if (params["expand"]) {
+            params["expand"].split(",").forEach(function (range) {
+                var iStart = range.split("-")[0];
+                var iEnd = range.split("-")[1];
+                if (iEnd) {
+                    for (var i = Number(iStart) ; i <= Number(iEnd) ; i++) {
+                        expandTaxon(core.taxa[i], i);
+                    }
+                } else {
+                    expandTaxon(core.taxa[iStart], iStart);
+                }
+            })
+        }
+
+        //Set the state controls
+        core.initControlsFromParams(params);
+    }
+
     function getViewURL() {
-        console.log("Get the URL")
 
         var params = [];
 
         //Tool
         params.push("selectedTool=" + visName)
 
-        //Character values
-        core.characters.forEach(function(c) {
-            if (c.userInput) {
-                if (c.ControlType === "spin") {
-                    params.push(c.Character + "=" + c.userInput)
+        //Get user input control params
+        Array.prototype.push.apply(params, core.setParamsFromControls());
+
+        //Image tooltips
+        params.push("imgtips=" + _this.displayToolTips);
+
+        //Expanded taxa
+        //There could be thousands of taxa, so we record the state of the expanded images by recording
+        //runs of taxa indices.
+        var rangeStart = null;
+        var rangeCounter;
+        var ranges = [];
+        core.taxa.forEach(function (taxon, i) {
+            
+            if (taxon.height > _this.taxheight) {
+                
+                //console.log("Expanded!", i, taxon.Taxon.kbValue)
+                //console.log("rangeStart", rangeStart, "rangeCounter", rangeCounter)
+
+                if (rangeStart === null) {
+                    //Start new range;
+                    rangeStart = i;
+                    rangeCounter = i;
                 } else {
-                    params.push(c.Character + "=" + c.userInput.join(","));
+                    if (i === rangeCounter + 1) {
+                        //Continue the current range
+                        rangeCounter = i;
+                    } else {
+                        //Close the current range and start a new one
+                        if (rangeCounter === rangeStart) {
+                            ranges.push(rangeStart);
+                        } else {
+                            ranges.push(rangeStart + "-" + rangeCounter);
+                        }
+                        rangeStart = i;
+                        rangeCounter = i;
+                    }
                 }
             }
         })
+        //At this point, there could still be an open range
+        if (rangeStart != null) {
+            if (rangeCounter === rangeStart) {
+                ranges.push(rangeStart);
+            } else {
+                ranges.push(rangeStart + "-" + rangeCounter);
+            }
+        }
+        params.push("expand=" + ranges.join(","));
 
         //Generate the full URL
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
