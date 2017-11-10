@@ -476,8 +476,7 @@
         setTimeout(function () {
             var controlsWidth = $('#tombioControls').width();
             $('#tombioControlsAndTaxa').css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
-        }, 500)
-       
+        }, 700)
     }
 
     function getViewURL() {
