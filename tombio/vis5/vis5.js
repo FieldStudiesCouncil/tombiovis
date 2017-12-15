@@ -78,7 +78,7 @@
             .attr("id", "vis5Svg")
             .attr("width", "500")
             .attr("height", "500")
-            //.attr("overflow", "visible")
+            .attr("overflow", "visible")
             //.style("background-color", "cyan")
             .call(d3.zoom()
                 .on('zoom', mouseZoom)

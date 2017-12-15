@@ -1087,7 +1087,10 @@
         if (global.initialising && global.visualisations[selectedToolName]) {
             //Get all the URL parameters
             var params = {};
-            var sPageURL = decodeURI(window.location.search.substring(1));
+            //(The global replace on plus characters is to overcome a problem with links put into facebook which
+            //replace some space characters with plus characters).
+            var sPageURL = decodeURI(window.location.search.substring(1)).replace(/\+/g, ' ');
+
             var splitParamAndValue = sPageURL.split('&');
             for (var i = 0; i < splitParamAndValue.length; i++) {
                 var sParamAndValue = splitParamAndValue[i].split('=');

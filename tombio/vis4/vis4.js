@@ -172,7 +172,7 @@
 
         //Set KB values
         if (includeKb) {
-            visFullDetails.append($("<h2>").text("Knowledge-base values"));
+            visFullDetails.append($("<h2>").css("clear", "both").text("Knowledge-base values"));
             visFullDetails.append(_this.showTaxonCharacterValues(core.oTaxa[taxonName], true));
         }
 
