@@ -1,8 +1,8 @@
-﻿(function ($, core) {
+﻿(function ($, tbv) {
 
     "use strict";
 
-    core.taxonSelect = {
+    tbv.taxonSelect = {
         //Variables for layout
         //These are constants and can be delegated to the taxonSelect object
         filterMessage: "Filter names (use # for 'starts with')",
@@ -14,7 +14,7 @@
         hiddenControlsShown: false
     };
 
-    core.taxonSelect.init = function () {
+    tbv.taxonSelect.init = function () {
 
         //Object level variables that change (store state) must be set at the
         //level of the calling object ([this] context). Those that need initialisation
@@ -22,11 +22,11 @@
         this.filterText = "";
         this.selectedTaxa = [];
 
-        //Create the taxon array (from core.taxa) that this control
+        //Create the taxon array (from tbv.taxa) that this control
         //will work with.
         this.taxa = [];
 
-        core.taxa.forEach(function (t, i) {
+        tbv.taxa.forEach(function (t, i) {
             this.taxa.push({
                 name: t.Taxon.kbValue,
                 abbrv: "",
@@ -35,14 +35,14 @@
         }, this)
     }
 
-    core.taxonSelect.checkEmptyFilter = function () {
+    tbv.taxonSelect.checkEmptyFilter = function () {
         if (this.filterText == "") {
             this.filterText = this.filterMessage;
             this.$textFilter.val(this.filterMessage);
         }
     }
 
-    core.taxonSelect.checkFilterColour = function () {
+    tbv.taxonSelect.checkFilterColour = function () {
         if (this.filterText == this.filterMessage || this.filterText == this.filterSelectedOnly) {
             this.$textFilter.css("color", "silver");
         } else {
@@ -50,14 +50,14 @@
         }
     }
 
-    core.taxonSelect.setFilter = function (filter) { 
+    tbv.taxonSelect.setFilter = function (filter) { 
         this.filterText = filter;
         this.$textFilter.val(filter);
         this.checkFilterColour();
         this.updateTaxa();
     }
 
-    core.taxonSelect.getFilter = function () {
+    tbv.taxonSelect.getFilter = function () {
         if (this.filterText != this.filterMessage) {
             return this.filterText;
         } else {
@@ -65,7 +65,7 @@
         } 
     }
 
-    core.taxonSelect.setSort = function (sort) {
+    tbv.taxonSelect.setSort = function (sort) {
 
         if (sort == "a-z") {
             sort = "radio-a"
@@ -87,19 +87,19 @@
         this.updateTaxa();
     }
 
-    core.taxonSelect.toggleHiddenControls = function () {
+    tbv.taxonSelect.toggleHiddenControls = function () {
         if (this.$hiddenControlsDiv.css("display") == "none") {
             this.$hiddenControlsDiv.slideDown(400);
-            this.$controlsArrow.attr("src", core.opts.tombiopath + "resources/chevron-up.png")
+            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-up.png")
             this.hiddenControlsShown = true;
         } else {
             this.$hiddenControlsDiv.slideUp(400);
-            this.$controlsArrow.attr("src", core.opts.tombiopath + "resources/chevron-down.png")
+            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-down.png")
             this.hiddenControlsShown = false;
         }
     }
 
-    core.taxonSelect.control = function ($parent, multi, callback) {
+    tbv.taxonSelect.control = function ($parent, multi, callback) {
         //This function returns HTML to the caller and is the only
         //required element of the interface. Because it is the
         //only function called, it is responsible for initialising
@@ -146,7 +146,7 @@
         //Hidden controls
         var $hiddenControlsDiv = $('<div>').css("margin-top", 5).css("display", "none").appendTo($mainDiv);
         var $controlsArrow = $('<img>')
-            .attr("src", core.opts.tombiopath + "resources/chevron-down.png")
+            .attr("src", tbv.opts.tombiopath + "resources/chevron-down.png")
             .attr("class", "taxonSelectHiddenControlsArrow")
             .appendTo($mainDiv);
 
@@ -252,7 +252,7 @@
         return $mainDiv;
     }
 
-    core.taxonSelect.taxonClick = function (taxon) {
+    tbv.taxonSelect.taxonClick = function (taxon) {
 
         var deselectedTaxon;
 
@@ -325,7 +325,7 @@
         }
     }
 
-    core.taxonSelect.deselectAllTaxa = function () {
+    tbv.taxonSelect.deselectAllTaxa = function () {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
         var D3rect = this.D3svg.selectAll("rect");
@@ -342,7 +342,7 @@
         this.updateTaxa(); //To reapply filter to deselected items
     }
 
-    core.taxonSelect.deselectTaxon = function (taxon) {
+    tbv.taxonSelect.deselectTaxon = function (taxon) {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
         var D3rect = this.D3svg.select("rect[taxonName=\"" + taxon + "\"]");
@@ -367,7 +367,7 @@
         }
     }
 
-    core.taxonSelect.sortTaxa = function () {
+    tbv.taxonSelect.sortTaxa = function () {
 
         var _this = this;
 
@@ -400,7 +400,7 @@
         })
     }
 
-    core.taxonSelect.updateTaxa = function () {
+    tbv.taxonSelect.updateTaxa = function () {
 
         var _this = this;
 

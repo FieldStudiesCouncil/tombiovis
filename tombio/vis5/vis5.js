@@ -1,11 +1,10 @@
 ﻿
-(function ($, core) {
+(function ($, tbv) {
 
-    //Template visualisation that inherits from visP.
     "use strict";
 
     var visName = "vis5";
-    var exports = core[visName] = {};
+    var vis5 = tbv[visName] = Object.create(tbv.visP);
     var _this;
 
     var root, 
@@ -35,9 +34,9 @@
         zoomStarted,
         mobile = /Mobi/.test(navigator.userAgent);
 
-    exports.Obj = function (parent, contextMenu, core) {
+    vis5.initialise = function () {
 
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
+        _this = this;
 
         //Initialise the meta data
         this.metadata.title = "Circle-pack key";
@@ -47,13 +46,6 @@
         this.metadata.location = "Preston Montford, Shropshire";
         this.metadata.contact = null;
         this.metadata.version = "0.1.0";
-    }
-
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        _this = this;
 
         //Initialisations
         this.abbrvnames = true;
@@ -66,10 +58,10 @@
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis5/vis5Help.html",
-            core.opts.tombiopath + "common/taxonDetailsHelp.html",
-            core.opts.tombiopath + "common/full-details.html",
-            core.opts.tombiopath + "common/stateInputHelp.html"
+            tbv.opts.tombiopath + "vis5/vis5Help.html",
+            tbv.opts.tombiopath + "common/taxonDetailsHelp.html",
+            tbv.opts.tombiopath + "common/full-details.html",
+            tbv.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Add circle pack stuff
@@ -108,7 +100,7 @@
 
         //First build an array of all the Taxonomy characters.
         taxonRanks = [];
-        core.characters.forEach(function (c) {
+        tbv.characters.forEach(function (c) {
             if (c.Group == "Taxonomy" || c.Character == "Taxon"){
                 taxonRanks.push(c.Character);
             }
@@ -129,7 +121,7 @@
         var stratTable = [{name: "All taxa", parent: ""}], ir = 0;
         //Create a table suitable for input into the d3.stratify function
         taxonRanks.forEach(function (r, iR) {
-            core.taxa.forEach(function (t, iT) {
+            tbv.taxa.forEach(function (t, iT) {
                 var rankValue = t[r].kbValue;
                 //if (rankValue != "" && !stratTable.find(function (entry) { return entry.name == rankValue })) {
                 if (rankValue != "" && !findEntry(stratTable, rankValue)) {
@@ -144,7 +136,7 @@
                         name: rankValue,
                         parent: rvParent,
                         rankColumn: r,
-                        rank: core.oCharacters[r].Label,
+                        rank: tbv.oCharacters[r].Label,
                         abbrv: [rankValue,
                             getAbbrv(rankValue, 1, (r == "Taxon")),
                             getAbbrv(rankValue, 2, (r == "Taxon")),
@@ -184,12 +176,12 @@
         taxaRootCurrent = taxaRoot;
     }
 
-    exports.Obj.prototype.refresh = function () {
+    vis5.refresh = function () {
 
         _this = this;
 
-        var maxOverall = d3.max(core.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(core.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
 
         //console.log(taxonRanks.length, )
 
@@ -215,7 +207,7 @@
             }, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.addItem("Show names for each " + core.oCharacters[rank].Label, function () {
+                _this.contextMenu.addItem("Show names for each " + tbv.oCharacters[rank].Label, function () {
                     displayTextForRank(rank);
                     _this.refresh();
                 }, [_this.visName]);
@@ -231,7 +223,7 @@
             }, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.removeItem("Show names for each " + core.oCharacters[rank].Label);
+                _this.contextMenu.removeItem("Show names for each " + tbv.oCharacters[rank].Label);
             });
 
             _this.contextMenu.removeItem("Ignore higher taxa");
@@ -426,9 +418,68 @@
         }
     }
 
+    vis5.urlParams = function (params) {
+
+        //Abbreviated names
+        if (params["abbrvnames"]) {
+            _this.abbrvnames = params["abbrvnames"] === "true";
+        }
+
+        //selected rank
+        if (params["rank"]) {
+            _this.selectedRank = params["rank"];
+            displayTextForRank(_this.selectedRank);
+        }
+
+        //Higher taxa
+        if (params["highertaxa"]) {
+            taxaRootCurrent = taxaRootFlat;
+        }
+
+        //Taxon image tooltips
+        if (params["imgtips"]) {
+            _this.displayToolTips = params["imgtips"] === "true";
+        }
+
+        //Set the state controls
+        tbv.initControlsFromParams(params);
+    }
+
+    function getViewURL() {
+
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //Get user input control params
+        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+
+        //Abbreviated names?
+        params.push("abbrvnames=" + _this.abbrvnames);
+
+        //Selected rank
+        params.push("rank=" + _this.selectedRank);
+
+        //Higher taxa
+        if (taxaRootCurrent == taxaRootFlat) {
+            //Only need to record the non-default case
+            params.push("highertaxa=false")
+        }
+
+        //Image tooltips
+        params.push("imgtips=" + _this.displayToolTips);
+
+        //
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log(url);
+    }
+
     function highlightTopScorers(transitionRefresh) {
 
-        var maxOverall = d3.max(core.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
 
         circleM.transition(transitionRefresh)
             .filter(function (d) {
@@ -759,65 +810,6 @@
         }
         //Vertically align the text
         text.attr("dy", ((1.5 - lineNumber) / 2) + "em");
-    }
-
-    exports.Obj.prototype.urlParams = function (params) {
-
-        //Abbreviated names
-        if (params["abbrvnames"]) {
-            _this.abbrvnames = params["abbrvnames"] === "true";
-        }
-
-        //selected rank
-        if (params["rank"]) {
-            _this.selectedRank = params["rank"];
-            displayTextForRank(_this.selectedRank);
-        }
-
-        //Higher taxa
-        if (params["highertaxa"]) {
-            taxaRootCurrent = taxaRootFlat;
-        }
-
-        //Taxon image tooltips
-        if (params["imgtips"]) {
-            _this.displayToolTips = params["imgtips"] === "true";
-        }
-
-        //Set the state controls
-        core.initControlsFromParams(params);
-    }
-
-    function getViewURL() {
-
-        var params = [];
-
-        //Tool
-        params.push("selectedTool=" + visName)
-
-        //Get user input control params
-        Array.prototype.push.apply(params, core.setParamsFromControls());
-
-        //Abbreviated names?
-        params.push("abbrvnames=" + _this.abbrvnames);
-
-        //Selected rank
-        params.push("rank=" + _this.selectedRank);
-
-        //Higher taxa
-        if (taxaRootCurrent == taxaRootFlat) {
-            //Only need to record the non-default case
-            params.push("highertaxa=false")
-        }
-
-        //Image tooltips
-        params.push("imgtips=" + _this.displayToolTips);
-
-        //
-        //Generate the full URL
-        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
-        _this.copyTextToClipboard(url);
-        console.log(url);
     }
 
 })(jQuery, this.tombiovis)

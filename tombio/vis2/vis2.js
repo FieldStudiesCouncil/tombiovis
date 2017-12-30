@@ -1,15 +1,15 @@
 ﻿
-(function ($, core) {
+(function ($, tbv) {
 
     "use strict";
 
     var visName = "vis2";
-    var exports = core[visName] = {};
+    var vis2 = tbv[visName] = Object.create(tbv.visP);
     var _this;
 
-    exports.Obj = function (parent, contextMenu, core) {
+    vis2.initialise = function () {
 
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
+        _this = this;
 
         //Initialise the meta data
         this.metadata.title = "Single-column key";
@@ -19,23 +19,16 @@
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.0';
-    }
-
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        _this = this;
 
         //Controls works with character state input controls
         this.charStateInput = true;
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis2/vis2Help.html",
-            core.opts.tombiopath + "common/taxonDetailsHelp.html",
-            core.opts.tombiopath + "common/full-details.html",
-            core.opts.tombiopath + "common/stateInputHelp.html"
+            tbv.opts.tombiopath + "vis2/vis2Help.html",
+            tbv.opts.tombiopath + "common/taxonDetailsHelp.html",
+            tbv.opts.tombiopath + "common/full-details.html",
+            tbv.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Other initialisations
@@ -46,7 +39,7 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis2Svg");
     }
 
-    exports.Obj.prototype.refresh = function () {
+    vis2.refresh = function () {
 
         _this = this;
 
@@ -63,15 +56,15 @@
             .range(_this.scoreColours);
 
         //Set up scale for overall score indicator
-        var maxOverall = d3.max(this.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(this.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(_this.scoreColours);
 
         //Set up sort array
         var sortedTaxa = [];
-        this.taxa.forEach(function (taxon) {
+        tbv.taxa.forEach(function (taxon) {
             sortedTaxa.push(taxon);
         });
         this.sortTaxa(sortedTaxa, "lastPosition");
@@ -107,7 +100,7 @@
         //and loop through them to get maximum size.
         var characterHeight = 0;
         var usedCharacters = [];
-        this.characters.forEach(function (character) {
+        tbv.characters.forEach(function (character) {
             if (character.stateSet) {
                 usedCharacters.push(character);
             }
@@ -183,7 +176,7 @@
                     .attr("title", "Overall weighted score");
 
                 d3.select(this).append("svg:image")
-                    .attr("xlink:href", core.opts.tombiopath + "resources/camera.png")
+                    .attr("xlink:href", tbv.opts.tombiopath + "resources/camera.png")
                     .attr("class", "taxonImageLink")
                     .attr("width", camImgSize)
                     .attr("height", camImgSize)
@@ -192,9 +185,9 @@
                     })
                     .style("display", function () {
                         //Check if there are any images for this taxon
-                        var charImages = _this.media.filter(function (m) {
+                        var charImages = tbv.media.filter(function (m) {
                             //Return images for matching taxon
-                            if (m.Taxon == d.Taxon.value) return true;
+                            if (m.Taxon == d.Taxon.kbValue) return true;
                         });
                         if (charImages.length > 0) {
                             return null;
@@ -289,7 +282,7 @@
 
             var iTaxon = i;
             var taxon = d;
-            var taxonTag = d.Taxon.value.replace(/[\/|&;$%@"<>()+:.,' ]/g, '');
+            var taxonTag = d.Taxon.kbValue.replace(/[\/|&;$%@"<>()+:.,' ]/g, '');
 
             var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
                 .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });
@@ -336,7 +329,7 @@
                         .attr("text", function () {
                             //Text can't be transitioned - have to grab the object and change it
                             if (_this.showWeightedScores) {
-                                var weight = Number(_this.oCharacters[d.Character].Weight) / 10;
+                                var weight = Number(tbv.oCharacters[d.Character].Weight) / 10;
                             } else {
                                 var weight = 1;
                             }
@@ -413,7 +406,7 @@
                 return taxonWidth + gap + usedCharacters.length * indSpacing;
             })
             .attr("height", function (d, i) {
-                return characterHeight + _this.taxa.length * indSpacing;
+                return characterHeight + tbv.taxa.length * indSpacing;
             });
 
         //resizeControlsAndTaxa();
@@ -456,7 +449,7 @@
         }
     }
 
-    exports.Obj.prototype.urlParams = function (params) {
+    vis2.urlParams = function (params) {
 
         //Weighted scores
         if (params["weighted"]) {
@@ -469,7 +462,7 @@
         }
 
         //Set the state controls
-        core.initControlsFromParams(params);
+        tbv.initControlsFromParams(params);
 
         //Bit of a hack to ensure that tombioControlsAndTaxa is resized enough
         //to accommodate the reset character values.
@@ -487,7 +480,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, core.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.setParamsFromControls());
 
         //Weighted scores?
         params.push("weighted=" + _this.showWeightedScores);
@@ -500,4 +493,5 @@
         _this.copyTextToClipboard(url);
         console.log(url);
     }
+
 })(jQuery, this.tombiovis)

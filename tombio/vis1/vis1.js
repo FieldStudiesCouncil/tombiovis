@@ -1,18 +1,17 @@
 ﻿
-(function ($, core) {
+(function ($, tbv) {
 
-    //Template visualisation that inherits from visP.
     "use strict";
 
     var visName = "vis1";
-    var exports = core[visName] = {};
+    var vis1 = tbv[visName] = Object.create(tbv.visP);
     var _this;
 
-    exports.Obj = function (parent, contextMenu, core) {
+    vis1.initialise = function () {
 
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
+        _this = this;
 
-        //Initialise the meta data
+        //Initialise the metadata
         this.metadata.title = "Two-column key";
         this.metadata.year = "2016";
         this.metadata.authors = "Burkmar, R";
@@ -20,15 +19,8 @@
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.0';
-    }
 
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        _this = this;
-
-        //Initialise
+        //Other initialisations
         this.displayToolTips = true;
         this.taxheight = 35;
         this.indVoffset = 18;
@@ -38,10 +30,10 @@
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis1/vis1Help.html",
-            core.opts.tombiopath + "common/taxonDetailsHelp.html",
-            core.opts.tombiopath + "common/full-details.html",
-            core.opts.tombiopath + "common/stateInputHelp.html"
+            tbv.opts.tombiopath + "vis1/vis1Help.html",
+            tbv.opts.tombiopath + "common/taxonDetailsHelp.html",
+            tbv.opts.tombiopath + "common/full-details.html",
+            tbv.opts.tombiopath + "common/stateInputHelp.html"
         ]
 
         //Set some variables (mostly used in refresh method)
@@ -72,32 +64,7 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
     }
 
-    function expandTaxon(d, i) {
-
-        var taxonImages = _this.getTaxonImages(d.Taxon);
-        if (taxonImages.length > 0) {
-
-            var imgLoad = new Image;
-            imgLoad.onload = function () {
-
-                d3.select("#vis1Svg").select("#taxon-" + i).select(".taxonimage")
-                    .attr("xlink:href", this.src)
-                    .style("z-index", 1000)
-                    .attr("height", (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width);
-
-                //Store the height of the rectangle which will come into effect later
-                d.height = (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width + _this.indVoffset + _this.margin;
-
-                //This is asynchronous, so refresh must be called here            
-                _this.refresh();
-            };
-            imgLoad.src = taxonImages[0].URI;
-        }
-    }
-
-    exports.Obj.prototype.refresh = function () {
-
-        //var _this = this;
+    vis1.refresh = function () {
 
         //Constants for laying out graphics for vis
         var margin = this.margin;
@@ -120,7 +87,7 @@
 
         //Initialise graphics on the enter selection
         var enterSelection = d3.select("#vis1Svg").selectAll(".taxon")
-            .data(this.taxa, function (d, i) { return d.Taxon; }) //Key is needed because other visualisation may sort taxa
+            .data(tbv.taxa, function (d, i) { return d.Taxon; }) //Key is needed because other visualisation may sort taxa
             .enter()
             .append("g")
             .attr("class", "taxon")
@@ -199,7 +166,7 @@
         //Image link (camera icon)
         //This removed 13/07 when showTaxonCharacterValues replaced with fullDetails
         //enterSelection.append("svg:image")
-        //    .attr("xlink:href", core.opts.tombiopath + "resources/camera.png")
+        //    .attr("xlink:href", tbv.opts.tombiopath + "resources/camera.png")
         //    .attr("class", "taxonImageLink")
         //    .attr("width", "16px")
         //    .attr("height", "16px")
@@ -216,7 +183,7 @@
         //    });
 
         //Add height state 
-        this.taxa.forEach(function (taxon) {
+        tbv.taxa.forEach(function (taxon) {
             if (taxon.height == undefined)
                 taxon.height = taxheight;
         })
@@ -229,7 +196,7 @@
         var taxaout = [];
 
         //Assign taxon to relevant column list
-        this.taxa.forEach(function (taxon) {
+        tbv.taxa.forEach(function (taxon) {
             if (taxon.scorefor > taxon.scoreagainst) {
                 taxain.push(taxon);
             } else {
@@ -301,23 +268,23 @@
             });
 
         //Prepare scales for the indicators
-        var maxFor = d3.max(this.taxa, function (d) { return d.scorefor; });
-        var maxAgainst = d3.max(this.taxa, function (d) { return d.scoreagainst; });
-        var maxOverall = d3.max(this.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(this.taxa, function (d) { return d.scoreoverall; });
+        var maxFor = d3.max(tbv.taxa, function (d) { return d.scorefor; });
+        var maxAgainst = d3.max(tbv.taxa, function (d) { return d.scoreagainst; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
 
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(_this.scoreColours);
+            .range(this.scoreColours);
         var scaleFor = d3.scaleLinear()
             .domain([0, maxFor])
-            .range(_this.scoreColours.slice(1));
+            .range(this.scoreColours.slice(1));
         var scaleAgainst = d3.scaleLinear()
             .domain([0, maxAgainst])
-            .range(_this.scoreColours.slice(0,1).reverse());
+            .range(this.scoreColours.slice(0,1).reverse());
         var scaleCharacters = d3.scaleLinear()
             .domain([0, 10])
-            .range(_this.scoreColours.slice(1));
+            .range(this.scoreColours.slice(1));
 
         var colourScales = [
             { "scale": scaleOverall, "attr": "scoreoverall" },
@@ -399,7 +366,7 @@
             .style("opacity", function (d, i) {
                 if (d.height != taxheight) {
                     //Check if there are any images for this taxon
-                    var charImages = _this.media.filter(function (m) {
+                    var charImages = tbv.media.filter(function (m) {
                         //Return images for matching taxon
                         if (m.Taxon == d.Taxon) return true;
                     });
@@ -489,9 +456,9 @@
         }
 
         //Add/remove context menu item to contract all items
-        if (this.taxa.some(function (taxon) { return (taxon.height != taxheight) })) {
+        if (tbv.taxa.some(function (taxon) { return (taxon.height != taxheight) })) {
             this.contextMenu.addItem("Contract all taxon items", function () {
-                _this.taxa.forEach(function (taxon) { taxon.height = taxheight });
+                tbv.taxa.forEach(function (taxon) { taxon.height = taxheight });
                 _this.contextMenu.removeItem("Contract all taxon items");
                 _this.refresh();
             }, [this.visName]);
@@ -500,9 +467,9 @@
         }
 
         //Add/remove context menu item to expand all items
-        if (this.taxa.some(function (taxon) { return (taxon.height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
+        if (tbv.taxa.some(function (taxon) { return (taxon.height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
             this.contextMenu.addItem("Expand all taxon items", function () {
-                _this.taxa.forEach(function (taxon, i) {
+                tbv.taxa.forEach(function (taxon, i) {
                     var taxonImages = _this.getTaxonImages(taxon.Taxon);
                     if (taxon.height == taxheight && taxonImages.length > 0) {
                         var imgLoad = new Image;
@@ -528,13 +495,12 @@
         }
     }
 
-    exports.Obj.prototype.urlParams = function (params) {
+    vis1.urlParams = function (params) {
 
         //Taxon image tooltips
         if (params["imgtips"]) {
             _this.displayToolTips = params["imgtips"] === "true";
         }
-
 
         //Expanded taxa
         if (params["expand"]) {
@@ -543,16 +509,16 @@
                 var iEnd = range.split("-")[1];
                 if (iEnd) {
                     for (var i = Number(iStart) ; i <= Number(iEnd) ; i++) {
-                        expandTaxon(core.taxa[i], i);
+                        expandTaxon(tbv.taxa[i], i);
                     }
                 } else {
-                    expandTaxon(core.taxa[iStart], iStart);
+                    expandTaxon(tbv.taxa[iStart], iStart);
                 }
             })
         }
 
         //Set the state controls
-        core.initControlsFromParams(params);
+        tbv.initControlsFromParams(params);
     }
 
     function getViewURL() {
@@ -563,7 +529,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, core.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.setParamsFromControls());
 
         //Image tooltips
         params.push("imgtips=" + _this.displayToolTips);
@@ -574,7 +540,7 @@
         var rangeStart = null;
         var rangeCounter;
         var ranges = [];
-        core.taxa.forEach(function (taxon, i) {
+        tbv.taxa.forEach(function (taxon, i) {
             
             if (taxon.height > _this.taxheight) {
                 
@@ -616,6 +582,29 @@
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
         _this.copyTextToClipboard(url);
         console.log(url);
+    }
+
+    function expandTaxon(d, i) {
+
+        var taxonImages = _this.getTaxonImages(d.Taxon);
+        if (taxonImages.length > 0) {
+
+            var imgLoad = new Image;
+            imgLoad.onload = function () {
+
+                d3.select("#vis1Svg").select("#taxon-" + i).select(".taxonimage")
+                    .attr("xlink:href", this.src)
+                    .style("z-index", 1000)
+                    .attr("height", (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width);
+
+                //Store the height of the rectangle which will come into effect later
+                d.height = (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width + _this.indVoffset + _this.margin;
+
+                //This is asynchronous, so refresh must be called here            
+                _this.refresh();
+            };
+            imgLoad.src = taxonImages[0].URI;
+        }
     }
 
 })(jQuery, this.tombiovis)

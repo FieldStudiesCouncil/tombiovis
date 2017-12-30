@@ -1,17 +1,16 @@
-﻿
-(function ($, core) {
+﻿(function ($, tbv) {
 
-    //console.log("visEarthworm", $.fn.jquery)
-
-    //Template visualisation that inherits from visP.
     "use strict";
 
     var visName = "visEarthworm";
-    var exports = core[visName] = {};
 
-    exports.Obj = function (parent, contextMenu, core) {
+    console.log("tbv", tbv)
+    var visEarthworm = tbv[visName] = Object.create(tbv.visP);
+    var _this;
 
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
+    visEarthworm.initialise = function () {
+
+        _this = this;
 
         //Initialise the meta data
         this.metadata.title = "Earthworm multi-access key";
@@ -21,13 +20,6 @@
         this.metadata.location = 'Preston Montford';
         this.metadata.contact = 'richardb@field-studies-council.org';
         this.metadata.version = '3.0';
-    }
-
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        var _this = this;
 
         //This visualisation does not use the generic state input controls, 
         //it supplies its own.
@@ -35,7 +27,7 @@
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "visEarthworm/visEarthwormHelp.html",
+            tbv.opts.tombiopath + "visEarthworm/visEarthwormHelp.html",
         ]
 
         //This visualisation is unusual because it was created before the
@@ -48,12 +40,10 @@
         earthwormVis2();
     }
 
-    exports.Obj.prototype.refresh = function () {
+    visEarthworm.refresh = function () {
+    }
 
-        var _this = this;
-
-        //Consider including
-        //this.fireRefresh();
+    visEarthworm.urlParams = function (params) {
     }
 
     function earthwormVis2() {
@@ -93,9 +83,9 @@
 
         //Load the imported HTML
         $(document).ready(function () {
-            $.get(core.opts.tombiopath + "/visEarthworm/earthworms-import.html?ver=" + core.opts.tombiover, function (data) {
+            $.get(tbv.opts.tombiopath + "/visEarthworm/earthworms-import.html?ver=" + tbv.opts.tombiover, function (data) {
 
-                $("#tombiod3Earthworm").html(data.replace(/##tombiopath##/g, core.opts.tombiopath));
+                $("#tombiod3Earthworm").html(data.replace(/##tombiopath##/g, tbv.opts.tombiopath));
 
                 htmlLoaded();
             });
@@ -169,7 +159,7 @@
                   configureChart();
               });
 
-            $(".resetImage").attr("src", core.opts.tombiopath + "/visEarthworm/resources/reset2.png");
+            $(".resetImage").attr("src", tbv.opts.tombiopath + "/visEarthworm/resources/reset2.png");
 
             $('#tombioOptions')
                 .button({ icons: { primary: null, secondary: 'ui-icon-options' }, disabled: false })
@@ -251,15 +241,15 @@
             });
             $("#tombioHelpTabs").tabs();
 
-            //Add visEarthworm object to each core.taxa object to specifically
+            //Add visEarthworm object to each tbv.taxa object to specifically
             //store stuff related to the visEarthworm visualisation.
-            core.taxa.forEach(function (t) {
+            tbv.taxa.forEach(function (t) {
                 t.visEarthworm = {};
             });
 
             //Initialise 
             tombio.worms = d3.select("#multiaccess").selectAll(".worm")
-                .data(core.taxa)
+                .data(tbv.taxa)
                 .enter()
                 .append("g")
                 .attr("class", "worm")
@@ -311,7 +301,7 @@
                 .attr("width", tombio.imagedim)
                 .attr("height", tombio.imagedim)
                 .style("opacity", 0)
-                .attr("xlink:href", core.opts.tombiopath + "/visEarthworm/resources/info20.png")
+                .attr("xlink:href", tbv.opts.tombiopath + "/visEarthworm/resources/info20.png")
                 .attr("class", "infoimage")
                 .attr("id", function (d, i) {
                     return "infoimage-" + i;
@@ -362,8 +352,8 @@
                 .attr("width", 130);
 
             //Add attributes
-            for (var i = 0; i < core.taxa.length; i++) {
-                core.taxa[i].visEarthworm.height = tombio.taxheight;
+            for (var i = 0; i < tbv.taxa.length; i++) {
+                tbv.taxa[i].visEarthworm.height = tombio.taxheight;
             }
 
             //Morpho label configuration
@@ -700,9 +690,9 @@
 
             //Update data array to reflect whether or not each taxa meets
             //the criteria specified by user.
-            for (i = 0; i < core.taxa.length; i++) {
+            for (i = 0; i < tbv.taxa.length; i++) {
 
-                var taxon = core.taxa[i];
+                var taxon = tbv.taxa[i];
 
                 //Taxon-level initialisations
                 taxon.visEarthworm.matcharray = [null, null, null, null, null, null, null, null, null, null];
@@ -1087,9 +1077,9 @@
 
             //Get the unique values for the selected attribute
             if (colourby != "") {
-                for (i = 0; i < core.taxa.length; i++) {
+                for (i = 0; i < tbv.taxa.length; i++) {
 
-                    var val = core.taxa[i][colourby].kbValue;
+                    var val = tbv.taxa[i][colourby].kbValue;
                     var vals = getList(val);
                     for (var j = 0; j < vals.length; j++) {
 
@@ -1113,9 +1103,9 @@
                 var domainMin = 1000;
                 var domainMax = 0;
                 //colourDomain 
-                for (var i = 0; i < core.taxa.length; i++) {
+                for (var i = 0; i < tbv.taxa.length; i++) {
 
-                    iRange = getList(core.taxa[i][colourby].kbValue);
+                    iRange = getList(tbv.taxa[i][colourby].kbValue);
 
                     if (iRange != "") {
                         iMin = iRange[0];

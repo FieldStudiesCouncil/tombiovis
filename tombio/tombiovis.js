@@ -1,11 +1,287 @@
-﻿(function ($, core) {
+﻿(function ($, tbv) {
+
+    //Define StateValue object
 
     "use strict";
 
-    //Global object to reference all the global variables.
-    //No need to specify properties of the object until they are assigned.
-    //Makes explicit in code which are global variables (within the scope of the closure).
-    var global = {
+    tbv.stateValue = {
+        v: null //This property set when object created based on this one
+    }
+
+    tbv.stateValue.init = function (taxon, characterName) {
+
+        var character = tbv.oCharacters[characterName];
+
+        //The StateValue objects need to know what type of character they are
+        this.valueType = character.ValueType;
+        this.status = character.Status;
+        this.character = character.Character;
+
+        //Set the kbValue property from the raw value in the spreadsheet (this.v)
+        //Values must be translated if they exist in values sheet of KB. We must also account
+        //for (m) and (f) suffixes on state values as expressed in the taxa  sheet of the KB.
+        var _this = this;
+        var splitvalues = this.v.trim().split("|");
+
+        var translatedValues;
+        splitvalues.forEach(function (charValue, iValue) {
+
+            charValue = charValue.trim();
+            var noSexVal, sex;
+            if (charValue.endsWith("(m)") || charValue.endsWith("(f)")) {
+                noSexVal = charValue.substr(0, charValue.length - 4).trim();
+                sex = charValue.substr(charValue.length - 4, 4)
+            } else {
+                noSexVal = charValue;
+                sex = "";
+            }
+
+            var translatedValue = _this.translateStateValue(_this.character, noSexVal);
+            if (sex != "") {
+                translatedValue = translatedValue + " " + sex;
+            }
+            if (translatedValues) {
+                translatedValues = translatedValues + " | " + translatedValue;
+            } else {
+                translatedValues = translatedValue;
+            }
+
+            //If value starts with a hash, it is a comment and to be ignored
+            if (translatedValues.length > 0 && translatedValues.substr(0, 1) == "#") {
+                translatedValues = "";
+            }
+            //If it is a single question mark, it is a marker for the kb author - to be ignored here
+            if (translatedValues.length == "?") {
+                translatedValues = "";
+            }
+        });
+        this.kbValue = translatedValues;
+    }
+
+    tbv.stateValue.translateStateValue = function (character, state) {
+
+        function translateValue(character, state) {
+            var stateValues = tbv.values.filter(function (valueObj) {
+                if (valueObj.Character == character && valueObj.CharacterState.trim() == state) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            if (stateValues[0] && stateValues[0].CharacterStateTranslation && stateValues[0].CharacterStateTranslation != "") {
+                var translatedState = stateValues[0].CharacterStateTranslation;
+            } else {
+                var translatedState = state;
+            }
+            //Replace any multiple spaces with single spaces. I think that this needs to be done for where double spaces
+            //have been inserted into text state values or translated values because the pqselect control does the same.
+            //Fixes https://github.com/burkmarr/tombiovis/issues/8
+            translatedState = translatedState.replace(/ +(?= )/g, '');
+
+            return translatedState;
+        }
+        //For ordinal characters, the state could be an ordinal range, e.g. [vali-valj]
+        var regexOrdinalRange = /^\[[^-]+-[^-]+\]$/;
+        if (regexOrdinalRange.test(state)) {
+            var states = [];
+            var r1 = state.substr(1, state.length - 2);
+            var r2 = r1.split('-');
+            return "[" + translateValue(character, r2[0]) + "-" + translateValue(character, r2[1]) + "]";
+        } else {
+            return translateValue(character, state);
+        }
+    }
+
+    tbv.stateValue.getStates = function (sex) {
+
+        if (!sex) sex = "";
+
+        var states = [];
+        var splitvalues = this.kbValue.split("|");
+
+        for (var i = 0; i < splitvalues.length; i++) {
+            //Only those relevant to the sex, if specified, are returned.
+            //Suffixes representing sex are trimmed off.
+            var state = splitvalues[i];
+            state = state.trim();
+
+            if (state != "n/a" && state != "?" && state != "") {
+                if (sex == "male" && !state.endsWith("(f)")) {
+                    states.push(state.replace("(m)", "").trim());
+                } else if (sex == "female" && !state.endsWith("(m)")) {
+                    states.push(state.replace("(f)", "").trim());
+                } else if (sex == "") {
+                    states.push(state.replace("(m)", "").replace("(f)", "").trim());
+                } else {
+                    //No match
+                }
+            }
+        }
+
+        return states;
+    }
+
+    tbv.stateValue.getRange = function () {
+        var retVal = {}
+
+        if (String(this.kbValue) == "") {
+            retVal.hasValue = false;
+        } else {
+            retVal.hasValue = true;
+        }
+        if (String(this.kbValue).indexOf('[') == 0) {
+            //This is a range
+            var r1 = this.kbValue.substr(1, this.kbValue.length - 2);
+            var r2 = r1.split('-');
+            retVal.min = Number(r2[0]);
+            retVal.max = Number(r2[1]);
+            retVal.mid = retVal.min + ((retVal.max - retVal.min) / 2);
+        } else {
+            retVal.min = Number(this.kbValue);
+            retVal.max = Number(this.kbValue);
+            retVal.mid = Number(this.kbValue);
+        }
+        return retVal;
+    }
+
+    tbv.stateValue.getOrdinalRanges = function (sex) {
+        var _this = this;
+        var retVal = [];
+        if (this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+            this.getStates(sex).forEach(function (state) {
+                var ordinalRange = [];
+                if (state.indexOf('[') == 0) {
+                    //This is an ordinal range
+                    var r1 = state.substr(1, state.length - 2);
+                    var r2 = r1.split('-');
+                    var lowerState = r2[0];
+                    var upperState = r2[1];
+                    var inRange = false;
+                    tbv.oCharacters[_this.character].CharacterStateValues.forEach(function (ordinalState) {
+                        //console.log("ordinalState", ordinalState)
+                        if (ordinalState == lowerState) inRange = true;
+                        if (inRange) ordinalRange.push(ordinalState);
+                        if (ordinalState == upperState) inRange = false;
+                    });
+                    //If this is a circular ordinal the end point of and ordinal range can come before the
+                    //start point, so we could reach this point with inRange still set to true, in which
+                    //case we need to go through the range again.
+                    if (inRange) {
+                        tbv.oCharacters[_this.character].CharacterStateValues.forEach(function (ordinalState) {
+                            if (inRange) ordinalRange.push(ordinalState);
+                            if (ordinalState == upperState) inRange = false;
+                        });
+                    }
+                } else {
+                    ordinalRange.push(state);
+                }
+                retVal.push(ordinalRange)
+            });
+        }
+        return retVal;
+    }
+
+    tbv.stateValue.toHtml1 = function () {
+        //Used, for example, by tombiovis.js to display KB values 
+        //for a taxon to a user.
+        if (this.kbValue == "n/a") {
+            return "<i>not applicable</i>";
+        } else if (this.kbValue == "" || this.kbValue == "?") {
+            return "<i>no value specified</i>"
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+            //Put bold around each token (separated by |)
+            html = this.kbValue.replace(/([^|]+)/g, "<b>$1</b>");
+            //Shift bold end tag to before (m) and (f) and replace with (male) and (female)
+            html = html.replace(/(\(m\)\s*<\/b>)/g, "</b> (male)");
+            html = html.replace(/(\(f\)\s*<\/b>)/g, "</b> (female)");
+            //Remove start [ and end ] tokens denoting ordinal range 
+            html = html.replace(/<b>\s*\[/g, "<b>");
+            html = html.replace(/\]\s*<\/b>/g, "</b>");
+            //Replace | with 'or'
+            html = html.replace(/\s*\|\s*/g, " or ");
+            //Remove emboldening if display-only character
+            if (this.status == "display") {
+                html = html.replace(/<b>/g, '').replace(/<\/b>/g, '');
+            }
+            return html;
+        } else if (this.valueType == "numeric") {
+            var rng = this.getRange();
+            if (rng.hasValue == false) {
+                var html = "<b>no value in knowledge-base</b>";
+            } else if (rng.min == rng.max) {
+                var html = "<b>" + rng.min + "</b>";
+            } else {
+                var html = "<b>" + rng.min + "-" + rng.max + "</b> (range)";
+            }
+            //Remove emboldening if display-only character
+            if (this.status == "display") {
+                html = html.replace(/<b>/g, '').replace(/<\/b>/g, '');
+            }
+            return html;
+        } else {
+            return this.kbValue;
+        }
+    }
+
+    tbv.stateValue.toHtml2 = function () {
+        //Used, for example, to show character score details for single-column key.
+        if (this.kbValue == "n/a") {
+            return "<li><i>not applicable</i></li>";
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+            var html = "";
+            var splitKbValues = this.kbValue.split("|");
+
+            for (var i = 0; i < splitKbValues.length; i++) {
+
+                var charVal = splitKbValues[i].trim();
+
+                if (/\(m\)$/.test(charVal)) {
+                    charVal = "<b>" + charVal.replace(/\(m\)$/, "</b> (male)");
+                } else if (/\(f\)$/.test(charVal)) {
+                    charVal = "<b>" + charVal.replace(/\(f\)$/, "</b> (female)");
+                } else {
+                    charVal = "<b>" + charVal.trim() + "</b>";
+                }
+
+                //Remove start [ and end ] tokens denoting ordinal range 
+                charVal = charVal.replace(/<b>\s*\[/g, "<b>");
+                charVal = charVal.replace(/\]\s*<\/b>/g, "</b>");
+
+                if (i < splitKbValues.length - 1)
+                    charVal += " or";
+
+                html += "<li>";
+                html += charVal;
+                html += "</li>";
+            }
+            return html;
+        } else if (this.valueType == "numeric") {
+            var rng = this.getRange();
+            if (rng.hasValue == false) {
+                return "<li><i>no value in knowledge-base</i></li>";
+            } else if (rng.min == rng.max) {
+                return "<li><b>" + rng.min + "</b></li>";
+            } else {
+                return "<li><b>" + rng.min + " - " + rng.max + "</b> (range)</li>";
+            }
+        } else {
+            return this.kbValue;
+        }
+    }
+
+    tbv.stateValue.toString = function () {
+        return this.kbValue;
+    }
+
+}(jQuery, this.tombiovis));
+
+(function ($, tbv) {
+
+    "use strict";
+
+    //modState object to reference all the module-level state variables.
+    //Makes explicit in code which are module-level variables (within the scope of the closure).
+    var modState = {
         xbullet: "&#x26AB ",
         bullet: "",
         delay: 250,
@@ -22,33 +298,62 @@
         initialising: true
     };
 
-    core.loadComplete = function (force) {
+    tbv.debugText = function (text, append) {
+        //A function for printing diagnostic text in cases where a console is not available,
+        //e.g. on mobile device browsers. The element #tombioDebugText is created in import.html
+        var d = $("#tombioDebugText");
+        if (text === null) {
+            //Hide error display element
+            d.html("");
+            d.hide();
+        } else {
+            d.show();
+            //Random number helps us distinguish when function is called repeatedly
+            //with the same text
+            var rand = Math.floor(Math.random() * 1000);
+            text = rand + " " + text;
+            if (append) {
+                d.html(d.html() + "<br/>" + text);
+            } else {
+                d.html(text);
+            }
+        }
+    }
+
+    tbv.loadComplete = function (force) {
 
         //Replace content in header and footer tags with tombiod3 id's - this is
         //most relevant for test harness.
-        $("#tombiod3-header").text(core.kbmetadata.title);
-        $("#tombiod3-footer").html(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+        $("#tombiod3-header").text(tbv.kbmetadata.title);
+        $("#tombiod3-footer").html(tbv.getCitation(tbv.kbmetadata, "Knowledge-base", tbv.metadata.title));
 
         //Check the validity of the knowledge-base
         if (!force) {
-            if (!core.checkKnowledgeBase()) return;
+            if (!tbv.checkKnowledgeBase()) return;
         }
 
-        //Map taxa to properties of an object for easy reference by name (Taxon property)
-        //At the same time, replace each cell value with a StateValue object.
-        core.oTaxa = {};
-        core.taxa.forEach(function (taxon) {
-            core.oTaxa[taxon.Taxon] = taxon;
+        //Map characters to properties of an object for easy reference by name (Character property)
+        tbv.oCharacters = {};
+        tbv.characters.forEach(function (character) {
+            tbv.oCharacters[character.Character] = character;
+        });
 
+        //Map taxa to properties of an object for easy reference by name (Taxon property)
+        tbv.oTaxa = {};
+        tbv.taxa.forEach(function (taxon) {
+            tbv.oTaxa[taxon.Taxon] = taxon;
+            //Replace each cell value with a StateValue object.
             for (var property in taxon) {
                 if (taxon.hasOwnProperty(property)) {
-                    taxon[property] = new StateValue(taxon[property]);
+                    //property is actually the name of a character
+                    taxon[property] = Object.create(tbv.stateValue, { v: { writable: true, value: taxon[property]} });
+                    taxon[property].init(taxon, property);
                 }
             }
         });
 
-        //Add some extra properties
-        core.characters.forEach(function (character) {
+        //Add some extra properties to character objects
+        tbv.characters.forEach(function (character) {
             //CharacterStates is an array of state objects including help text etc
             character.CharacterStates = [];
             //CharacterStateValues is an array state values only
@@ -63,7 +368,7 @@
             character.maxVal = null;
             //Set minVal & maxVal for numeric characters
             if (character.ValueType == "numeric") {
-                core.taxa.forEach(function (taxon) {
+                tbv.taxa.forEach(function (taxon) {
                     var minTax = taxon[character.Character].getRange().min;
                     var maxTax = taxon[character.Character].getRange().max;
 
@@ -76,33 +381,25 @@
                 })
             }
         });
-        //Map characters to properties of an object for easy reference by name (Character property)
-        core.oCharacters = {};
-        core.characters.forEach(function (character) {
-            core.oCharacters[character.Character] = character;
-        });
-
-        core.media.forEach(function (m) {
-            if (m.Type == "image-local") {
-                m.URI = core.opts.tombiokbpath + m.URI;
-            }
-        });
-
-        //Enrich the core.taxa collection so that the StateValue objects
-        //know what type of character they are.
-        enrichStateValueObjects();
-
-        //Enrich the core.characters collection with the data from
-        //core.values. This must follow enrichStateValueObjects.
-        addValuesToCharacters();
-
-        //Note whether or not characters are grouped
-        global.charactersGrouped = false;
-        core.characters.forEach(function (character) {
+        
+        //Set variable to indicate whether or not characters are grouped
+        tbv.charactersGrouped = false;
+        tbv.characters.forEach(function (character) {
             if (character.Status == "key" && character.Group.toLowerCase() != "none") {
-                global.charactersGrouped = true;
+                tbv.charactersGrouped = true;
             }
         });
+
+        //Update URIs of local resources
+        //##Note - must be doing HTML files elsewhere - so bring in here??
+        tbv.media.forEach(function (m) {
+            if (m.Type == "image-local") {
+                m.URI = tbv.opts.tombiokbpath + m.URI;
+            }
+        });
+
+        //Enrich the tbv.characters collection with the data from tbv.values.
+        addValuesToCharacters();
 
         //Create the state input controls
         createStateInputControls();
@@ -126,72 +423,19 @@
         //no code should come after this.
         visChanged();
 
-        //Fire any callback defined in core.loadCallback 
-        if (core.loadCallback) {
-            core.loadCallback();
+        //Fire any callback defined in tbv.loadCallback 
+        if (tbv.loadCallback) {
+            tbv.loadCallback();
         }
-    }
-
-    function enrichStateValueObjects() {
-        core.taxa.forEach(function (taxon) {
-            core.characters.forEach(function (character) {
-                //Set ValueType
-
-                //console.log(character.Character)
-
-                taxon[character.Character].valueType = character.ValueType;
-                taxon[character.Character].status = character.Status;
-                taxon[character.Character].character = character.Character;
-
-                //Enrich with translated values if they exist. This must account
-                //for (m) and (f) suffixes on state values as expressed in the taxa
-                //sheet of the KB.
-                var splitvalues = taxon[character.Character].value.split("|");
-                var translatedValues;
-                splitvalues.forEach(function (charValue, iValue) {
-
-                    charValue = charValue.trim();
-                    var noSexVal, sex;
-                    if (endsWith(charValue, "(m)") || endsWith(charValue, "(f)")) {
-                        noSexVal = charValue.substr(0, charValue.length - 4).trim();
-                        sex = charValue.substr(charValue.length - 4, 4)
-
-                        //console.log("noSexVal", noSexVal);
-                        //console.log("sex", sex);
-
-                    } else {
-                        noSexVal = charValue;
-                        sex = "";
-                    }
-
-                    var translatedValue = translateStateValue(character.Character, noSexVal);
-                    if (sex != "") {
-                        translatedValue = translatedValue + " " + sex;
-                    }
-                    if (translatedValues) {
-                        translatedValues = translatedValues + " | " + translatedValue;
-                    } else {
-                        translatedValues = translatedValue;
-                    }
-
-                    //If value starts with a hash, it is a comment and to be ignored
-                    if (translatedValues.length > 0 && translatedValues.substr(0, 1) == "#") {
-                        translatedValues = "";
-                    }
-                });
-
-                taxon[character.Character].kbValue = translatedValues;
-            });
-        });
     }
 
     function addValuesToCharacters() {
 
-        core.values.forEach(function (val) {
+        tbv.values.forEach(function (val) {
 
             //console.log(val.Character);
 
-            var character = core.oCharacters[val.Character];
+            var character = tbv.oCharacters[val.Character];
 
             if (character) {
                 //If the character state is translated, use the translated value, otherwise
@@ -215,10 +459,10 @@
         //that aren't in the values table. These are just added to the array for 
         //each character in the order that they are found. This isn't done for ordinal
         //characters - they *must* be specified on values tab.
-        core.characters.forEach(function (character) {
+        tbv.characters.forEach(function (character) {
             //if (character.Status == "key" && (character.ValueType == "text" || character.ValueType == "ordinal")) {
             if (character.Status == "key" && (character.ValueType == "text")) {
-                core.taxa.forEach(function (taxon) {
+                tbv.taxa.forEach(function (taxon) {
                     var allstates = taxon[character.Character].getStates("");
                     allstates.forEach(function (state) {
                         if (state != "") {
@@ -240,11 +484,11 @@
 
     function setUpMatchingTracking() {
 
-        core.taxa.forEach(function (taxon) {
+        tbv.taxa.forEach(function (taxon) {
 
             taxon.matchscore = {};
 
-            core.characters.forEach(function (character) {
+            tbv.characters.forEach(function (character) {
                 if (character.Status == "key") {
                     taxon.matchscore[character.Character] = {
                         "label": character.Label,
@@ -265,12 +509,12 @@
         var characters = { "All": [] };
         var states = {};
 
-        core.characters.forEach(function (character) {
+        tbv.characters.forEach(function (character) {
             if (character.Status == "key") {
 
                 if (!characters[character.Group]) {
                     characters[character.Group] = [];
-                    global.inputCharGroups.push(character.Group);
+                    modState.inputCharGroups.push(character.Group);
                 }
                 characters[character.Group].push(character);
             }
@@ -321,7 +565,7 @@
                         });
 
                         //Reset stateSet flags
-                        core.characters.forEach(function (character) {
+                        tbv.characters.forEach(function (character) {
                             character.stateSet = false;
                             character.userInput = null;
                         });
@@ -408,7 +652,7 @@
                     //Create an HTML option element corresponding to each state
                     characterstates.forEach(function (state) {
 
-                        var option = $("<option/>").text(global.bullet + state); //"\u058D"
+                        var option = $("<option/>").text(modState.bullet + state); //"\u058D"
                         //option.attr("title", "value help")
 
                         selectcontrol.append(option);
@@ -427,7 +671,7 @@
         }
 
         //If characters are not grouped, hide the group tabs
-        if (!global.charactersGrouped) {
+        if (!tbv.charactersGrouped) {
 
             $('#tombioControlsListElements').css("display", "none");
             $('#tombioControlTabs').css("padding-left", "0px");
@@ -467,20 +711,20 @@
         createContextMenu();
 
         //Generate and store the visualisation controls (all enclosed in divs).
-        global.visualisations = {} //Stores the actual visualisation HTML
+        modState.visualisations = {} //Stores the actual visualisation HTML
         var toolOptions = []; //Drop-down menu options for the visualisations
 
         //Add clear option
         toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload</option>'));
 
         //Add the required visualisation tools
-        core.includedTools.forEach(function (toolName, iTool) {
+        tbv.includedTools.forEach(function (toolName, iTool) {
 
             var selOpt = $('<option class="needsclick">')
                 .attr("value", toolName)
                 .attr("data-class", "vis")
                 .addClass("visualisation")
-                .text(core.jsFiles[toolName].toolName);
+                .text(tbv.jsFiles[toolName].toolName);
 
             toolOptions.push(selOpt);
         })
@@ -498,10 +742,10 @@
         var paramSelectedTool = getURLParameter("selectedTool");
         if (paramSelectedTool) {
             defaultSelection = paramSelectedTool;
-        } else if (core.opts.selectedTool) {
-            defaultSelection = core.opts.selectedTool;
-        } else if (core.kbconfig.selectedTool) {
-            defaultSelection = core.kbconfig.selectedTool;
+        } else if (tbv.opts.selectedTool) {
+            defaultSelection = tbv.opts.selectedTool;
+        } else if (tbv.kbconfig.selectedTool) {
+            defaultSelection = tbv.kbconfig.selectedTool;
         }
         //Loop through options marked default as selected
         var optSelected = false;
@@ -564,7 +808,7 @@
             .addClass("ui-menu-icons customicons");
 
         //If the hideVisDropdown option has been set, then hide the dropdown list.
-        if (core.opts.hideVisDropdown == true) {
+        if (tbv.opts.hideVisDropdown == true) {
             $("#tombioVisualisation-button").hide()
         }
 
@@ -582,12 +826,12 @@
         });
 
         //Select default tab
-        //As of v1.6.0 core.kbconfig.defaultControlGroup deprecated in favour of core.opts.selectedGroup
-        if (typeof core.opts.selectedGroup === "undefined") {
-            core.opts.selectedGroup = core.kbconfig.defaultControlGroup ? core.kbconfig.defaultControlGroup : null;
+        //As of v1.6.0 tbv.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
+        if (typeof tbv.opts.selectedGroup === "undefined") {
+            tbv.opts.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
         }
-        if (core.opts.selectedGroup) {
-            var tabIndex = global.inputCharGroups.indexOf(core.opts.selectedGroup);
+        if (tbv.opts.selectedGroup) {
+            var tabIndex = modState.inputCharGroups.indexOf(tbv.opts.selectedGroup);
             if (tabIndex > -1) {
                 tabs.tabs("option", "active", tabIndex + 1)
             }
@@ -603,8 +847,8 @@
 
         $("#tombioHelpAndInfoDialog").dialog({
             modal: false,
-            width: global.helpAndInfoDialogWidth,
-            height: global.helpAndInfoDialogHeight,
+            width: modState.helpAndInfoDialogWidth,
+            height: modState.helpAndInfoDialogHeight,
             resizable: true,
             draggable: true,
             autoOpen: false,
@@ -620,8 +864,8 @@
 
         $("#tombioVisInfoDialog").dialog({
             modal: false,
-            width: global.visInfoDialogWidth,
-            height: global.visInfoDialogHeight,
+            width: modState.visInfoDialogWidth,
+            height: modState.visInfoDialogHeight,
             resizable: true,
             draggable: true,
             autoOpen: false,
@@ -642,16 +886,16 @@
             });
 
         //Context menu
-        global.visWithInput = [];
+        modState.visWithInput = [];
 
-        for (name in global.visualisations) {
-            if (global.visualisations[name].charStateInput)
-                global.visWithInput.push(name);
+        for (name in modState.visualisations) {
+            if (modState.visualisations[name].charStateInput)
+                modState.visWithInput.push(name);
         };
 
-        global.contextMenu.addItem("Toggle key input visibility", function () {
+        modState.contextMenu.addItem("Toggle key input visibility", function () {
             controlsShowHide();
-        }, global.visWithInput);
+        }, modState.visWithInput);
     }
 
     function helpFileLoaded(helpFileArray) {
@@ -667,7 +911,7 @@
             }
         });
         if (allHelpFilesLoaded) {
-            help = help.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath);
+            help = help.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath);
             $('#currentVisInfo').html(help);
         }
     }
@@ -683,7 +927,7 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationCore' id='tbCitationCore'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(core.getCitation(core.metadata, "Software")));
+        html.append($("<b>").html(tbv.getCitation(tbv.metadata, "Software")));
 
         //Generate the citation for the current tool
         html.append($("<h3>").text("Citation for last selected visualisation tool"))
@@ -693,7 +937,7 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' type='checkbox' name='tbCitationVis' id='tbCitationVis'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(core.getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title)));
+        html.append($("<b>").html(tbv.getCitation(modState.lastVisualisation.metadata, "Software", tbv.metadata.title)));
 
         //Generate the citation for the knowledge-base
         html.append($("<h3>").text("Citation for knowledge-base"))
@@ -702,20 +946,20 @@
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationKb' id='tbCitationKb'>"));
         html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title)));
+        html.append($("<b>").html(tbv.getCitation(tbv.kbmetadata, "Knowledge-base", tbv.metadata.title)));
 
         var button = $("<button>Copy citations</button>").button();
         button.on("click", function () {
             $("#tbSelectedCitations").html("");//Clear
 
             if (document.getElementById('tbCitationCore').checked) {
-                $("#tbSelectedCitations").append(core.getCitation(core.metadata, "Software"));
+                $("#tbSelectedCitations").append(tbv.getCitation(tbv.metadata, "Software"));
             }
             if (document.getElementById('tbCitationVis').checked) {
-                $("#tbSelectedCitations").append(core.getCitation(global.lastVisualisation.metadata, "Software", core.metadata.title));
+                $("#tbSelectedCitations").append(tbv.getCitation(modState.lastVisualisation.metadata, "Software", tbv.metadata.title));
             }
             if (document.getElementById('tbCitationKb').checked) {
-                $("#tbSelectedCitations").append(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+                $("#tbSelectedCitations").append(tbv.getCitation(tbv.kbmetadata, "Knowledge-base", tbv.metadata.title));
             }
             selectElementText(document.getElementById("tbSelectedCitations"));
             $('#tbCitationInstructions').show();
@@ -749,14 +993,14 @@
         window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
     }
 
-    core.initControlsFromParams = function (params) {
+    tbv.initControlsFromParams = function (params) {
 
-        //Set values from character state parameters in core.characters
+        //Set values from character state parameters in tbv.characters
         for (name in params) {
             if (name.startsWith("c-")) {
 
                 var cIndex = name.split("-")[1];
-                var char = core.characters[cIndex];
+                var char = tbv.characters[cIndex];
 
                 if (char.ControlType === "spin") {
                     char.userInput = params[name];
@@ -768,7 +1012,7 @@
         }
 
         //Set the character state input controls
-        core.characters.forEach(function (c, cIndex) {
+        tbv.characters.forEach(function (c, cIndex) {
             if (c.userInput) {
                 if (c.ControlType === "spin") {
                     var control = $("#" + c.Character + ".statespinner");
@@ -803,12 +1047,12 @@
         refreshVisualisation();
     }
 
-    core.setParamsFromControls = function () {
+    tbv.setParamsFromControls = function () {
 
         var params = [];
 
         //User input values
-        core.characters.forEach(function(c, cIndex) {
+        tbv.characters.forEach(function(c, cIndex) {
             if (c.userInput) {
                 var paramName = "c-" + cIndex
                 if (c.ControlType === "spin") {
@@ -828,7 +1072,7 @@
         return params
     }
 
-    core.getCitation = function (metadata, sType, coreTitle) {
+    tbv.getCitation = function (metadata, sType, coreTitle) {
 
         var html = $("<div class='tombioCitation'>"), t;
         var d = new Date();
@@ -855,11 +1099,11 @@
     }
     
     function visChanged() {
-        //console.log("last visualisation:", global.lastVisualisation)
-        core.visChanged($("#tombioVisualisation").val());
+        //console.log("last visualisation:", modState.lastVisualisation)
+        tbv.visChanged($("#tombioVisualisation").val());
     }
 
-    core.visChanged = function (selectedToolName, lastVisualisation) {
+    tbv.visChanged = function (selectedToolName, lastVisualisation) {
 
         //If reload selected, then reload the entire application.
         if (selectedToolName == "reload") {
@@ -891,35 +1135,38 @@
 
             //The tombioCitation and currentVisInfo pages work using the lastVis variable.
             //If a lastVisualisation parameter is passed in to this function, then use that.
-            //Otherwise, if a global.lastVisualisation has been set, then use that. Otherwise
-            //if a high-level option core.opts.lastVisualisation is set, then use that.
+            //Otherwise, if a modState.lastVisualisation has been set, then use that. Otherwise
+            //if a high-level option tbv.opts.lastVisualisation is set, then use that.
             var lastVis;
             if (lastVisualisation) {
                 lastVis = lastVisualisation;
-            } else if (global.lastVisualisation) {
-                lastVis = global.lastVisualisation.visName;
-            } else if (core.opts.lastVisualisation) {
-                lastVis = core.opts.lastVisualisation;
+            } else if (modState.lastVisualisation) {
+                lastVis = modState.lastVisualisation.visName;
+            } else if (tbv.opts.lastVisualisation) {
+                lastVis = tbv.opts.lastVisualisation;
             } else {
                 lastVis = "vis1";
             }
-            //console.log("global.lastVisualisation", lastVis)
+            //console.log("modState.lastVisualisation", lastVis)
             //console.log("lastVis", lastVis)
           
             //Load lastVis if not already loaded
-            core.showDownloadSpinner();
-            if (core.jsFiles[lastVis]) {
-                core.jsFiles[lastVis].loadReady();
+            tbv.showDownloadSpinner();
+            if (tbv.jsFiles[lastVis]) {
+                tbv.jsFiles[lastVis].loadReady();
             }
-            core.loadScripts(function () {
+            tbv.loadScripts(function () {
                 //Callback
-                core.hideDownloadSpinner();
+                tbv.hideDownloadSpinner();
                 //Create the visualisation object if it doesn't already exist
-                if (!global.visualisations[lastVis]) {
-                    var visObj = new core[lastVis].Obj("#tombioTaxa", global.contextMenu, core);
-                    global.visualisations[lastVis] = visObj;
+                //(may happen if option not selected from built-in drop-down list)
+                if (!modState.visualisations[lastVis]) {
+                    //var visObj = new tbv[lastVis].Obj("#tombioTaxa", modState.contextMenu, tbv);
+                    var visObj = tbv[lastVis];
+                    visObj.initP(lastVis, "#tombioTaxa", modState.contextMenu, tbv);
+                    modState.visualisations[lastVis] = visObj;
                 }
-                global.lastVisualisation = global.visualisations[lastVis];
+                modState.lastVisualisation = modState.visualisations[lastVis];
                 visModuleLoaded(selectedToolName);      
             })
             return;
@@ -937,17 +1184,19 @@
         }
         //If this isn't done before the next step, something strange
         //occurs and svg's don't usually display properly.
-        core.showDownloadSpinner();
-        if (core.jsFiles[selectedToolName]) {
-            core.jsFiles[selectedToolName].loadReady();
+        tbv.showDownloadSpinner();
+        if (tbv.jsFiles[selectedToolName]) {
+            tbv.jsFiles[selectedToolName].loadReady();
         }
-        core.loadScripts(function () {
+        tbv.loadScripts(function () {
             //Callback
-            core.hideDownloadSpinner();
+            tbv.hideDownloadSpinner();
             //Create the visualisation object if it doesn't already exist
-            if (!global.visualisations[selectedToolName]) {
-                var visObj = new core[selectedToolName].Obj("#tombioTaxa", global.contextMenu, core);
-                global.visualisations[selectedToolName] = visObj;
+            if (!modState.visualisations[selectedToolName]) {
+                //var visObj = new tbv[selectedToolName].Obj("#tombioTaxa", modState.contextMenu, tbv);
+                var visObj = tbv[selectedToolName];
+                visObj.initP(selectedToolName, "#tombioTaxa", modState.contextMenu, tbv);
+                modState.visualisations[selectedToolName] = visObj;
             }
             console.log("Starting", selectedToolName)
             visModuleLoaded(selectedToolName);
@@ -957,7 +1206,7 @@
     function visModuleLoaded(selectedToolName) {
 
         //Get the selected visualisation
-        var selectedTool = global.visualisations[selectedToolName];
+        var selectedTool = modState.visualisations[selectedToolName];
 
         //If the user has selected to show citation then generate.
         if (selectedToolName == "tombioCitation") {
@@ -967,20 +1216,20 @@
         //If the user has selected to show kb info and not yet loaded,
         //then load.
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
-            var title = $('<h2>').text(core.kbmetadata['title']);
+            var title = $('<h2>').text(tbv.kbmetadata['title']);
             $('#kbInfo').html(title);
-            $.get(core.opts.tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').append(html.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath));
+            $.get(tbv.opts.tombiokbpath + "info.html", function (html) {
+                $('#kbInfo').append(html.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath));
             }).always(function () {
 
                 //Citation
                 var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
                 $('#kbInfo').append(citation);
-                $('#kbInfo').append(core.getCitation(core.kbmetadata, "Knowledge-base", core.metadata.title));
+                $('#kbInfo').append(tbv.getCitation(tbv.kbmetadata, "Knowledge-base", tbv.metadata.title));
                 //Add the revision history
                 var header = $('<h3>').attr("id", "tombioKbRevisionHistory").text("Knowledge-base revision history");
                 $('#kbInfo').append(header);
-                var currentVersion = $('<p>').html('<b>Current version: ' + core.kbmetadata['version'] + '</b>');
+                var currentVersion = $('<p>').html('<b>Current version: ' + tbv.kbmetadata['version'] + '</b>');
                 $('#kbInfo').append(currentVersion);
 
                 var table = $('<table>');
@@ -992,7 +1241,7 @@
                 tr.append($('<td>').text('Notes').css('padding', '3px'));
                 table.append(tr);
 
-                core.kbreleaseHistory.forEach(function (version, iRow) {
+                tbv.kbreleaseHistory.forEach(function (version, iRow) {
                     tr = $('<tr>');
                     if (iRow % 2 == 0) {
                         tr.css('background-color', 'rgb(200,200,200)');
@@ -1013,8 +1262,8 @@
         //If the user has selected to show general tombio vis info and not yet loaded,
         //then load.
         if (selectedToolName == "visInfo" && $('#visInfo').html().length == 0) {
-            $.get(core.opts.tombiopath + "visInfo.html", function (html) {
-                $('#visInfo').html(html.replace(/##tombiopath##/g, core.opts.tombiopath).replace(/##tombiokbpath##/g, core.opts.tombiokbpath));
+            $.get(tbv.opts.tombiopath + "visInfo.html", function (html) {
+                $('#visInfo').html(html.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath));
             });
         }
 
@@ -1024,9 +1273,9 @@
 
             //Dimension and empty array to accommodate all the help
             //files referenced by this object.
-            var helpFiles = new Array(global.lastVisualisation.helpFiles.length); //???
+            var helpFiles = new Array(modState.lastVisualisation.helpFiles.length); //???
 
-            global.lastVisualisation.helpFiles.forEach(function (helpFile, i) {
+            modState.lastVisualisation.helpFiles.forEach(function (helpFile, i) {
 
                 //Load each of the help files and call the helpFileLoaded function
                 //upon loading of each one. This function will only do it's thing
@@ -1041,10 +1290,10 @@
         }
 
         //Change tool if necessary 
-        if (selectedToolName != global.currentTool) {
+        if (selectedToolName != modState.currentTool) {
 
-            if (global.currentTool)
-                $("#" + global.currentTool).hide();
+            if (modState.currentTool)
+                $("#" + modState.currentTool).hide();
 
             $("#" + selectedToolName).show();
         }
@@ -1068,23 +1317,23 @@
         refreshVisualisation();
 
         //Store current tool
-        global.currentTool = selectedToolName;
+        modState.currentTool = selectedToolName;
 
         //Store the last used visualisation and change the name of the menu
         //item for getting info about it.
-        if (Object.keys(global.visualisations).indexOf(selectedToolName) > -1) {
+        if (Object.keys(modState.visualisations).indexOf(selectedToolName) > -1) {
 
-            global.lastVisualisation = global.visualisations[selectedToolName];
-            $("#optCurrentVisInfo").text("Using the " + global.lastVisualisation.metadata.title);
+            modState.lastVisualisation = modState.visualisations[selectedToolName];
+            $("#optCurrentVisInfo").text("Using the " + modState.lastVisualisation.metadata.title);
             $("#tombioVisualisation").iconselectmenu("refresh");
         }
 
         //Refresh context menu
-        global.contextMenu.contextChanged(selectedToolName);
+        modState.contextMenu.contextChanged(selectedToolName);
 
         //If this is the first time through - i.e. page just loaded - and
         //this is a visualisation too, then process any URL initialisation parameters.
-        if (global.initialising && global.visualisations[selectedToolName]) {
+        if (modState.initialising && modState.visualisations[selectedToolName]) {
             //Get all the URL parameters
             var params = {};
             //(The global replace on plus characters is to overcome a problem with links put into facebook which
@@ -1097,10 +1346,10 @@
                 params[sParamAndValue[0]] = sParamAndValue[1];
             }
             //Pass into selected tool
-            global.visualisations[selectedToolName].urlParams(params);
+            modState.visualisations[selectedToolName].urlParams(params);
 
             //Turn off initialising flag
-            global.initialising = false;
+            modState.initialising = false;
         }
     }
 
@@ -1116,7 +1365,7 @@
         if (display) {
             $("#tombioControls").show(0, resizeControlsAndTaxa);
         } else {
-            global.controlsWidth = $("#tombioControls").width();
+            modState.controlsWidth = $("#tombioControls").width();
             $("#tombioControls").hide(0, resizeControlsAndTaxa);
         }
     }
@@ -1128,8 +1377,8 @@
 
         //Refresh the relevant visualisation
         var selectedTool = $("#tombioVisualisation").val();
-        if (selectedTool in global.visualisations) {
-            global.visualisations[selectedTool].refresh();
+        if (selectedTool in modState.visualisations) {
+            modState.visualisations[selectedTool].refresh();
         }
         resizeControlsAndTaxa();
     }
@@ -1223,18 +1472,18 @@
                 var character = id;
             }
             var stateSet = select.val() != null && select.val() != "";
-            core.oCharacters[character].stateSet = stateSet;
+            tbv.oCharacters[character].stateSet = stateSet;
 
             //userInput for text controls is an array of values representing the index of the 
             //selected character states 
             if (stateSet) {
                 var values = [];
-                core.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+                tbv.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
                     if (select.val().indexOf(stateValue) > -1) {
                         values.push(index);
                     }
                 })
-                core.oCharacters[character].userInput = values;
+                tbv.oCharacters[character].userInput = values;
             } 
 
             //Set the tooltip for the character states selected. This has to be done every time
@@ -1244,7 +1493,7 @@
                 var selItems = $("#" + selID).next().children().find(".pq-select-item-text");
                 selItems.attr("title", function () {
                     var _this = this;
-                    var charText = core.values.filter(function (v) {
+                    var charText = tbv.values.filter(function (v) {
                         if (v.Character == character && v.CharacterState == $(_this).text()) return true;
                     });
                     if (charText.length == 1) {
@@ -1296,8 +1545,8 @@
             } else {
                 var character = id;
             }
-            core.oCharacters[character].stateSet = true;
-            core.oCharacters[character].userInput = spinner.spinner("value");
+            tbv.oCharacters[character].stateSet = true;
+            tbv.oCharacters[character].userInput = spinner.spinner("value");
 
             //if (!isClone) {
             //Update the taxon representation.
@@ -1337,8 +1586,8 @@
             } else {
                 var character = id;
             }
-            core.oCharacters[character].stateSet = false;
-            core.oCharacters[character].userInput = null;
+            tbv.oCharacters[character].stateSet = false;
+            tbv.oCharacters[character].userInput = null;
 
             refreshVisualisation();
         });
@@ -1369,62 +1618,22 @@
         return states;
     }
 
-    function translateStateValue(character, state) {
-
-        function translateValue(character, state) {
-            var stateValues = core.values.filter(function (valueObj) {
-                if (valueObj.Character == character && valueObj.CharacterState.trim() == state) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            if (stateValues[0] && stateValues[0].CharacterStateTranslation && stateValues[0].CharacterStateTranslation != "") {
-                var translatedState = stateValues[0].CharacterStateTranslation;
-            } else {
-                var translatedState = state;
-            }
-            //Replace any multiple spaces with single spaces. I think that this needs to be done for where double spaces
-            //have been inserted into text state values or translated values because the pqselect control does the same.
-            //Fixes https://github.com/burkmarr/tombiovis/issues/8
-            translatedState = translatedState.replace(/ +(?= )/g, '');
-
-            return translatedState;
-        }
-        //For ordinal characters, the state could be an ordinal range, e.g. [vali-valj]
-        var regexOrdinalRange = /^\[[^-]+-[^-]+\]$/;
-        if (regexOrdinalRange.test(state)) {
-            var states = [];
-            var r1 = state.substr(1, state.length - 2);
-            var r2 = r1.split('-');
-            return "[" + translateValue(character, r2[0]) + "-" + translateValue(character, r2[1]) + "]";
-        } else {
-            return translateValue(character, state);
-        }
-    }
-
-    function endsWith(str, suffix) {
-        //Don't want to use the built-in string method because only supported by
-        //very recent browsers.
-        return str.indexOf(suffix, str.length - suffix.length) !== -1;
-    }
-
     function characterHasHelp(character) {
 
         //Is there any character help text on characters tab?
-        var helpText = core.oCharacters[character].Help;
+        var helpText = tbv.oCharacters[character].Help;
         if (helpText.length > 0) {
             return true;
         }
         //Is there any character state help text on values tab?
-        var charText = core.values.filter(function (v) {
+        var charText = tbv.values.filter(function (v) {
             if (v.Character == character && v.StateHelp) return true;
         });
         if (charText.length > 0) {
             return true;
         }
         //Are there any help images on media tab?
-        var charImages = core.media.filter(function (m) {
+        var charImages = tbv.media.filter(function (m) {
             if (m.Type == "image-local" && m.Character == character) {
                 return true;
             }
@@ -1443,15 +1652,15 @@
         //Help text for character
         //If HelpShort exists - use this for tip text, else use Help text. Must allow
         //for KBs where HelpShort column doesn't exist for backward compatibility.
-        if (core.oCharacters[character].HelpShort && core.oCharacters[character].HelpShort != "") {
-            var helpText = core.oCharacters[character].HelpShort;
+        if (tbv.oCharacters[character].HelpShort && tbv.oCharacters[character].HelpShort != "") {
+            var helpText = tbv.oCharacters[character].HelpShort;
             tipTextPresent = true;
         } else {
-            var helpText = core.oCharacters[character].Help;
+            var helpText = tbv.oCharacters[character].Help;
         }
         
         //Retrieve collection of media image rows for this character and sort by priority.
-        var charImagesFull = core.media.filter(function (m) {
+        var charImagesFull = tbv.media.filter(function (m) {
             if (m.Type == "image-local" && m.Character == character) {
                 return true;
             }
@@ -1540,7 +1749,7 @@
         })
         
         //Is there any state value help text? Required to determine 'click for' text.
-        var valueHelp = core.values.filter(function (v) {
+        var valueHelp = tbv.values.filter(function (v) {
             if (v.Character == character && v.StateHelp) return true;
         });
 
@@ -1567,11 +1776,11 @@
         $("#tombioHelpAndInfoDialog").html("");
 
         //Header for character
-        $('<h3/>', { text: core.oCharacters[character].Label }).appendTo('#tombioHelpAndInfoDialog');
-        $('<p/>', { html: core.oCharacters[character].Help }).appendTo('#tombioHelpAndInfoDialog');
+        $('<h3/>', { text: tbv.oCharacters[character].Label }).appendTo('#tombioHelpAndInfoDialog');
+        $('<p/>', { html: tbv.oCharacters[character].Help }).appendTo('#tombioHelpAndInfoDialog');
 
         //Help images for character (not necessarily illustrating particular states)
-        var charImages = core.media.filter(function (m) {
+        var charImages = tbv.media.filter(function (m) {
             //Only return images for matching character if no state value is set
             if (m.Type == "image-local" && m.Character == character && !m.State) {
                 //Check UseFor field - it id doesn't exist (backward compatibility for older KBs) 
@@ -1610,7 +1819,7 @@
         });
 
         //Help text character states
-        var charText = core.values.filter(function (v) {
+        var charText = tbv.values.filter(function (v) {
             if (v.Character == character && v.StateHelp) return true;
         });
 
@@ -1628,7 +1837,7 @@
             para.append(spanHelp);
 
             //Help images for character states
-            var charImages = core.media.filter(function (m) {
+            var charImages = tbv.media.filter(function (m) {
                 //Only return images for matching character if no state value is set
                 if (m.Type == "image-local" && m.Character == character && m.State == charState.CharacterState) return true;
             }).sort(function (a, b) {
@@ -1658,18 +1867,18 @@
 
     function createContextMenu() {
 
-        //Create the context menu object and store globally.
-        global.contextMenu = {};
+        //Create the context menu object and store in the module state object.
+        modState.contextMenu = {};
 
         //Add a property which is an object which links to each item
         //in the menu. 
-        global.contextMenu.items = {};
+        modState.contextMenu.items = {};
         //Add a property which is an object which stores the
         //contexts (visualisations) valid for each item.
-        global.contextMenu.contexts = {};
+        modState.contextMenu.contexts = {};
 
         //Initialise the ul element which will form basis of menu
-        global.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioMain')
+        modState.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioMain')
             .addClass("contextMenu")
             .css("position", "absolute")
             .css("display", "none")
@@ -1677,12 +1886,12 @@
         //.append($('<li>').text("menu test"))
 
         //Make it into a jQuery menu
-        global.contextMenu.menu.menu();
+        modState.contextMenu.menu.menu();
 
         //Handle the invocation of the menu
         $("#tombioMain").on("contextmenu", function (event) {
 
-            global.contextMenu.menu.position({
+            modState.contextMenu.menu.position({
                 //This will not work for the first click for
                 //some reason - subsequent clicks okay
                 //my: "top left",
@@ -1693,53 +1902,53 @@
             var parentOffset = $(this).parent().offset();
             var relX = event.pageX - parentOffset.left;
             var relY = event.pageY - parentOffset.top;
-            global.contextMenu.menu.css({ left: relX, top: relY });
+            modState.contextMenu.menu.css({ left: relX, top: relY });
 
-            global.contextMenu.menu.show();
+            modState.contextMenu.menu.show();
 
             return false; //Cancel default context menu
         })
 
         //Handle removal of the menu
         $("#tombioMain").on("click", function () {
-            global.contextMenu.menu.hide();
+            modState.contextMenu.menu.hide();
         });
 
         ////Add method to add an item
-        //global.contextMenu.addItem = function (label, f, contexts) {
+        //modState.contextMenu.addItem = function (label, f, contexts) {
 
         //    //Add item if it does not already exist
-        //    if (!(label in global.contextMenu.items)) {
+        //    if (!(label in modState.contextMenu.items)) {
 
         //        var item = $("<li>").append($("<div>").text(label).click(f));
-        //        global.contextMenu.menu.append(item);
-        //        global.contextMenu.menu.menu("refresh");
-        //        global.contextMenu.items[label] = item;
-        //        global.contextMenu.contexts[label] = contexts;
+        //        modState.contextMenu.menu.append(item);
+        //        modState.contextMenu.menu.menu("refresh");
+        //        modState.contextMenu.items[label] = item;
+        //        modState.contextMenu.contexts[label] = contexts;
         //    }
         //}
 
         ////Add method to remove an item
-        //global.contextMenu.removeItem = function (label) {
-        //    if (label in global.contextMenu.items) {
-        //        global.contextMenu.items[label].remove();
-        //        delete global.contextMenu.items[label];
-        //        delete global.contextMenu.contexts[label];
+        //modState.contextMenu.removeItem = function (label) {
+        //    if (label in modState.contextMenu.items) {
+        //        modState.contextMenu.items[label].remove();
+        //        delete modState.contextMenu.items[label];
+        //        delete modState.contextMenu.contexts[label];
         //    }
         //}
 
         ////Add method to signal that the context has changed
-        //global.contextMenu.contextChanged = function (context) {
+        //modState.contextMenu.contextChanged = function (context) {
 
         //    //Go through each item in context menu and hide it if 
         //    //not valid for this context.
-        //    for (var label in global.contextMenu.items) {
+        //    for (var label in modState.contextMenu.items) {
 
-        //        if (global.contextMenu.contexts[label].indexOf(context) > -1) {
-        //            global.contextMenu.items[label].show();
+        //        if (modState.contextMenu.contexts[label].indexOf(context) > -1) {
+        //            modState.contextMenu.items[label].show();
         //            //console.log("show menu item")
         //        } else {
-        //            global.contextMenu.items[label].hide();
+        //            modState.contextMenu.items[label].hide();
         //            //console.log("hide menu item", label)
         //        }
         //    }
@@ -1747,48 +1956,48 @@
 
 
         //Add method to add an item
-        global.contextMenu.addItem = function (label, f, contexts, bReplace) {
+        modState.contextMenu.addItem = function (label, f, contexts, bReplace) {
 
             //Replace item if already exists 
             //(workaround to let different visualisations have same items with different functions)
-            if (bReplace && label in global.contextMenu.items) {
-                global.contextMenu.items[label].remove();
-                delete global.contextMenu.items[label];
-                delete global.contextMenu.contexts[label];
+            if (bReplace && label in modState.contextMenu.items) {
+                modState.contextMenu.items[label].remove();
+                delete modState.contextMenu.items[label];
+                delete modState.contextMenu.contexts[label];
             }
 
             //Add item if it does not already exist
-            if (!(label in global.contextMenu.items)) {
+            if (!(label in modState.contextMenu.items)) {
 
                 var item = $("<li>").append($("<div>").text(label).click(f));
-                global.contextMenu.menu.append(item);
-                global.contextMenu.menu.menu("refresh");
-                global.contextMenu.items[label] = item;
-                global.contextMenu.contexts[label] = contexts;
+                modState.contextMenu.menu.append(item);
+                modState.contextMenu.menu.menu("refresh");
+                modState.contextMenu.items[label] = item;
+                modState.contextMenu.contexts[label] = contexts;
             }
         }
 
         //Add method to remove an item
-        global.contextMenu.removeItem = function (label) {
-            if (label in global.contextMenu.items) {
-                global.contextMenu.items[label].remove();
-                delete global.contextMenu.items[label];
-                delete global.contextMenu.contexts[label];
+        modState.contextMenu.removeItem = function (label) {
+            if (label in modState.contextMenu.items) {
+                modState.contextMenu.items[label].remove();
+                delete modState.contextMenu.items[label];
+                delete modState.contextMenu.contexts[label];
             }
         }
 
         //Add method to signal that the context has changed
-        global.contextMenu.contextChanged = function (context) {
+        modState.contextMenu.contextChanged = function (context) {
 
             //Go through each item in context menu and hide it if 
             //not valid for this context.
-            for (var label in global.contextMenu.items) {
+            for (var label in modState.contextMenu.items) {
 
-                if (global.contextMenu.contexts[label].indexOf(context) > -1) {
-                    global.contextMenu.items[label].show();
+                if (modState.contextMenu.contexts[label].indexOf(context) > -1) {
+                    modState.contextMenu.items[label].show();
                     //console.log("show menu item")
                 } else {
-                    global.contextMenu.items[label].hide();
+                    modState.contextMenu.items[label].hide();
                     //console.log("hide menu item", label)
                 }
             }
@@ -1802,7 +2011,7 @@
 
         //Update data array to reflect whether or not each taxa meets
         //the criteria specified by user.
-        core.taxa.forEach(function (taxon) {
+        tbv.taxa.forEach(function (taxon) {
             //taxon is an object representing the row from the KB
             //corresponding to a taxon.
 
@@ -1841,8 +2050,8 @@
                     } else {
                         var stateval = Number($(this).val());
                         var rng = taxon[statespinnerID].getRange();
-                        var kbStrictness = Number(core.oCharacters[statespinnerID].Strictness);
-                        var wholeRange = core.oCharacters[statespinnerID].maxVal - core.oCharacters[statespinnerID].minVal;
+                        var kbStrictness = Number(tbv.oCharacters[statespinnerID].Strictness);
+                        var wholeRange = tbv.oCharacters[statespinnerID].maxVal - tbv.oCharacters[statespinnerID].minVal;
                         var score = tombioScore.numberVsRange(stateval, rng, wholeRange, kbStrictness);
                         scorefor = score[0];
                         scoreagainst = score[1];
@@ -1857,7 +2066,7 @@
                     taxon.matchscore[statespinnerID].scoreoverall = scorefor - scoreagainst - scorena;
 
                     //Update overall score for taxon (adjusted for character weight)
-                    var weight = Number(core.oCharacters[statespinnerID].Weight) / 10;
+                    var weight = Number(tbv.oCharacters[statespinnerID].Weight) / 10;
 
                     taxon.scorefor += scorefor * weight;
                     taxon.scoreagainst += scoreagainst * weight;
@@ -1886,9 +2095,9 @@
                     && $(this).val() != null
                     && $(this).val() != "") {
 
-                    if (core.oCharacters[stateselectID].ValueType == "ordinal" || core.oCharacters[stateselectID].ValueType == "ordinalCircular") {
+                    if (tbv.oCharacters[stateselectID].ValueType == "ordinal" || tbv.oCharacters[stateselectID].ValueType == "ordinalCircular") {
                         //Ordinal scoring
-                        var kbStrictness = Number(core.oCharacters[stateselectID].Strictness);
+                        var kbStrictness = Number(tbv.oCharacters[stateselectID].Strictness);
 
                         var selState = $(this).val();
                         //console..log(stateselectID + " " + selState);
@@ -1902,7 +2111,7 @@
                             //Adjust for strictness
                             //scorena = scorena * (kbStrictness / 10);
                         } else {                         
-                            if (core.oCharacters[stateselectID].ControlType == "single") {
+                            if (tbv.oCharacters[stateselectID].ControlType == "single") {
 
                                 //Selected value for a single select control is a simple string value
                                 if ($(this).val() != "") {
@@ -1919,14 +2128,14 @@
 
                             if (selectedStates.length > 0) {
 
-                                var posStates = core.oCharacters[stateselectID].CharacterStateValues;
+                                var posStates = tbv.oCharacters[stateselectID].CharacterStateValues;
                                 //The KB states for this character and taxon.
                                 //States that are specific to male or female are represented by suffixes of (m) and (f).
                                 //var kbTaxonStates = taxon[stateselectID].getStates(sex);
                                 var kbTaxonStates = taxon[stateselectID].getOrdinalRanges(sex);
 
                                 //var score = tombioScore.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
-                                var isCircular = core.oCharacters[stateselectID].ValueType == "ordinalCircular";
+                                var isCircular = tbv.oCharacters[stateselectID].ValueType == "ordinalCircular";
                                 var score = tombioScore.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
                                 scorefor = score[0];
                                 scoreagainst = score[1];
@@ -1943,7 +2152,7 @@
                             scorena = 1;
                             charused = 1;
                         } else {
-                            if (core.oCharacters[stateselectID].ControlType == "single") {
+                            if (tbv.oCharacters[stateselectID].ControlType == "single") {
 
                                 //Selected value for a single select control is a simple string value
                                 if ($(this).val() != "") {
@@ -1978,7 +2187,7 @@
                     taxon.matchscore[stateselectID].scoreoverall = scorefor - scoreagainst - scorena;
 
                     //Update overall score for taxon (adjusted for character weight)
-                    var weight = Number(core.oCharacters[stateselectID].Weight) / 10;
+                    var weight = Number(tbv.oCharacters[stateselectID].Weight) / 10;
 
                     taxon.scoreagainst += scorena * weight;
                     taxon.scorefor += scorefor * weight;
@@ -1992,7 +2201,7 @@
     }
 
     function debug() {
-        if (global.debug) {
+        if (modState.debug) {
             console.log.apply(console, arguments);
         }
     }
@@ -2009,200 +2218,5 @@
         return null;
     }
 
-    //Define StateValue object
-    var StateValue = function (value) {
-        this.kbValue = value.trim();
-        this.valueType = null;
-        this.status = null;
-        this.character = null;
-    }
-    Object.defineProperty(StateValue.prototype, "value", {
-        get: function () {
-            if (this.kbValue.trim() == "?") {
-                return "";
-            } else {
-                return this.kbValue.trim();
-            }
-        }
-    });
-    StateValue.prototype.toString = function () {
-        if (this.kbValue == "?") {
-            return "";
-        } else {
-            return this.kbValue;
-        }
-    }
-    StateValue.prototype.getStates = function (sex) {
-
-        if (!sex) sex = "";
-
-        var states = [];
-        var splitvalues = this.kbValue.split("|");
-
-        for (var i = 0; i < splitvalues.length; i++) {
-            //Only those relevant to the sex, if specified, are returned.
-            //Suffixes representing sex are trimmed off.
-            var state = splitvalues[i];
-            state = state.trim();
-
-            if (state != "n/a" && state != "?" && state != "") {
-                if (sex == "male" && !endsWith(state, "(f)")) {
-                    states.push(state.replace("(m)", "").trim());
-                } else if (sex == "female" && !endsWith(state, "(m)")) {
-                    states.push(state.replace("(f)", "").trim());
-                } else if (sex == "") {
-                    states.push(state.replace("(m)", "").replace("(f)", "").trim());
-                } else {
-                    //No match
-                }
-            }
-        }
-
-        return states;
-    }
-    StateValue.prototype.getRange = function () {
-        var retVal = {}
-
-        if (String(this.kbValue) == "") {
-            retVal.hasValue = false;
-        } else {
-            retVal.hasValue = true;
-        }
-        if (String(this.kbValue).indexOf('[') == 0) {
-            //This is a range
-            var r1 = this.kbValue.substr(1, this.kbValue.length - 2);
-            var r2 = r1.split('-');
-            retVal.min = Number(r2[0]);
-            retVal.max = Number(r2[1]);
-            retVal.mid = retVal.min + ((retVal.max - retVal.min) / 2);
-        } else {
-            retVal.min = Number(this.kbValue);
-            retVal.max = Number(this.kbValue);
-            retVal.mid = Number(this.kbValue);
-        }
-        return retVal;
-    }
-    StateValue.prototype.getOrdinalRanges = function (sex) {
-        var _this = this;
-        var retVal = [];
-        if (this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
-            this.getStates(sex).forEach(function (state) {
-                var ordinalRange = [];
-                if (state.indexOf('[') == 0) {
-                    //This is an ordinal range
-                    var r1 = state.substr(1, state.length - 2);
-                    var r2 = r1.split('-');
-                    var lowerState = r2[0];
-                    var upperState = r2[1];
-                    var inRange = false;
-                    core.oCharacters[_this.character].CharacterStateValues.forEach(function (ordinalState) {
-                        //console.log("ordinalState", ordinalState)
-                        if (ordinalState == lowerState) inRange = true;
-                        if (inRange) ordinalRange.push(ordinalState);
-                        if (ordinalState == upperState) inRange = false;
-                    });
-                    //If this is a circular ordinal the end point of and ordinal range can come before the
-                    //start point, so we could reach this point with inRange still set to true, in which
-                    //case we need to go through the range again.
-                    if (inRange) {
-                        core.oCharacters[_this.character].CharacterStateValues.forEach(function (ordinalState) {
-                            if (inRange) ordinalRange.push(ordinalState);
-                            if (ordinalState == upperState) inRange = false;
-                        });
-                    }
-                } else {
-                    ordinalRange.push(state);
-                }
-                retVal.push(ordinalRange)
-            });
-        }
-        return retVal;
-    }
-    StateValue.prototype.toHtml1 = function () {
-        //Used, for example, by tombiovis.js to display KB values 
-        //for a taxon to a user.
-        if (this.kbValue == "n/a") {
-            return "<i>not applicable</i>";
-        } else if (this.kbValue == "" || this.kbValue == "?") {
-            return "<i>no value specified</i>"
-        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
-            //Put bold around each token (separated by |)
-            html = this.kbValue.replace(/([^|]+)/g, "<b>$1</b>");
-            //Shift bold end tag to before (m) and (f) and replace with (male) and (female)
-            html = html.replace(/(\(m\)\s*<\/b>)/g, "</b> (male)");
-            html = html.replace(/(\(f\)\s*<\/b>)/g, "</b> (female)");
-            //Remove start [ and end ] tokens denoting ordinal range 
-            html = html.replace(/<b>\s*\[/g, "<b>");
-            html = html.replace(/\]\s*<\/b>/g, "</b>");
-            //Replace | with 'or'
-            html = html.replace(/\s*\|\s*/g, " or ");
-            //Remove emboldening if display-only character
-            if (this.status == "display") {
-                html = html.replace(/<b>/g, '').replace(/<\/b>/g, '');
-            }
-            return html;
-        } else if (this.valueType == "numeric") {
-            var rng = this.getRange();
-            if (rng.hasValue == false) {
-                var html = "<b>no value in knowledge-base</b>";
-            } else if (rng.min == rng.max) {
-                var html = "<b>" + rng.min + "</b>";
-            } else {
-                var html = "<b>" + rng.min + "-" + rng.max + "</b> (range)";
-            }
-            //Remove emboldening if display-only character
-            if (this.status == "display") {
-                html = html.replace(/<b>/g, '').replace(/<\/b>/g, '');
-            }
-            return html;
-        } else {
-            return this.kbValue;
-        }
-    }
-    StateValue.prototype.toHtml2 = function () {
-        //Used, for example, to show character score details for single-column key.
-        if (this.kbValue == "n/a") {
-            return "<li><i>not applicable</i></li>";
-        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
-            var html = "";
-            var splitKbValues = this.kbValue.split("|");
-
-            for (var i = 0; i < splitKbValues.length; i++) {
-
-                var charVal = splitKbValues[i].trim();
-
-                if (/\(m\)$/.test(charVal)) {
-                    charVal = "<b>" + charVal.replace(/\(m\)$/, "</b> (male)");
-                } else if (/\(f\)$/.test(charVal)) {
-                    charVal = "<b>" + charVal.replace(/\(f\)$/, "</b> (female)");
-                } else {
-                    charVal = "<b>" + charVal.trim() + "</b>";
-                }
-
-                //Remove start [ and end ] tokens denoting ordinal range 
-                charVal = charVal.replace(/<b>\s*\[/g, "<b>");
-                charVal = charVal.replace(/\]\s*<\/b>/g, "</b>");
-
-                if (i < splitKbValues.length - 1)
-                    charVal += " or";
-
-                html += "<li>";
-                html += charVal;
-                html += "</li>";
-            }
-            return html;
-        } else if (this.valueType == "numeric") {
-            var rng = this.getRange();
-            if (rng.hasValue == false) {
-                return "<li><i>no value in knowledge-base</i></li>";
-            } else if (rng.min == rng.max) {
-                return "<li><b>" + rng.min + "</b></li>";
-            } else {
-                return "<li><b>" + rng.min + " - " + rng.max + "</b> (range)</li>";
-            }
-        } else {
-            return this.kbValue;
-        }
-    }
-
 }(jQuery, this.tombiovis));
+

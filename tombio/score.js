@@ -2,6 +2,8 @@
 
     "use strict";
 
+    //v.score = {};
+
     exports.numberVsRange = function (stateval, rng, wholeRange, kbStrictness) {
         //Numeric characters are scored thus:
         //If the specified number is within the range specified for the taxon, the character scores 1.

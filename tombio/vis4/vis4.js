@@ -1,21 +1,20 @@
 ﻿
-(function ($, core) {
+(function ($, tbv) {
 
-    //Template visualisation that inherits from visP.
     "use strict";
 
     var visName = "vis4";
-    var exports = core[visName] = {};
+    var vis4 = tbv[visName] = Object.create(tbv.visP);
+    var _this;
+    var taxSel; 
     var win, divImage, divKb, divInfo, visFullDetails;
     var selectedTaxon;
-    var taxSel; //control
     var imgIndex = 0;
     var txtIndex = 0;
-    var _this;
 
-    exports.Obj = function (parent, contextMenu, core) {
+    vis4.initialise = function () {
 
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
+        _this = this;
 
         //Initialise the meta data
         this.metadata.title = "Full taxon details";
@@ -25,13 +24,8 @@
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.0';
-    }
 
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        _this = this;
+        //Other initialisations
         var taxonName;
 
         //Reset this value if control can work with character state input controls
@@ -39,9 +33,9 @@
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis4/vis4Help.html",
-            core.opts.tombiopath + "common/full-details.html",
-            core.opts.tombiopath + "common/taxon-select-help.html"
+            tbv.opts.tombiopath + "vis4/vis4Help.html",
+            tbv.opts.tombiopath + "common/full-details.html",
+            tbv.opts.tombiopath + "common/taxon-select-help.html"
         ]
 
         //Context menu
@@ -63,7 +57,7 @@
         var visDiv = $("<div/>").css("display", "block").css("overflow", "hidden"); 
         $flexContainer.append(visDiv);
 
-        taxSel = Object.create(core.taxonSelect);
+        taxSel = Object.create(tbv.taxonSelect);
         taxSel.control(this.controlsDiv, false, taxonSelectCallback);
       
         createCheckBox('tbVis4Images', 'Images', visDiv);
@@ -99,105 +93,13 @@
         visDiv.append(visFullDetails);
     }
 
-    function taxonSelectCallback(retValue) {
-        selectedTaxon = retValue.selected
-        showTaxon(selectedTaxon)
-    }
-
-    function showTaxon(taxonName) {
-
-        //Clear table
-        visFullDetails.html(null);
-
-        //Return if no taxon selected
-        if (!taxonName) return;
-
-        //Header
-        $("<div id='vis4TaxonHeader'>").text(taxonName).appendTo(visFullDetails);
-
-        //Set included flags from checkboxes
-        var includeImages = document.getElementById('tbVis4Images').checked;
-        var includeKb = document.getElementById('tbVis4Kb').checked;
-        var includeText = document.getElementById('tbVis4Text').checked;
-
-        //Adjust included flags depending on availability of images and HTML files
-        var htmlFiles = _this.getTaxonHtmlFiles(taxonName);
-        includeText = includeText && htmlFiles.length > 0;
-        includeImages = includeImages && _this.getTaxonImages(taxonName).length > 0;
-
-
-        //Image display
-        if (includeImages) {
-
-            var imageDiv = $('<div style="position: relative">').appendTo(visFullDetails);
-            if (includeText) {
-                //Use a class because we will change style based on media width
-                imageDiv.attr("class", "vis4Image");
-            }
-            imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
-            //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
-            //but returns HTML value (does some stuff with container)
-        }
-
-        //HTML files
-        if (includeText) {
-
-            //Control for selecting HTML file
-            if (htmlFiles.length > 1) {
-                var disSelect = $('<div style="margin-bottom: 20px; display: inline">').appendTo(visFullDetails);
-
-                var htmlSel = $("<select id='vis4html'></select>").appendTo(disSelect);
-                htmlFiles.forEach(function (file, iFile) {
-                    var opt = $("<option/>").text(file.Caption).attr("value", iFile);
-                    htmlSel.append(opt);
-                });
-                htmlSel.selectmenu({
-                    change: function (event, data) {
-                        _this.showTaxonHtmlInfo(taxonName, htmlDiv, data.item.value);
-                        htmlDiv.attr("indexselected", data.item.value)
-                    }
-                })
-                .selectmenu("menuWidget");
-                //htmlSel.selectmenu({ width: "100%" }); //Do this separately or you get zero width
-            }
-
-            //First text file
-            var htmlDiv = $('<div class="htmlFile">').appendTo(visFullDetails);
-            htmlDiv.attr("indexselected", txtIndex)
-            _this.showTaxonHtmlInfo(taxonName, htmlDiv, txtIndex);
-            if (htmlFiles.length > 1) {
-                htmlSel.val(txtIndex).selectmenu('refresh');
-            }
-        }
-
-        //Set KB values
-        if (includeKb) {
-            visFullDetails.append($("<h2>").css("clear", "both").text("Knowledge-base values"));
-            visFullDetails.append(_this.showTaxonCharacterValues(core.oTaxa[taxonName], true));
-        }
-
-        //Trigger the image change function whenever browser
-        //window is resized.
-        if (imageDiv){
-            $(window).resize(function () {
-                var img = imageDiv.find(".baseimage");
-                img.trigger("change");
-            });
-        }   
-    }  
-
-    exports.Obj.prototype.refresh = function () {
+    vis4.refresh = function () {
 
         //Height has to be set in the refresh method otherwise has no effect
         $('#vis4taxon').selectmenu("menuWidget").css("height", 200);
-
-        //console.log("vis4 refresh")
-
-        //Consider including
-        //this.fireRefresh();
     }
 
-    exports.Obj.prototype.urlParams = function (params) {
+    vis4.urlParams = function (params) {
 
         //Set the checkboxes
         if (params.opts) {
@@ -316,6 +218,93 @@
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
         _this.copyTextToClipboard(url);
         console.log(url);
+    }
+
+    function taxonSelectCallback(retValue) {
+        selectedTaxon = retValue.selected
+        showTaxon(selectedTaxon)
+    }
+
+    function showTaxon(taxonName) {
+
+        //Clear table
+        visFullDetails.html(null);
+
+        //Return if no taxon selected
+        if (!taxonName) return;
+
+        //Header
+        $("<div id='vis4TaxonHeader'>").text(taxonName).appendTo(visFullDetails);
+
+        //Set included flags from checkboxes
+        var includeImages = document.getElementById('tbVis4Images').checked;
+        var includeKb = document.getElementById('tbVis4Kb').checked;
+        var includeText = document.getElementById('tbVis4Text').checked;
+
+        //Adjust included flags depending on availability of images and HTML files
+        var htmlFiles = _this.getTaxonHtmlFiles(taxonName);
+        includeText = includeText && htmlFiles.length > 0;
+        includeImages = includeImages && _this.getTaxonImages(taxonName).length > 0;
+
+
+        //Image display
+        if (includeImages) {
+
+            var imageDiv = $('<div style="position: relative">').appendTo(visFullDetails);
+            if (includeText) {
+                //Use a class because we will change style based on media width
+                imageDiv.attr("class", "vis4Image");
+            }
+            imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
+            //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
+            //but returns HTML value (does some stuff with container)
+        }
+
+        //HTML files
+        if (includeText) {
+
+            //Control for selecting HTML file
+            if (htmlFiles.length > 1) {
+                var disSelect = $('<div style="margin-bottom: 20px; display: inline">').appendTo(visFullDetails);
+
+                var htmlSel = $("<select id='vis4html'></select>").appendTo(disSelect);
+                htmlFiles.forEach(function (file, iFile) {
+                    var opt = $("<option/>").text(file.Caption).attr("value", iFile);
+                    htmlSel.append(opt);
+                });
+                htmlSel.selectmenu({
+                    change: function (event, data) {
+                        _this.showTaxonHtmlInfo(taxonName, htmlDiv, data.item.value);
+                        htmlDiv.attr("indexselected", data.item.value)
+                    }
+                })
+                .selectmenu("menuWidget");
+                //htmlSel.selectmenu({ width: "100%" }); //Do this separately or you get zero width
+            }
+
+            //First text file
+            var htmlDiv = $('<div class="htmlFile">').appendTo(visFullDetails);
+            htmlDiv.attr("indexselected", txtIndex)
+            _this.showTaxonHtmlInfo(taxonName, htmlDiv, txtIndex);
+            if (htmlFiles.length > 1) {
+                htmlSel.val(txtIndex).selectmenu('refresh');
+            }
+        }
+
+        //Set KB values
+        if (includeKb) {
+            visFullDetails.append($("<h2>").css("clear", "both").text("Knowledge-base values"));
+            visFullDetails.append(_this.showTaxonCharacterValues(tbv.oTaxa[taxonName], true));
+        }
+
+        //Trigger the image change function whenever browser
+        //window is resized.
+        if (imageDiv) {
+            $(window).resize(function () {
+                var img = imageDiv.find(".baseimage");
+                img.trigger("change");
+            });
+        }
     }
 
 })(jQuery, this.tombiovis)

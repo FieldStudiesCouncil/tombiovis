@@ -1,82 +1,18 @@
 ﻿
-(function ($, core) {
+(function ($, tbv) {
 
     "use strict";
     
     var visName = "vis3";
-    var exports = core[visName] = {};
-    var taxSel;
+    var vis3 = tbv[visName] = Object.create(tbv.visP);
     var _this;
+    var taxSel;
 
-    function matchingScore(taxon0, taxonI, oCharacter) {
+    vis3.initialise = function () {
 
-        //This function is referenced in initialise and refresh (for different purposes)
-        //and is therefore absracted to top level of the module. (It's used both for
-        //colouring cells and ranking taxa.)
+        _this = this;
 
-        var character = oCharacter.Character;
-        var charScore = null;
-
-        if (oCharacter.Status == "key") {
-
-            if (taxonI[character].value == "n/a" || taxonI[character].value == "") {
-
-                if (taxon0[character].value == "n/a" || taxon0[character].value == "") {
-                    //No score.
-                } else {
-                    //Any taxonI character without a value where one is specified for Taxon0 is non-matching.
-                    charScore = -1;
-                }
-            } else if (taxon0[character].value == "n/a" || taxon0[character].value == "") {
-
-                //Any taxonI character with a value where none specified for Taxon0 is non-matching.
-                charScore = -1;
-
-            } else if (oCharacter.ValueType == "numeric") {
-
-                //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
-                //average of the two overall scores.
-                var wholeRange = oCharacter.maxVal - oCharacter.minVal;
-                var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
-                var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
-                charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
-
-            } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
-
-                //Match all possible states for TaxonI against taxon0 and take the average.
-                var iCount = 0, scoreTotal = 0, score;
-                ["male", "female", ""].forEach(function (sex) {
-                    //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
-                    taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
-                        score = tombioScore.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
-                        //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
-                        scoreTotal += score[0];
-                        scoreTotal -= score[1];
-                        iCount++;
-                    });
-                });
-                charScore = scoreTotal / iCount;
-                //console.log("overall", charScore);
-
-            } else {//Character type
-                var iCount = 0, scoreTotal = 0;
-                ["male", "female", ""].forEach(function (sex) {
-                    scoreTotal += tombioScore.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
-                    iCount++;
-                });
-                var meanJaccard = scoreTotal / iCount;
-                //Jaccard returns a value between 0 and 1 - adjust this to range between -1 and 1.
-                charScore = meanJaccard * 2 - 1;
-            }
-        }
-        return charScore;
-    }
-
-    exports.Obj = function (parent, contextMenu, core) {
-
-        core.visP.Obj.call(this, visName, parent, contextMenu, core);
-
-        //Initialise the meta data
+        //Initialise the metadata
         this.metadata.title = "Side by side comparison";
         this.metadata.year = "2016";
         this.metadata.authors = "Burkmar, R";
@@ -84,28 +20,21 @@
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.1.0';
-    }
-
-    exports.Obj.prototype = Object.create(core.visP.Obj.prototype);
-
-    exports.Obj.prototype.initialise = function () {
-
-        _this = this;
 
         //Control doesn't work with character state input controls
         this.charStateInput = false;
 
         //Help files
         this.helpFiles = [
-            core.opts.tombiopath + "vis3/vis3Help.html",
-            core.opts.tombiopath + "common/taxon-select-help.html"
+            tbv.opts.tombiopath + "vis3/vis3Help.html",
+            tbv.opts.tombiopath + "common/taxon-select-help.html"
         ]
 
         //Helper functions
         function addTop(n) {
 
             var sortedTaxa = [];
-            _this.taxa.forEach(function (taxon) {
+            tbv.taxa.forEach(function (taxon) {
                 sortedTaxa.push(taxon);
             });
             _this.sortTaxa(sortedTaxa);
@@ -115,7 +44,7 @@
             } else {
                 var slicedTaxa = sortedTaxa;
             }
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.value });
+            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.kbValue });
 
             //Match taxon selection control to selection
             taxSel.deselectAllTaxa();
@@ -132,7 +61,7 @@
             var orderedTaxa = [];
             $("#visType3Grid").pqGrid("getColModel").forEach(function (col) {
                 if (col.dataIndx != "group" && col.dataIndx != "character") {
-                    orderedTaxa.push(_this.oTaxa[col.dataIndx]);
+                    orderedTaxa.push(tbv.oTaxa[col.dataIndx]);
                 }
             });
 
@@ -143,7 +72,7 @@
 
             //If topNo is specified, then we need to compare all taxa
             if (topNo) {
-                orderedTaxa = _this.taxa
+                orderedTaxa = tbv.taxa
             }
 
             //Reorder those currently displayed matching each against the first.
@@ -153,7 +82,7 @@
                     taxon.vis3CompScore = 999999; //Top score!
                 } else {
                     taxon.vis3CompScore = 0;
-                    _this.characters.forEach(function (character) {
+                    tbv.characters.forEach(function (character) {
                         if (character.Status == "key") {
                             taxon.vis3CompScore += matchingScore(taxon0, taxon, character);
                         }
@@ -175,7 +104,7 @@
                 var slicedTaxa = orderedTaxa;
             }
 
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.value });
+            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.kbValue });
 
             //Match taxon selection control to selection
             taxSel.deselectAllTaxa();
@@ -255,11 +184,11 @@
             .css("position", "relative").css("top", -13);
         $flexContainer.append(visDiv);
 
-        taxSel = Object.create(core.taxonSelect);
+        taxSel = Object.create(tbv.taxonSelect);
         taxSel.control(this.controlsDiv, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
-        //if (_this.charactersGrouped) {
+        //if (tbv.charactersGrouped) {
         //    var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top");
         //    radios.append($("<label>").attr("for", "groupvisible").text("group"));
         //    radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));
@@ -282,12 +211,12 @@
 
         //Create taxon state object array
         this.stateTaxa = {};
-        this.taxa.forEach(function (taxon) {
-            _this.stateTaxa[taxon.Taxon.value] = {}
+        tbv.taxa.forEach(function (taxon) {
+            _this.stateTaxa[taxon.Taxon.kbValue] = {}
         })
     }
 
-    exports.Obj.prototype.refresh = function () {
+    vis3.refresh = function () {
 
         if (!$('#visType3Grid').is(':empty')){
             $("#visType3Grid").pqGrid("destroy")
@@ -310,7 +239,7 @@
         var imgRow = { group: " Images", character: "Images" } //The space ensures the Images group is at the top
         this.vis3Taxa.forEach(function (name) {
 
-            var taxon = _this.oTaxa[name];
+            var taxon = tbv.oTaxa[name];
 
             var imgIcon = $("<div>")
                 .attr("taxon", name)
@@ -320,13 +249,13 @@
         });
         descriptions.push(imgRow);
 
-        this.characters.forEach(function (character) {
+        tbv.characters.forEach(function (character) {
 
             if (character.Status == "display" || (character.Status == "key" && character.Character != "Sex")) {
                 var char = { group: character.Group, character: character.Label, pq_cellcls: { "character": character.Character } };
                 _this.vis3Taxa.forEach(function (name) {
 
-                    var taxon = _this.oTaxa[name];
+                    var taxon = tbv.oTaxa[name];
                     char[taxon.Taxon] = taxon[character.Character].toHtml1();
                 });
                 descriptions.push(char);
@@ -452,7 +381,7 @@
             //moreover, no longer needed since introduction of taxonSelect control from which taxa
             //can be deselected.))
             //$(".pq-grid-title-row").find(".pq-td-div:not(:contains('Character'))")
-            //   .append("<img class='vis3removeIcon' src='" + core.opts.tombiopath + "resources/minus.png'>");
+            //   .append("<img class='vis3removeIcon' src='" + tbv.opts.tombiopath + "resources/minus.png'>");
 
             //$(".vis3removeIcon").on("click", function () {
             //    var selectedName = $(this).parent().text().trim();
@@ -470,12 +399,12 @@
 
                     var vis3ImageDiv = $(this);
                     var taxonName = $(this).attr("taxon");
-                    var taxon = _this.oTaxa[taxonName];
+                    var taxon = tbv.oTaxa[taxonName];
 
                     if (_this.getTaxonImages(taxonName).length > 0) {
 
                         var loadImg = $("<img>")
-                        .attr("src", core.opts.tombiopath + "resources/camera.png")
+                        .attr("src", tbv.opts.tombiopath + "resources/camera.png")
                         .addClass("loadImgIcon")
                         .css("cursor", "pointer")
                         .css("width", 15)
@@ -517,12 +446,12 @@
                     .css("color", "white");
             })
 
-            var taxon0 = _this.oTaxa[orderedTaxa[0]];
+            var taxon0 = tbv.oTaxa[orderedTaxa[0]];
             for (var i = 1; i < orderedTaxa.length; i++) {
-                var taxonI = _this.oTaxa[orderedTaxa[i]];
+                var taxonI = tbv.oTaxa[orderedTaxa[i]];
 
-                for (var character in _this.oCharacters) {
-                    var oCharacter = _this.oCharacters[character];
+                for (var character in tbv.oCharacters) {
+                    var oCharacter = tbv.oCharacters[character];
            
                     //When the data array was created, character cells (td) were tagged with
                     //a class - the name of the character. So we can now use this to retrieve
@@ -541,7 +470,7 @@
                         if (i == 1) {
                             var td0 = $("#visType3Grid").pqGrid("getCell", { rowIndx: pqrowindx, dataIndx: orderedTaxa[0] });
                             if (oCharacter.Status == "key") {
-                                if (taxon0[character].value == "n/a" || taxon0[character].value == "" || taxon0[character].value == "?") {
+                                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "" || taxon0[character].kbValue == "?") {
                                     td0.css("background-color", "white");
                                 } else {
                                     td0.css("background-color", scaleOverall(1));
@@ -568,50 +497,7 @@
         }
     }
 
-    function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
-        taxonImgDiv.on("remove", function () {
-            vis3ImageDiv.closest(".pq-td-div").css("padding", "");
-            vis3ImageDiv.closest("td").css("background-color", "");
-            loadImgIcon.fadeIn();
-
-            _this.stateTaxa[taxon.Taxon.value].imgDiv = null;
-            if (taxonImgDiv.is(".userRemoved")) {
-                _this.stateTaxa[taxon.Taxon.value].displayImages = false;
-                _this.stateTaxa[taxon.Taxon.value].indexSelected = 0;
-            } else {
-                //Removed to be recreated when grid refreshed e.g. by resize
-                _this.stateTaxa[taxon.Taxon.value].indexSelected = taxonImgDiv.attr("indexSelected");
-            }
-        });
-    }
-
-    function addTaxonImages (vis3ImageDiv) {
-
-        var taxonName = vis3ImageDiv.attr("taxon");
-        var taxon = _this.oTaxa[taxonName];
-
-        if (_this.stateTaxa[taxonName].indexSelected) {
-            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName, null, _this.stateTaxa[taxonName].indexSelected);
-        } else {
-            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName);
-        }
-
-        _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
-
-        vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
-        vis3ImageDiv.closest("td").css("background-color", "lightgrey");
-
-        vis3ImageDiv.append(taxonImgDiv);
-
-        var loadImgIcon = vis3ImageDiv.find(".loadImgIcon");
-        loadImgIcon.fadeOut(0);
-        addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
-
-        _this.stateTaxa[taxonName].displayImages = true;
-        return taxonImgDiv;
-    }
-
-    exports.Obj.prototype.urlParams = function (params) {
+    vis3.urlParams = function (params) {
 
         //Set the visibility of hidden controls
         if (params.hc) {
@@ -641,7 +527,7 @@
                     var taxonImgDiv = addTaxonImages(vis3ImageDiv);
                     addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
                 }
-                
+
             })
         }
 
@@ -734,6 +620,113 @@
         _this.copyTextToClipboard(url);
         console.log("URL length:", url.length);
         console.log(url);
+    }
+
+    function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
+        taxonImgDiv.on("remove", function () {
+            vis3ImageDiv.closest(".pq-td-div").css("padding", "");
+            vis3ImageDiv.closest("td").css("background-color", "");
+            loadImgIcon.fadeIn();
+
+            _this.stateTaxa[taxon.Taxon.kbValue].imgDiv = null;
+            if (taxonImgDiv.is(".userRemoved")) {
+                _this.stateTaxa[taxon.Taxon.kbValue].displayImages = false;
+                _this.stateTaxa[taxon.Taxon.kbValue].indexSelected = 0;
+            } else {
+                //Removed to be recreated when grid refreshed e.g. by resize
+                _this.stateTaxa[taxon.Taxon.kbValue].indexSelected = taxonImgDiv.attr("indexSelected");
+            }
+        });
+    }
+
+    function addTaxonImages (vis3ImageDiv) {
+
+        var taxonName = vis3ImageDiv.attr("taxon");
+        var taxon = tbv.oTaxa[taxonName];
+
+        if (_this.stateTaxa[taxonName].indexSelected) {
+            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName, null, _this.stateTaxa[taxonName].indexSelected);
+        } else {
+            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName);
+        }
+
+        _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
+
+        vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
+        vis3ImageDiv.closest("td").css("background-color", "lightgrey");
+
+        vis3ImageDiv.append(taxonImgDiv);
+
+        var loadImgIcon = vis3ImageDiv.find(".loadImgIcon");
+        loadImgIcon.fadeOut(0);
+        addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
+
+        _this.stateTaxa[taxonName].displayImages = true;
+        return taxonImgDiv;
+    }
+
+    function matchingScore(taxon0, taxonI, oCharacter) {
+
+        //This function is referenced in initialise and refresh (for different purposes)
+        //and is therefore absracted to top level of the module. (It's used both for
+        //colouring cells and ranking taxa.)
+
+        var character = oCharacter.Character;
+        var charScore = null;
+
+        if (oCharacter.Status == "key") {
+
+            if (taxonI[character].kbValue == "n/a" || taxonI[character].kbValue == "") {
+
+                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "") {
+                    //No score.
+                } else {
+                    //Any taxonI character without a value where one is specified for Taxon0 is non-matching.
+                    charScore = -1;
+                }
+            } else if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "") {
+
+                //Any taxonI character with a value where none specified for Taxon0 is non-matching.
+                charScore = -1;
+
+            } else if (oCharacter.ValueType == "numeric") {
+
+                //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
+                //average of the two overall scores.
+                var wholeRange = oCharacter.maxVal - oCharacter.minVal;
+                var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
+
+            } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
+
+                //Match all possible states for TaxonI against taxon0 and take the average.
+                var iCount = 0, scoreTotal = 0, score;
+                ["male", "female", ""].forEach(function (sex) {
+                    //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
+                    taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
+                        score = tombioScore.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
+                        //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
+                        scoreTotal += score[0];
+                        scoreTotal -= score[1];
+                        iCount++;
+                    });
+                });
+                charScore = scoreTotal / iCount;
+                //console.log("overall", charScore);
+
+            } else {//Character type
+                var iCount = 0, scoreTotal = 0;
+                ["male", "female", ""].forEach(function (sex) {
+                    scoreTotal += tombioScore.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
+                    iCount++;
+                });
+                var meanJaccard = scoreTotal / iCount;
+                //Jaccard returns a value between 0 and 1 - adjust this to range between -1 and 1.
+                charScore = meanJaccard * 2 - 1;
+            }
+        }
+        return charScore;
     }
 
 })(jQuery, this.tombiovis)

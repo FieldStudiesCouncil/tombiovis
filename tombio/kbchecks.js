@@ -1,24 +1,24 @@
-﻿(function ($, core) {
+﻿(function ($, tbv) {
 
     "use strict";
 
-    core.checkKnowledgeBase = function() {
+    tbv.checkKnowledgeBase = function() {
 
         /*
         At this point, the following objects are available for checking
-        core.taxa
-        core.characters
-        core.values
-        core.media
-        core.metadata
-        core.kbconfig
+        tbv.taxa
+        tbv.characters
+        tbv.values
+        tbv.media
+        tbv.metadata
+        tbv.kbconfig
         */
-        //Only carry out the validity checks if core.kbconfig.checkValidity set to yes.
-        //Deprecated in version 1.6.0 in favour of top level core.opts.checkKB flag (which therefore has precedence).
-        if (typeof core.opts.checkKB  === "undefined") {
-            core.opts.checkKB = core.kbconfig.checkValidity && core.kbconfig.checkValidity == "yes";
+        //Only carry out the validity checks if tbv.kbconfig.checkValidity set to yes.
+        //Deprecated in version 1.6.0 in favour of top level tbv.opts.checkKB flag (which therefore has precedence).
+        if (typeof tbv.opts.checkKB  === "undefined") {
+            tbv.opts.checkKB = tbv.kbconfig.checkValidity && tbv.kbconfig.checkValidity == "yes";
         }
-        if (!core.opts.checkKB) {
+        if (!tbv.opts.checkKB) {
             return true;
         }
 
@@ -32,40 +32,40 @@
         var errors, errors2;
 
         //Derive some variables for use later
-        var charactersFromCharactersTab = core.characters.map(function (character) {
+        var charactersFromCharactersTab = tbv.characters.map(function (character) {
             return character.Character;
         });
 
-        var charactersFromTaxaTab = Object.keys(core.taxa[0]).filter(function (character) {
+        var charactersFromTaxaTab = Object.keys(tbv.taxa[0]).filter(function (character) {
             return character != "";
         });
         var charactersFromValuesTab = [];
-        core.values.forEach(function (row) {
+        tbv.values.forEach(function (row) {
             if (charactersFromValuesTab.indexOf(row.Character) == -1) {
                 charactersFromValuesTab.push(row.Character);
             }
         });
 
-        var numericCharactersInTaxaTab = core.characters.filter(function (character) {
+        var numericCharactersInTaxaTab = tbv.characters.filter(function (character) {
             return character.ValueType == "numeric" && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
-        var allOrdinalCharactersInTaxaTab = core.characters.filter(function (character) {
+        var allOrdinalCharactersInTaxaTab = tbv.characters.filter(function (character) {
             return (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
-        var circularOrdinalCharactersInTaxaTab = core.characters.filter(function (character) {
+        var circularOrdinalCharactersInTaxaTab = tbv.characters.filter(function (character) {
             return (character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
         function metadataValue(key, error) {
-            if (!core.kbmetadata[key] || String(core.kbmetadata[key]).trim() == "") {
+            if (!tbv.kbmetadata[key] || String(tbv.kbmetadata[key]).trim() == "") {
                 metadata = false;
                 errors.append($('<li class="tombioValid3">').text(error));
                 return false;
@@ -92,7 +92,7 @@
               $("#downloadspin").show();
               $('#tombioKBReport').hide();
               //If I don't use a setTimeout function here, the spinner doesn't re-appear
-              setTimeout(function () { core.loadComplete("force") }, 100);
+              setTimeout(function () { tbv.loadComplete("force") }, 100);
           })
 
         $('#tombioKBReport').append($('<h3>').text('First fix these knowledge-base problems...'));
@@ -123,13 +123,13 @@
         //Taxa
         errors = $('<ul>');
         //Taxon column must be present
-        if (!core.taxa[0]["Taxon"]) {
+        if (!tbv.taxa[0]["Taxon"]) {
             errors.append($('<li class="tombioValid3">').html("There must be a column called <i>Taxon</i> (case sensitive) which stores the names of the taxa you are working with."));
             taxa = false;
         }
         //Check that character names are alphanumeric without any space
         var regexCharID = /^[a-zA-Z0-9\-_]+$/;
-        Object.keys(core.taxa[0]).forEach(function (character, iCol) {
+        Object.keys(tbv.taxa[0]).forEach(function (character, iCol) {
             if (!regexCharID.test(character)) {
                 errors.append($('<li class="tombioValid3">').html("<b>'" + character + "'</b> (column " + (iCol + 1) + ") is not a valid identifier for a character. Use only alphanumerics with no spaces."));
                 taxa = false;
@@ -143,7 +143,7 @@
         var regexNumericRange = /^\[(\d+(\.\d*)?|\.\d+)-(\d+(\.\d*)?|\.\d+)\]$/;
 
         numericCharactersInTaxaTab.forEach(function (character) {
-            core.taxa.forEach(function (taxon) {
+            tbv.taxa.forEach(function (taxon) {
                 value = taxon[character];
                 //Sometimes, unpredictably, we seem to get here and on line that tables value.substr we get a 'value.substr is
                 //not a function' error - presumably because value is undefined. Can't work out why, but put an error trap
@@ -169,7 +169,7 @@
         var regexOrdinalRange = /^\[[^-]+-[^-]+\]$/;
         allOrdinalCharactersInTaxaTab.forEach(function (character) {
 
-            core.taxa.forEach(function (taxon) {
+            tbv.taxa.forEach(function (taxon) {
                 value = taxon[character];
                 var stopChecking = false;
                 if (!(value == "" ||
@@ -178,7 +178,7 @@
                      value.substr(0, 1) == "#")) { //ignores comment out character state values
 
                     //Get the permitted ordinal values for this character
-                    var fullOrdinalRange = core.values.filter(function (vRow) {
+                    var fullOrdinalRange = tbv.values.filter(function (vRow) {
                         return vRow.Character == character;
                     });
 
@@ -233,7 +233,7 @@
         //Characters
         errors = $('<ul>');
         //Check that Taxon column has a Group value of Taxonomy
-        var taxonRows = core.characters.filter(function (c) { return (c.Character == "Taxon") });
+        var taxonRows = tbv.characters.filter(function (c) { return (c.Character == "Taxon") });
         if (taxonRows.length > 0 && taxonRows[0].Group != "Taxonomy") {
             errors.append($('<li class="tombioValid3">').html("The Taxon character must have a Group value of 'Taxonomy'. It is currently set to '" + taxonRows[0].Group + "'."));
             characters = false;
@@ -253,7 +253,7 @@
             }
         });
         //Check other character parameters.
-        core.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
+        tbv.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
             var validValueType = ["numeric", "ordinal", "ordinalCircular", "text"];
             var validControlType = ["single", "multi", "spin"];
             var validControlsForValues = {
@@ -324,7 +324,7 @@
             }
         });
 
-        core.values.forEach(function (v) {
+        tbv.values.forEach(function (v) {
             //Check that any character with StateHelpShort set also has StateHelp set.
             if (v.StateHelpShort && !v.StateHelp) {
                 errors.append($('<li class="tombioValid2">').html("A value for 'StateHelpShort' is set but there is no value for 'StateHelp' for <b>'" + v.Character + " - " + v.CharacterState + "'</b>. You can set 'StateHelp' without setting 'StateHelpShort', but not the other way around."));
@@ -351,7 +351,7 @@
         //charactersFromValuesTab.forEach(function (character) {
 
         //    valueCharacterValues = [];
-        //    core.values.forEach(function (row) {
+        //    tbv.values.forEach(function (row) {
         //        if (row.Character == character) {
         //            valueCharacterValues.push(row.CharacterState);
         //        }
@@ -359,7 +359,7 @@
 
         //    if (charactersFromTaxaTab.indexOf(character) > -1) {
         //        taxaCharacterValues = [];
-        //        core.taxa.forEach(function (taxon) {
+        //        tbv.taxa.forEach(function (taxon) {
 
         //            var splitvalues = taxon[character].split("|");
         //            splitvalues.forEach(function (charValue) {
@@ -410,7 +410,7 @@
 
         //Image media files
         errors = $('<ul>');
-        core.media.filter(function (m) { return (m.Type == "image-local") }).forEach(function (m) {
+        tbv.media.filter(function (m) { return (m.Type == "image-local") }).forEach(function (m) {
 
             if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
                 //A character on the media tab does not appear on the characters tab
@@ -418,7 +418,7 @@
                 media = false;
             } else if (m.Character != "") {
                 //If a character is specified on media tab, no help text specified on characters tab
-                //var character = core.characters.filter(function (c) { return (c.Character == m.Character) })[0];
+                //var character = tbv.characters.filter(function (c) { return (c.Character == m.Character) })[0];
                 //if (character.Help == "") {
                 //    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but no help text is provided for that character on the characters worksheet, so it won't be displayed."));
                 //    media = false;
@@ -432,7 +432,7 @@
             }
             if (m.State != "" && m.Character != "") {
                 //If a character/value pair is not present on values tab or does not have an associated help value
-                var values = core.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
+                var values = tbv.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
 
                 if (values.length == 0 || values[0].StateHelp == "") {
                     errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
@@ -447,7 +447,7 @@
 
         //Taxonomy checks
         errors = $('<ul>');
-        var taxonomyCharacters = core.characters.filter(function (c) { return (c.Group == "Taxonomy") });
+        var taxonomyCharacters = tbv.characters.filter(function (c) { return (c.Group == "Taxonomy") });
         var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
         //Check that the row representing Taxon is the last Taxonomy group column on the Characters tab
         if (lastTaxonomyCol && lastTaxonomyCol != "Taxon") {
@@ -464,14 +464,14 @@
                 var parentRankCol = taxonomyCharacters[iRank - 1].Character;
                 var parentRankColName = taxonomyCharacters[iRank - 1].Label;
                 var uniqueRankValues = [];
-                core.taxa.forEach(function (t) {
+                tbv.taxa.forEach(function (t) {
                     if (t[rankCol] != "" && uniqueRankValues.indexOf(t[rankCol]) == -1) {
                         uniqueRankValues.push(t[rankCol]);
                     }
                 })
                 uniqueRankValues.forEach(function (rankVal) {
                     var uniqueHigherRankValues = [];
-                    var taxa = core.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
+                    var taxa = tbv.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
                     taxa.forEach(function (t) {
                         if (uniqueHigherRankValues.indexOf(t[parentRankCol]) == -1) {
                             uniqueHigherRankValues.push(t[parentRankCol]);

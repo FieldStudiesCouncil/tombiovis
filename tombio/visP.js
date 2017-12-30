@@ -1,87 +1,27 @@
-﻿(function ($, core) {
+﻿(function ($, tbv) {
 
     "use strict";
 
-    var exports = core.visP = {};
+    var visP = tbv.visP = {};
 
-    function debugText(text, append) {
-        //console.log("debugText")
-        var rand = Math.floor(Math.random() * 1000);
-        text = rand + " " + text;
-
-        var d = $("#tombioDebugText");
-        if (text === null) {
-            d.html("");
-            d.hide();
-        } else {
-            if (append) {
-                d.html(d.html() + "<br/>" + text);
-            } else {
-                console.log("here")
-                d.html(text);
-            }
-            d.show();
-        }
-    }
-
-    exports.Obj = function (visName, parent, contextMenu, core) {
+    visP.initP = function (visName, parent, contextMenu, tbv) {
 
         this.visName = visName;
         this.contextMenu = contextMenu;
-        this.taxa = core.taxa;
-        this.oTaxa = core.oTaxa;
-        this.characters = core.characters;
-        this.oCharacters = core.oCharacters;
-        this.media = core.media;
         this.div = $("<div/>").attr("id", visName).css("display", "none").appendTo(parent);
         this.cssSel = parent + " > #" + visName;
         this.mobile = /Mobi/.test(navigator.userAgent);
 
         var _this = this;
 
-        //Store value to indicate whether or not characters are grouped
-        this.charactersGrouped = false;
-        this.characters.forEach(function (character) {
-            if (character.Status == "key" && character.Group.toLowerCase() != "none") {
-                _this.charactersGrouped = true;
-            }
-        });
+        //Initialise the metadata structure for visualisations.
+        this.metadata = {};
 
-        //Set up the metadata structure for visualisations.
-        this.metadata = {
-            title: null,
-            year: null,
-            authors: null,
-            publisher: null,
-            location: null,
-            contact: null,
-            version: null
-        }
-
+        //Fire the visualisations own initialisation function.
         this.initialise();
     }
 
-    exports.Obj.prototype.fireRefresh = function () {
-        if (typeof this.onRefresh === "function") {
-            setTimeout(this.onRefresh, 1);
-        }
-    }
-
-    exports.Obj.prototype.initialise = function () {
-
-        //Reset this value if control can work with character state input controls
-        this.charStateInput = false;
-
-        //Replace the following
-        this.div.append("<h2>" + this.visName + "</h2>")
-        this.div.append("<p>Selector is: " + this.cssSel + "</p>")
-    }
-
-    exports.Obj.prototype.urlParams = function () {
-
-    }
-
-    exports.Obj.prototype.fullDetails = function (taxon, selected, x, y) {
+    visP.fullDetails = function (taxon, selected, x, y) {
 
         var _this = this;
 
@@ -132,7 +72,7 @@
         tab3.css("overflow", "hidden"); //Must come after tabs created.
 
         //Taxon details
-        var divTaxonDetails = this.showTaxonCharacterValues(core.oTaxa[taxon], true)
+        var divTaxonDetails = this.showTaxonCharacterValues(tbv.oTaxa[taxon], true)
         tab1.append(divTaxonDetails);
 
         //Images
@@ -147,7 +87,7 @@
 
     }
 
-    exports.Obj.prototype.fullDetailsTest = function (taxon, selected, x, y) {
+    visP.fullDetailsTest = function (taxon, selected, x, y) {
 
         //Dialog
         var dlg = $("<div>").dialog();
@@ -166,16 +106,7 @@
         htmlSel.selectmenu();
     }
 
-    exports.Obj.prototype.refresh = function () {
-
-        //Replace the following
-        this.div.append("<p>Refresh fired " + Date() + "</p>")
-
-        //Consider including
-        this.fireRefresh();
-    }
-
-    exports.Obj.prototype.sortTaxa = function (array, lastPosAttr) {
+    visP.sortTaxa = function (array, lastPosAttr) {
         return array.sort(function (a, b) {
 
             if (a.scoreoverall > b.scoreoverall) return -1;
@@ -193,7 +124,7 @@
         });
     }
 
-    exports.Obj.prototype.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {
+    visP.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {
 
         var imgZoomOrigLeft, imgZoomOrigTop, imgZoomOrigCentreX, imgZoomOrigCentreY;
         var initialSelectorImage;
@@ -228,7 +159,7 @@
             var taxonImage = taxonImages[imageIndex];
 
             //Change all image selector icons to grey image
-            controlsImageSelectors.find("img").attr("src", core.opts.tombiopath + "resources/camera.png");
+            controlsImageSelectors.find("img").attr("src", tbv.opts.tombiopath + "resources/camera.png");
 
             //Clear current image and caption
             if (pane.css("width") != "0px") {
@@ -267,7 +198,7 @@
 
                 img.css("opacity", 0.2); //Helps with sorting out problems
 
-                pane.find("#imgLink" + imageIndex).attr("src", core.opts.tombiopath + "resources/cameragreen.png");
+                pane.find("#imgLink" + imageIndex).attr("src", tbv.opts.tombiopath + "resources/cameragreen.png");
 
                 //Initialise zoom image
                 var _this = this;
@@ -425,7 +356,7 @@
             .css("position", "relative")
             .css("overflow", "hidden")
             .css("background-color", "grey")
-            .css("background-image", "url('" + core.opts.tombiopath + "resources/loading.gif')")
+            .css("background-image", "url('" + tbv.opts.tombiopath + "resources/loading.gif')")
             .css("background-repeat", "no-repeat")
             .css("background-position", "center");
 
@@ -510,7 +441,7 @@
                 );
             });
 
-        var moveleftimg = $('<img src="' + core.opts.tombiopath + 'resources/moveleft.png">')
+        var moveleftimg = $('<img src="' + tbv.opts.tombiopath + 'resources/moveleft.png">')
             .css("position", "absolute")
             .css("top", "50%")
             .css("left", 0)
@@ -546,8 +477,6 @@
                 //If control is not visible, then just return
                 if ($(this).css('opacity') == 0) return;
 
-                //debugText("opacity: " + $(this).css('opacity'))
-
                 var imageIndex = Number(pane.attr("indexSelected"));
                 imageSelected((taxonImages.length + imageIndex + 1) % taxonImages.length,
                     function () {
@@ -561,7 +490,7 @@
                 );
             });
 
-        var moverightimg = $('<img src="' + core.opts.tombiopath + 'resources/moveright.png">')
+        var moverightimg = $('<img src="' + tbv.opts.tombiopath + 'resources/moveright.png">')
             .css("position", "absolute")
             .css("top", "50%")
             .css("right", 0)
@@ -678,10 +607,10 @@
             var taxonImageLink = $('<img/>');
 
             if (indexSelected == imageIndex) {
-                icon = core.opts.tombiopath + "resources/cameragreen.png";
+                icon = tbv.opts.tombiopath + "resources/cameragreen.png";
                 initialSelectorImage = taxonImageLink;
             } else {
-                icon = core.opts.tombiopath + "resources/camera.png";
+                icon = tbv.opts.tombiopath + "resources/camera.png";
             }
             taxonImageLink.attr("src", icon)
                 .css("cursor", "pointer")
@@ -704,7 +633,7 @@
         //Close image
         if (!surpressImageRemoval) {
             var closeImage = $('<img/>');
-            closeImage.attr("src", core.opts.tombiopath + "resources/remove.png")
+            closeImage.attr("src", tbv.opts.tombiopath + "resources/remove.png")
                 .css("cursor", "pointer")
                 .css("position", "absolute")
                 .css("top", 8)
@@ -743,9 +672,9 @@
         return pane;
     }
 
-    exports.Obj.prototype.getTaxonImages = function (taxon) {
+    visP.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
-        var taxonImages = this.media.filter(function (m) {
+        var taxonImages = tbv.media.filter(function (m) {
             if (m.Taxon == taxon && m.Type == "image-local") return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
@@ -753,9 +682,9 @@
         return taxonImages;
     }
 
-    exports.Obj.prototype.getTaxonTipImage = function (taxon) {
+    visP.getTaxonTipImage = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
-        var taxonImages = this.media.filter(function (m) {
+        var taxonImages = tbv.media.filter(function (m) {
             if (m.Taxon == taxon && m.Type == "image-local") {
                 //Check UseFor field - it id doesn't exist or exists and empty then allow image
                 //Otherwise ensure that "tip" is amongst comma separated list
@@ -790,9 +719,9 @@
         }
     }
 
-    exports.Obj.prototype.getTaxonHtmlFiles = function (taxon) {
+    visP.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
-        var taxonHtmlFiles = this.media.filter(function (m) {
+        var taxonHtmlFiles = tbv.media.filter(function (m) {
             if (m.Taxon == taxon && m.Type == "html-local") return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
@@ -800,7 +729,7 @@
         return taxonHtmlFiles;
     }
 
-    exports.Obj.prototype.showFloatingImages = function (taxon, x, y) {
+    visP.showFloatingImages = function (taxon, x, y) {
 
         var _this = this;
         var pane = $('<div/>').appendTo('#tombioMain');
@@ -850,7 +779,7 @@
         }, [this.visName]);
     }
 
-    exports.Obj.prototype.showCharacterScoreDetails = function (taxon, character) {
+    visP.showCharacterScoreDetails = function (taxon, character) {
 
         //???? Change all this to use jQuery appends? ?????????
 
@@ -905,7 +834,7 @@
         $("#tombioHelpAndInfoDialog").dialog("open");
     }
 
-    exports.Obj.prototype.showTaxonCharacterValues = function (taxon, returnAsHtml) {
+    visP.showTaxonCharacterValues = function (taxon, returnAsHtml) {
 
         var html = $("<table>");
         html.css("width", "100%");
@@ -914,12 +843,10 @@
         var iChar = 0;
         var lastCharacterGroup = "";
 
-        var _this = this;
-
-        this.characters.forEach(function (character) {
+        tbv.characters.forEach(function (character) {
             if (character.Status == "key" || character.Status == "display") {
 
-                if (_this.charactersGrouped && character.Group != lastCharacterGroup) {
+                if (tbv.charactersGrouped && character.Group != lastCharacterGroup) {
                     var tr = $("<tr>");
                     tr.css("background-color", "rgb(100,100,100)");
                     tr.css("color", "rgb(255,255,255)");
@@ -958,7 +885,7 @@
         }  
     }
 
-    exports.Obj.prototype.getHTMLFileSelectionDiv = function (taxon, container) {
+    visP.getHTMLFileSelectionDiv = function (taxon, container) {
 
         //It's important that the container to which the dropdown list is added, is passed
         //to this function and added here *before* selectmenu is called, otherwise the selectmenu
@@ -998,29 +925,29 @@
         }
     }
 
-    exports.Obj.prototype.resizeIframe = function (iframe) {
+    visP.resizeIframe = function (iframe) {
         iframe.height(10); //This is necessary to get the iframe to decrease in size when a smaller document is loaded.
         iframe.height(iframe.contents().height() + 100); //The extra 100 can help avoid some documents not being displayed in full
     }
 
-    exports.Obj.prototype.showTaxonHtmlIframe = function (taxon, iframe, iFile) {
+    visP.showTaxonHtmlIframe = function (taxon, iframe, iFile) {
 
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            //console.log(core.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.opts.tombiover)
-            iframe.attr("src", core.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.opts.tombiover);
+            //console.log(tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover)
+            iframe.attr("src", tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover);
         } else {
             iframe.attr("src", null);
         }
     }
 
-    exports.Obj.prototype.showTaxonHtmlInfo = function (taxon, container, iFile) {
+    visP.showTaxonHtmlInfo = function (taxon, container, iFile) {
         
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(core.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + core.opts.tombiover, function (data) {
+            $.get(tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
 
                 //We need to extract the html in the body tag and ignore everything
                 //else. Trouble is when using jQuery to insert the full HTML into 
@@ -1041,7 +968,7 @@
         }
     }
 
-    exports.Obj.prototype.shortName = function (name) {
+    visP.shortName = function (name) {
         //Returns a shortened name for use in visualisations
         //where long taxa name too long.
 
@@ -1058,11 +985,11 @@
         return shortName;
     }
 
-    exports.Obj.prototype.taxonTag = function (taxonName) {
+    visP.taxonTag = function (taxonName) {
         return taxonName.replace(/[|&;$%@"<>()+:.,'\/ ]/g, '');
     }
 
-    exports.Obj.prototype.copyTextToClipboard = function(text) {
+    visP.copyTextToClipboard = function(text) {
         //https://codepen.io/Mestika/pen/NxLzNq
         var textArea = document.createElement("textarea");
         textArea.value = text;
@@ -1080,6 +1007,6 @@
 
     //Colour ramp for the matching indicators to be used across all visualisations
     //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
-    exports.Obj.prototype.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
+    visP.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
 
 })(jQuery, this.tombiovis);
