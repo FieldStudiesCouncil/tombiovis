@@ -1,7 +1,6 @@
 ﻿(function ($, tbv) {
 
-    //Define StateValue object
-
+    //Define StateValue object 
     "use strict";
 
     tbv.stateValue = {
@@ -298,29 +297,8 @@
         initialising: true
     };
 
-    tbv.debugText = function (text, append) {
-        //A function for printing diagnostic text in cases where a console is not available,
-        //e.g. on mobile device browsers. The element #tombioDebugText is created in import.html
-        var d = $("#tombioDebugText");
-        if (text === null) {
-            //Hide error display element
-            d.html("");
-            d.hide();
-        } else {
-            d.show();
-            //Random number helps us distinguish when function is called repeatedly
-            //with the same text
-            var rand = Math.floor(Math.random() * 1000);
-            text = rand + " " + text;
-            if (append) {
-                d.html(d.html() + "<br/>" + text);
-            } else {
-                d.html(text);
-            }
-        }
-    }
-
     tbv.loadComplete = function (force) {
+        //Called from load.js after all initial loading complete
 
         //Replace content in header and footer tags with tombiod3 id's - this is
         //most relevant for test harness.
@@ -390,10 +368,9 @@
             }
         });
 
-        //Update URIs of local resources
-        //##Note - must be doing HTML files elsewhere - so bring in here??
+        //Update relative URIs of local resources to reflect the full path of knowledge-base
         tbv.media.forEach(function (m) {
-            if (m.Type == "image-local") {
+            if (m.Type == "image-local" || m.Type == "html-local") {
                 m.URI = tbv.opts.tombiokbpath + m.URI;
             }
         });
@@ -418,14 +395,244 @@
         //Initialise size of controls' tab container
         resizeControlsAndTaxa();
 
-        //Initialise chart
-        //visChanged can load modules which is asynchronous, so 
+        //Initialise visualisation
+        //visChangedFromDropdown can load modules which is asynchronous, so 
         //no code should come after this.
-        visChanged();
+        visChangedFromDropdown();
 
-        //Fire any callback defined in tbv.loadCallback 
+        //Fire any callback defined in tbv.loadCallback. Typically, this could be
+        //set by a calling host site.
+        //Be aware that this could fire before the first visualisation is fully loaded.
         if (tbv.loadCallback) {
             tbv.loadCallback();
+        }
+    }
+
+    tbv.initControlsFromParams = function (params) {
+        //Set values from character state parameters in tbv.characters
+        //Called by visualisations that can set input controls from command-line parameters.
+        for (name in params) {
+            if (name.startsWith("c-")) {
+
+                var cIndex = name.split("-")[1];
+                var char = tbv.characters[cIndex];
+
+                if (char.ControlType === "spin") {
+                    char.userInput = params[name];
+                } else {
+                    char.userInput = params[name].split(",");
+                }
+                char.stateSet = true;
+            }
+        }
+
+        //Set the character state input controls
+        tbv.characters.forEach(function (c, cIndex) {
+            if (c.userInput) {
+                if (c.ControlType === "spin") {
+                    var control = $("#" + c.Character + ".statespinner");
+                    var clone = $("#clone-" + c.Character + ".statespinner");
+                    control.spinner("value", c.userInput);
+                    clone.spinner("value", c.userInput);
+                } else {
+                    var control = $("#" + c.Character + ".stateselect");
+                    var clone = $("#clone-" + c.Character + ".stateselect");
+
+                    var stateValues = c.userInput.map(function (valueIndex) {
+                        return c.CharacterStateValues[valueIndex];
+                    })
+                    control.val(stateValues).pqSelect('refreshData');
+                    clone.val(stateValues).pqSelect('refreshData');
+                }
+            }
+        })
+
+        //Set selected group
+        $("#tombioControlTabs").tabs("option", "active", params["grp"]);
+
+        //Visibility of unused controls (clones)
+        $("[name='charvisibility']")
+            .removeProp('checked')
+            .filter('[value="' + params["cvis"] + '"]')
+            .prop('checked', true);
+
+        $("[name='charvisibility']").checkboxradio('refresh');
+
+        setCloneVisibility();
+        refreshVisualisation();
+    }
+
+    tbv.setParamsFromControls = function () {
+        //Called from visualisations that need to generate a URL describing the current
+        //user-input states.
+        var params = [];
+
+        //User input values
+        tbv.characters.forEach(function (c, cIndex) {
+            if (c.userInput) {
+                var paramName = "c-" + cIndex
+                if (c.ControlType === "spin") {
+                    params.push(paramName + "=" + c.userInput)
+                } else {
+                    params.push(paramName + "=" + c.userInput.join(","));
+                }
+            }
+        })
+
+        //Selected control tab
+        params.push("grp=" + $("#tombioControlTabs").tabs("option", "active"));
+
+        //Control visibility
+        params.push("cvis=" + $("input[name=charvisibility]:checked").val());
+
+        return params
+    }
+
+    tbv.getCitation = function (metadata, sType, coreTitle) {
+        //This function is made publicly accessible so that hosting web pages
+        //can access citation text if required.
+
+        var html = $("<div class='tombioCitation'>"), t;
+        var d = new Date();
+
+        t = metadata.authors + " ";
+        t += "(" + metadata.year + ") ";
+        t += "<i>" + metadata.title + "</i>";
+        t += " (Version " + metadata.version + ") [" + sType + "]";
+        if (coreTitle) {
+            t += " (for " + coreTitle + ")";
+        }
+        t += ". ";
+        if (metadata.publisher) {
+            t += metadata.publisher + ". ";
+        }
+        if (metadata.location) {
+            t += metadata.location + ". ";
+        }
+        t += "Accessed " + d.toDateString() + ". ";
+        t += window.location.href.split('?')[0]; //$(location).attr('href');
+
+        html.append($("<div>").html(t));
+        return html;
+    }
+
+    tbv.visChanged = function (selectedToolName, lastVisualisation) {
+        //This can be called from hosting sites which is why it is a public function
+        //If reload selected, then reload the entire application.
+        if (selectedToolName == "reload") {
+            //Force reload of entire page - ignoring cache.
+            //window.location.reload(true);
+            //https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
+            $.ajax({
+                url: window.location.href,
+                headers: {
+                    "Pragma": "no-cache",
+                    "Expires": -1,
+                    "Cache-Control": "no-cache"
+                }
+            }).done(function () {
+                window.location.reload(true);
+            });
+            return;
+        }
+
+        if (selectedToolName == "visInfo" || selectedToolName == "kbInfo") {
+            visModuleLoaded(selectedToolName);
+            return;
+        }
+
+        //If the user has selected to show citation or info page, first make sure that
+        //the visualisation on which these are associated (last visualisation) is loaded,
+        //then pass forward to visModuleLoaded.
+        if (selectedToolName == "tombioCitation" || selectedToolName == "currentVisInfo") {
+
+            //The tombioCitation and currentVisInfo pages work using the lastVis variable.
+            //If a lastVisualisation parameter is passed in to this function, then use that.
+            //Otherwise, if a modState.lastVisualisation has been set, then use that. Otherwise
+            //if a high-level option tbv.opts.lastVisualisation is set, then use that.
+            var lastVis;
+            if (lastVisualisation) {
+                lastVis = lastVisualisation;
+            } else if (modState.lastVisualisation) {
+                lastVis = modState.lastVisualisation.visName;
+            } else if (tbv.opts.lastVisualisation) {
+                lastVis = tbv.opts.lastVisualisation;
+            } else {
+                lastVis = "vis1";
+            }
+            //console.log("modState.lastVisualisation", lastVis)
+            //console.log("lastVis", lastVis)
+
+            //Load lastVis if not already loaded
+            tbv.showDownloadSpinner();
+            if (tbv.jsFiles[lastVis]) {
+                tbv.jsFiles[lastVis].markLoadReady();
+            }
+            tbv.loadScripts(function () {
+                //Callback
+                tbv.hideDownloadSpinner();
+                //Create the visualisation object if it doesn't already exist
+                //(may happen if option not selected from built-in drop-down list)
+                if (!modState.visualisations[lastVis]) {
+                    var visObj = tbv[lastVis];
+                    visObj.initP(lastVis, "#tombioTaxa", modState.contextMenu, tbv);
+                    modState.visualisations[lastVis] = visObj;
+                }
+                modState.lastVisualisation = modState.visualisations[lastVis];
+                visModuleLoaded(selectedToolName);
+            })
+            return;
+        }
+
+        //If we got here, a visualisation (module) was selected.
+        //At this point, the tool module (and it's dependencies) may or may not be loaded.
+        //So we go through the steps of marking them as 'loadReady' and calling the
+        //loadScripts function. If they are already loaded, then that will just return
+        //(i.e. call the callback function) immediately
+        //If the drop-down tool select doesn't match the selected value
+        //(because latter set by parameter), then set the value.
+        if ($('#tombioVisualisation').val() != selectedToolName) {
+            $('#tombioVisualisation').val(selectedToolName);
+        }
+        //If this isn't done before the next step, something strange
+        //occurs and svg's don't usually display properly.
+        tbv.showDownloadSpinner();
+        if (tbv.jsFiles[selectedToolName]) {
+            tbv.jsFiles[selectedToolName].markLoadReady();
+        }
+        tbv.loadScripts(function () {
+            //Callback
+            tbv.hideDownloadSpinner();
+            //Create the visualisation object if it doesn't already exist
+            if (!modState.visualisations[selectedToolName]) {
+                var visObj = tbv[selectedToolName];
+                visObj.initP(selectedToolName, "#tombioTaxa", modState.contextMenu, tbv);
+                modState.visualisations[selectedToolName] = visObj;
+            }
+            console.log("Starting", selectedToolName)
+            visModuleLoaded(selectedToolName);
+        });
+    }
+
+    tbv.debugText = function (text, append) {
+        //A general utility function for printing diagnostic text in cases where a console is not available,
+        //e.g. on mobile device browsers. The element #tombioDebugText is created in import.html
+        var d = $("#tombioDebugText");
+        if (text === null) {
+            //Hide error display element
+            d.html("");
+            d.hide();
+        } else {
+            d.show();
+            //Random number helps us distinguish when function is called repeatedly
+            //with the same text
+            var rand = Math.floor(Math.random() * 1000);
+            text = rand + " " + text;
+            if (append) {
+                d.html(d.html() + "<br/>" + text);
+            } else {
+                d.html(text);
+            }
         }
     }
 
@@ -800,7 +1007,7 @@
               //    })
               //},
               change: function () {
-                  visChanged();
+                  visChangedFromDropdown();
               }
               //width: "100%"
           })
@@ -993,214 +1200,9 @@
         window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
     }
 
-    tbv.initControlsFromParams = function (params) {
-
-        //Set values from character state parameters in tbv.characters
-        for (name in params) {
-            if (name.startsWith("c-")) {
-
-                var cIndex = name.split("-")[1];
-                var char = tbv.characters[cIndex];
-
-                if (char.ControlType === "spin") {
-                    char.userInput = params[name];
-                } else {
-                    char.userInput = params[name].split(",");
-                }
-                char.stateSet = true;
-            }
-        }
-
-        //Set the character state input controls
-        tbv.characters.forEach(function (c, cIndex) {
-            if (c.userInput) {
-                if (c.ControlType === "spin") {
-                    var control = $("#" + c.Character + ".statespinner");
-                    var clone = $("#clone-" + c.Character + ".statespinner");
-                    control.spinner("value", c.userInput);
-                    clone.spinner("value", c.userInput);
-                } else {
-                    var control = $("#" + c.Character + ".stateselect");
-                    var clone = $("#clone-" + c.Character + ".stateselect");
-
-                    var stateValues = c.userInput.map(function (valueIndex) {
-                        return c.CharacterStateValues[valueIndex];
-                    })
-                    control.val(stateValues).pqSelect('refreshData');
-                    clone.val(stateValues).pqSelect('refreshData');
-                }
-            }
-        })
-
-        //Set selected group
-        $("#tombioControlTabs").tabs("option", "active", params["grp"]);
-
-        //Visibility of unused controls (clones)
-        $("[name='charvisibility']")
-            .removeProp('checked')
-            .filter('[value="' + params["cvis"] + '"]')
-            .prop('checked', true);
-
-        $("[name='charvisibility']").checkboxradio('refresh');
-
-        setCloneVisibility();
-        refreshVisualisation();
-    }
-
-    tbv.setParamsFromControls = function () {
-
-        var params = [];
-
-        //User input values
-        tbv.characters.forEach(function(c, cIndex) {
-            if (c.userInput) {
-                var paramName = "c-" + cIndex
-                if (c.ControlType === "spin") {
-                    params.push(paramName + "=" + c.userInput)
-                } else {
-                    params.push(paramName + "=" + c.userInput.join(","));
-                }
-            }
-        })
-
-        //Selected control tab
-        params.push("grp=" + $("#tombioControlTabs").tabs("option", "active"));
-
-        //Control visibility
-        params.push("cvis=" + $("input[name=charvisibility]:checked").val());
-
-        return params
-    }
-
-    tbv.getCitation = function (metadata, sType, coreTitle) {
-
-        var html = $("<div class='tombioCitation'>"), t;
-        var d = new Date();
-
-        t = metadata.authors + " ";
-        t += "(" + metadata.year + ") ";
-        t += "<i>" + metadata.title + "</i>";
-        t += " (Version " + metadata.version + ") [" + sType + "]";
-        if (coreTitle) {
-            t += " (for " + coreTitle + ")";
-        }
-        t += ". ";
-        if (metadata.publisher) {
-            t += metadata.publisher + ". ";
-        }
-        if (metadata.location) {
-            t += metadata.location + ". ";
-        }
-        t += "Accessed " + d.toDateString() + ". ";
-        t += window.location.href.split('?')[0]; //$(location).attr('href');
-
-        html.append($("<div>").html(t));
-        return html;
-    }
-    
-    function visChanged() {
+    function visChangedFromDropdown() {
         //console.log("last visualisation:", modState.lastVisualisation)
         tbv.visChanged($("#tombioVisualisation").val());
-    }
-
-    tbv.visChanged = function (selectedToolName, lastVisualisation) {
-
-        //If reload selected, then reload the entire application.
-        if (selectedToolName == "reload") {
-            //Force reload of entire page - ignoring cache.
-            //window.location.reload(true);
-            //https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
-            $.ajax({
-                url: window.location.href,
-                headers: {
-                    "Pragma": "no-cache",
-                    "Expires": -1,
-                    "Cache-Control": "no-cache"
-                }
-            }).done(function () {
-                window.location.reload(true);
-            });
-            return;
-        }
-
-        if (selectedToolName == "visInfo" || selectedToolName == "kbInfo") {
-            visModuleLoaded(selectedToolName);
-            return;
-        }
-
-        //If the user has selected to show citation or info page, first make sure that
-        //the visualisation on which these are associated (last visualisation) is loaded,
-        //then pass forward to visModuleLoaded.
-        if (selectedToolName == "tombioCitation" ||  selectedToolName == "currentVisInfo") {
-
-            //The tombioCitation and currentVisInfo pages work using the lastVis variable.
-            //If a lastVisualisation parameter is passed in to this function, then use that.
-            //Otherwise, if a modState.lastVisualisation has been set, then use that. Otherwise
-            //if a high-level option tbv.opts.lastVisualisation is set, then use that.
-            var lastVis;
-            if (lastVisualisation) {
-                lastVis = lastVisualisation;
-            } else if (modState.lastVisualisation) {
-                lastVis = modState.lastVisualisation.visName;
-            } else if (tbv.opts.lastVisualisation) {
-                lastVis = tbv.opts.lastVisualisation;
-            } else {
-                lastVis = "vis1";
-            }
-            //console.log("modState.lastVisualisation", lastVis)
-            //console.log("lastVis", lastVis)
-          
-            //Load lastVis if not already loaded
-            tbv.showDownloadSpinner();
-            if (tbv.jsFiles[lastVis]) {
-                tbv.jsFiles[lastVis].loadReady();
-            }
-            tbv.loadScripts(function () {
-                //Callback
-                tbv.hideDownloadSpinner();
-                //Create the visualisation object if it doesn't already exist
-                //(may happen if option not selected from built-in drop-down list)
-                if (!modState.visualisations[lastVis]) {
-                    //var visObj = new tbv[lastVis].Obj("#tombioTaxa", modState.contextMenu, tbv);
-                    var visObj = tbv[lastVis];
-                    visObj.initP(lastVis, "#tombioTaxa", modState.contextMenu, tbv);
-                    modState.visualisations[lastVis] = visObj;
-                }
-                modState.lastVisualisation = modState.visualisations[lastVis];
-                visModuleLoaded(selectedToolName);      
-            })
-            return;
-        }
-
-        //If we got here, a visualisation (module) was selected.
-        //At this point, the tool module (and it's dependencies) may or may not be loaded.
-        //So we go through the steps of marking them as 'loadReady' and calling the
-        //loadScripts function. If they are already loaded, then that will just return
-        //(i.e. call the callback function) immediately
-        //If the drop-down tool select doesn't match the selected value
-        //(because latter set by parameter), then set the value.
-        if ($('#tombioVisualisation').val() != selectedToolName) {
-            $('#tombioVisualisation').val(selectedToolName);
-        }
-        //If this isn't done before the next step, something strange
-        //occurs and svg's don't usually display properly.
-        tbv.showDownloadSpinner();
-        if (tbv.jsFiles[selectedToolName]) {
-            tbv.jsFiles[selectedToolName].loadReady();
-        }
-        tbv.loadScripts(function () {
-            //Callback
-            tbv.hideDownloadSpinner();
-            //Create the visualisation object if it doesn't already exist
-            if (!modState.visualisations[selectedToolName]) {
-                //var visObj = new tbv[selectedToolName].Obj("#tombioTaxa", modState.contextMenu, tbv);
-                var visObj = tbv[selectedToolName];
-                visObj.initP(selectedToolName, "#tombioTaxa", modState.contextMenu, tbv);
-                modState.visualisations[selectedToolName] = visObj;
-            }
-            console.log("Starting", selectedToolName)
-            visModuleLoaded(selectedToolName);
-        });
     }
 
     function visModuleLoaded(selectedToolName) {
@@ -1873,6 +1875,7 @@
         //Add a property which is an object which links to each item
         //in the menu. 
         modState.contextMenu.items = {};
+
         //Add a property which is an object which stores the
         //contexts (visualisations) valid for each item.
         modState.contextMenu.contexts = {};
@@ -1913,47 +1916,6 @@
         $("#tombioMain").on("click", function () {
             modState.contextMenu.menu.hide();
         });
-
-        ////Add method to add an item
-        //modState.contextMenu.addItem = function (label, f, contexts) {
-
-        //    //Add item if it does not already exist
-        //    if (!(label in modState.contextMenu.items)) {
-
-        //        var item = $("<li>").append($("<div>").text(label).click(f));
-        //        modState.contextMenu.menu.append(item);
-        //        modState.contextMenu.menu.menu("refresh");
-        //        modState.contextMenu.items[label] = item;
-        //        modState.contextMenu.contexts[label] = contexts;
-        //    }
-        //}
-
-        ////Add method to remove an item
-        //modState.contextMenu.removeItem = function (label) {
-        //    if (label in modState.contextMenu.items) {
-        //        modState.contextMenu.items[label].remove();
-        //        delete modState.contextMenu.items[label];
-        //        delete modState.contextMenu.contexts[label];
-        //    }
-        //}
-
-        ////Add method to signal that the context has changed
-        //modState.contextMenu.contextChanged = function (context) {
-
-        //    //Go through each item in context menu and hide it if 
-        //    //not valid for this context.
-        //    for (var label in modState.contextMenu.items) {
-
-        //        if (modState.contextMenu.contexts[label].indexOf(context) > -1) {
-        //            modState.contextMenu.items[label].show();
-        //            //console.log("show menu item")
-        //        } else {
-        //            modState.contextMenu.items[label].hide();
-        //            //console.log("hide menu item", label)
-        //        }
-        //    }
-        //}
-
 
         //Add method to add an item
         modState.contextMenu.addItem = function (label, f, contexts, bReplace) {
@@ -2052,7 +2014,7 @@
                         var rng = taxon[statespinnerID].getRange();
                         var kbStrictness = Number(tbv.oCharacters[statespinnerID].Strictness);
                         var wholeRange = tbv.oCharacters[statespinnerID].maxVal - tbv.oCharacters[statespinnerID].minVal;
-                        var score = tombioScore.numberVsRange(stateval, rng, wholeRange, kbStrictness);
+                        var score = tbv.score.numberVsRange(stateval, rng, wholeRange, kbStrictness);
                         scorefor = score[0];
                         scoreagainst = score[1];
                         charused = 1;
@@ -2134,9 +2096,9 @@
                                 //var kbTaxonStates = taxon[stateselectID].getStates(sex);
                                 var kbTaxonStates = taxon[stateselectID].getOrdinalRanges(sex);
 
-                                //var score = tombioScore.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
+                                //var score = tbv.score.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
                                 var isCircular = tbv.oCharacters[stateselectID].ValueType == "ordinalCircular";
-                                var score = tombioScore.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
+                                var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
                                 scorefor = score[0];
                                 scoreagainst = score[1];
                                 charused = 1;
@@ -2172,7 +2134,7 @@
                                 //States that are specific to male or female are represented by suffixes of (m) and (f).
                                 var kbTaxonStates = taxon[stateselectID].getStates(sex);
 
-                                var score = tombioScore.character(selectedStates, kbTaxonStates);
+                                var score = tbv.score.character(selectedStates, kbTaxonStates);
                                 scorefor = score[0];
                                 scoreagainst = score[1];
                                 charused = 1;

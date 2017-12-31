@@ -185,7 +185,7 @@
         $flexContainer.append(visDiv);
 
         taxSel = Object.create(tbv.taxonSelect);
-        taxSel.control(this.controlsDiv, true, taxonSelectCallback);
+        taxSel.init(this.controlsDiv, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
         //if (tbv.charactersGrouped) {
@@ -694,8 +694,8 @@
                 //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
                 //average of the two overall scores.
                 var wholeRange = oCharacter.maxVal - oCharacter.minVal;
-                var scoreMin = tombioScore.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
-                var scoreMax = tombioScore.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                var scoreMin = tbv.score.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                var scoreMax = tbv.score.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
                 charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
 
             } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
@@ -705,7 +705,7 @@
                 ["male", "female", ""].forEach(function (sex) {
                     //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
                     taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
-                        score = tombioScore.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
+                        score = tbv.score.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
                         //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
                         scoreTotal += score[0];
                         scoreTotal -= score[1];
@@ -718,7 +718,7 @@
             } else {//Character type
                 var iCount = 0, scoreTotal = 0;
                 ["male", "female", ""].forEach(function (sex) {
-                    scoreTotal += tombioScore.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
+                    scoreTotal += tbv.score.jaccard(taxonI[character].getStates(sex), taxon0[character].getStates(sex));
                     iCount++;
                 });
                 var meanJaccard = scoreTotal / iCount;

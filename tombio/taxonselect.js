@@ -2,19 +2,34 @@
 
     "use strict";
 
+    //##Interface##
     tbv.taxonSelect = {
-        //Variables for layout
-        //These are constants and can be delegated to the taxonSelect object
+        //##Interface##
+        //Variables that are part of the required interface...
+        hiddenControlsShown: false, 
+        taxonSort: null,
+        //Other variables for layout...
+        //Implementation constants delegated to the taxonSelect object
         filterMessage: "Filter names (use # for 'starts with')",
         filterSelectedOnly: "Show only selected taxa",
         gap: 6,
         textHeightOffset: 4,
         taxonHeight: 30,
-        taxonWidth: 200,
-        hiddenControlsShown: false
+        taxonWidth: 200
     };
 
-    tbv.taxonSelect.init = function () {
+    //##Interface##
+    tbv.taxonSelect.init = function ($parent, multi, callback) {
+
+        // $parent - the jQuery HTML element where the taxon select HTML is inserted.
+        // multi - boolean that indicates whether or not this is to act as a multi (or single) select control.
+        // callback - a function of the host to be invoked whenever the user interacts with the control.
+
+        var _this = this;
+
+        //Assign object-level variables from passed in arguments
+        this.isMultiSelect = multi;
+        this.hostCallback = callback;
 
         //Object level variables that change (store state) must be set at the
         //level of the calling object ([this] context). Those that need initialisation
@@ -25,7 +40,6 @@
         //Create the taxon array (from tbv.taxa) that this control
         //will work with.
         this.taxa = [];
-
         tbv.taxa.forEach(function (t, i) {
             this.taxa.push({
                 name: t.Taxon.kbValue,
@@ -33,88 +47,8 @@
                 order: i
             })
         }, this)
-    }
 
-    tbv.taxonSelect.checkEmptyFilter = function () {
-        if (this.filterText == "") {
-            this.filterText = this.filterMessage;
-            this.$textFilter.val(this.filterMessage);
-        }
-    }
-
-    tbv.taxonSelect.checkFilterColour = function () {
-        if (this.filterText == this.filterMessage || this.filterText == this.filterSelectedOnly) {
-            this.$textFilter.css("color", "silver");
-        } else {
-            this.$textFilter.css("color", "black");
-        }
-    }
-
-    tbv.taxonSelect.setFilter = function (filter) { 
-        this.filterText = filter;
-        this.$textFilter.val(filter);
-        this.checkFilterColour();
-        this.updateTaxa();
-    }
-
-    tbv.taxonSelect.getFilter = function () {
-        if (this.filterText != this.filterMessage) {
-            return this.filterText;
-        } else {
-            return null;
-        } 
-    }
-
-    tbv.taxonSelect.setSort = function (sort) {
-
-        if (sort == "a-z") {
-            sort = "radio-a"
-            $("#radio-a").attr("checked", "true")
-            $('[name=radioSort]').checkboxradio("refresh");
-        }
-        if (sort == "z-a") {
-            sort = "radio-z"
-            $("#radio-z").attr("checked", "true")
-            $('[name=radioSort]').checkboxradio("refresh");
-        }
-        if (sort == "none") {
-            sort = "radio-x"
-            $("#radio-x").attr("checked", "true")
-            $('[name=radioSort]').checkboxradio("refresh");
-        }
-        this.taxonSort = sort;
-        this.sortTaxa();
-        this.updateTaxa();
-    }
-
-    tbv.taxonSelect.toggleHiddenControls = function () {
-        if (this.$hiddenControlsDiv.css("display") == "none") {
-            this.$hiddenControlsDiv.slideDown(400);
-            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-up.png")
-            this.hiddenControlsShown = true;
-        } else {
-            this.$hiddenControlsDiv.slideUp(400);
-            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-down.png")
-            this.hiddenControlsShown = false;
-        }
-    }
-
-    tbv.taxonSelect.control = function ($parent, multi, callback) {
-        //This function returns HTML to the caller and is the only
-        //required element of the interface. Because it is the
-        //only function called, it is responsible for initialising
-        //the object.
-
-        var _this = this;
-
-        //Initialise the object
-        this.init();
-
-        //Assign object-level variables from passed in arguments
-        this.isMultiSelect = multi;
-        this.hostCallback = callback;
-
-        //Main control div
+        //Create the main control div
         var $mainDiv = $('<div class="taxonSelect" />').css("width", this.taxonWidth).appendTo($parent);
         var D3mainDiv = d3.select($mainDiv[0]);
 
@@ -247,11 +181,62 @@
         this.$textFilter = $textFilter;
         this.$hiddenControlsDiv = $hiddenControlsDiv;
         this.$controlsArrow = $controlsArrow;
-
-        //Return the main control div
-        return $mainDiv;
     }
 
+    //##Interface##
+    tbv.taxonSelect.setFilter = function (filter) { 
+        this.filterText = filter;
+        this.$textFilter.val(filter);
+        this.checkFilterColour();
+        this.updateTaxa();
+    }
+
+    //##Interface##
+    tbv.taxonSelect.getFilter = function () {
+        if (this.filterText != this.filterMessage) {
+            return this.filterText;
+        } else {
+            return null;
+        } 
+    }
+
+    //##Interface##
+    tbv.taxonSelect.setSort = function (sort) {
+
+        if (sort == "a-z") {
+            sort = "radio-a"
+            $("#radio-a").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        if (sort == "z-a") {
+            sort = "radio-z"
+            $("#radio-z").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        if (sort == "none") {
+            sort = "radio-x"
+            $("#radio-x").attr("checked", "true")
+            $('[name=radioSort]').checkboxradio("refresh");
+        }
+        this.taxonSort = sort;
+        this.sortTaxa();
+        this.updateTaxa();
+    }
+
+    //##Interface##
+    tbv.taxonSelect.toggleHiddenControls = function () {
+        if (this.$hiddenControlsDiv.css("display") == "none") {
+            this.$hiddenControlsDiv.slideDown(400);
+            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-up.png")
+            this.hiddenControlsShown = true;
+        } else {
+            this.$hiddenControlsDiv.slideUp(400);
+            this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-down.png")
+            this.hiddenControlsShown = false;
+        }
+    }
+
+    //##Interface##
     tbv.taxonSelect.taxonClick = function (taxon) {
 
         var deselectedTaxon;
@@ -325,6 +310,7 @@
         }
     }
 
+    //##Interface##
     tbv.taxonSelect.deselectAllTaxa = function () {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
@@ -342,6 +328,7 @@
         this.updateTaxa(); //To reapply filter to deselected items
     }
 
+    //##Interface##
     tbv.taxonSelect.deselectTaxon = function (taxon) {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
@@ -366,6 +353,8 @@
             this.selectedTaxa.splice(i, 1);
         }
     }
+
+    //Implementation dependent elements below...
 
     tbv.taxonSelect.sortTaxa = function () {
 
@@ -537,6 +526,21 @@
                 return D3x.empty() ? 0 : tranTime;
             })
             .attr('height', svgHeight)
+    }
+
+    tbv.taxonSelect.checkEmptyFilter = function () {
+        if (this.filterText == "") {
+            this.filterText = this.filterMessage;
+            this.$textFilter.val(this.filterMessage);
+        }
+    }
+
+    tbv.taxonSelect.checkFilterColour = function () {
+        if (this.filterText == this.filterMessage || this.filterText == this.filterSelectedOnly) {
+            this.$textFilter.css("color", "silver");
+        } else {
+            this.$textFilter.css("color", "black");
+        }
     }
 
 })(jQuery, this.tombiovis)

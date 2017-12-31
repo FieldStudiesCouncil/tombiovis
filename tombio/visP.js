@@ -935,8 +935,7 @@
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            //console.log(tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover)
-            iframe.attr("src", tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover);
+            iframe.attr("src", taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover);
         } else {
             iframe.attr("src", null);
         }
@@ -947,7 +946,7 @@
         var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(tbv.opts.tombiokbpath + taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
+            $.get(taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
 
                 //We need to extract the html in the body tag and ignore everything
                 //else. Trouble is when using jQuery to insert the full HTML into 

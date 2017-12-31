@@ -1,10 +1,10 @@
-﻿(function (exports) {
+﻿(function ($, tbv) {
 
     "use strict";
 
-    //v.score = {};
+    tbv.score = {};
 
-    exports.numberVsRange = function (stateval, rng, wholeRange, kbStrictness) {
+    tbv.score.numberVsRange = function (stateval, rng, wholeRange, kbStrictness) {
         //Numeric characters are scored thus:
         //If the specified number is within the range specified for the taxon, the character scores 1.
         //Otherwise the score depends on how far outside the range it is. The maximum distance
@@ -40,7 +40,7 @@
         return [scorefor, scoreagainst];
     }
 
-    exports.ordinal = function (selState, kbTaxonStates, posStates, kbStrictness) {
+    tbv.score.ordinal = function (selState, kbTaxonStates, posStates, kbStrictness) {
 
         //selState is the state we're assessing for a match.
         //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex).
@@ -73,10 +73,10 @@
                 }
             })
         })
-        return exports.numberVsRange(stateval, rng, posStates.length - 1, kbStrictness)
+        return tbv.score.numberVsRange(stateval, rng, posStates.length - 1, kbStrictness)
     }
 
-    exports.ordinal2 = function (selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular) {
+    tbv.score.ordinal2 = function (selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular) {
 
         //console.log("selectedStates", selectedStates)
         //console.log("kbTaxonStates", kbTaxonStates)
@@ -119,7 +119,7 @@
                     if (state == taxState) taxStateRank = rank;
                 })
                 var rngTaxonStateRank = { min: taxStateRank, max: taxStateRank };
-                var r = exports.numberVsRange(selStateRank, rngTaxonStateRank, posStates.length - 1, kbStrictness);
+                var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, posStates.length - 1, kbStrictness);
                 //console.log("standard", r[0])
                 if (!ret || ret[0] < r[0]) {
                     ret = r;
@@ -135,7 +135,7 @@
                         taxStateRank = taxStateRank - posStates.length;
                     }
                     var rngTaxonStateRankC = { min: taxStateRank, max: taxStateRank};
-                    var rC = exports.numberVsRange(selStateRank, rngTaxonStateRankC, posStates.length - 1, kbStrictness);
+                    var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, posStates.length - 1, kbStrictness);
                     //console.log("circular", rC[0])
                     if (!ret || ret[0] < rC[0]) {
                         ret = rC; 
@@ -146,7 +146,7 @@
         return ret;
     }
 
-    exports.character = function (selectedStates, kbTaxonStates) {
+    tbv.score.character = function (selectedStates, kbTaxonStates) {
 
         //selState is the state we're assessing for a match.
         //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex).
@@ -180,7 +180,7 @@
             
     }
 
-    exports.jaccard = function(setA, setB) {
+    tbv.score.jaccard = function (setA, setB) {
 
         //The Jaccard coefficient measures similarity between finite sample sets, 
         //and is defined as the size of the intersection divided by the size 
@@ -202,4 +202,4 @@
         return intersectAB.length / unionAB.length;
     }
 
-})(this.tombioScore = {})
+})(jQuery, this.tombiovis)

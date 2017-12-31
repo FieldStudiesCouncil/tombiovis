@@ -58,7 +58,7 @@
         $flexContainer.append(visDiv);
 
         taxSel = Object.create(tbv.taxonSelect);
-        taxSel.control(this.controlsDiv, false, taxonSelectCallback);
+        taxSel.init(this.controlsDiv, false, taxonSelectCallback);
       
         createCheckBox('tbVis4Images', 'Images', visDiv);
         createCheckBox('tbVis4Kb', 'Knowledge-base', visDiv);

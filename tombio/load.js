@@ -115,12 +115,12 @@
         addCSS: function (cssFile) {
             this.css.push(tbv.opts.tombiopath + cssFile)
         },
-        loadReady: function () {
-            //Set the load flag for this objec to be true
+        markLoadReady: function () {
+            //Set the load flag for this object to be true
             this.load = true;
             //And that of any dependencies
             this.dependencies.forEach(function (d) {
-                d.loadReady();
+                d.markLoadReady();
             })
         }
     }
@@ -342,7 +342,7 @@
         //function to another via the callback of tbv.loadScripts.
 
         //Load and show the spinner
-        jsF.spinner.loadReady();
+        jsF.spinner.markLoadReady();
         tbv.loadScripts(function () {
             tbv.showDownloadSpinner();
             //Call jquery load
@@ -375,7 +375,7 @@
 
     //Load jQuery
     function jQueryLoad() {
-        jsF.jquery.loadReady();
+        jsF.jquery.markLoadReady();
         tbv.loadScripts(function () {
             //Use jQuery to create div for visualisations
             jQuery(document).ready(function () {
@@ -388,7 +388,7 @@
 
     //Load D3
     function loadD3andKB() {
-        jsF.d3.loadReady();
+        jsF.d3.markLoadReady();
         tbv.loadScripts(function () {
             //Now load the KB
             loadKB();
@@ -528,7 +528,7 @@
     //CSVs is loaded. Since they are loaded 
     //asynchronously we don't know the order
     //they will complete, so loadStatus checks
-    //their completion and only calls loadComplete
+    //their completion and only calls kbLoadComplete
     //when they are all loaded.
     function loadStatus() {
 
@@ -539,18 +539,17 @@
             tbv.media) {
 
             console.log("%cKB is loaded!", "color: blue");
-            loadComplete();
+            kbLoadComplete();
         }
     }
 
-    function loadComplete() {
+    function kbLoadComplete() {
         //Load the import HTML
         jQuery.get(tbv.opts.tombiopath + "import.html?ver=" + tbv.opts.tombiover, function (data) {
             jQuery("#tombiod3vis").html(data);
 
             //Finally load tombiovis and invoke function in tombiovis.js to get things going
-            jsF.tombiovis.loadReady();
-
+            jsF.tombiovis.markLoadReady();
             tbv.loadScripts(function () {
                 tbv.hideDownloadSpinner();
                 //Call the application-wide loadComplete
