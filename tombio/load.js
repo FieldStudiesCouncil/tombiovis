@@ -327,13 +327,13 @@
     jsF.visP.dependencies = [jsF.mousewheel, jsF.hammer];
     jsF.taxonselect.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui];
     jsF.pqgrid.dependencies = [jsF.jquery, jsF.jqueryui];
-    jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui];
+    jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui]; //##Attention - sort pqselect,  pqselect dependences etc
     jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.pqselect];
-    jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
-    jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
+    jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
+    jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
     jsF.vis3.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect, jsF.pqgrid, jsF.score];
     jsF.vis4.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect];
-    jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
+    jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
     jsF.visEarthworm.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
 
     tbv.startLoad = function () {
