@@ -130,5 +130,11 @@
     "inputFiles": [
       "tombio/dependencies/spin.js"
     ]
+  },
+  {
+    "outputFileName": "tombio/JavaScript.min.js",
+    "inputFiles": [
+      "tombio/JavaScript.js"
+    ]
   }
 ]
