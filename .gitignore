@@ -3,9 +3,10 @@ opiliones/
 other/
 node_modules/
 documentation/videos/
-your-first-pwapp-master/
 vis-*.html
 test-*.js
 test-*.html
 test-*.css
-.vs
+.vs/
+your-first-pwapp-master/
+kb/biscuits/*.csv
