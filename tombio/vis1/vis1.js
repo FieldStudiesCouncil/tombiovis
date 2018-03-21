@@ -62,6 +62,16 @@
                 )
         );
         d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
+
+        //Shares key input with several other multi-access keys
+        if (!tbv.sharedKeyInput) {
+            tbv.sharedKeyInput = Object.create(tbv.keyInput);
+            tbv.sharedKeyInput.init($("#tombioControls"));
+        }
+        vis1.inputControl = tbv.sharedKeyInput;
+
+        //vis1.inputControl = Object.create(tbv.keyInputEarthworm);
+        //vis1.inputControl.init($("#tombioControls"));
     }
 
     vis1.refresh = function () {
@@ -432,7 +442,6 @@
                 }
                 return Math.max(heightin, heightout);
             });
-            //.each("end", function () { resizeControlsAndTaxa() });
 
         //Add/remove context menu item to show taxon tooltip images
         this.contextMenu.addItem("Get URL for two-column key", function () {

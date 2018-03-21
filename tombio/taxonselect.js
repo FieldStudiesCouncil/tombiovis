@@ -2,6 +2,13 @@
 
     "use strict";
 
+    /*
+     * Normally tools that use a taxon select user interface will required
+     * a separate copy of this control - i.e. they won't share a single
+     * input control (in contrast to many multi-access keys which 
+     * often share a user-interface).
+     * */
+
     //##Interface##
     tbv.taxonSelect = {
         //##Interface##

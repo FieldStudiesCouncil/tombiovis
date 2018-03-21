@@ -22,7 +22,7 @@
         this.metadata.version = '1.1.0';
 
         //Control doesn't work with character state input controls
-        this.charStateInput = false;
+        this.charStateInput = null;
 
         //Help files
         this.helpFiles = [

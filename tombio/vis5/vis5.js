@@ -106,6 +106,8 @@
             }
         })
 
+        console.log("taxonRanks", taxonRanks)
+
         function findEntry(stratTable, rankValue) {
             //This function is to replace stratTable.find(function (entry) { return entry.name == rankValue })
             //since the array find method is not available in some relatively recent versions of Safari and IE
@@ -174,6 +176,13 @@
         taxaRootFlat.children = filteredChildren;
 
         taxaRootCurrent = taxaRoot;
+
+        //Shares key input with several other multi-access keys
+        if (!tbv.sharedKeyInput) {
+            tbv.sharedKeyInput = Object.create(tbv.keyInput);
+            tbv.sharedKeyInput.init($("#tombioControls"));
+        }
+        vis5.inputControl = tbv.sharedKeyInput;
     }
 
     vis5.refresh = function () {

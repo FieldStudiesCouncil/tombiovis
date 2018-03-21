@@ -6,16 +6,45 @@
     tbv.keyInput = {
         //##Interface##
         //Variables that are part of the required interface...
-        //
+        
         //Other variables 
-        //
+        bullet: "", //"&#x26AB "
+        inputCharGroups: [],
+        helpAndInfoDialogWidth: 550,
+        helpAndInfoDialogHeight: 400
     };
 
     //##Interface##
-    tbv.createStateInputControls = function () {
-        //Dynamically create the character input widgets
+    tbv.keyInput.init = function ($parent) {
 
+        //Dynamically create the character input widgets
         var _this = this;
+
+        //Create dialog for input control help and information
+        $("<div>").attr("id", "tombioKeyInputDialog").css("display", "none").appendTo($parent); //.appendTo("#tombiod3vis");
+        $("#tombioKeyInputDialog").dialog({
+            modal: false,
+            width: this.helpAndInfoDialogWidth,
+            height: this.helpAndInfoDialogHeight,
+            resizable: true,
+            draggable: true,
+            autoOpen: false,
+            show: {
+                effect: "highlight",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 250
+            }
+        })
+
+        //For group tabs
+        $("<div>").attr("id", "tombioKeyInputTabs").css("background-color", "rgba( 255,255, 255, 0.7)").appendTo($parent);
+        $("<ul>").attr("id", "tombioKeyInputListElements").appendTo("#tombioKeyInputTabs");
+
+        //Set the property which identifies the top-level div for this input
+        tbv.keyInput.$div = $("#tombioKeyInputTabs");
 
         var chargroup;
         var characters = { "All": [] };
@@ -26,7 +55,7 @@
 
                 if (!characters[character.Group]) {
                     characters[character.Group] = [];
-                    modState.inputCharGroups.push(character.Group);
+                    _this.inputCharGroups.push(character.Group);
                 }
                 characters[character.Group].push(character);
             }
@@ -34,19 +63,19 @@
 
         for (var chargroup in characters) {
 
-            var chargrouplink = "tombioControlTab-" + chargroup.replace(/\s+/g, '-');
+            var chargrouplink = "tombioKeyInputTab-" + chargroup.replace(/\s+/g, '-');
             //New link
             var li = $("<li/>")
             var el = $("<a/>").text(chargroup).attr("href", "#" + chargrouplink);
             li.append(el);
-            $("#tombioControlsListElements").append(li); //##Attention - pass tombioControlTabs then dynamically create tombioControlsListElements 
+            $("#tombioKeyInputListElements").append(li);
 
             //New tab
             var tab = $("<div/>").attr("id", chargrouplink);
-            $("#tombioControlTabs").append(tab);
+            $("#tombioKeyInputTabs").append(tab);
 
             //If this is the 'All' tab, add radio buttons for visibility
-            if (chargrouplink == "tombioControlTab-All") {
+            if (chargrouplink == "tombioKeyInputTab-All") {
 
                 tab.append($("<div>").text("Un-used characters:").css("font-weight", "bold"));
                 var radios = $("<fieldset>").attr("id", "visCheckboxes").css("display", "inline-block").css("padding", "0px").css("border", "none");
@@ -56,7 +85,7 @@
                 radios.append($("<input>").attr("type", "radio").attr("name", "charvisibility").attr("id", "incharvisible").attr("value", "invisible"));
                 tab.append(radios);
                 $("[name='charvisibility']").checkboxradio({ icon: false });
-                radios.on("change", setCloneVisibility);
+                radios.on("change", _this.setCloneVisibility);
 
                 //Reset button
                 var reset = $("<button>")
@@ -67,7 +96,7 @@
 
                         $(".statespinner").spinner("value", "");
 
-                        //Can't do below refreshData fails on uninitiased values
+                        //Can't do below refreshData fails on uninitialised values
                         //so have to use an each loop instead.
                         //$(".stateselect").val("").pqSelect('refreshData');
                         $(".stateselect").each(function () {
@@ -83,8 +112,8 @@
                         });
 
                         //colourChart(0);
-                        refreshVisualisation(); //##Attention - does this need to be passed in as a callback?
-                        setCloneVisibility();
+                        tbv.refreshVisualisation();
+                        _this.setCloneVisibility();
                     });
                 tab.append(reset);
             }
@@ -100,7 +129,7 @@
                 tab.append(characterDiv);
 
                 //Prepare help attrs
-                if (characterHasHelp(character.Character)) {
+                if (tbv.characterHasHelp(character.Character)) {
                     characterlabel.attr("character", character.Character);
                     characterlabel.addClass("characterhelp");
                 }
@@ -109,7 +138,7 @@
                 //that visibility can be set as a unit.
                 var cloneDiv = $("<div/>").attr("class", "cloneInput");
                 cloneDiv.append(characterDiv.clone());
-                $("#tombioControlTab-All").append(cloneDiv);
+                $("#tombioKeyInputTab-All").append(cloneDiv);
 
                 if (character.ValueType == "numeric") {
                     //Numeric control so create a spinner
@@ -127,7 +156,7 @@
                     div.append(spincontrol)
                     div.append(spinclear);
                     tab.append(div);
-                    makeSpinner(spinID, spinMin, spinMax, spinStep);
+                    this.makeSpinner(spinID, spinMin, spinMax, spinStep);
 
                     //Clone this to the 'All' tab
                     var div2 = $("<div></div>");
@@ -136,7 +165,7 @@
                     div2.append(clonespincontrol)
                     div2.append(clonespinclear);
                     cloneDiv.append(div2);
-                    makeSpinner("clone-" + spinID, spinMin, spinMax, spinStep);
+                    this.makeSpinner("clone-" + spinID, spinMin, spinMax, spinStep);
 
                 } else {
 
@@ -164,19 +193,19 @@
                     //Create an HTML option element corresponding to each state
                     characterstates.forEach(function (state) {
 
-                        var option = $("<option/>").text(modState.bullet + state); //"\u058D"
+                        var option = $("<option/>").text(_this.bullet + state); //"\u058D"
                         //option.attr("title", "value help")
 
                         selectcontrol.append(option);
                     });
-                    makeSelect(selectID);
+                    this.makeSelect(selectID);
 
 
                     //Clone this to the 'All' tab (inside the clone div)
                     var cloneControl = $("#" + selectID).clone();
                     cloneControl.attr("id", "clone-" + selectID)
                     cloneDiv.append(cloneControl);
-                    makeSelect("clone-" + selectID);
+                    this.makeSelect("clone-" + selectID);
                 }
             }
             //}
@@ -185,8 +214,33 @@
         //If characters are not grouped, hide the group tabs
         if (!tbv.charactersGrouped) {
 
-            $('#tombioControlsListElements').css("display", "none");
-            $('#tombioControlTabs').css("padding-left", "0px");
+            $('#tombioKeyInputListElements').css("display", "none");
+            $('#tombioKeyInputTabs').css("padding-left", "0px");
+        }
+
+        var tabs = $("#tombioKeyInputTabs").tabs({
+            activate: function (event, ui) {
+                //Need this as a workaround. When reset button is used and refreshData
+                //method used to clear selections, for some reason the width of the controls
+                //is changed on invisible tabs. So when tab is selected, need this refresh
+                //method to set the width of the controls correctly.
+                $(".stateselect").each(function () {
+                    //$(this).pqSelect('refresh');
+                });
+                tbv.resizeControlsAndTaxa();
+            }
+        });
+
+        //Select default tab
+        //As of v1.6.0 tbv.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
+        if (typeof tbv.opts.selectedGroup === "undefined") {
+            tbv.opts.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+        }
+        if (tbv.opts.selectedGroup) {
+            var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.selectedGroup);
+            if (tabIndex > -1) {
+                tabs.tabs("option", "active", tabIndex + 1)
+            }
         }
 
         //Help handling
@@ -209,16 +263,16 @@
                 track: true,
                 items: "span",
                 content: function () {
-                    return getCharacterToolTip($(this).attr("character"));
+                    return _this.getCharacterToolTip($(this).attr("character"));
                 }
             })
             .click(function () {
-                showCharacterHelp($(this).attr("character"));
+                _this.showCharacterHelp($(this).attr("character"));
             });
     }
 
     //##Interface##
-    tbv.initKeyInputFromParams = function (params) {
+    tbv.keyInput.initKeyInputFromParams = function (params) {
 
         //Set the character state input controls
         tbv.characters.forEach(function (c, cIndex) {
@@ -242,7 +296,7 @@
         })
 
         //Set selected group
-        $("#tombioControlTabs").tabs("option", "active", params["grp"]);  //##Requires attention - tombioControlTabs
+        $("#tombioKeyInputTabs").tabs("option", "active", params["grp"]);  //##Requires attention - tombioKeyInputTabs
 
         //Visibility of unused controls (clones)
         $("[name='charvisibility']")
@@ -252,10 +306,24 @@
 
         $("[name='charvisibility']").checkboxradio('refresh');
 
-        setCloneVisibility(); //##Requires attention
+        this.setCloneVisibility();
     }
 
-    function setCloneVisibility() {
+    //##Interface##
+    tbv.keyInput.setParamsFromKeyInput = function (params) {
+
+        //Update params to indicate which, if any group tab was selected
+        params.push("grp=" + $("#tombioKeyInputTabs").tabs("option", "active"));
+
+        //Update params to indicate unused controls visibility (clones)
+        params.push("cvis=" + $("input[name=charvisibility]:checked").val());
+
+        return params
+    }
+
+    //Implementation dependent elements below...
+
+    tbv.keyInput.setCloneVisibility = function () {
 
         var visibility = $("input[name=charvisibility]:checked").val();
 
@@ -270,16 +338,16 @@
 
                 if (visibility == "visible") {
 
-                    $(this).parents(".cloneInput").show(500, resizeControlsAndTaxa);
+                    $(this).parents(".cloneInput").show(500, tbv.resizeControlsAndTaxa);
                 } else {
 
                     var stateval = $(this).val();
                     //console..log("val: " + stateval);
                     if (stateval && stateval != "") {
                         //Single selects return single value, multi-selects comma separated string of values.
-                        $(this).parents(".cloneInput").show(500, resizeControlsAndTaxa);
+                        $(this).parents(".cloneInput").show(500, tbv.resizeControlsAndTaxa);
                     } else {
-                        $(this).parents(".cloneInput").hide(500, resizeControlsAndTaxa);
+                        $(this).parents(".cloneInput").hide(500, tbv.resizeControlsAndTaxa);
                     }
                 }
             }
@@ -288,7 +356,7 @@
         //console..log("Controls height: " + );
     }
 
-    function makeSelect(id) {
+    tbv.keyInput.makeSelect = function (id) {
 
         var _this = this;
 
@@ -316,7 +384,7 @@
             $("#" + counterpartID).pqSelect('refreshData');
 
             $("#" + id).pqSelect('refresh'); //This causes the drop-down list to be removed on each select
-            setCloneVisibility();
+            _this.setCloneVisibility();
 
             //Set state set flag
             if (id.substring(0, 6) == "clone-") {
@@ -360,7 +428,7 @@
                 })
             })
 
-            refreshVisualisation(); //##Attention - need a way to pass this function into the object
+            tbv.refreshVisualisation();
         });
 
         //Next is a workaround to set a value for each select control and then clear it.
@@ -371,7 +439,7 @@
         select.val("").pqSelect('refreshData');
     }
 
-    function makeSpinner(id, min, max, step) {
+    tbv.keyInput.makeSpinner = function (id, min, max, step) {
 
         var _this = this;
 
@@ -405,8 +473,8 @@
 
             //if (!isClone) {
             //Update the taxon representation.
-            refreshVisualisation(); //##Attention - need a way to pass this function into the object
-            setCloneVisibility();
+            tbv.refreshVisualisation();
+            _this.setCloneVisibility();
             //}
         });
 
@@ -444,11 +512,11 @@
             tbv.oCharacters[character].stateSet = false;
             tbv.oCharacters[character].userInput = null;
 
-            refreshVisualisation(); //##Attention - need a way to pass this function into the object
+            tbv.refreshVisualisation();
         });
     }
 
-    function getCharacterToolTip(character) {
+    tbv.keyInput.getCharacterToolTip = function (character) {
 
         var ret = $('<div/>');
         var tipTextPresent = false;
@@ -574,14 +642,14 @@
         return ret
     }
 
-    function showCharacterHelp(character) {
+    tbv.keyInput.showCharacterHelp = function (character) {
 
         //Clear existing HTML
-        $("#tombioHelpAndInfoDialog").html(""); //##Requires attention
+        $("#tombioKeyInputDialog").html("");
 
         //Header for character
-        $('<h3/>', { text: tbv.oCharacters[character].Label }).appendTo('#tombioHelpAndInfoDialog');
-        $('<p/>', { html: tbv.oCharacters[character].Help }).appendTo('#tombioHelpAndInfoDialog');
+        $('<h3/>', { text: tbv.oCharacters[character].Label }).appendTo('#tombioKeyInputDialog');
+        $('<p/>', { html: tbv.oCharacters[character].Help }).appendTo('#tombioKeyInputDialog');
 
         //Help images for character (not necessarily illustrating particular states)
         var charImages = tbv.media.filter(function (m) {
@@ -607,7 +675,7 @@
         });
 
         charImages.forEach(function (charState, i) {
-            var fig = $('<figure/>').appendTo('#tombioHelpAndInfoDialog');
+            var fig = $('<figure/>').appendTo('#tombioKeyInputDialog');
             fig.addClass('helpFigure');
             var img = $('<img/>', { src: charState.URI })
             var cap = $('<figcaption/>', { html: charState.Caption });
@@ -615,7 +683,7 @@
             if (i > 0) {
                 img.css("margin-top", 10);
             }
-            cap.appendTo('#tombioHelpAndInfoDialog');
+            cap.appendTo('#tombioKeyInputDialog');
 
             if (charState.ImageWidth) {
                 img.css("width", charState.ImageWidth);
@@ -634,7 +702,7 @@
             } else {
                 var charStateText = charState.CharacterState;
             }
-            var para = $('<p/>').appendTo('#tombioHelpAndInfoDialog');
+            var para = $('<p/>').appendTo('#tombioKeyInputDialog');
             var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
             para.append(spanState);
             var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
@@ -649,15 +717,15 @@
             });
 
             charImages.forEach(function (charState, i) {
-                //var fig = $('<figure/>').appendTo('#tombioHelpAndInfoDialog');
+                //var fig = $('<figure/>').appendTo('#tombioKeyInputDialog');
                 var img = $('<img/>', { src: charState.URI })
                 var cap = $('<figcaption/>', { html: charState.Caption });
                 //fig.append(img).append(cap);
-                img.appendTo('#tombioHelpAndInfoDialog')
+                img.appendTo('#tombioKeyInputDialog')
                 if (i > 0) {
                     img.css("margin-top", 10);
                 }
-                cap.appendTo('#tombioHelpAndInfoDialog');
+                cap.appendTo('#tombioKeyInputDialog');
                 if (charState.ImageWidth) {
                     img.css("width", charState.ImageWidth);
                 }
@@ -665,8 +733,8 @@
         });
 
         //Display the help dialog
-        $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character help and information');
-        $("#tombioHelpAndInfoDialog").dialog("open");
+        $("#tombioKeyInputDialog").dialog('option', 'title', 'Character help and information');
+        $("#tombioKeyInputDialog").dialog("open");
     }
 
 }(jQuery, this.tombiovis));

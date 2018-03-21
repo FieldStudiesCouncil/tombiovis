@@ -136,5 +136,17 @@
     "inputFiles": [
       "tombio/JavaScript.js"
     ]
+  },
+  {
+    "outputFileName": "tombio/keyinput1.min.js",
+    "inputFiles": [
+      "tombio/keyinput1.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/keyinput.min.js",
+    "inputFiles": [
+      "tombio/keyinput.js"
+    ]
   }
 ]

@@ -37,6 +37,13 @@
 
         //Add the SVG
         d3.select("#" + this.visName).append("svg").attr("id", "vis2Svg");
+
+        //Shares key input with several other multi-access keys
+        if (!tbv.sharedKeyInput) {
+            tbv.sharedKeyInput = Object.create(tbv.keyInput);
+            tbv.sharedKeyInput.init($("#tombioControls"));
+        }
+        vis2.inputControl = tbv.sharedKeyInput;
     }
 
     vis2.refresh = function () {

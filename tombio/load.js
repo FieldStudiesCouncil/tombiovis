@@ -1,7 +1,7 @@
 ﻿(function (tbv) {
 
     "use strict";
-    
+
     //The following fix is required to stop IE11 throwing its arms up if
     //console.log is used without console being open.
     if (!window.console) {
@@ -37,6 +37,7 @@
         //(For backwards compatibility - tvb.opts was not introduced until 1.6.0)
         tbv.opts = {}
     }
+
     //For backward compatibility (prior to 1.6.0) allow for direct
     //use of tombiover, tombiopath and tombiokbpath. If they are
     //there, use them to set properties of tombiovis (tbv)
@@ -75,8 +76,6 @@
 
     //Variables for the tools to be included
     var defaultTools = ["vis1", "vis2", "vis5", "vis4", "vis3"];
-    //var defaultTools = ["vis4", "vis1", "vis2", "vis5"];
-    //var defaultTools = ["vis3", "vis1", "vis2", "vis5"];
     tbv.includedTools = [];
 
     //Application-wide structure for holding all the necessary information for
@@ -294,6 +293,9 @@
     jsF.add("pqgrid", "dependencies/pqgrid-2.1.0/pqgrid.min.js");
     jsF.pqgrid.addCSS("dependencies/pqgrid-2.1.0/pqgrid.min.css");
 
+    //KeyInput
+    jsF.add("keyinput", "keyinput.js?ver=" + tbv.opts.tombiover);
+
     //The main tombiovis module
     jsF.add("tombiovis", "tombiovis.js?ver=" + tbv.opts.tombiover);
     jsF.tombiovis.addCSS("tombiovis.css");
@@ -322,19 +324,23 @@
     jsF.vis5.addCSS("vis5/vis5.css");
     jsF.add("visEarthworm", "visEarthworm/visEarthworm.js?ver=" + tbv.opts.tombiover, "Earthworm multi-access key");
     jsF.visEarthworm.addCSS("visEarthworm/visEarthworm.css");
+    jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Earthworm multi-access key 2");
+    jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
 
     //Specify module dependencies
     jsF.visP.dependencies = [jsF.mousewheel, jsF.hammer];
     jsF.taxonselect.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui];
+    jsF.keyinput.dependencies = [jsF.pqselect, jsF.jquery, jsF.jqueryui];
     jsF.pqgrid.dependencies = [jsF.jquery, jsF.jqueryui];
-    jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui]; //##Attention - sort pqselect,  pqselect dependences etc
-    jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.pqselect];
-    jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
-    jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
+    jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui];
+    jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.keyinput];
+    jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
+    jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
     jsF.vis3.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect, jsF.pqgrid, jsF.score];
     jsF.vis4.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect];
-    jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, keyInput1.js];
+    jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
     jsF.visEarthworm.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
+    jsF.visEarthworm2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
 
     tbv.startLoad = function () {
         //Because of the asynchronous nature of tbv.loadScripts,
@@ -433,14 +439,14 @@
 
         d3.csv(tbv.opts.tombiokbpath + "characters.csv?" + antiCache,
            function (row) {
-               return filterAndClean(row);
+               return filterAndClean(row);  
            },
            function (data) {
                tbv.characters = data;
-               tbv.characters.columns = null; ///////////////////////////////
+               //tbv.characters.columns = null; ///////////////////////////////
                console.log("%cLoading - kb characters loaded", "color: blue");
                loadStatus();
-           });
+            });
 
         d3.csv(tbv.opts.tombiokbpath + "values.csv?" + antiCache,
             function (row) {
@@ -544,19 +550,18 @@
     }
 
     function kbLoadComplete() {
-        //Load the import HTML
-        jQuery.get(tbv.opts.tombiopath + "import.html?ver=" + tbv.opts.tombiover, function (data) {
-            jQuery("#tombiod3vis").html(data);
-
-            //Finally load tombiovis and invoke function in tombiovis.js to get things going
-            jsF.tombiovis.markLoadReady();
-            tbv.loadScripts(function () {
-                tbv.hideDownloadSpinner();
-                //Call the application-wide loadComplete
-                //(supplied by tombiovis).
-                tbv.loadComplete();
-            });
+        //Finally load tombiovis and invoke function in tombiovis.js to get things going
+        jsF.tombiovis.markLoadReady();
+        tbv.loadScripts(function () {
+            tbv.hideDownloadSpinner();
+            //Call the application-wide loadComplete
+            //(supplied by tombiovis).
+            tbv.loadComplete();
         });
     }
     
-})(this.tombiovis ? this.tombiovis : this.tombiovis = {});
+})(
+    //Pass the tombiovis object into this IIFE if it exists (e.g. defined in HTML page)
+    //otherwise, initialise it to empty object.
+    this.tombiovis ? this.tombiovis : this.tombiovis = {}
+    );
