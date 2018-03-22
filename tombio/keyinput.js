@@ -271,29 +271,37 @@
             });
     }
 
-    //##Interface##
-    tbv.keyInput.initKeyInputFromParams = function (params) {
-
+    //Interface
+    tbv.keyInput.initFromCharacterState = function () {
         //Set the character state input controls
         tbv.characters.forEach(function (c, cIndex) {
-            if (c.userInput) {
-                if (c.ControlType === "spin") {
-                    var control = $("#" + c.Character + ".statespinner");
-                    var clone = $("#clone-" + c.Character + ".statespinner");
-                    control.spinner("value", c.userInput);
-                    clone.spinner("value", c.userInput);
-                } else {
-                    var control = $("#" + c.Character + ".stateselect");
-                    var clone = $("#clone-" + c.Character + ".stateselect");
+            if (c.ControlType === "spin") {
+                var control = $("#" + c.Character + ".statespinner");
+                var clone = $("#clone-" + c.Character + ".statespinner");
 
+                var val = c.stateSet ? c.userInput : "";
+                control.spinner("value", c.userInput);
+                clone.spinner("value", val);
+            } else {
+                var control = $("#" + c.Character + ".stateselect");
+                var clone = $("#clone-" + c.Character + ".stateselect");
+                if (c.stateSet) {
                     var stateValues = c.userInput.map(function (valueIndex) {
                         return c.CharacterStateValues[valueIndex];
                     })
-                    control.val(stateValues).pqSelect('refreshData');
-                    clone.val(stateValues).pqSelect('refreshData');
+                } else {
+                    var stateValues = [];
                 }
+                control.val(stateValues).pqSelect('refreshData');
+                clone.val(stateValues).pqSelect('refreshData');
             }
         })
+    }
+
+    //##Interface##
+    tbv.keyInput.initKeyInputFromParams = function (params) {
+
+        this.initFromCharacterState();
 
         //Set selected group
         $("#tombioKeyInputTabs").tabs("option", "active", params["grp"]);  //##Requires attention - tombioKeyInputTabs
@@ -405,6 +413,8 @@
                     }
                 })
                 tbv.oCharacters[character].userInput = values;
+            } else {
+                tbv.oCharacters[character].userInput = null;
             }
 
             //Set the tooltip for the character states selected. This has to be done every time
@@ -471,6 +481,8 @@
             tbv.oCharacters[character].stateSet = true;
             tbv.oCharacters[character].userInput = spinner.spinner("value");
 
+            console.log(spinner.spinner("value"))
+
             //if (!isClone) {
             //Update the taxon representation.
             tbv.refreshVisualisation();
@@ -478,13 +490,13 @@
             //}
         });
 
-        //spinner.on("spin", function (event, ui) {
-        //    if (ui.value == spinner.spinner('option', 'min')) {
-        //        //When spinner goes to min value, blank it.
-        //        spinner.spinner("value", "");
-        //        return false;
-        //    }
-        //});
+        spinner.on("spin", function (event, ui) {
+            if (ui.value == spinner.spinner('option', 'min')) {
+                //When spinner goes to min value, blank it.
+                spinner.spinner("value", "");
+                return false;
+            }
+        });
 
         var button = $("#" + id + "-clear").button({
             icon: "ui-icon-close",

@@ -1370,6 +1370,8 @@
                     c.stateSet = (val != null && val != "");
                     c.userInput = val;
 
+                    console.log(val)
+
                     controlsChanged();
                     });
                 $spinner.on("spin", function (event, ui) {
@@ -1549,6 +1551,35 @@
                 $("#tombioEsbHelpTabs").tabs();
             });
         });
+    }
+
+    //Interface
+    tbv.keyInputEarthworm.initFromCharacterState = function () {
+        //Set the character state input controls
+        tbv.characters.forEach(function (c, cIndex) {
+
+            if (c.ControlType === "spin") {
+                var control = $("#tombioEsbInput-" + c.Character);
+                control.spinner("value", c.stateSet ? c.userInput : "");
+            } else {
+                var control = $("#tombioEsbInput-" + c.Character);
+
+                if (c.stateSet) {
+                    //Only single select is allowed
+                    var stateValues = c.userInput.map(function (valueIndex) {
+                        return c.CharacterStateValues[valueIndex];
+                    });
+                    if (stateValues.length == 0) {
+                        var val = "";
+                    } else {
+                        var val = stateValues[0];
+                    }
+                } else {
+                    var val = "";
+                }
+                control.val(val).selectmenu('refresh'); 
+            }
+        })
     }
 
     //##Interface##

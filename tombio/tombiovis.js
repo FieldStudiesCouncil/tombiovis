@@ -596,10 +596,11 @@
 
     tbv.refreshVisualisation = function () {
 
-        console.log("refresh vis")
         //Score the taxa
         scoreTaxa();
 
+        //Re-init relevant 
+        
         //Refresh the relevant visualisation
         if (getVisualisation()) getVisualisation().refresh();
         //var selectedTool = $("#tombioVisualisation").val();
@@ -1118,9 +1119,11 @@
             var $currentToolDiv = $("#" + selectedToolName);
             $currentToolDiv.show();
             //Show input control of selected tool (if there is one)
+            //and initialise input controls from current character input
             var currentTool = modState.visualisations[selectedToolName]
             if (currentTool && currentTool.inputControl) {
                 currentTool.inputControl.$div.show();
+                currentTool.inputControl.initFromCharacterState();
             }
         }
 
@@ -1322,202 +1325,6 @@
         }
     }
 
-    function scoreTaxa() {
-
-        //Set variable to indicate whether or not sex has been indicated.
-        var sex = $("#Sex").val();
-
-        //Update data array to reflect whether or not each taxa meets
-        //the criteria specified by user.
-        tbv.taxa.forEach(function (taxon) {
-            //taxon is an object representing the row from the KB
-            //corresponding to a taxon.
-
-            taxon.scorefor = 0;
-            taxon.scoreagainst = 0;
-            taxon.scoreoverall = 0;
-            taxon.charcount = 0;
-
-            //Loop through all state spinner controls and update matchscores
-            $(".statespinner").each(function () {
-
-                var statespinnerID = $(this).attr('id'); //Same as character name (column header in KB)
-                //console..log("statespinnerID: " + statespinnerID);
-                if (statespinnerID.substring(0, 6) != "clone-") { //Ignore cloned state controls
-
-                    var scorefor, scoreagainst, charused, scorena;
-                    if ($(this).val() == "") {
-                        //No value specified
-                        charused = 0;
-                        scorena = 0;
-                        scorefor = 0;
-                        scoreagainst = 0;
-                    } else if (taxon[statespinnerID] == "") {
-                        //No knowledge base value for a numeric character is taken to represent
-                        //missing data and is therefore neutral.
-                        charused = 0;
-                        scorena = 0;
-                        scorefor = 0;
-                        scoreagainst = 0;
-                    } else if (taxon[statespinnerID] == "n/a") {
-                        //Scorena for a specified numeric value that is not applicable is 1
-                        charused = 1;
-                        scorena = 1;
-                        scorefor = 0;
-                        scoreagainst = 0;
-                    } else {
-                        var stateval = Number($(this).val());
-                        var rng = taxon[statespinnerID].getRange();
-                        var kbStrictness = Number(tbv.oCharacters[statespinnerID].Strictness);
-                        var wholeRange = tbv.oCharacters[statespinnerID].maxVal - tbv.oCharacters[statespinnerID].minVal;
-                        var score = tbv.score.numberVsRange(stateval, rng, wholeRange, kbStrictness);
-                        scorefor = score[0];
-                        scoreagainst = score[1];
-                        charused = 1;
-                        scorena = 0;
-                    }
-
-                    //Record scores for character for taxon (unweighted)
-                    taxon.matchscore[statespinnerID].scorena = scorena;
-                    taxon.matchscore[statespinnerID].scorefor = scorefor;
-                    taxon.matchscore[statespinnerID].scoreagainst = scoreagainst;
-                    taxon.matchscore[statespinnerID].scoreoverall = scorefor - scoreagainst - scorena;
-
-                    //Update overall score for taxon (adjusted for character weight)
-                    var weight = Number(tbv.oCharacters[statespinnerID].Weight) / 10;
-
-                    taxon.scorefor += scorefor * weight;
-                    taxon.scoreagainst += scoreagainst * weight;
-                    taxon.scoreagainst += scorena * weight;
-                    taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
-
-                    taxon.charcount += charused;
-                }
-            });
-
-            //Loop through all state select controls and update matchscores
-            $(".stateselect").each(function () {
-
-                var scorefor = 0;
-                var scoreagainst = 0;
-                var scorena = 0;
-                var charused = 0;
-
-                var stateselectID = $(this).attr('id'); //Same as character name (column header in KB)
-
-                //For a reason I haven't got to the bottom of, this each statement returns
-                //the select controls, plus their clones (as expected) plus another set (equal in
-                //size to each of the first two) with undefined IDs. So we need to ignore these.
-                if (typeof (stateselectID) != "undefined"
-                    && stateselectID.substring(0, 6) != "clone-"
-                    && $(this).val() != null
-                    && $(this).val() != "") {
-
-                    if (tbv.oCharacters[stateselectID].ValueType == "ordinal" || tbv.oCharacters[stateselectID].ValueType == "ordinalCircular") {
-                        //Ordinal scoring
-                        var kbStrictness = Number(tbv.oCharacters[stateselectID].Strictness);
-
-                        var selState = $(this).val();
-                        //console..log(stateselectID + " " + selState);
-                        var selectedStates = [];
-
-                        if (taxon[stateselectID] == "n/a") {
-
-                            //States selected but not applicable for taxon
-                            scorena = 1;
-                            charused = 1;
-                            //Adjust for strictness
-                            //scorena = scorena * (kbStrictness / 10);
-                        } else {                         
-                            if (tbv.oCharacters[stateselectID].ControlType == "single") {
-
-                                //Selected value for a single select control is a simple string value
-                                if ($(this).val() != "") {
-                                    selectedStates.push($(this).val());
-                                }
-                            } else {
-                                //Selected values for multi select control is an array of string values
-                                if ($(this).val() == null) {
-                                    selectedStates = [];
-                                } else {
-                                    selectedStates = $(this).val();
-                                }
-                            }
-
-                            if (selectedStates.length > 0) {
-
-                                var posStates = tbv.oCharacters[stateselectID].CharacterStateValues;
-                                //The KB states for this character and taxon.
-                                //States that are specific to male or female are represented by suffixes of (m) and (f).
-                                //var kbTaxonStates = taxon[stateselectID].getStates(sex);
-                                var kbTaxonStates = taxon[stateselectID].getOrdinalRanges(sex);
-
-                                //var score = tbv.score.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
-                                var isCircular = tbv.oCharacters[stateselectID].ValueType == "ordinalCircular";
-                                var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
-                                scorefor = score[0];
-                                scoreagainst = score[1];
-                                charused = 1;
-                            }
-                        }
-                    } else {
-                        //It's a non-ordinal character.
-                        //Get the states selected in the control.
-                        var selectedStates = [];
-
-                        if (taxon[stateselectID] == "n/a") {
-                            //States selected but not applicable for taxon
-                            scorena = 1;
-                            charused = 1;
-                        } else {
-                            if (tbv.oCharacters[stateselectID].ControlType == "single") {
-
-                                //Selected value for a single select control is a simple string value
-                                if ($(this).val() != "") {
-                                    selectedStates.push($(this).val());
-                                }
-                            } else {
-                                //Selected values for multi select control is an array of string values
-                                if ($(this).val() == null) {
-                                    selectedStates = [];
-                                } else {
-                                    selectedStates = $(this).val();
-                                }
-                            }
-
-                            if (selectedStates.length > 0) {
-                                //The KB states for this character and taxon.
-                                //States that are specific to male or female are represented by suffixes of (m) and (f).
-                                var kbTaxonStates = taxon[stateselectID].getStates(sex);
-
-                                var score = tbv.score.character(selectedStates, kbTaxonStates);
-                                scorefor = score[0];
-                                scoreagainst = score[1];
-                                charused = 1;
-                            }
-                        }
-                    }
-
-                    //Record scores for character for taxon (unweighted)
-                    taxon.matchscore[stateselectID].scorena = scorena;
-                    taxon.matchscore[stateselectID].scorefor = scorefor;
-                    taxon.matchscore[stateselectID].scoreagainst = scoreagainst;
-                    taxon.matchscore[stateselectID].scoreoverall = scorefor - scoreagainst - scorena;
-
-                    //Update overall score for taxon (adjusted for character weight)
-                    var weight = Number(tbv.oCharacters[stateselectID].Weight) / 10;
-
-                    taxon.scoreagainst += scorena * weight;
-                    taxon.scorefor += scorefor * weight;
-                    taxon.scoreagainst += scoreagainst * weight;
-                    taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
-
-                    taxon.charcount += charused;
-                }
-            });
-        });
-    }
-
     //function scoreTaxa() {
 
     //    //Set variable to indicate whether or not sex has been indicated.
@@ -1534,41 +1341,38 @@
     //        taxon.scoreoverall = 0;
     //        taxon.charcount = 0;
 
-    //        //Loop through all characters and update matchscores
-    //        tbv.characters.filter(function (c) {
-    //            return (c.Status == "key");
-    //        }).forEach(function (c) {
+    //        //Loop through all state spinner controls and update matchscores
+    //        $(".statespinner").each(function () {
 
-    //            var charused, scorefor, scoreagainst, scorena;
-    //            var character = c.Character;
+    //            var statespinnerID = $(this).attr('id'); //Same as character name (column header in KB)
+    //            //console..log("statespinnerID: " + statespinnerID);
+    //            if (statespinnerID.substring(0, 6) != "clone-") { //Ignore cloned state controls
 
-    //            if (!c.stateSet) {
-
-    //                charused = 0;
-    //                scorena = 0;
-    //                scorefor = 0;
-    //                scoreagainst = 0;
-
-    //            } else if (c.ValueType == "numeric") {
-
-    //                if (taxon[character] == "") {
+    //                var scorefor, scoreagainst, charused, scorena;
+    //                if ($(this).val() == "") {
+    //                    //No value specified
+    //                    charused = 0;
+    //                    scorena = 0;
+    //                    scorefor = 0;
+    //                    scoreagainst = 0;
+    //                } else if (taxon[statespinnerID] == "") {
     //                    //No knowledge base value for a numeric character is taken to represent
     //                    //missing data and is therefore neutral.
     //                    charused = 0;
     //                    scorena = 0;
     //                    scorefor = 0;
     //                    scoreagainst = 0;
-    //                } else if (taxon[character] == "n/a") {
+    //                } else if (taxon[statespinnerID] == "n/a") {
     //                    //Scorena for a specified numeric value that is not applicable is 1
     //                    charused = 1;
     //                    scorena = 1;
     //                    scorefor = 0;
     //                    scoreagainst = 0;
     //                } else {
-    //                    var stateval = Number(c.userInput);
-    //                    var rng = taxon[character].getRange();
-    //                    var kbStrictness = Number(c.Strictness);
-    //                    var wholeRange = c.maxVal - c.minVal;
+    //                    var stateval = Number($(this).val());
+    //                    var rng = taxon[statespinnerID].getRange();
+    //                    var kbStrictness = Number(tbv.oCharacters[statespinnerID].Strictness);
+    //                    var wholeRange = tbv.oCharacters[statespinnerID].maxVal - tbv.oCharacters[statespinnerID].minVal;
     //                    var score = tbv.score.numberVsRange(stateval, rng, wholeRange, kbStrictness);
     //                    scorefor = score[0];
     //                    scoreagainst = score[1];
@@ -1576,60 +1380,259 @@
     //                    scorena = 0;
     //                }
 
-    //            } else if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular" || c.ValueType == "text") {
+    //                //Record scores for character for taxon (unweighted)
+    //                taxon.matchscore[statespinnerID].scorena = scorena;
+    //                taxon.matchscore[statespinnerID].scorefor = scorefor;
+    //                taxon.matchscore[statespinnerID].scoreagainst = scoreagainst;
+    //                taxon.matchscore[statespinnerID].scoreoverall = scorefor - scoreagainst - scorena;
 
-    //                var kbStrictness = Number(c.Strictness);
+    //                //Update overall score for taxon (adjusted for character weight)
+    //                var weight = Number(tbv.oCharacters[statespinnerID].Weight) / 10;
 
-    //                if (taxon[character] == "n/a") {
-    //                    //States selected but not applicable for taxon
-    //                    charused = 1;
-    //                    scorena = 1;
-    //                    scorefor = 0;
-    //                    scoreagainst = 0;
-    //                } else {
-    //                    //Translate c.userInput which is an array of selected indices into an array of values (for scoring)
-    //                    var selectedStates = c.userInput.map(function (i) {
-    //                        return c.CharacterStateValues[i];
-    //                    });
+    //                taxon.scorefor += scorefor * weight;
+    //                taxon.scoreagainst += scoreagainst * weight;
+    //                taxon.scoreagainst += scorena * weight;
+    //                taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
 
-    //                    if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
-    //                        //The KB states for this character and taxon.
-    //                        //States that are specific to male or female are represented by suffixes of (m) and (f).
-    //                        var kbTaxonStates = taxon[character].getOrdinalRanges(sex);
-    //                        var posStates = c.CharacterStateValues;
-    //                        var isCircular = c.ValueType == "ordinalCircular";
-    //                        var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
-
-    //                    } else { //c.ValueType == "text"
-    //                        //The KB states for this character and taxon.
-    //                        //States that are specific to male or female are represented by suffixes of (m) and (f).
-    //                        var kbTaxonStates = taxon[character].getStates(sex);
-    //                        var score = tbv.score.character(selectedStates, kbTaxonStates);
-    //                    }
-    //                    scorefor = score[0];
-    //                    scoreagainst = score[1];
-    //                    charused = 1;
-    //                    scorena = 0;
-    //                }
+    //                taxon.charcount += charused;
     //            }
-    //            //Increment charcount
-    //            taxon.charcount += charused;
+    //        });
 
-    //            //Record scores for character for taxon (unweighted)
-    //            taxon.matchscore[character].scorena = scorena;
-    //            taxon.matchscore[character].scorefor = scorefor;
-    //            taxon.matchscore[character].scoreagainst = scoreagainst;
-    //            taxon.matchscore[character].scoreoverall = scorefor - scoreagainst - scorena;
+    //        //Loop through all state select controls and update matchscores
+    //        $(".stateselect").each(function () {
 
-    //            //Update overall score for taxon (adjusted for character weight)
-    //            var weight = Number(c.Weight) / 10;
-    //            taxon.scorefor += scorefor * weight;
-    //            taxon.scoreagainst += scoreagainst * weight;
-    //            taxon.scoreagainst += scorena * weight;
-    //            taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
+    //            var scorefor = 0;
+    //            var scoreagainst = 0;
+    //            var scorena = 0;
+    //            var charused = 0;
+
+    //            var stateselectID = $(this).attr('id'); //Same as character name (column header in KB)
+
+    //            //For a reason I haven't got to the bottom of, this each statement returns
+    //            //the select controls, plus their clones (as expected) plus another set (equal in
+    //            //size to each of the first two) with undefined IDs. So we need to ignore these.
+    //            if (typeof (stateselectID) != "undefined"
+    //                && stateselectID.substring(0, 6) != "clone-"
+    //                && $(this).val() != null
+    //                && $(this).val() != "") {
+
+    //                if (tbv.oCharacters[stateselectID].ValueType == "ordinal" || tbv.oCharacters[stateselectID].ValueType == "ordinalCircular") {
+    //                    //Ordinal scoring
+    //                    var kbStrictness = Number(tbv.oCharacters[stateselectID].Strictness);
+
+    //                    var selState = $(this).val();
+    //                    //console..log(stateselectID + " " + selState);
+    //                    var selectedStates = [];
+
+    //                    if (taxon[stateselectID] == "n/a") {
+
+    //                        //States selected but not applicable for taxon
+    //                        scorena = 1;
+    //                        charused = 1;
+    //                        //Adjust for strictness
+    //                        //scorena = scorena * (kbStrictness / 10);
+    //                    } else {                         
+    //                        if (tbv.oCharacters[stateselectID].ControlType == "single") {
+
+    //                            //Selected value for a single select control is a simple string value
+    //                            if ($(this).val() != "") {
+    //                                selectedStates.push($(this).val());
+    //                            }
+    //                        } else {
+    //                            //Selected values for multi select control is an array of string values
+    //                            if ($(this).val() == null) {
+    //                                selectedStates = [];
+    //                            } else {
+    //                                selectedStates = $(this).val();
+    //                            }
+    //                        }
+
+    //                        if (selectedStates.length > 0) {
+
+    //                            var posStates = tbv.oCharacters[stateselectID].CharacterStateValues;
+    //                            //The KB states for this character and taxon.
+    //                            //States that are specific to male or female are represented by suffixes of (m) and (f).
+    //                            //var kbTaxonStates = taxon[stateselectID].getStates(sex);
+    //                            var kbTaxonStates = taxon[stateselectID].getOrdinalRanges(sex);
+
+    //                            //var score = tbv.score.ordinal(selState, kbTaxonStates, posStates, kbStrictness);
+    //                            var isCircular = tbv.oCharacters[stateselectID].ValueType == "ordinalCircular";
+    //                            var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
+    //                            scorefor = score[0];
+    //                            scoreagainst = score[1];
+    //                            charused = 1;
+    //                        }
+    //                    }
+    //                } else {
+    //                    //It's a non-ordinal character.
+    //                    //Get the states selected in the control.
+    //                    var selectedStates = [];
+
+    //                    if (taxon[stateselectID] == "n/a") {
+    //                        //States selected but not applicable for taxon
+    //                        scorena = 1;
+    //                        charused = 1;
+    //                    } else {
+    //                        if (tbv.oCharacters[stateselectID].ControlType == "single") {
+
+    //                            //Selected value for a single select control is a simple string value
+    //                            if ($(this).val() != "") {
+    //                                selectedStates.push($(this).val());
+    //                            }
+    //                        } else {
+    //                            //Selected values for multi select control is an array of string values
+    //                            if ($(this).val() == null) {
+    //                                selectedStates = [];
+    //                            } else {
+    //                                selectedStates = $(this).val();
+    //                            }
+    //                        }
+
+    //                        if (selectedStates.length > 0) {
+    //                            //The KB states for this character and taxon.
+    //                            //States that are specific to male or female are represented by suffixes of (m) and (f).
+    //                            var kbTaxonStates = taxon[stateselectID].getStates(sex);
+
+    //                            var score = tbv.score.character(selectedStates, kbTaxonStates);
+    //                            scorefor = score[0];
+    //                            scoreagainst = score[1];
+    //                            charused = 1;
+    //                        }
+    //                    }
+    //                }
+
+    //                //Record scores for character for taxon (unweighted)
+    //                taxon.matchscore[stateselectID].scorena = scorena;
+    //                taxon.matchscore[stateselectID].scorefor = scorefor;
+    //                taxon.matchscore[stateselectID].scoreagainst = scoreagainst;
+    //                taxon.matchscore[stateselectID].scoreoverall = scorefor - scoreagainst - scorena;
+
+    //                //Update overall score for taxon (adjusted for character weight)
+    //                var weight = Number(tbv.oCharacters[stateselectID].Weight) / 10;
+
+    //                taxon.scoreagainst += scorena * weight;
+    //                taxon.scorefor += scorefor * weight;
+    //                taxon.scoreagainst += scoreagainst * weight;
+    //                taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
+
+    //                taxon.charcount += charused;
+    //            }
     //        });
     //    });
     //}
+
+    function scoreTaxa() {
+
+        //Set variable to indicate whether or not sex has been indicated.
+        var sex = $("#Sex").val();
+
+        //Update data array to reflect whether or not each taxa meets
+        //the criteria specified by user.
+        tbv.taxa.forEach(function (taxon) {
+            //taxon is an object representing the row from the KB
+            //corresponding to a taxon.
+
+            taxon.scorefor = 0;
+            taxon.scoreagainst = 0;
+            taxon.scoreoverall = 0;
+            taxon.charcount = 0;
+
+            //Loop through all characters and update matchscores
+            tbv.characters.filter(function (c) {
+                return (c.Status == "key");
+            }).forEach(function (c) {
+
+                var charused, scorefor, scoreagainst, scorena;
+                var character = c.Character;
+
+                if (!c.stateSet) {
+
+                    charused = 0;
+                    scorena = 0;
+                    scorefor = 0;
+                    scoreagainst = 0;
+
+                } else if (c.ValueType == "numeric") {
+
+                    if (taxon[character] == "") {
+                        //No knowledge base value for a numeric character is taken to represent
+                        //missing data and is therefore neutral.
+                        charused = 0;
+                        scorena = 0;
+                        scorefor = 0;
+                        scoreagainst = 0;
+                    } else if (taxon[character] == "n/a") {
+                        //Scorena for a specified numeric value that is not applicable is 1
+                        charused = 1;
+                        scorena = 1;
+                        scorefor = 0;
+                        scoreagainst = 0;
+                    } else {
+                        var stateval = Number(c.userInput);
+                        var rng = taxon[character].getRange();
+                        var kbStrictness = Number(c.Strictness);
+                        var wholeRange = c.maxVal - c.minVal;
+                        var score = tbv.score.numberVsRange(stateval, rng, wholeRange, kbStrictness);
+                        scorefor = score[0];
+                        scoreagainst = score[1];
+                        charused = 1;
+                        scorena = 0;
+                    }
+
+                } else if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular" || c.ValueType == "text") {
+
+                    var kbStrictness = Number(c.Strictness);
+
+                    if (taxon[character] == "n/a") {
+                        //States selected but not applicable for taxon
+                        charused = 1;
+                        scorena = 1;
+                        scorefor = 0;
+                        scoreagainst = 0;
+                    } else {
+                        //Translate c.userInput which is an array of selected indices into an array of values (for scoring)
+                        var selectedStates = c.userInput.map(function (i) {
+                            return c.CharacterStateValues[i];
+                        });
+
+                        if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+                            //The KB states for this character and taxon.
+                            //States that are specific to male or female are represented by suffixes of (m) and (f).
+                            var kbTaxonStates = taxon[character].getOrdinalRanges(sex);
+                            var posStates = c.CharacterStateValues;
+                            var isCircular = c.ValueType == "ordinalCircular";
+                            var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
+
+                        } else { //c.ValueType == "text"
+                            //The KB states for this character and taxon.
+                            //States that are specific to male or female are represented by suffixes of (m) and (f).
+                            var kbTaxonStates = taxon[character].getStates(sex);
+                            var score = tbv.score.character(selectedStates, kbTaxonStates);
+                        }
+                        scorefor = score[0];
+                        scoreagainst = score[1];
+                        charused = 1;
+                        scorena = 0;
+                    }
+                }
+                //Increment charcount
+                taxon.charcount += charused;
+
+                //Record scores for character for taxon (unweighted)
+                taxon.matchscore[character].scorena = scorena;
+                taxon.matchscore[character].scorefor = scorefor;
+                taxon.matchscore[character].scoreagainst = scoreagainst;
+                taxon.matchscore[character].scoreoverall = scorefor - scoreagainst - scorena;
+
+                //Update overall score for taxon (adjusted for character weight)
+                var weight = Number(c.Weight) / 10;
+                taxon.scorefor += scorefor * weight;
+                taxon.scoreagainst += scoreagainst * weight;
+                taxon.scoreagainst += scorena * weight;
+                taxon.scoreoverall += (scorefor - scoreagainst - scorena) * weight;
+            });
+        });
+    }
 
     function debug() {
         if (modState.debug) {
