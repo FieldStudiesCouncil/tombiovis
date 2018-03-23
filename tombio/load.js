@@ -340,7 +340,7 @@
     jsF.vis4.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect];
     jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
     jsF.visEarthworm.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
-    jsF.visEarthworm2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
+    jsF.visEarthworm2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
 
     tbv.startLoad = function () {
         //Because of the asynchronous nature of tbv.loadScripts,

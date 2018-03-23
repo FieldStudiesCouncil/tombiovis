@@ -420,7 +420,6 @@
                 char.stateSet = true;
             }
         }
-
         getVisualisation().inputControl.initKeyInputFromParams(params);
 
         tbv.refreshVisualisation();
@@ -599,8 +598,6 @@
         //Score the taxa
         scoreTaxa();
 
-        //Re-init relevant 
-        
         //Refresh the relevant visualisation
         if (getVisualisation()) getVisualisation().refresh();
         //var selectedTool = $("#tombioVisualisation").val();
@@ -1266,6 +1263,7 @@
             var relY = event.pageY - parentOffset.top;
             modState.contextMenu.menu.css({ left: relX, top: relY });
 
+            console.log("showing context")
             modState.contextMenu.menu.show();
 
             return false; //Cancel default context menu

@@ -3,7 +3,6 @@
     "use strict";
 
     var visName = "visEarthworm2";
-
     var visEarthworm2 = tbv[visName] = Object.create(tbv.visP);
     var _this;
 
@@ -38,14 +37,33 @@
     }
 
     visEarthworm2.refresh = function () {
+
+        //Add/remove context menu item to show taxon tooltip images
+        this.contextMenu.addItem("Get URL for earthworm key", function () {
+            getViewURL();
+        }, [this.visName]);
     }
 
     visEarthworm2.urlParams = function (params) {
+
+        //Set the state controls
+        tbv.initControlsFromParams(params);
     }
 
     function getViewURL() {
-        //Will need implementing and will be called from relevant point in
-        //refresh where context menu is created.
+        var params = [];
+
+        //Tool
+        params.push("selectedTool=" + visName)
+
+        //Get user input control params
+        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+
+        
+        //Generate the full URL
+        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        _this.copyTextToClipboard(url);
+        console.log(url);
     }
 
     function earthwormVis2() {
@@ -1314,8 +1332,12 @@
                     character.stateSet = false;
                     character.userInput = null;
                 });
-
                 controlsChanged();
+
+                //Reset other colourby control
+                $("#tombioEsbColourBy").val("").selectmenu('refresh');
+                _this.otherState.colourby = "";
+                colourUp();
             });
 
         //Get those characters from knowledgebase that are marked for inclusion in this 
@@ -1334,7 +1356,7 @@
         }).forEach(function (c) {
             //Create control
             $tr = $("<tr>").appendTo($table);
-            $td = $("<td>").attr("morphokey",c.EsbMorphoKey).appendTo($tr);
+            $td = $("<td>").attr("morphokey", c.EsbMorphoKey).appendTo($tr);
             $td.addClass("tombioEsbMorphoLabel").text(c.Label).appendTo($td);
             $td = $("<td>").appendTo($tr);
             if (c.ControlType == "spin") {
@@ -1373,7 +1395,7 @@
                     console.log(val)
 
                     controlsChanged();
-                    });
+                });
                 $spinner.on("spin", function (event, ui) {
                     //This is just for blanking control if user spins down to minimum
                     var $thisSpinner = $("#tombioEsbInput-" + c.Character)
@@ -1401,7 +1423,7 @@
                     $el = $("<option>").text(stateValue);
                     $input.append($el);
                 })
-                
+
                 $input.selectmenu().on('selectmenuchange', function () {
                     //userInput for text controls is an array of values representing the index of the 
                     //selected character states - this conforms with other input controls where multiple
@@ -1427,7 +1449,7 @@
                     controlsChanged();
                 });
             }
-            });
+        });
 
         //Add colour by drop-down and reset button
         $tr = $("<tr>").appendTo($table);
@@ -1449,13 +1471,17 @@
             return a.EsbColourParams.split(" ")[0] - b.EsbColourParams.split(" ")[0];
         }).forEach(function (c) {
             $el = $("<option>").attr("value", c.Character).text(c.Label).appendTo($input);
-            })
-        $input.selectmenu().on('selectmenuchange', function () { colourUp(); });
+        })
+        $input.selectmenu().on('selectmenuchange', function () {
+            _this.otherState.colourby = $("#tombioEsbColourBy").val();
+            colourUp();
+        });
         //Reset button
         $td = $("<td>").appendTo($tr);
         $reset = $("<img>").attr("src", tbv.opts.tombiopath + "/visEarthworm2/resources/reset2.png").addClass("tombioEsbResetImage").attr("id", "tombioEsbReset-colour").appendTo($td);
         $reset.click(function () {
             $("#tombioEsbColourBy").val("").selectmenu('refresh');
+            _this.otherState.colourby = "";
             colourUp();
         });
 
@@ -1465,7 +1491,7 @@
         $td = $("<td>").appendTo($tr);
         $el = $('<svg xmlns="http://www.w3.org/2000/svg" version="1.1">').attr("id", "tombioEsbLegend").appendTo($td);
         $el.css("width", this.keyItemWidth).css("height", 0); //.css("background-color", "red");
-        
+
         //Character labels and dialog actions
         $(".tombioEsbMorphoLabel")
             .hover(
@@ -1522,9 +1548,14 @@
             min: 0,
             max: 5,
             step: 1
-        }).on("spinchange", controlsChanged)
-            .on("spinstop", controlsChanged);
+        }).on("spinstop", function () {
+            _this.otherState.tolerance = $('#tombioEsbTolerance').spinner("value"); 
+            controlsChanged();
+            })
+
+        //Initialise the value
         $('#tombioEsbTolerance').spinner("value", 2);
+        this.otherState.tolerance = 2;
 
         //Create dialog for input controls
         $(document).ready(function () {
@@ -1584,24 +1615,43 @@
 
     //##Interface##
     tbv.keyInputEarthworm.initKeyInputFromParams = function (params) {
-        return;
+
+        this.initFromCharacterState();
+
+        $('#tombioEsbTolerance').spinner("value", params["tolerance"]); 
+
+        $("#tombioEsbColourBy").val(params["colourby"]).selectmenu('refresh');
+        this.otherState.colourby = params["colourby"];
+        colourUp();
     }
 
     //##Interface##
     tbv.keyInputEarthworm.setParamsFromKeyInput = function (params) {
-        return;
+
+        //Indicate which character was selected for colouring
+        params.push("colourby=" + this.otherState.colourby);
+        params.push("tolerance=" + this.otherState.tolerance);
+
+        return params
+    }
+
+    //##Interface##
+    tbv.keyInputEarthworm.otherState = {
+        keys: ["colourby", "tolerance"],
+        colourby: null,
+        tolerance: null
     }
 
     //Implementation dependent elements below...
 
     function controlsChanged(character, value) {
 
-        console.log("Controls changed");
-        tbv.characters.forEach(function (c) {
-            if (c.stateSet) {
-                console.log(c.Character, c.userInput);
-            }
-        });
+        //console.log("Controls changed");
+        //tbv.characters.forEach(function (c) {
+        //    if (c.stateSet) {
+        //        console.log(c.Character, c.userInput);
+        //    }
+        //});
         tbv.refreshVisualisation();
     }
 

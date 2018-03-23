@@ -329,6 +329,11 @@
         return params
     }
 
+    //##Interface##
+    tbv.keyInput.otherState = {
+        keys: []
+    }
+
     //Implementation dependent elements below...
 
     tbv.keyInput.setCloneVisibility = function () {
