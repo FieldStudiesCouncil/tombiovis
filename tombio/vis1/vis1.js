@@ -106,11 +106,11 @@
             })
             .style("cursor", "pointer")
             .on("click", function (d, i) {
-                if (d.height == taxheight) {
+                if (d.visState['vis1'].height == taxheight) {
 
                     expandTaxon(d, i);
                 } else {
-                    d.height = taxheight;
+                    d.visState['vis1'].height = taxheight;
                     _this.refresh();
                 }
             });
@@ -194,8 +194,8 @@
 
         //Add height state 
         tbv.taxa.forEach(function (taxon) {
-            if (taxon.height == undefined)
-                taxon.height = taxheight;
+            if (taxon.visState['vis1'].height == undefined)
+                taxon.visState['vis1'].height = taxheight;
         })
 
         //Update graphics on the update selection
@@ -207,7 +207,7 @@
 
         //Assign taxon to relevant column list
         tbv.taxa.forEach(function (taxon) {
-            if (taxon.scorefor > taxon.scoreagainst) {
+            if (taxon.visState.score.for > taxon.visState.score.against) {
                 taxain.push(taxon);
             } else {
                 taxaout.push(taxon);
@@ -215,20 +215,20 @@
         });
 
         //Sort the lists of taxa 
-        this.sortTaxa(taxain, "lastPosInTaxain");
-        this.sortTaxa(taxaout, "lastPosInTaxaout");
+        this.sortTaxa(taxain, "vis1", "lastPosInTaxain");
+        this.sortTaxa(taxaout, "vis1", "lastPosInTaxaout");
 
         //Record the current position in each list so that when next sorted, this
         //can be taken into account in order to minimise travel through list. If
         //this is not used, then priority will be given to taxa that come first in
         //KB which is arbitrary.
         for (var i = 0; i < taxain.length; i++) {
-            taxain[i].lastPosInTaxain = i;
-            taxain[i].lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
+            taxain[i].visState['vis1'].lastPosInTaxain = i;
+            taxain[i].visState['vis1'].lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
         }
         for (var i = 0; i < taxaout.length; i++) {
-            taxaout[i].lastPosInTaxaout = i;
-            taxaout[i].lastPosInTaxain = 100 - i; //Ensures enters at the bottom (all else being equal)
+            taxaout[i].visState['vis1'].lastPosInTaxaout = i;
+            taxaout[i].visState['vis1'].lastPosInTaxain = 100 - i; //Ensures enters at the bottom (all else being equal)
         }
 
         //Update the data array items to reflect the position of each taxon
@@ -236,16 +236,16 @@
         //in the D3 functions.
         var yCursor = 0;
         for (var i = 0; i < taxain.length; i++) {
-            taxain[i].x = taxspace;
-            taxain[i].y = yCursor + taxspace;
-            yCursor = taxain[i].y + taxain[i].height;
+            taxain[i].visState['vis1'].x = taxspace;
+            taxain[i].visState['vis1'].y = yCursor + taxspace;
+            yCursor = taxain[i].visState['vis1'].y + taxain[i].visState['vis1'].height;
         }
 
         yCursor = 0;
         for (var i = 0; i < taxaout.length; i++) {
-            taxaout[i].x = taxwidth + 2 * taxspace;
-            taxaout[i].y = yCursor + taxspace;
-            yCursor = taxaout[i].y + taxaout[i].height;
+            taxaout[i].visState['vis1'].x = taxwidth + 2 * taxspace;
+            taxaout[i].visState['vis1'].y = yCursor + taxspace;
+            yCursor = taxaout[i].visState['vis1'].y + taxaout[i].visState['vis1'].height;
         }
 
         //Render the graphics elements
@@ -255,13 +255,13 @@
             .duration(1000)
             .delay(delay)
             .attr("x", function (d) {
-                return d.x;
+                return d.visState['vis1'].x;
             })
             .attr("y", function (d) {
-                return d.y;
+                return d.visState['vis1'].y;
             })
             .attr("height", function (d) {
-                return d.height;
+                return d.visState['vis1'].height;
             });
 
         //Scientific names
@@ -271,17 +271,17 @@
             .delay(delay)
             .style("opacity", 1)
             .attr("x", function (d) {
-                return d.x + taxspace;
+                return d.visState['vis1'].x + taxspace;
             })
             .attr("y", function (d, i) {
-                return d.y + nameOffset;
+                return d.visState['vis1'].y + nameOffset;
             });
 
         //Prepare scales for the indicators
-        var maxFor = d3.max(tbv.taxa, function (d) { return d.scorefor; });
-        var maxAgainst = d3.max(tbv.taxa, function (d) { return d.scoreagainst; });
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
+        var maxFor = d3.max(tbv.taxa, function (d) { return d.visState.score.for; });
+        var maxAgainst = d3.max(tbv.taxa, function (d) { return d.visState.score.against; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
 
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
@@ -297,12 +297,12 @@
             .range(this.scoreColours.slice(1));
 
         var colourScales = [
-            { "scale": scaleOverall, "attr": "scoreoverall" },
-            { "scale": scaleFor, "attr": "scorefor" },
-            { "scale": scaleAgainst, "attr": "scoreagainst" },
+            { "scale": scaleOverall, "attr": "overall" },
+            { "scale": scaleFor, "attr": "for" },
+            { "scale": scaleAgainst, "attr": "against" },
         ];
 
-        var textattrs = ["scoreoverall", "scorefor", "scoreagainst"];
+        var textattrs = ["overall", "for", "against"];
         var textlabels = ["overall score", "score for", "score against"];
 
         //Indicator rectangles
@@ -311,19 +311,19 @@
             .duration(1000)
             .delay(delay)
             .attr("fill", function (d, i, j) {
-                return colourScales[i].scale(d[colourScales[i].attr]);
+                return colourScales[i].scale(d.visState.score[colourScales[i].attr]);
             })
             .attr("x", function (d, i, j) {
-                var x = d.x + margin + i * (margin + indWidth);
-                if (d.height == taxheight) {
+                var x = d.visState['vis1'].x + margin + i * (margin + indWidth);
+                if (d.visState['vis1'].height == taxheight) {
                     return x;
                 } else {
                     return x + margin;
                 }
             })
             .attr("y", function (d, i, j) {
-                var y = d.y + indVoffset;
-                if (d.height == taxheight) {
+                var y = d.visState['vis1'].y + indVoffset;
+                if (d.visState['vis1'].height == taxheight) {
                     return y;
                 } else {
                     return y + margin;
@@ -332,7 +332,7 @@
             .attr("width", indWidth)
             .attr("height", indHeight)
             .attr("title", function (d, i, j) {
-                return Math.round(d[textattrs[i]] * 100) / 100 + " (" + textlabels[i] + ")";
+                return Math.round(d.visState.score[textattrs[i]] * 100) / 100 + " (" + textlabels[i] + ")";
             })
         ;
 
@@ -342,19 +342,19 @@
             .duration(1000)
             .delay(delay)
             .text(function (d, i, j) {
-                return Math.round(d[textattrs[i]] * 100) / 100;
+                return Math.round(d.visState.score[textattrs[i]] * 100) / 100;
             })
             .attr("x", function (d, i, j) {
-                var x = d.x + margin + indTextHoffset + i * (margin + indWidth);
-                if (d.height == taxheight) {
+                var x = d.visState['vis1'].x + margin + indTextHoffset + i * (margin + indWidth);
+                if (d.visState['vis1'].height == taxheight) {
                     return x;
                 } else {
                     return x + margin;
                 }
             })
             .attr("y", function (d, i, j) {
-                var y = d.y + indVoffset + indTextVoffset;
-                if (d.height == taxheight) {
+                var y = d.visState['vis1'].y + indVoffset + indTextVoffset;
+                if (d.visState['vis1'].height == taxheight) {
                     return y;
                 } else {
                     return y + margin;
@@ -368,13 +368,14 @@
             .duration(1000)
             .delay(delay)
             .attr("x", function (d) {
-                return d.x + taxwidth - 2 * margin - 16;
+                return d.visState['vis1'].x + taxwidth - 2 * margin - 16;
             })
             .attr("y", function (d, i, j) {
-                return d.y + indVoffset + margin;
+                return d.visState['vis1'].y + indVoffset + margin;
             })
             .style("opacity", function (d, i) {
-                if (d.height != taxheight) {
+                //if (d.height != taxheight) {
+                if (d.visState['vis1'].height != taxheight) {
                     //Check if there are any images for this taxon
                     var charImages = tbv.media.filter(function (m) {
                         //Return images for matching taxon
@@ -403,23 +404,23 @@
             .duration(1000)
             .delay(delay)
             .attr("opacity", function (d, i) {
-                if (d.height == taxheight) {
+                if (d.visState['vis1'].height == taxheight) {
                     return 0;
                 } else {
                     return 1;
                 }
             })
             .attr("x", function (d) {
-                return d.x + margin;
+                return d.visState['vis1'].x + margin;
             })
             .attr("y", function (d) {
-                return d.y + indVoffset;
+                return d.visState['vis1'].y + indVoffset;
             })
             .attr("width", taxwidth - 2 * margin)
             .on("end", function (d, i) {
                 //If we don't set height of image to zero, it interfers
                 //with click events on other taxa.
-                if (d.height == taxheight) {
+                if (d.visState['vis1'].height == taxheight) {
                     d3.select(this).attr("height", 0);
                 }
             });
@@ -433,12 +434,12 @@
                 if (taxaout.length == 0) {
                     var heightout = 0;
                 } else {
-                    var heightout = taxaout[taxaout.length - 1].y + taxaout[taxaout.length - 1].height
+                    var heightout = taxaout[taxaout.length - 1].visState['vis1'].y + taxaout[taxaout.length - 1].visState['vis1'].height
                 }
                 if (taxain.length == 0) {
                     var heightin = 0;
                 } else {
-                    var heightin = taxain[taxain.length - 1].y + taxain[taxain.length - 1].height
+                    var heightin = taxain[taxain.length - 1].visState['vis1'].y + taxain[taxain.length - 1].visState['vis1'].height
                 }
                 return Math.max(heightin, heightout);
             });
@@ -465,9 +466,9 @@
         }
 
         //Add/remove context menu item to contract all items
-        if (tbv.taxa.some(function (taxon) { return (taxon.height != taxheight) })) {
+        if (tbv.taxa.some(function (taxon) { return (taxon.visState['vis1'].height != taxheight) })) {
             this.contextMenu.addItem("Contract all taxon items", function () {
-                tbv.taxa.forEach(function (taxon) { taxon.height = taxheight });
+                tbv.taxa.forEach(function (taxon) { taxon.visState['vis1'].height = taxheight });
                 _this.contextMenu.removeItem("Contract all taxon items");
                 _this.refresh();
             }, [this.visName]);
@@ -476,11 +477,11 @@
         }
 
         //Add/remove context menu item to expand all items
-        if (tbv.taxa.some(function (taxon) { return (taxon.height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
+        if (tbv.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
             this.contextMenu.addItem("Expand all taxon items", function () {
                 tbv.taxa.forEach(function (taxon, i) {
                     var taxonImages = _this.getTaxonImages(taxon.Taxon);
-                    if (taxon.height == taxheight && taxonImages.length > 0) {
+                    if (taxon.visState['vis1'].height == taxheight && taxonImages.length > 0) {
                         var imgLoad = new Image;
                         imgLoad.onload = function () {
 
@@ -489,7 +490,7 @@
                                 .attr("height", (taxwidth - 2 * margin) * imgLoad.height / imgLoad.width);
 
                             //Store the height of the rectangle which will come into effect later
-                            taxon.height = (taxwidth - 2 * margin) * imgLoad.height / imgLoad.width + indVoffset + margin;
+                            taxon.visState['vis1'].height = (taxwidth - 2 * margin) * imgLoad.height / imgLoad.width + indVoffset + margin;
 
                             //This is asynchronous, so refresh must be called here
                             _this.refresh();
@@ -551,7 +552,7 @@
         var ranges = [];
         tbv.taxa.forEach(function (taxon, i) {
             
-            if (taxon.height > _this.taxheight) {
+            if (taxon.visState['vis1'].height > _this.taxheight) {
                 
                 //console.log("Expanded!", i, taxon.Taxon.kbValue)
                 //console.log("rangeStart", rangeStart, "rangeCounter", rangeCounter)
@@ -607,7 +608,7 @@
                     .attr("height", (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width);
 
                 //Store the height of the rectangle which will come into effect later
-                d.height = (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width + _this.indVoffset + _this.margin;
+                d.visState['vis1'].height = (_this.taxwidth - 2 * _this.margin) * imgLoad.height / imgLoad.width + _this.indVoffset + _this.margin;
 
                 //This is asynchronous, so refresh must be called here            
                 _this.refresh();

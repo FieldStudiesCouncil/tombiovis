@@ -189,8 +189,8 @@
 
         _this = this;
 
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
 
         //console.log(taxonRanks.length, )
 
@@ -270,7 +270,7 @@
                  //If the taxon has the minimum overall score, then the addition of the correction makes zero,
                  //and the addition of 0.1 is to prevent zero width. Raising to a power, exaggerates the differences
                  //between low and high scores.
-                 return d.data.taxon ? Math.pow(d.data.taxon.scoreoverall + correction + 0.1, 1.5): 0;
+                 return d.data.taxon ? Math.pow(d.data.taxon.visState.score.overall + correction + 0.1, 1.5): 0;
              })
              .sort(function (a, b) {
                  //Careful what goes in here. Nonsensical can cause pack to hang.
@@ -332,7 +332,7 @@
                     return colorGreyScale(d.depth);
                 } else {
                     if (d.data.data.taxon) {
-                        return scaleOverall(d.data.data.taxon.scoreoverall);    
+                        return scaleOverall(d.data.data.taxon.visState.score.overall);    
                     } else {
                         //Can get here if bad taxonomic hierarchy is specified.
                         return 0;
@@ -408,9 +408,9 @@
             var html
             if (d.data.data.taxon) {
                 html = "<i>" + d.data.id + "</i> <span style='background-color: " +
-                    scaleOverall(d.data.data.taxon.scoreoverall) +
+                    scaleOverall(d.data.data.taxon.visState.score.overall) +
                     "; padding: 2px 5px 2px 5px; margin-left: 5px'>" +
-                    Math.round(d.data.data.taxon.scoreoverall * 100) / 100 + "</span>"
+                    Math.round(d.data.data.taxon.visState.score.overall * 100) / 100 + "</span>"
             } else {
                 //Can get here if bad taxonomic hierarchy is specified.
                 html = "<i>" + d.data.id + "</i>";
@@ -488,28 +488,28 @@
 
     function highlightTopScorers(transitionRefresh) {
 
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
 
         circleM.transition(transitionRefresh)
             .filter(function (d) {
                 return d.data.data.taxon;
             })
             .style("stroke", function(d) {
-                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "black";
+                if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "black";
                 if (_this.selectedRank == "Taxon") return "black";
                 return null;
             })
             .style("stroke-width", function(d) {
-                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "2px";
+                if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "2px";
                 if (_this.selectedRank == "Taxon") return "1px";
                 return "0px";
             })
             .style("stroke-linecap", function(d) {
-                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "round";
+                if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "round";
                 return null;
             })
             .style("stroke-dasharray", function(d) {
-                if (maxOverall > 0 && d.data.data.taxon.scoreoverall == maxOverall) return "1, 5";
+                if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "1, 5";
                 return null;
             })
     }

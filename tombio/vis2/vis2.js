@@ -63,8 +63,8 @@
             .range(_this.scoreColours);
 
         //Set up scale for overall score indicator
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.scoreoverall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.scoreoverall; });
+        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(_this.scoreColours);
@@ -74,14 +74,14 @@
         tbv.taxa.forEach(function (taxon) {
             sortedTaxa.push(taxon);
         });
-        this.sortTaxa(sortedTaxa, "lastPosition");
+        this.sortTaxa(sortedTaxa, "vis2", "lastPosition");
 
         //A sort bug in Chrome and others means requires a workaround to ensure that 
         //seemingly random changes amongst equal items are not produced. Remember last
         //sort position to do this.
         //http://stackoverflow.com/questions/3195941/sorting-an-array-of-objects-in-chrome
         for (var i = 0; i < sortedTaxa.length; i++) {
-            sortedTaxa[i].lastPosition = i;
+            sortedTaxa[i].visState['vis2'].lastPosition = i;
         }
 
         //To work out the maximum width of the bounding box for Taxon labels,
@@ -250,7 +250,7 @@
                         return characterHeight + 2 * gap + i * indSpacing;
                     })
                     .attr("fill", function () {
-                        return scaleOverall(d.scoreoverall);
+                        return scaleOverall(d.visState.score.overall);
                     })
                 d3.select(this).select(".type2VisOverallIndText")
                     .transition()
@@ -260,7 +260,7 @@
                     })
                     .attr("text", function () {
                         //Text can't be transitioned - have to grab the object and change it
-                        var score = d.scoreoverall * 100;
+                        var score = d.visState.score.overall * 100;
                         score = Math.round(score) / 100;
                         d3.select(this).text(score);
                     })
@@ -326,7 +326,7 @@
                             return characterHeight + (iTaxon + 0.5) * indSpacing;
                         })
                         .attr("fill", function () {
-                            return scaleCharInd(taxon.matchscore[d.Character].scoreoverall);
+                            return scaleCharInd(taxon[d.Character].matchscore.scoreoverall);
                         })
                         .style("opacity", 1);
 
@@ -344,7 +344,7 @@
                             //result in near matches showing a perfect score, 0.96 displaying as 1.0. This
                             //could be misleading so this has been changed (15/06/2017) to round *down*
                             //to the nearest 0.1. Still not a perfect solution, but not as potentially misleading.
-                            var score = taxon.matchscore[d.Character].scoreoverall * weight * 10;
+                            var score = taxon[d.Character].matchscore.scoreoverall * weight * 10;
                             //score = Math.round(score) / 10;
                             score = Math.floor(score) / 10;
 

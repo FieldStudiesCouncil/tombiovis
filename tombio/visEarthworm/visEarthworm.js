@@ -725,6 +725,8 @@
                 } else {
                     taxain.push(taxon);
                 }
+
+                console.log(tbv.taxa)
             }
 
             //Change the configuration of the confidenceLevel elements to reflect the

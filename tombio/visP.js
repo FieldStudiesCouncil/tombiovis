@@ -19,6 +19,11 @@
 
         //Fire the visualisations own initialisation function.
         this.initialise();
+
+        //Initialise state object for each taxon
+        tbv.taxa.forEach(function (taxon) {
+            taxon.visState[visName] = {};
+        })
     }
 
     visP.fullDetails = function (taxon, selected, x, y) {
@@ -106,16 +111,16 @@
         htmlSel.selectmenu();
     }
 
-    visP.sortTaxa = function (array, lastPosAttr) {
+    visP.sortTaxa = function (array, vis, lastPosAttr) {
         return array.sort(function (a, b) {
 
-            if (a.scoreoverall > b.scoreoverall) return -1;
-            if (b.scoreoverall > a.scoreoverall) return 1;
-            if (b.scoreoverall == a.scoreoverall) {
-                if (a.scorefor > b.scorefor) return 1;
-                if (b.scorefor > a.scorefor) return -1;
-                if (lastPosAttr == undefined) return 1;
-                if (a[lastPosAttr] > b[lastPosAttr]) {
+            if (a.visState.score.overall > b.visState.score.overall) return -1;
+            if (b.visState.score.overall > a.visState.score.overall) return 1;
+            if (b.visState.score.overall == a.visState.score.overall) {
+                if (a.visState.score.for > b.visState.score.for) return 1;
+                if (b.visState.score.for > a.visState.score.for) return -1;
+                if (lastPosAttr == undefined || vis == undefined) return 1;
+                if (a.visState[vis][lastPosAttr] > b.visState[vis][lastPosAttr]) {
                     return 1;
                 } else {
                     return -1;
@@ -817,16 +822,12 @@
         //Taxon characters scores
         html += "<hr/>";
 
-        //Formerly normalised to 10
-        //html += "<p>Unweighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * 100) / 10 + "</b>; ";
-        //html += "(for, " + Math.round(taxon.matchscore[character.Character].scorefor * 100) / 10;
-        //html += "; against, " + Math.round((taxon.matchscore[character.Character].scoreagainst + taxon.matchscore[character.Character].scorena) * 100) / 10 + ")</p>";
-        //html += "<p>Weighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * character.Weight * 10) / 10 + "</b></p>";
-        //Now normalised to 1...
-        html += "<p>Unweighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * 100) / 100 + "</b>; ";
-        html += "(for, " + Math.round(taxon.matchscore[character.Character].scorefor * 100) / 100;
-        html += "; against, " + Math.round((taxon.matchscore[character.Character].scoreagainst + taxon.matchscore[character.Character].scorena) * 100) / 100 + ")</p>";
-        html += "<p>Weighted character score: <b>" + Math.round(taxon.matchscore[character.Character].scoreoverall * character.Weight * 10) / 100 + "</b></p>";
+        //NNormalised to 1...
+        html += "<p>Unweighted character score: <b>" + Math.round(taxon[character.Character].matchscore.scoreoverall * 100) / 100 + "</b>; ";
+        html += "(for, " + Math.round(taxon[character.Character].matchscore.scorefor * 100) / 100;
+        html += "; against, " + Math.round((taxon[character.Character].matchscore.scoreagainst + taxon.matchscore[character.Character].scorena) * 100) / 100 + ")</p>";
+        html += "<p>Weighted character score: <b>" + Math.round(taxon[character.Character].matchscore.scoreoverall * character.Weight * 10) / 100 + "</b></p>";
+
         //console..log(taxon);
 
         $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
