@@ -260,23 +260,24 @@ td {
     vertical-align: middle;
 }
 
-/*#headerTaxaW {
+#tombioEsbHeaderTaxa {
     float: left;
     height: 20px;
     position: relative;
-    font-size: 1.4em;
+    font-size: 1.0em;
+    font-weight: bold;
     color: rgb(128, 128, 128);
-}*/
+}
 
-/*#candidateTaxaW {
+#tombioEsbCandidateTaxa {
     position: absolute;
-}*/
+}
 
-/*#excludedTaxaW {
+#tombioEsbExcludedTaxa {
     position: absolute;
-}*/
+}
 
-/*.confidenceLevel {
+.tombioEsbConfidenceLevel {
     font-family: "sans-serif";
     font-weight: bold;
     display: inline-block;
@@ -289,9 +290,9 @@ td {
     color: black;
     line-height: 12px;
     text-align: center;
-    background: #D55E00; 
+    background: #D55E00; /*Vermillion*/
     margin-left: 10px;
-}*/
+}
 
 
 

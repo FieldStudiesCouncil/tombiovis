@@ -4,6 +4,7 @@
 
     var visName = "visEarthworm2";
     var visEarthworm2 = tbv[visName] = Object.create(tbv.visP);
+
     var _this;
 
     visEarthworm2.initialise = function () {
@@ -19,6 +20,11 @@
         this.metadata.contact = 'richardb@field-studies-council.org';
         this.metadata.version = '4.0';
 
+        //Other initialisations
+        this.taxwidth = 205;
+        this.taxheight = 32;
+        this.taxspace = 5;
+
         //This visualisation does not use the generic state input controls, 
         //it supplies its own.
         this.charStateInput = true;
@@ -29,22 +35,97 @@
         ]
 
         //Initialise the visualisation
-        $("#" + this.visName).append($("<p>").text("Visualisation goes here"));
+        var $div = $('<div>').attr('id', 'tombioEsbHeaderTaxa').appendTo($("#" + this.visName));
+        $div.html('<span id="tombioEsbCandidateTaxa">Possible species  <span class="tombioEsbConfidenceLevel" id="tombioEsbConfidenceLevelButton">!</span></span><span id="tombioEsbExcludedTaxa">Unlikely species</span>');
+        $('<svg>').attr('id', 'tombioEsbMultiaccess').appendTo($("#" + this.visName));
+
+        $("#tombioEsbHeaderTaxa").css("width", this.taxspace * 3 + this.taxwidth * 2);
+        $("#tombioEsbCandidateTaxa").css("left", this.taxspace * 1);
+        $("#tombioEsbExcludedTaxa").css("left", this.taxspace * 2 + this.taxwidth);
+
+        //Create dialog for confidence
+        $.get(tbv.opts.tombiopath + "/visEarthworm2/confidence.html?ver=" + tbv.opts.tombiover, function (data) {
+
+            var $div = $('<div>').appendTo($("#" + _this.visName));
+            $div.html(data.replace(/##tombiopath##/g, tbv.opts.tombiopath))
+
+            $('#tombioEsbConfidenceLevelButton')
+                .click(function (event) {
+                    $('#tombioEsbCharCount').html('0');
+                    $("#tombioEsbConfidenceDialog").dialog("open");
+                });
+
+            $("#tombioEsbConfidenceDialog").dialog({
+                title: "Identification confidence",
+                autoOpen: false,
+                modal: true,
+                width: 410,
+                height: 450,
+                show: {
+                    effect: "slideDown",
+                    duration: 500
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 500
+                }
+            });
+        });
 
         //Specify key input control (defined in this module)
         visEarthworm2.inputControl = Object.create(tbv.keyInputEarthworm);
         visEarthworm2.inputControl.init($("#tombioControls"));
 
+        //Initialise scoring characters array stored for convenient lookup
+        this.scoreChars = [];
+        tbv.characters
+            .filter(function (c) { return c.EsbKeyOrder })
+            .sort(function (a, b) { return a.EsbKeyOrder - b.EsbKeyOrder })
+            .forEach(function (c) {
+                _this.scoreChars.push(c);
+            })
+
         //Add the structure to each of the taxa that will keep track of scoring specific to this
-        //visualisation.  
+        //visualisation.
+        tbv.taxa.forEach(function (t) {
+            t.visState.visEarthworm2.scores = {}
+            _this.scoreChars.forEach(function (c) {
+                t.visState.visEarthworm2.scores[c.Character] = null; //{score: null}
+            })
+        })
     }
 
     visEarthworm2.refresh = function () {
 
-        //Add/remove context menu item to show taxon tooltip images
+        //Add/remove context menu item for getting the view URL
         this.contextMenu.addItem("Get URL for earthworm key", function () {
             getViewURL();
         }, [this.visName]);
+
+        //Score each taxon against input characters
+        tbv.taxa.forEach(function (t) {
+            _this.scoreChars.forEach(function (c) {
+
+                //Redline characters
+                if (c.EsbScoreType == 'redline') {
+                    if (c.userInput && t[c.Character].kbValue == c.CharacterStateValues[c.userInput]) {
+                        t.visState.visEarthworm2.scores[c.Character] = 0;
+                    } else if (c.userInput) {
+                        t.visState.visEarthworm2.scores[c.Character] = 100;
+                    } else {
+                        t.visState.visEarthworm2.scores[c.Character] = null;
+                    }
+                }
+                //Segnum characters
+                if (c.EsbScoreType == 'segnum') {
+                    t.visState.visEarthworm2.scores[c.Character] = segDiff(c.userInput, t[c.Character].kbValue);
+                }
+                //Size characters
+                if (c.EsbScoreType == 'size') {
+                    t.visState.visEarthworm2.scores[c.Character] = sizeDiff(c.userInput, t[c.Character].kbValue);
+                }
+            })
+        })
     }
 
     function getViewURL() {
@@ -61,6 +142,59 @@
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
         _this.copyTextToClipboard(url);
         console.log(url);
+    }
+
+    function segDiff(val, range) {
+
+        if (val == "" || val == null) return null;
+        if (String(range) == "") return null;
+        if (String(range) == "n/a") return val; //Treat n/a as if specified as zero in kb
+
+        if (String(range).indexOf('[') === 0) {
+            //This is a range
+            var r1 = range.substr(1, range.length - 2);
+            var r2 = r1.split('-');
+            var min = Number(r2[0]);
+            var max = Number(r2[1]);
+        } else {
+            var min = Number(range);
+            var max = Number(range);
+        }
+        if (val < min) {
+            return min - val;
+        } else if (val > max) {
+            return val - max;
+        } else {
+            return 0;
+        }
+    }
+
+    function sizeDiff(val, range) {
+
+        if (val == "" || val == null) return null;
+        if (String(range) == "") return null;
+
+        if (String(range).indexOf('[') === 0) {
+            //This is a range
+            var r1 = range.substr(1, range.length - 2);
+            var r2 = r1.split('-');
+            var min = Number(r2[0]);
+            var max = Number(r2[1]);
+        } else {
+            var min = Number(range);
+            var max = Number(range);
+        }
+
+        //We use the value of 0.48 for a full match so that if both diameter and
+        //length match, the score for the size characters will be 0.98, which is
+        //less than 1 - ensuring correct ranking in relation to other characters.
+        if (val < min) {
+            return (min - val) / val < 1 ? (min - val) / val : 0.48;
+        } else if (val > max) {
+            return (val - max) / val < 1 ? (val - max) / val : 0.48;
+        } else {
+            return 0;
+        }
     }
 
 })(jQuery, this.tombiovis);

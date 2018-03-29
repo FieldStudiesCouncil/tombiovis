@@ -17,17 +17,18 @@
         //Initialise the metadata structure for visualisations.
         this.metadata = {};
 
-        //Fire the visualisations own initialisation function.
-        this.initialise();
-
         //Initialise state object for each taxon
         tbv.taxa.forEach(function (taxon) {
             taxon.visState[visName] = {};
         })
+
+        //Fire the visualisations own initialisation function.
+        this.initialise();
     }
 
     visP.fullDetails = function (taxon, selected, x, y) {
 
+        console.log("full details")
         var _this = this;
 
         //Default parameters
@@ -47,7 +48,7 @@
         
         //Dialog
         var dlg = $("<div>").append(tabs);
-        dlg.addClass("tombioFullDetailsDlg")
+        //dlg.addClass("tombioFullDetailsDlg")
         dlg.attr("title", taxon);
         dlg.dialog({
             height: 550,
@@ -90,25 +91,6 @@
         //drop-down menu appears under dialog.
         this.getHTMLFileSelectionDiv(taxon, tab3)
 
-    }
-
-    visP.fullDetailsTest = function (taxon, selected, x, y) {
-
-        //Dialog
-        var dlg = $("<div>").dialog();
-        dlg.dialog({
-            height: 400,
-            width: 300
-        });
-        var divSel = $("<div>");
-        var htmlSel = $("<select></select>").appendTo(divSel);
-        var opt = $("<option/>").text("one");
-        htmlSel.append(opt);
-        var opt = $("<option/>").text("two");
-        htmlSel.append(opt);
-        
-        dlg.append(divSel);
-        htmlSel.selectmenu();
     }
 
     visP.sortTaxa = function (array, vis, lastPosAttr) {
@@ -786,9 +768,6 @@
 
     visP.showCharacterScoreDetails = function (taxon, character) {
 
-        //???? Change all this to use jQuery appends? ?????????
-        console.log("showing scores")
-
         //Character state specified
         var html;
         html = "<p>Specified state(s) for character <b>" + character.Label + "</b>: </p>"
@@ -831,9 +810,15 @@
 
         //console..log(taxon);
 
-        $("#tombioHelpAndInfoDialog").dialog('option', 'title', 'Character score details');
-        $("#tombioHelpAndInfoDialog").html(html);
-        $("#tombioHelpAndInfoDialog").dialog("open");
+        var $dlg = $("<div>");
+        $dlg.dialog({
+            height: 300,
+            width: 600,
+            modal: true,
+            title: 'Character score details'
+        });
+        $dlg.html(html);
+        $dlg.dialog("open");
     }
 
     visP.showTaxonCharacterValues = function (taxon, returnAsHtml) {

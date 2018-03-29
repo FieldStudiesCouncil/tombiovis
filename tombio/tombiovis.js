@@ -62,7 +62,7 @@
         //included in key
         if (character.Status == "key") {
             this.score = {
-                "label": character.Label,
+                //"label": character.Label,
                 "na": 0,
                 "for": 0,
                 "against": 0,
