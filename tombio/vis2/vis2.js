@@ -326,7 +326,7 @@
                             return characterHeight + (iTaxon + 0.5) * indSpacing;
                         })
                         .attr("fill", function () {
-                            return scaleCharInd(taxon[d.Character].matchscore.scoreoverall);
+                            return scaleCharInd(taxon[d.Character].score.overall);
                         })
                         .style("opacity", 1);
 
@@ -344,7 +344,7 @@
                             //result in near matches showing a perfect score, 0.96 displaying as 1.0. This
                             //could be misleading so this has been changed (15/06/2017) to round *down*
                             //to the nearest 0.1. Still not a perfect solution, but not as potentially misleading.
-                            var score = taxon[d.Character].matchscore.scoreoverall * weight * 10;
+                            var score = taxon[d.Character].score.overall * weight * 10;
                             //score = Math.round(score) / 10;
                             score = Math.floor(score) / 10;
 

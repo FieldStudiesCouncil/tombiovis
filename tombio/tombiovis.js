@@ -61,12 +61,12 @@
         //Set up general score tracking object for characters
         //included in key
         if (character.Status == "key") {
-            this.matchscore = {
+            this.score = {
                 "label": character.Label,
-                "scorena": 0,
-                "scorefor": 0,
-                "scoreagainst": 0,
-                "scoreoverall": 0
+                "na": 0,
+                "for": 0,
+                "against": 0,
+                "overall": 0
             };
         }
     }
@@ -1335,7 +1335,7 @@
             taxon.visState.score.against = 0;
             taxon.visState.score.overall = 0;
 
-            //Loop through all characters and update matchscores
+            //Loop through all characters and update score
             tbv.characters.filter(function (c) {
                 return (c.Status == "key");
             }).forEach(function (c) {
@@ -1413,10 +1413,10 @@
                         scorena = 0;
                     }
                 }
-                taxon[character].matchscore.scorena = scorena;
-                taxon[character].matchscore.scorefor = scorefor;
-                taxon[character].matchscore.scoreagainst = scoreagainst;
-                taxon[character].matchscore.scoreoverall = scorefor - scoreagainst - scorena;
+                taxon[character].score.na = scorena;
+                taxon[character].score.for = scorefor;
+                taxon[character].score.against = scoreagainst;
+                taxon[character].score.overall = scorefor - scoreagainst - scorena;
 
                 //Update overall score for taxon (adjusted for character weight)
                 var weight = Number(c.Weight) / 10;

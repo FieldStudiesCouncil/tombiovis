@@ -787,6 +787,7 @@
     visP.showCharacterScoreDetails = function (taxon, character) {
 
         //???? Change all this to use jQuery appends? ?????????
+        console.log("showing scores")
 
         //Character state specified
         var html;
@@ -823,10 +824,10 @@
         html += "<hr/>";
 
         //NNormalised to 1...
-        html += "<p>Unweighted character score: <b>" + Math.round(taxon[character.Character].matchscore.scoreoverall * 100) / 100 + "</b>; ";
-        html += "(for, " + Math.round(taxon[character.Character].matchscore.scorefor * 100) / 100;
-        html += "; against, " + Math.round((taxon[character.Character].matchscore.scoreagainst + taxon.matchscore[character.Character].scorena) * 100) / 100 + ")</p>";
-        html += "<p>Weighted character score: <b>" + Math.round(taxon[character.Character].matchscore.scoreoverall * character.Weight * 10) / 100 + "</b></p>";
+        html += "<p>Unweighted character score: <b>" + Math.round(taxon[character.Character].score.overall * 100) / 100 + "</b>; ";
+        html += "(for, " + Math.round(taxon[character.Character].score.for * 100) / 100;
+        html += "; against, " + Math.round((taxon[character.Character].score.against + taxon[character.Character].score.na) * 100) / 100 + ")</p>";
+        html += "<p>Weighted character score: <b>" + Math.round(taxon[character.Character].score.overall * character.Weight * 10) / 100 + "</b></p>";
 
         //console..log(taxon);
 
