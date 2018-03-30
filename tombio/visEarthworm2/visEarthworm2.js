@@ -24,10 +24,15 @@
         this.taxwidth = 205;
         this.taxheight = 32;
         this.taxspace = 5;
+        this.taxexpanded = 353; //Need to calculate this dynamically.
+        this.delay = 450;
 
         //This visualisation does not use the generic state input controls, 
-        //it supplies its own.
+        //but it does supply its own.
         this.charStateInput = true;
+        //Specify key input control (defined in this module)
+        this.inputControl = Object.create(tbv.keyInputEarthworm);
+        this.inputControl.init($("#tombioControls"));
 
         //Help files
         this.helpFiles = [
@@ -35,9 +40,14 @@
         ]
 
         //Initialise the visualisation
-        var $div = $('<div>').attr('id', 'tombioEsbHeaderTaxa').appendTo($("#" + this.visName));
-        $div.html('<span id="tombioEsbCandidateTaxa">Possible species  <span class="tombioEsbConfidenceLevel" id="tombioEsbConfidenceLevelButton">!</span></span><span id="tombioEsbExcludedTaxa">Unlikely species</span>');
-        $('<svg>').attr('id', 'tombioEsbMultiaccess').appendTo($("#" + this.visName));
+        var $div1 = $('<div>').appendTo($("#" + this.visName));
+        var $div2 = $('<div>').attr('id', 'tombioEsbHeaderTaxa').appendTo($div1);
+        $div2.html('<span id="tombioEsbCandidateTaxa">Possible species  <span class="tombioEsbConfidenceLevel" id="tombioEsbConfidenceLevelButton">!</span></span><span id="tombioEsbExcludedTaxa">Unlikely species</span>');
+
+        //!!!Important lesson here. The first method of creating the SVG creates an element in which 
+        //!!!text items do not position correctly. So always use the D3 method to create SVG.
+        //$('<svg>').attr('id', 'tombioEsbMultiaccess').appendTo($("#" + this.visName));
+        svg = d3.select("#" + this.visName).append("svg").attr('id', 'tombioEsbMultiaccess');
 
         $("#tombioEsbHeaderTaxa").css("width", this.taxspace * 3 + this.taxwidth * 2);
         $("#tombioEsbCandidateTaxa").css("left", this.taxspace * 1);
@@ -51,7 +61,9 @@
 
             $('#tombioEsbConfidenceLevelButton')
                 .click(function (event) {
-                    $('#tombioEsbCharCount').html('0');
+                    var charUsed = _this.scoreChars.filter(function (c) { return c.stateSet }).length;
+                    $('#tombioEsbCharCount').html(_this.scoreChars.length);
+                    $('#tombioEsbCharUsed').html(charUsed);
                     $("#tombioEsbConfidenceDialog").dialog("open");
                 });
 
@@ -72,10 +84,6 @@
             });
         });
 
-        //Specify key input control (defined in this module)
-        visEarthworm2.inputControl = Object.create(tbv.keyInputEarthworm);
-        visEarthworm2.inputControl.init($("#tombioControls"));
-
         //Initialise scoring characters array stored for convenient lookup
         this.scoreChars = [];
         tbv.characters
@@ -92,7 +100,64 @@
             _this.scoreChars.forEach(function (c) {
                 t.visState.visEarthworm2.scores[c.Character] = null; //{score: null}
             })
+
+            t.visState.visEarthworm2.x = 0;
+            t.visState.visEarthworm2.y = 0;
+            t.visState.visEarthworm2.height = _this.taxheight;
         })
+
+        //Add the SVG elements
+        var svg = d3.select("#tombioEsbMultiaccess"); 
+
+        this.worms = d3.select("#tombioEsbMultiaccess").selectAll(".tombioEsbWorm")
+            .data(tbv.taxa)
+            .enter()
+            .append("g")
+            .attr("x", 0)
+            .attr("class", "tombioEsbWorm")
+            .on("click", function (d) {
+                if (d.visState.visEarthworm2.height == this.taxheight) {
+                    d.visState.visEarthworm2.height = this.taxexpanded;
+                } else {
+                    d.visState.visEarthworm2.height = this.taxheight;
+                }
+                this.refresh();
+            });
+
+        this.worms.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("rx", 5)
+            .attr("ry", 5)
+            .attr("height", this.taxheight)
+            .attr("width", this.taxwidth);
+
+        //Label with scientific names
+        this.worms.append("text")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("class", "tombioEsbScientificnames")
+            .style("opacity", 0)
+            .text(function (d) {
+                return d.Taxon.kbValue;
+            });
+
+        //Add text that specifies the knowledgebase values for each taxon
+        for (var i = 0; i < this.scoreChars; i++) {
+            this.worms.append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("class", "tombioEsbCharactervalue")
+                .style("opacity", 0)
+                .text(function (d) {
+                    return this.scoreChars[i].Label + ": " + d[this.scoreChars[i].Character].toString();
+                });
+        }
+
+
+        //Resize the SVG
+        d3.select("#tombioEsbMultiaccess")
+            .style("width", this.taxwidth * 2 + this.taxspace * 3);
     }
 
     visEarthworm2.refresh = function () {
@@ -102,8 +167,27 @@
             getViewURL();
         }, [this.visName]);
 
-        //Score each taxon against input characters
+        //If no characters are set in key, hide the confidence button
+        var charUsed = this.scoreChars.filter(function (c) { return c.stateSet }).length;
+        if (charUsed > 0) {
+            $('#tombioEsbConfidenceLevelButton').show();
+        } else {
+            $('#tombioEsbConfidenceLevelButton').hide();
+        }
+        //Colour the confidence button
+        var charSpecifiedRamp = d3.scaleLinear()
+            .domain([0, this.scoreChars.length/2, this.scoreChars.length])
+            .range(this.scoreColours);
+        $(".tombioEsbConfidenceLevel").css("background", charSpecifiedRamp(charUsed));
+
+        //Score each taxon against input characters and assign to correct column array
+        var taxain = [];
+        var taxaout = [];
         tbv.taxa.forEach(function (t) {
+            t.visState.visEarthworm2.redlineTotal = 0;
+            t.visState.visEarthworm2.segdiffTotal = 0;
+            //t.visState.visEarthworm2.sizediffTotal = 0;
+
             _this.scoreChars.forEach(function (c) {
 
                 //Redline characters
@@ -112,6 +196,7 @@
                         t.visState.visEarthworm2.scores[c.Character] = 0;
                     } else if (c.userInput) {
                         t.visState.visEarthworm2.scores[c.Character] = 100;
+                        t.visState.visEarthworm2.redlineTotal += 100;
                     } else {
                         t.visState.visEarthworm2.scores[c.Character] = null;
                     }
@@ -120,12 +205,146 @@
                 if (c.EsbScoreType == 'segnum') {
                     t.visState.visEarthworm2.scores[c.Character] = segDiff(c.userInput, t[c.Character].kbValue);
                 }
+                t.visState.visEarthworm2.segdiffTotal += t.visState.visEarthworm2.scores[c.Character];
+
                 //Size characters
                 if (c.EsbScoreType == 'size') {
                     t.visState.visEarthworm2.scores[c.Character] = sizeDiff(c.userInput, t[c.Character].kbValue);
                 }
+                //t.visState.visEarthworm2.sizediffTotal += t.visState.visEarthworm2.scores[c.Character];
             })
+            if (t.visState.visEarthworm2.redlineTotal > 0) {
+                taxaout.push(t);
+            } else if (t.visState.visEarthworm2.segdiffTotal > _this.inputControl.otherState.tolerance) {
+                taxaout.push(t);
+            } else {
+                taxain.push(t);
+            }
         })
+
+        //Sort the lists of taxa that are in and taxa that are out based
+        //their matching scores and their previous positions.
+        //These lists reference the actual items in the data array.
+        sortTaxa(taxain, "lastPosInTaxain");
+        sortTaxa(taxaout, "lastPosInTaxaout");
+
+        //Record the current position in each list so that when next sorted, this
+        //can be taken into account in order to minimise travel through list. If
+        //this is not used, then priority will be given to taxa that come first in
+        //KB which is arbitrary.
+        for (var i = 0; i < taxain.length; i++) {
+            taxain[i].visState.visEarthworm2.lastPosInTaxain = i;
+            taxain[i].visState.visEarthworm2.lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
+        }
+        for (var i = 0; i < taxaout.length; i++) {
+            taxaout[i].visState.visEarthworm2.lastPosInTaxaout = i;
+            taxaout[i].visState.visEarthworm2.lastPosInTaxain = 100 + i; //Ensures enters at the bottom (all else being equal)
+        }
+        //Update the data array items to reflect the position of each taxon
+        //in each of the sorted lists so that these values are available
+        //in the D3 functions.
+        var yCursor = 0;
+        for (i = 0; i < taxain.length; i++) {
+            taxain[i].visState.visEarthworm2.x = this.taxspace;
+            taxain[i].visState.visEarthworm2.y = yCursor + this.taxspace;
+            yCursor = taxain[i].visState.visEarthworm2.y + taxain[i].visState.visEarthworm2.height;
+        }
+
+        yCursor = 0;
+        for (i = 0; i < taxaout.length; i++) {
+            taxaout[i].visState.visEarthworm2.x = this.taxwidth + 2 * this.taxspace;
+            //taxaout[i].y = i * (this.taxheight + this.taxspace) + this.taxspace;
+            taxaout[i].visState.visEarthworm2.y = yCursor + this.taxspace;
+            yCursor = taxaout[i].visState.visEarthworm2.y + taxaout[i].visState.visEarthworm2.height;
+        }
+
+        //Render the graphics elements
+        //Rectangles
+
+        console.log("1")
+        this.worms.select("rect")
+            .transition()
+            .duration(1000)
+            .delay(_this.delay)
+            .attr("x", function (d) {
+                return d.visState.visEarthworm2.x;
+            })
+            .attr("y", function (d) {
+                return d.visState.visEarthworm2.y;
+            })
+            .attr("height", function (d) {
+                return d.visState.visEarthworm2.height;
+            });
+
+        console.log("2")
+        //Scientific names
+        this.worms.select(".tombioEsbScientificnames")
+            .transition()
+            .duration(1000)
+            .delay(_this.delay)
+            .style("opacity", 1)
+            .attr("x", function (d) {
+                return d.visState.visEarthworm2.x + _this.taxspace;
+            })
+            .attr("y", function (d, i) {
+                return 1 + d.visState.visEarthworm2.y + _this.taxheight / 2 - 2;
+            });
+
+        console.log("3")
+        this.worms.select("text")
+            .text(function (d) {
+                return d.Taxon.kbValue + " - ";
+            })
+            .append("tspan")
+            .style("font-style", "normal")
+            .style("font-weight", "bold")
+            .style("font-size", "0.9em")
+            .style("color", "red")
+            .text(function (d) {
+                //console.log(d.ScientificName + " - " + d.matcharray);
+                return d.visState.visEarthworm2.segdiffTotal;
+            });
+
+        //###############
+        //Colours and the rest
+
+        //Resize height of multiacces svg so page can be scrolled to end of taxa objects.
+        d3.select("#tombioEsbMultiaccess")
+            .transition()
+            .duration(1000)
+            .delay(_this.delay)
+            .attr("height", function () {
+                var heightout, heightin;
+                if (taxaout.length == 0) {
+                    heightout = 0;
+                } else {
+                    heightout = taxaout[taxaout.length - 1].visState.visEarthworm2.y + taxaout[taxaout.length - 1].visState.visEarthworm2.height
+                }
+                if (taxain.length == 0) {
+                    heightin = 0;
+                } else {
+                    heightin = taxain[taxain.length - 1].visState.visEarthworm2.y + taxain[taxain.length - 1].visState.visEarthworm2.height
+                }
+                return Math.max(heightin, heightout);
+            });
+    }
+
+    function sortTaxa(array, lastPosAttr) {
+        return array.sort(function (a, b) {
+
+            var aScore = a.visState.visEarthworm2.segdiffTotal;
+            var bScore = b.visState.visEarthworm2.segdiffTotal;
+
+            if (bScore > aScore) return -1;
+            if (aScore > bScore) return 1;
+            if (bScore == aScore) {
+                if (a.visState.visEarthworm2[lastPosAttr] > b.visState.visEarthworm2[lastPosAttr]) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
     }
 
     function getViewURL() {

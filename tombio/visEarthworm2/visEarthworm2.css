@@ -151,13 +151,13 @@ td {
     left: 0px;
 }*/
 
-/*.scientificnames {
+.tombioEsbScientificnames {
     font-family: Arial;
     font-size: 13px;
     stroke-width: 0px;
     font-style: italic;
     fill: black;
-}*/
+}
 
 .tombioEsbLegendText {
     font-family: Arial;
@@ -166,12 +166,12 @@ td {
     fill: black;
 }
 
-/*.charactervalue {
+.tombioEsbCharactervalue {
     font-family: Arial;
     font-size: 11px;
     stroke-width: 0px;
     fill: black;
-}*/
+}
 
 
 .ui-widget {
@@ -216,6 +216,10 @@ td {
     text-align: right;
     padding-right: 0.5em;
     color: rgb(50, 50, 50);
+}
+
+rect {
+    fill: lightgray;
 }
 
 /*#legend {
