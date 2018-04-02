@@ -1,8 +1,4 @@
 ﻿
-/*body {
-    font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; 
-}*/
-
 .tombioEsbHelp-pictures-div {
     float: right;
     margin-left: 2em;
@@ -238,25 +234,25 @@ rect {
 }*/
 
 
-/*.indText {
+.tombioEsbIndText {
     text-anchor: middle;
     fill: white;
     font-weight: bold;
-}*/
+}
 
-/*Blue http://jfly.iam.u-tokyo.ac.jp/color/ */
-/*.indmatch {
+/*Blue http://jfly.iam.u-tokyo.ac.jp/color/*/ 
+.tombioEsbIndmatch {
     fill: #0072B2; 
-}*/
+}
 
-/*Vermillion http://jfly.iam.u-tokyo.ac.jp/color/ */
-/*.indnomatch {
+/*Vermillion http://jfly.iam.u-tokyo.ac.jp/color/*/ 
+.tombioEsbIndnomatch {
     fill: #D55E00; 
-}*/
+}
 
-/*.indnone {
+.tombioEsbIndnone {
     fill: white;
-}*/
+}
 
 .tombioEsbResetImage {
     width: 16px;

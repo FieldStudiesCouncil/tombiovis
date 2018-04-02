@@ -622,7 +622,7 @@
         
         tbv.resizeControlsAndTaxa();
 
-        console.log(tbv.taxa)
+        //console.log(tbv.taxa)
     }
 
     tbv.resizeControlsAndTaxa = function () {
@@ -714,11 +714,11 @@
     }
 
     function outlineTopDivs() {
-        $("#tombiod3vis").css("border", "5px solid red").attr("title", "tombiod3vis")
-        $("#tombioMain").css("border", "5px solid blue").attr("title", "tombioMain")
-        $("#tombioControlsAndTaxa").css("border", "5px solid green").attr("title", "tombioControlsAndTaxa")
-        $("#tombioControls").css("border", "5px solid yellow").attr("title", "tombioControls")
-        $("#tombioTaxa").css("border", "5px solid cyan").attr("title", "tombioTaxa")
+        $("#tombiod3vis").css("border", "5px solid red") //.attr("title", "tombiod3vis")
+        $("#tombioMain").css("border", "5px solid blue") //.attr("title", "tombioMain")
+        $("#tombioControlsAndTaxa").css("border", "5px solid green") //.attr("title", "tombioControlsAndTaxa")
+        $("#tombioControls").css("border", "5px solid yellow") //.attr("title", "tombioControls")
+        $("#tombioTaxa").css("border", "5px solid cyan") //.attr("title", "tombioTaxa")
     }
 
     function addValuesToCharacters() {

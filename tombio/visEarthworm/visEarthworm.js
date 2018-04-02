@@ -982,7 +982,7 @@
                     }
                 });
 
-            //Indicator circles
+            //Indicator circles text
             tombio.worms.selectAll(".indText")
                 .text(function (d, i) {
                     if (d.visEarthworm.matcharray[i] != null) {
