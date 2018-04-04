@@ -235,6 +235,7 @@ rect {
 
 
 .tombioEsbIndText {
+    font-size: 0.8em;
     text-anchor: middle;
     fill: white;
     font-weight: bold;

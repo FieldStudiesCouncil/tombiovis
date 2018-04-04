@@ -25,7 +25,7 @@
         this.taxheight = 32;
         this.taxspace = 5;
         this.taxexpanded = null; //Need to calculate this dynamically.
-        this.delay = 450;
+        this.delay = 0;
         this.indrad = 6;
         this.imagedim = 12;
 
@@ -172,6 +172,7 @@
                 .attr("y", 0)
                 .attr("class", "tombioEsbCharactervalue")
                 .style("opacity", 0)
+                .attr("pointer-events", "none")
                 .text(function (d) {
                     return _this.displayChars[i].Label + ": " + d[_this.displayChars[i].Character].toString();
                 });
@@ -227,7 +228,9 @@
                         return _this.indrad * 0.6;
                     }
                 });
-            g.append("text").attr("class", "tombioEsbIndText");
+            g.append("text")
+                .attr("pointer-events", "none")
+                .attr("class", "tombioEsbIndText");
         }
 
 
@@ -379,10 +382,10 @@
             });
 
         //Character values
-        this.worms.selectAll(".tombioEsbCharactervalue")
+        this.worms.selectAll(".tombioEsbCharactervalue")    
             .transition()
             .duration(1000)
-            .delay(_this.delay)
+            .delay(this.delay)
             .style("opacity", function (d, i, j) {
                 if (d.visState.visEarthworm2.height == _this.taxheight) {
                     //Taxon not expanded
@@ -397,13 +400,13 @@
             })
             .attr("y", function (d, i) {
                 return (d.visState.visEarthworm2.y + _this.taxheight + _this.indrad - 1) + (i * (2 * (_this.indrad + _this.taxspace)));
-            });
+            })
 
         //Images
         this.worms.selectAll(".tombioEsbInfoimage")
             .transition()
             .duration(1000)
-            .delay(_this.delay)
+            .delay(this.delay)
             .style("opacity", function (d, i, j) {
                 if (d.visState.visEarthworm2.height == _this.taxheight) {
                     //Taxon not expanded
@@ -619,8 +622,6 @@
 
     function handleMouseOver(d, i) {
 
-        console.log("in");
-
         var ind = d3.select(this);
         var indText = d3.select(this.parentNode).select("text");
 
@@ -663,8 +664,6 @@
     }
 
     function handleMouseOut(d, i) {
-
-        console.log("out")
 
         var ind = d3.select(this);
         var indText = d3.select(this.parentNode).select("text");
