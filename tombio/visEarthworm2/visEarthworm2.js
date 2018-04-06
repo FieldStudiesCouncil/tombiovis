@@ -86,6 +86,64 @@
             });
         });
 
+        //Create dialog for species info
+        var $el;
+        $('<div>').attr('id', 'tombioEsbPopup').appendTo($("#" + _this.visName));
+        $('<div>').attr('id', 'tombioEsbPopupTabs').appendTo($('#tombioEsbPopup'));
+        var $ul = $('<ul>').appendTo($('#tombioEsbPopupTabs'));
+        var $li1 = $('<li>').appendTo($ul);
+        $('<a>').attr('href', '#tombioEsbPopupTabs1').text('Map').appendTo($li1);
+        var $li2 = $('<li>').appendTo($ul);
+        $('<a>').attr('href', '#tombioEsbPopupTabs2').text('Information').appendTo($li2);
+        $('<div>').attr('id', 'tombioEsbPopupTabs1').appendTo($('#tombioEsbPopupTabs'));
+        $('<div>').attr('id', 'tombioEsbMapDiv').appendTo($('#tombioEsbPopupTabs1'));
+
+        //NBN logo
+        $('<img>').attr("id", "tombioEsbNbnLogo").appendTo($('#tombioEsbPopupTabs1'));
+        //Loading text
+        $('<div>').attr("id", "tombioEsbNbnLoading").text("Loading distribution map from NBN...").appendTo($('#tombioEsbPopupTabs1'));
+
+        $('<div>').attr('id', 'tombioEsbPopupTabs2').appendTo($('#tombioEsbPopupTabs'));
+        $('<div>').attr('id', 'tombioEsbSpInfo').appendTo($('#tombioEsbPopupTabs2'));
+        $el = $('<a>').attr('target', '_blank').attr('href', 'http://www.field-studies-council.org/publications/pubs/earthworms.aspx').appendTo($('#tombioEsbPopupTabs2'));
+        $('<img>').attr('src', tbv.opts.tombiopath + '/visEarthworm2/resources/sherlock.png')
+            .css('float', 'left').css('width', '120px').css('padding', '0 10px 10px 0').appendTo($el);
+
+        $('<p>').html('More information on the morphology and ecology of <i><span id="tombioEsbInfoSpName"></span></i>' +
+            'can be found in Emma Sherlock\'s FSC AIDGAP publication,' +
+            '<a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank"> ' +
+            '<span class="tombioEsbBooklink">Key to the earthworms of UK and Ireland</span></a>, on ' +
+            '<b>pages <span id="tombioEsbInfoSpAccount"></span> (species account) and ' +
+            '<span id="tombioEsbInfoSpTable"></span> (species comparison chart)</b>.' +
+            '(The knowledge base behind this visualisation is drawn from Emma Sherlock\'s key.)'
+        ).appendTo($('#tombioEsbPopupTabs2'));
+
+        $('<p>').html('Additional information can be found in the Linnean Society synopsis,' +
+            '<a href="http://www.field-studies-council.org/publications/pubs/earthworms-synopsis.aspx" target="_blank"> ' +
+            '<span class="tombioEsbBooklink">Earthworms</span></a>, ' +
+            'by Sims and Gerard, also published by FSC.'
+        ).appendTo($('#tombioEsbPopupTabs2'));
+
+        $("#tombioEsbPopup").dialog({
+            autoOpen: false,
+            width: 410,
+            height: 610,
+            show: {
+                effect: "slideDown",
+                duration: 500
+            },
+            hide: {
+                effect: "explode",
+                duration: 500
+            }
+        });
+
+        //Can only change the title font style of *all* dialogs with css since jquery makes
+        //the div, e.g. #tombioPopup, a child of the dialog and there's no CSS selector 
+        //for parent, but there is a way of getting parent with jQuery.
+        $("#tombioEsbPopup").parent().find(".ui-dialog-title").css("font-style", "italic");
+        $("#tombioEsbPopupTabs").tabs();
+
         //Initialise scoring characters array stored for convenient lookup
         this.scoreChars = [];
         tbv.characters
@@ -195,17 +253,16 @@
                 if ($(this).css("opacity") > 0) {
                     d3.event.stopPropagation();
 
-                    //$("#tombioPopup").dialog("open");
+                    $("#tombioEsbPopup").dialog("open");
 
-                    //$('#tombioPopupTitleText').html(d.Taxon.kbValue);
-                    //$('#tombioInfoSpName').html(d.Taxon.kbValue);
-                    //$('#tombioInfoSpAccount').html(d.AccountPage.kbValue);
-                    //$('#tombioInfoSpTable').html(d.TablePage.kbValue);
+                    $('#tombioEsbPopupTitleText').html(d.Taxon.kbValue);
+                    $('#tombioEsbInfoSpName').html(d.Taxon.kbValue);
+                    $('#tombioEsbInfoSpAccount').html(d.AccountPage.kbValue);
+                    $('#tombioEsbInfoSpTable').html(d.TablePage.kbValue);
 
-                    //$("#tombioPopup").dialog('option', 'title', d.Taxon.kbValue);
+                    $("#tombioEsbPopup").dialog('option', 'title', d.Taxon.kbValue);
 
-                    //tombio.tvk = d.TVK.kbValue;
-                    //injectMap();
+                    injectMap(d.TVK.kbValue);
                 }
             });
 
@@ -630,17 +687,11 @@
             .attr("x", Number(ind.attr("cx")))
             .attr("y", Number(ind.attr("cy")) + 4); //Plus 4 to centre. Can use alignment-baseline: central on Chrome but not firefox
 
-        console.log("opacity", indText.style("opacity"))
-        console.log("text", indText.text())
-        console.log("x", indText.attr("x"))
-        console.log("y", indText.attr("y"))
-
         ind.attr("oR", ind.attr("r"));
         ind.attr("r", function () {
             var c = _this.scoreChars[i];
             if (d.visState.visEarthworm2.scores[c.Character] != null) {
                 if (c.EsbScoreType == "segnum") {
-                    console.log("r", Number(ind.attr("r")) + _this.taxspace)
                     return Number(ind.attr("r")) + _this.taxspace;
                 } else {
                     return Number(Number(ind.attr("r")));
@@ -673,6 +724,41 @@
         ind.attr("r", Number(ind.attr("oR")));
         indText
             .style("opacity", "0");
+    }
+
+    function injectMap(tvk) {
+
+        //The new NBN Atlas static mapping doesn't seem to include the ability to limit datasets
+        //and there's very little choice of UK background mapping.
+        //$('#tombioEsbMapDiv').html(
+        //    "<img id='tombioPopupMap' src='" + "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+        //    "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
+        //    "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100'" +
+        //    " width='100%'/>");
+
+        $('#tombioEsbNbnLogo').attr('src', tbv.opts.tombiopath + '/visEarthworm2/resources/nbn-logo-centred.png').addClass('tombioEsbSpiningNbn');
+        $('#tombioEsbNbnLoading').show();
+
+        var src = "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+            "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
+            "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100";
+
+        $('#tombioEsbMapDiv').html("<img id='tombioEsbPopupMap' width='100%' />")
+
+        $('#tombioEsbPopupMap').on('load', function () {
+            $('#tombioEsbNbnLogo').attr('src', tbv.opts.tombiopath + '/visEarthworm2/resources/nbn-logo-colour-centred.png').removeClass('tombioEsbSpiningNbn');
+            $('#tombioEsbNbnLoading').hide();
+        }).attr("src", src)
+
+            //"<img id='tombioEsbPopupMap' src='" + "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+            //"baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
+            //"&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100'" +
+            //" width='100%'/>");
+
+        //For some reason, when the image displayed in Tom.bio Drupal website, width recalculated
+        //and set too narrow. Setting width in line above or in stylesheet did not help. Has to
+        //be dynamically resized here.
+        //d3.select('#tombioMapDiv').style("width", "400px");
     }
 
 })(jQuery, this.tombiovis);
@@ -1070,6 +1156,7 @@
 
         //Get character to colour by
         var colourby = $("#tombioEsbColourBy").val();
+
         if (colourby != "") {
 
             //Get the type of colouring from EsbColourParams

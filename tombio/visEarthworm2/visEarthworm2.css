@@ -22,10 +22,10 @@
     opacity: 0.7;
 }*/
 
-/*.booklink {
+.tombioEsbBooklink {
     font-style:italic;
     text-decoration: underline;
-}*/
+}
 
 #tombioEsbHelpDialog {
     padding: 0;
@@ -74,45 +74,45 @@
 }
 
 /*Stops scroll-bars appearing */
-/*#tombioPopup { 
+#tombioEsbPopup { 
     overflow:hidden;   
-}*/ 
-/*#tombioPopupTabs { 
+} 
+#tombioEsbPopupTabs { 
     padding: 0px; 
     background: none; 
     border-width: 0px; 
-}*/ 
-/*#tombioPopupTabs .ui-tabs-nav { 
+} 
+#tombioEsbPopupTabs .ui-tabs-nav { 
     padding-left: 0px; 
     background: transparent; 
     border-width: 0px 0px 1px 0px; 
     -moz-border-radius: 0px; 
     -webkit-border-radius: 0px; 
     border-radius: 0px; 
-}*/ 
-/*#tombioPopupTabs .ui-tabs-panel { 
+} 
+#tombioEsbPopupTabs .ui-tabs-panel { 
     border-width: 0px;
-}*/
+}
 
-/*#tombioPopupTabs1 {
+#tombioEsbPopupTabs1 {
     position: relative;
-}*/
+}
 
-/*#tombioPopupTabs2 {
+#tombioEsbPopupTabs2 {
     position: relative;
-}*/
+}
 
-/*#tombioMapDiv { 
+#tombioEsbMapDiv { 
     position: relative;
     top: 0px;
     left: 0px;
     overflow: hidden;
-}*/ 
-/*#tombioPopupMap {
+} 
+#tombioEsbPopupMap {
     position: relative;
     top: -40px;
     left: -20px;
-}*/
+}
 
 /*#tombioControlsTable {
      margin: 0;
@@ -147,6 +147,45 @@ td {
     left: 0px;
 }*/
 
+#tombioEsbNbnLogo {
+    position: absolute;
+    left: 0px;
+    top: 20px;
+    width: 70px;
+}
+
+#tombioEsbNbnLoading {
+    position: absolute;
+    left: 90px;
+    top: 20px;
+    font-size: 1.2em;
+}
+
+.tombioEsbSpiningNbn {
+    -webkit-animation: spin .8s infinite linear;
+    animation: spin .8s infinite linear;
+}
+
+@-webkit-keyframes spin {
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes spin {
+    100% {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    100% {
+        -moz-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
 .tombioEsbScientificnames {
     font-family: Arial;
     font-size: 13px;
@@ -169,11 +208,9 @@ td {
     fill: black;
 }
 
-
 .ui-widget {
     font-size: 12px;
 }
-
 
 #tombioEsbKeyInput td {
     padding: 2px;
@@ -198,12 +235,6 @@ td {
     width: 103px;
 }
 
-
-/*svg#legend {
-    max-height: 2000px;
-}*/
-
-
 .tombioEsbMorphoLabel {
     cursor: help;
 }
@@ -214,25 +245,9 @@ td {
     color: rgb(50, 50, 50);
 }
 
-rect {
+.tombioEsbWorm rect {
     fill: lightgray;
 }
-
-/*#legend {
-    float:right;
-}*/
-
-/*#tombioEarthwormControls {
-    float: left;
-}*/
-
-/*.worm {
-    fill: lightgrey;
-}*/
-/*rect {
-    opacity: 0.5;
-}*/
-
 
 .tombioEsbIndText {
     font-size: 0.8em;
