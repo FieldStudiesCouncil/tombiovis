@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Changed
+ - Rebranded as FSC Identikit (replace Tom.Bio ID Framework and similar).
  - Changed structure of code used a 'classes' pattern to conform to the simpler OLOO pattern of Kyle  Simpson. This includes all the visualisation objects and the stateValue object.
  - Replaced the variable named 'core' with 'tbv' which relates better to the top-level 'tombiovis' object that it represents.
 ### Added

@@ -710,7 +710,7 @@
         $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioMain");
 
-        outlineTopDivs();
+        //outlineTopDivs();
     }
 
     function outlineTopDivs() {
@@ -803,7 +803,7 @@
         //Add the various info tools
         toolOptions.push($('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>'));
         toolOptions.push($('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>'));
-        toolOptions.push($('<option value="visInfo" class="html" data-class="info">About Tom.bio ID Visualisations</option>'));
+        toolOptions.push($('<option value="visInfo" class="html" data-class="info">About FSC Identikit</option>'));
         toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
 
         //If a selectedTool has been specified as a query parameter then set as default,
@@ -932,8 +932,8 @@
         var html = $("<div>"), t;
 
         //Generate the citation for the core software
-        html.append($("<h3>").text("Citation for general framework (core software)"))
-        t = "This is the reference you can use for the main Tom.bio Framework - in other words the core software.";
+        html.append($("<h3>").text("Citation for FSC Identikit (core software)"))
+        t = "This is the reference you can use for the FSC Identikit - in other words the core software.";
         t += " The core version number is updated whenever there is a new major release of the core software.";
         html.append($("<p>").html(t));
         html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationCore' id='tbCitationCore'>"));

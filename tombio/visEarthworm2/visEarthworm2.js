@@ -25,7 +25,7 @@
         this.taxheight = 32;
         this.taxspace = 5;
         this.taxexpanded = null; //Need to calculate this dynamically.
-        this.delay = 0;
+        this.delay = 200;
         this.indrad = 6;
         this.imagedim = 12;
 
@@ -395,9 +395,124 @@
             yCursor = taxaout[i].visState.visEarthworm2.y + taxaout[i].visState.visEarthworm2.height;
         }
 
+        //If user has selected to colour rectangles, work out the colours
+        var colourby = tbv.visEarthworm2.inputControl.otherState.colourby;
+        if (colourby) {
+            //Define the D3 colour scale
+            //This really just reflects the code in the earthworm input control and really
+            //should use common code. Otherwise, as is, changes made in one will need to be
+            //reflected in the other.
+            var colourType = tbv.oCharacters[colourby].EsbColourParams.split(" ")[1];
+            var colour, domainMin, domainMax;
+            if (colourType == "number" || colourType == "log") {
+                domainMin = tbv.oCharacters[colourby].minVal;
+                domainMax = tbv.oCharacters[colourby].maxVal;
+                if (colourType == "log") {
+                    domainMin = Math.log(domainMin);
+                    domainMax = Math.log(domainMax);
+                }
+                colour = d3.scaleLinear().domain([domainMin, domainMax]).range(['yellow', 'blue']);
+
+            } else if (colourType == "default" || colourType == "specified") {
+                var stateValues, colours;
+                if (colourType == "default") {
+                    stateValues = tbv.oCharacters[colourby].CharacterStateValues;
+                    if (tbv.oCharacters[colourby].CharacterStateValues.length <= 10) {
+                        colours = d3.schemeCategory10;
+                    } else {
+                        colours = d3.schemeCategory20;
+                    }
+                } else { //colourType == "specified"
+                    stateValues = [];
+                    colours = [];
+                    tbv.values.filter(function (v) {
+                        return v.Character == colourby;
+                    }).forEach(function (v) {
+                        stateValues.push(v.CharacterState);
+                        colours.push(v.EsbColour.replace("*", "#")); //Colours in kb use '*' in place of '#' which has special meaning in kb
+                    })
+                }
+                colour = d3.scaleOrdinal().domain(stateValues).range(colours);
+            } 
+        }
+        //Create the gradients
+        tbv.taxa.forEach(function (t) {
+            if (colourby) {
+                //This really just reflects the code in the earthworm input control and really
+                //should use common code. Otherwise, as is, changes made in one will need to be
+                //reflected in the other.
+                if (t[colourby].kbValue == "") {
+                    t.visState.visEarthworm2.fill = "lightgrey";
+                } else if (colourType == "number" || colourType == "log") {
+                    //If it's a numeric range, return a gradient
+                    var kbval = t[colourby].kbValue.trim();
+                    if (kbval.startsWith("[")) {
+                        kbval = kbval.substr(1, kbval.length - 2);
+                        var kbvalsplit = kbval.split("-");
+                        var val1 = Number(kbvalsplit[0].trim());
+                        var val2 = Number(kbvalsplit[1].trim());
+                        if (colourType == "log") {
+                            val1 = Math.log(val1);
+                            val2 = Math.log(val2);
+                        }
+                        var gradientName = "url(#" + makeGradient(val1, val2, colour) + ")";
+                        console.log("Gradient name: ", gradientName)
+                        t.visState.visEarthworm2.fill = gradientName;
+                    } else {
+                        t.visState.visEarthworm2.fill = colour(t[colourby].kbValue)
+                    }
+                } else if (colourType == "default" || colourType == "specified") {
+                    //If there is more than one possible value, then take first and last and make a gradient
+                    //between them. (Works for earthworms becaue only really required for colour attribute and
+                    //there are only ever two options.)
+                    var kbval = t[colourby].kbValue;
+                    var kbvalsplit = kbval.split("|");
+                    if (kbvalsplit.length > 1) {
+                        var val1 = kbvalsplit[0].trim();
+                        var val2 = kbvalsplit[kbvalsplit.length - 1].trim();
+                        t.visState.visEarthworm2.fill = "url(#" + makeGradient(val1, val2) + ")";
+                    } else {
+                        t.visState.visEarthworm2.fill = colour(t[colourby].kbValue);
+                    }
+                }
+                function makeGradient(val1, val2) {
+                    var strVal1 = String(Math.round(val1, 2));
+                    var strVal2 = String(Math.round(val2, 2));
+
+                    var gradientName = colourby + "-" + strVal1 + "-" + strVal2;
+                    gradientName = gradientName.replace(/ /g, "");
+
+                    if (!document.getElementById(gradientName)) {
+                        //console.log("creating ", gradientName)
+                        var gradient = d3.select("#tombioEsbMultiaccess")
+                            .append("linearGradient")
+                            .attr("id", gradientName);
+                        gradient
+                            .append("stop")
+                            .attr("offset", "0%")
+                            .attr("stop-color", colour(val1));
+                        gradient
+                            .append("stop")
+                            .attr("offset", "100%")
+                            .attr("stop-color", colour(val2));
+                    }
+                    return gradientName;
+                }
+            } else {
+                t.visState.visEarthworm2.fill = "lightgrey";
+            }
+        })
+
         //Render the graphics elements
         //Rectangles
         this.worms.select("rect")
+            .style("opacity", 0.5)
+            .style("fill", function (d) {
+                //Colours are best done before the transition because gradient fills don't
+                //transition anyway and if all fills are transition, then all rectangles
+                //go white for the full transition period before getting right colour.
+                return d.visState.visEarthworm2.fill;
+            })
             .transition()
             .duration(1000)
             .delay(_this.delay)
@@ -409,106 +524,7 @@
             })
             .attr("height", function (d) {
                 return d.visState.visEarthworm2.height;
-            })
-            .style("opacity", 0.5)
-            .style("fill", function (d) {
-                var colourby = tbv.visEarthworm2.inputControl.otherState.colourby;
-                if (colourby) {
-                    //This really just reflects the code in the earthworm input control and really
-                    //should use common code. Otherwise, as is, changes made in one will need to be
-                    //reflected in the other.
-
-                    //Get the type of colouring from EsbColourParams
-                    var colourType = tbv.oCharacters[colourby].EsbColourParams.split(" ")[1];
-                    var colour, domainMin, domainMax;
-                    if (colourType == "number" || colourType == "log") {
-                        domainMin = tbv.oCharacters[colourby].minVal;
-                        domainMax = tbv.oCharacters[colourby].maxVal;
-                        if (colourType == "log") {
-                            domainMin = Math.log(domainMin);
-                            domainMax = Math.log(domainMax);
-                        }
-                        colour = d3.scaleLinear().domain([domainMin, domainMax]).range(['yellow', 'blue']); 
-
-                        console.log(domainMin, domainMax)
-                        
-                        //If it's a numeric range, return a gradient
-                        var kbval = d[colourby].kbValue.trim();
-                        if (kbval.startsWith("[")) {
-                            kbval = kbval.substr(1, kbval.length - 2);
-                            console.log(kbval);
-                            var kbvalsplit = kbval.split("-");
-                            var val1 = Number(kbvalsplit[0].trim());
-                            var val2 = Number(kbvalsplit[1].trim());
-                            if (colourType == "log") {
-                                val1 = Math.round(Math.log(val1) * 100) / 100;
-                                val2 = Math.round(Math.log(val2) * 100) / 100;
-                            }
-                            return "url(#" + makeGradient(val1, val2, colour) + ")";
-                        } else {
-                            return colour(d[colourby].kbValue)
-                        }
-
-                    } else if (colourType == "default" || colourType == "specified") {
-                        var stateValues, colours;
-                        if (colourType == "default") {
-                            stateValues = tbv.oCharacters[colourby].CharacterStateValues;
-                            if (tbv.oCharacters[colourby].CharacterStateValues.length <= 10) {
-                                colours = d3.schemeCategory10;
-                            } else {
-                                colours = d3.schemeCategory20;
-                            }
-                        } else { //colourType == "specified"
-                            stateValues = [];
-                            colours = [];
-                            tbv.values.filter(function (v) {
-                                return v.Character == colourby;
-                            }).forEach(function (v) {
-                                stateValues.push(v.CharacterState);
-                                colours.push(v.EsbColour.replace("*", "#")); //Colours in kb use '*' in place of '#' which has special meaning in kb
-                            })
-                        }
-                        colour = d3.scaleOrdinal().domain(stateValues).range(colours);
-
-                        //If there is more than one possible value, then take first and last and make a gradient
-                        //between them. (Works for earthworms becaue only really required for colour attribute and
-                        //there are only ever two options.)
-                        var kbval = d[colourby].kbValue;
-                        var kbvalsplit = kbval.split("|");
-                        if (kbvalsplit.length > 1) {
-                            var val1 = kbvalsplit[0].trim();
-                            var val2 = kbvalsplit[kbvalsplit.length - 1].trim();
-                            var gradientName = colourby + "-" + val1 + "-" + val2;
-                            gradientName = gradientName.replace(/ /g, "");
-                            return "url(#" + makeGradient(val1, val2, colour) + ")";
-                        } else {
-                            return colour(d[colourby].kbValue);
-                        }   
-                    }
-                } else {
-                    return "lightgrey"
-                }
-
-                function makeGradient(val1, val2, d3colour) {
-                    var gradientName = colourby + "-" + val1 + "-" + val2;
-                    gradientName = gradientName.replace(/ /g, "");
-                    var gradient = d3.select("#tombioEsbMultiaccess")
-                        .append("linearGradient")
-                        .attr("id", gradientName);
-                    gradient
-                        .append("stop")
-                        .attr("offset", "0%")
-                        .attr("stop-color", d3colour(val1));
-                    gradient
-                        .append("stop")
-                        .attr("offset", "100%")
-                        .attr("stop-color", d3colour(val2));
-
-                    console.log(gradientName)
-                    return gradientName;
-                }
-            })
-
+            })  
 
         //Scientific names
         this.worms.select(".tombioEsbScientificnames")
@@ -1144,29 +1160,27 @@
         this.otherState.tolerance = 2;
 
         //Create dialog for input controls
-        $(document).ready(function () {
-            $.get(tbv.opts.tombiopath + "/visEarthworm2/characterHelp.html?ver=" + tbv.opts.tombiover, function (data) {
+        $.get(tbv.opts.tombiopath + "/visEarthworm2/characterHelp.html?ver=" + tbv.opts.tombiover, function (data) {
 
-                $("#tombioEsbKeyInput").append(data.replace(/##tombiopath##/g, tbv.opts.tombiopath));
+            $("#tombioEsbKeyInput").append(data.replace(/##tombiopath##/g, tbv.opts.tombiopath));
 
-                //Help dialog
-                $("#tombioEsbHelpDialog").dialog({
-                    title: "Morphological features",
-                    width: 600,
-                    height: 470,
-                    autoOpen: false,
-                    modal: true,
-                    show: {
-                        effect: "slideDown",
-                        duration: 500
-                    },
-                    hide: {
-                        effect: "explode",
-                        duration: 500
-                    }
-                });
-                $("#tombioEsbHelpTabs").tabs();
+            //Help dialog
+            $("#tombioEsbHelpDialog").dialog({
+                title: "Morphological features",
+                width: 600,
+                height: 470,
+                autoOpen: false,
+                modal: true,
+                show: {
+                    effect: "slideDown",
+                    duration: 500
+                },
+                hide: {
+                    effect: "explode",
+                    duration: 500
+                }
             });
+            $("#tombioEsbHelpTabs").tabs();
         });
     }
 

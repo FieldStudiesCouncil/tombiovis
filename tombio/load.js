@@ -65,13 +65,13 @@
     //root source directory, but not that in the sub-directories of the
     //visualisations which each have their own metadata.
     tbv.metadata = {
-        title: "Tom.bio Framework for ID visualisations",
-        year: "2016",
+        title: "FSC Identikit",
+        year: "2018",
         authors: "Burkmar, R.",
         publisher: "Field Studies Council",
         location: "Shrewsbury, England",
-        contact: "richardb@field-studies-council.org",
-        version: "1.6.0"
+        contact: "r.burkmar@field-studies-council.org",
+        version: "1.7.0"
     }
 
     //Variables for the tools to be included
