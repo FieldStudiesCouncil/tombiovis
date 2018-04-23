@@ -690,14 +690,14 @@
 
         //Div and buttons for knowledge-base integrity report
         $("<div>").attr("id", "tombioKBReport").css("display", "none").appendTo("#tombiod3vis");
-        $("<button>").attr("id", "tombioReload").css("display", "none").appendTo("#tombioKBReport");
-        $("<button>").attr("id", "tombioContinue").css("display", "none").appendTo("#tombioKBReport");
+        $("<button>").attr("id", "tombioReload").text("Reload").appendTo("#tombioKBReport");
+        $("<button>").attr("id", "tombioContinue").text("Continue").appendTo("#tombioKBReport");
 
         //Main div
-        $("<div>").attr("id", "tombioMain").appendTo("#tombiod3vis");
+        $("<div>").attr("id", "tombioMain").addClass("needsclick").css("display", "none").appendTo("#tombiod3vis");
 
         //Tool drop-down
-        $("<select>").attr("id", "tombioVisualisation").appendTo("#tombioMain");
+        $("<select>").attr("id", "tombioVisualisation").css("display", "none").appendTo("#tombioMain");
 
         //Divs for taxa and controls
         $("<div>").addClass("tombioNoSelect").attr("id", "tombioControlsAndTaxa").appendTo("#tombioMain");
@@ -710,7 +710,7 @@
         $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioMain");
 
-        //outlineTopDivs();
+        outlineTopDivs();
     }
 
     function outlineTopDivs() {
@@ -1352,6 +1352,8 @@
 
                 } else if (c.ValueType == "numeric") {
 
+                    //if (taxon.Taxon == "Dicymbium brevisetosum") console.log("Dicymbium brevisetosum >>" + taxon[character] + "<<")
+
                     if (taxon[character] == "") {
                         //No knowledge base value for a numeric character is taken to represent
                         //missing data and is therefore neutral.
@@ -1407,6 +1409,7 @@
                             var kbTaxonStates = taxon[character].getStates(sex);
                             var score = tbv.score.character(selectedStates, kbTaxonStates);
                         }
+                        console.log(score)
                         scorefor = score[0];
                         scoreagainst = score[1];
                         charused = 1;

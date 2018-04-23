@@ -11,7 +11,9 @@
         bullet: "", //"&#x26AB "
         inputCharGroups: [],
         helpAndInfoDialogWidth: 550,
-        helpAndInfoDialogHeight: 400
+        helpAndInfoDialogHeight: 400,
+
+        lastGroup: null
     };
 
     //##Interface##
@@ -56,6 +58,8 @@
                 if (!characters[character.Group]) {
                     characters[character.Group] = [];
                     _this.inputCharGroups.push(character.Group);
+
+                    _this.lastGroup = character.Group;
                 }
                 characters[character.Group].push(character);
             }
@@ -227,7 +231,15 @@
                 $(".stateselect").each(function () {
                     //$(this).pqSelect('refresh');
                 });
-                tbv.resizeControlsAndTaxa();
+                tbv.resizeControlsAndTaxa();  
+
+                if ($("#tombioControls").css("min-height") == "0px") {
+                    var tombioControlsTop = $("#tombioControls").offset().top;
+                    var $lastTabButton = $("[aria-controls=tombioKeyInputTab-" + _this.lastGroup + "]");
+                    var lastTabButtonTop = $lastTabButton.offset().top;
+                    var lastTabButtonHeight = $lastTabButton.height();
+                    $("#tombioControls").css("min-height", lastTabButtonTop + lastTabButtonHeight - tombioControlsTop);
+                }
             }
         });
 
@@ -271,7 +283,7 @@
             });
     }
 
-    //Interface
+    //##Interface##
     tbv.keyInput.initFromCharacterState = function () {
         //Set the character state input controls
         tbv.characters.forEach(function (c, cIndex) {
@@ -467,6 +479,9 @@
 
         spinner.on("spinstop", function (event, ui) {
 
+            var val = spinner.spinner("value");
+            //var val = $("#" + id).spinner("value");
+
             //select and it's clone must match
             if (id.substring(0, 6) == "clone-") {
                 var isClone = true;
@@ -475,7 +490,7 @@
                 var isClone = false;
                 var counterpartID = "clone-" + id;
             };
-            $("#" + counterpartID).spinner("value", spinner.spinner("value"));
+            $("#" + counterpartID).spinner("value", val);
 
             //Set state set flag
             if (id.substring(0, 6) == "clone-") {
@@ -484,9 +499,9 @@
                 var character = id;
             }
             tbv.oCharacters[character].stateSet = true;
-            tbv.oCharacters[character].userInput = spinner.spinner("value");
+            tbv.oCharacters[character].userInput = val;
 
-            console.log(spinner.spinner("value"))
+            console.log(val)
 
             //if (!isClone) {
             //Update the taxon representation.
@@ -495,13 +510,13 @@
             //}
         });
 
-        spinner.on("spin", function (event, ui) {
-            if (ui.value == spinner.spinner('option', 'min')) {
-                //When spinner goes to min value, blank it.
-                spinner.spinner("value", "");
-                return false;
-            }
-        });
+        //spinner.on("spin", function (event, ui) {
+        //    if (ui.value == spinner.spinner('option', 'min')) {
+        //        //When spinner goes to min value, blank it.
+        //        spinner.spinner("value", "");
+        //        return false;
+        //    }
+        //});
 
         var button = $("#" + id + "-clear").button({
             icon: "ui-icon-close",

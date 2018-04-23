@@ -998,14 +998,14 @@
                     c.userInput = val;
                     controlsChanged();
                 });
-                $spinner.on("spin", function (event, ui) {
-                    //This is just for blanking control if user spins down to minimum
-                    var $thisSpinner = $("#tombioEsbInput-" + c.Character)
-                    if (ui.value == $thisSpinner.spinner('option', 'min')) {
-                        $thisSpinner.spinner("value", "");
-                        return false;
-                    }
-                });
+                //$spinner.on("spin", function (event, ui) {
+                //    //This is just for blanking control if user spins down to minimum
+                //    var $thisSpinner = $("#tombioEsbInput-" + c.Character)
+                //    if (ui.value == $thisSpinner.spinner('option', 'min')) {
+                //        $thisSpinner.spinner("value", "");
+                //        return false;
+                //    }
+                //});
                 //Make the reset image
                 $reset.click(function () {
                     var $thisSpinner = $("#tombioEsbInput-" + c.Character)

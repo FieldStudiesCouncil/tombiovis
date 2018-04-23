@@ -419,6 +419,12 @@
                         //properly. So we look for an undefined value and replace with empty string.
                         //row[key] = row[key].trim();
                         row[key] = row[key] ? row[key].trim() : "";
+
+                        //Lone question marks are notation for KB developers only - they are treated
+                        //as missing values by the software, so replace with empty string.
+                        if (row[key] == "?") {
+                            row[key] = "";
+                        }
                     }
                 }
                 return row;

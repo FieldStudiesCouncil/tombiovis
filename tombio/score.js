@@ -35,7 +35,7 @@
         }
         //Score against is simply 1 minus the score for
         var scoreagainst = 1 - scorefor;
-       
+
         //Return array with both values
         return [scorefor, scoreagainst];
     }
@@ -108,42 +108,54 @@
 
         //Return the best score
         var ret;
-        selectedStates.forEach(function (selState) {    
+        selectedStates.forEach(function (selState) {
             var selStateRank;
             posStates.forEach(function (state, rank) {
                 if (state == selState) selStateRank = rank;
             })
+
+            //If the selected state was not in 
             kbAllTaxonStates.forEach(function (taxState) {
                 var taxStateRank;
                 posStates.forEach(function (state, rank) {
                     if (state == taxState) taxStateRank = rank;
                 })
-                var rngTaxonStateRank = { min: taxStateRank, max: taxStateRank };
-                var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, posStates.length - 1, kbStrictness);
-                //console.log("standard", r[0])
-                if (!ret || ret[0] < r[0]) {
-                    ret = r;
-                }
-                //If it is a circular ordinal then change the value of taxStateRank by either subtracting or adding
-                //the number of all values - whichever brings the value of taxStateRank and selStateRank closer
-                //together - and score for those values. If the score is better than the unmodified taxStateRank then
-                //use it instead.
-                if (isCircular) {
-                    if (selStateRank > taxStateRank) {
-                        taxStateRank = taxStateRank + posStates.length;
-                    } else {
-                        taxStateRank = taxStateRank - posStates.length;
+                if (taxStateRank) {
+                    //taxStateRank might still be undefined if the taxState was not in the posStates array
+                    // - this shouldn't happen but can if kb developer has ignored warnings.
+                    var rngTaxonStateRank = { min: taxStateRank, max: taxStateRank };
+                    var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, posStates.length - 1, kbStrictness);
+                    //console.log("standard", r[0])
+                    if (!ret || ret[0] < r[0]) {
+                        ret = r;
                     }
-                    var rngTaxonStateRankC = { min: taxStateRank, max: taxStateRank};
-                    var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, posStates.length - 1, kbStrictness);
-                    //console.log("circular", rC[0])
-                    if (!ret || ret[0] < rC[0]) {
-                        ret = rC; 
+                    //If it is a circular ordinal then change the value of taxStateRank by either subtracting or adding
+                    //the number of all values - whichever brings the value of taxStateRank and selStateRank closer
+                    //together - and score for those values. If the score is better than the unmodified taxStateRank then
+                    //use it instead.
+                    if (isCircular) {
+                        if (selStateRank > taxStateRank) {
+                            taxStateRank = taxStateRank + posStates.length;
+                        } else {
+                            taxStateRank = taxStateRank - posStates.length;
+                        }
+                        var rngTaxonStateRankC = { min: taxStateRank, max: taxStateRank };
+                        var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, posStates.length - 1, kbStrictness);
+                        //console.log("circular", rC[0])
+                        if (!ret || ret[0] < rC[0]) {
+                            ret = rC;
+                        }
                     }
                 }
             })
         })
-        return ret;
+        //ret could be be undefined if none of the taxon states was not in the posStates array
+        // - this shouldn't happen but can if kb developer has ignored warnings.
+        if (ret) {
+            return ret;
+        } else {
+            return [0, 0];
+        }
     }
 
     tbv.score.character = function (selectedStates, kbTaxonStates) {
