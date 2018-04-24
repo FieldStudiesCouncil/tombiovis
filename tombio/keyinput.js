@@ -12,8 +12,8 @@
         inputCharGroups: [],
         helpAndInfoDialogWidth: 550,
         helpAndInfoDialogHeight: 400,
-
-        lastGroup: null
+        //lastGroup: null,
+        verticalTabSpace: 33
     };
 
     //##Interface##
@@ -58,12 +58,15 @@
                 if (!characters[character.Group]) {
                     characters[character.Group] = [];
                     _this.inputCharGroups.push(character.Group);
+                    //_this.lastGroup = character.Group;
 
-                    _this.lastGroup = character.Group;
                 }
                 characters[character.Group].push(character);
             }
         });
+
+        //Set minimum  height of tombio controls based on a constant ()
+        $("#tombioControls").css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
 
         for (var chargroup in characters) {
 
@@ -233,13 +236,14 @@
                 });
                 tbv.resizeControlsAndTaxa();  
 
-                if ($("#tombioControls").css("min-height") == "0px") {
-                    var tombioControlsTop = $("#tombioControls").offset().top;
-                    var $lastTabButton = $("[aria-controls=tombioKeyInputTab-" + _this.lastGroup + "]");
-                    var lastTabButtonTop = $lastTabButton.offset().top;
-                    var lastTabButtonHeight = $lastTabButton.height();
-                    $("#tombioControls").css("min-height", lastTabButtonTop + lastTabButtonHeight - tombioControlsTop);
-                }
+                ////Below doesn't work because doesn't get called on first activated control
+                //if ($("#tombioControls").css("min-height") == "0px") {
+                //    var tombioControlsTop = $("#tombioControls").offset().top;
+                //    var $lastTabButton = $("[aria-controls=tombioKeyInputTab-" + _this.lastGroup + "]");
+                //    var lastTabButtonTop = $lastTabButton.offset().top;
+                //    var lastTabButtonHeight = $lastTabButton.height();
+                //    $("#tombioControls").css("min-height", lastTabButtonTop + lastTabButtonHeight - tombioControlsTop);
+                //}
             }
         });
 
@@ -254,6 +258,7 @@
                 tabs.tabs("option", "active", tabIndex + 1)
             }
         }
+
 
         //Help handling
         $(".characterhelp") 
