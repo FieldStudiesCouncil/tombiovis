@@ -710,7 +710,7 @@
         $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioMain");
 
-        outlineTopDivs();
+        //outlineTopDivs();
     }
 
     function outlineTopDivs() {
