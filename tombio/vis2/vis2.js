@@ -74,15 +74,17 @@
         tbv.taxa.forEach(function (taxon) {
             sortedTaxa.push(taxon);
         });
-        this.sortTaxa(sortedTaxa, "vis2", "lastPosition");
+        //this.sortTaxa(sortedTaxa, "vis2", "lastPosition");
+        this.sortTaxa(sortedTaxa);
 
-        //A sort bug in Chrome and others means requires a workaround to ensure that 
-        //seemingly random changes amongst equal items are not produced. Remember last
-        //sort position to do this.
-        //http://stackoverflow.com/questions/3195941/sorting-an-array-of-objects-in-chrome
-        for (var i = 0; i < sortedTaxa.length; i++) {
-            sortedTaxa[i].visState['vis2'].lastPosition = i;
-        }
+        ////A sort bug in Chrome and others means requires a workaround to ensure that 
+        ////seemingly random changes amongst equal items are not produced. Remember last
+        ////sort position to do this.
+        ////Removed for version 1.7.0 in favour of using original position in kb instead.
+        ////http://stackoverflow.com/questions/3195941/sorting-an-array-of-objects-in-chrome
+        //for (var i = 0; i < sortedTaxa.length; i++) {
+        //    sortedTaxa[i].visState['vis2'].lastPosition = i;
+        //}
 
         //To work out the maximum width of the bounding box for Taxon labels,
         //add temporary (invisible) text objects to SVG - one for each taxon

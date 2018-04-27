@@ -694,8 +694,8 @@
                 //Takes the min and max of the range for TaxonI, compares each to Taxon0 and takes
                 //average of the two overall scores.
                 var wholeRange = oCharacter.maxVal - oCharacter.minVal;
-                var scoreMin = tbv.score.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
-                var scoreMax = tbv.score.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), wholeRange, oCharacter.Strictness);
+                var scoreMin = tbv.score.numberVsRange(taxonI[character].getRange().min, taxon0[character].getRange(), oCharacter.Latitude);
+                var scoreMax = tbv.score.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), oCharacter.Latitude);
                 charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
 
             } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
@@ -705,7 +705,7 @@
                 ["male", "female", ""].forEach(function (sex) {
                     //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
                     taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
-                        score = tbv.score.ordinal2(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Strictness, (oCharacter.ValueType == "ordinalCircular"));
+                        score = tbv.score.ordinal(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Latitude, (oCharacter.ValueType == "ordinalCircular"));
                         //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
                         scoreTotal += score[0];
                         scoreTotal -= score[1];

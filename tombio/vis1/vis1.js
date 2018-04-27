@@ -215,21 +215,25 @@
         });
 
         //Sort the lists of taxa 
-        this.sortTaxa(taxain, "vis1", "lastPosInTaxain");
-        this.sortTaxa(taxaout, "vis1", "lastPosInTaxaout");
+        //this.sortTaxa(taxain, "vis1", "lastPosInTaxain");
+        //this.sortTaxa(taxaout, "vis1", "lastPosInTaxaout");
+        this.sortTaxa(taxain, "vis1");
+        this.sortTaxa(taxaout, "vis1");
 
         //Record the current position in each list so that when next sorted, this
         //can be taken into account in order to minimise travel through list. If
         //this is not used, then priority will be given to taxa that come first in
         //KB which is arbitrary.
-        for (var i = 0; i < taxain.length; i++) {
-            taxain[i].visState['vis1'].lastPosInTaxain = i;
-            taxain[i].visState['vis1'].lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
-        }
-        for (var i = 0; i < taxaout.length; i++) {
-            taxaout[i].visState['vis1'].lastPosInTaxaout = i;
-            taxaout[i].visState['vis1'].lastPosInTaxain = 100 - i; //Ensures enters at the bottom (all else being equal)
-        }
+        //Removed for version 1.7.0 because it resulted in unpredictable sorting
+        //e.g. when initialising from URL.
+        //for (var i = 0; i < taxain.length; i++) {
+        //    taxain[i].visState['vis1'].lastPosInTaxain = i;
+        //    taxain[i].visState['vis1'].lastPosInTaxaout = i - 100; //Ensures enters at the top (all else being equal)
+        //}
+        //for (var i = 0; i < taxaout.length; i++) {
+        //    taxaout[i].visState['vis1'].lastPosInTaxaout = i;
+        //    taxaout[i].visState['vis1'].lastPosInTaxain = 100 - i; //Ensures enters at the bottom (all else being equal)
+        //}
 
         //Update the data array items to reflect the position of each taxon
         //in each of the sorted lists so that these values are available

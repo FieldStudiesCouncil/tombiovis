@@ -330,6 +330,7 @@
 
         //Map taxa to properties of an object for easy reference by name (Taxon property)
         tbv.oTaxa = {};
+        var iTaxon = 0;
         tbv.taxa.forEach(function (taxon) {
             tbv.oTaxa[taxon.Taxon] = taxon;
             //Replace each cell value with a StateValue object.
@@ -340,6 +341,9 @@
                     taxon[property].init(taxon, property);
                 }
             }
+            //Store the original order of the taxa from the kb
+            taxon.kbPosition = ++iTaxon;
+
             //Initialise visState object
             taxon.visState = {
                 //General score object - shared by most multi-access keys
@@ -374,6 +378,40 @@
                         character.maxVal = maxTax;
                     }
                 })
+            }
+            //If no Latitude attribute specified (i.e. Latitude attribute missing from spreadsheet)
+            //then use the Strictness value to calculate a value latitude. This is for backwards
+            //compatibility for KBs created before v1.7.0 and not modified to use Latitude.
+
+            //Numeric characters are scored thus:
+            //If the specified number is within the range specified for the taxon, the character scores 1.
+            //Otherwise the score depends on how far outside the range it is. The maximum distance
+            //outside the range at which a specified value can score is here called 'latitude'.
+            //If outside the latitude, the specified value scores 0.
+            //The latitude is equal to the whole range of the character across all taxa, 
+            //reduced by an amount proportional to the strictness value. For maximum strictness value (10)
+            //latitude is zero. For minimum strictness value (0) latitude is equal to the whole range.
+            //The score of a specified number is equal to its distance outside the range, divided by its
+            //latitude.
+            if (character.ValueType == "numeric" || character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                if (typeof (character.Latitude) != "undefined") {
+                    character.Latitude = Number(character.Latitude);
+                    if (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                        //The specified latitude for ordinal is the the number of ranks that should score,
+                        //but the software will treat it as the rank that first doesn't score, so add one.
+                        character.Latitude += 1;
+                    }
+                } else if (character.ValueType == "numeric") {
+                    character.Latitude = (1 - Number(character.Strictness) / 10) * (character.maxVal - character.minVal);
+                } else { //ordinal
+                    var stateNumber = tbv.values.filter(function (v) {
+                        return v.Character == character.Character;
+                    }).length;
+                    character.Latitude = (1 - Number(character.Strictness) / 10) * stateNumber;
+                    if (character.ValueType == "ordinalCircular") {
+                        character.Latitude = character.Latitude / 2;
+                    }
+                }
             }
         });
 
@@ -1370,9 +1408,8 @@
                     } else {
                         var stateval = Number(c.userInput);
                         var rng = taxon[character].getRange();
-                        var kbStrictness = Number(c.Strictness);
                         var wholeRange = c.maxVal - c.minVal;
-                        var score = tbv.score.numberVsRange(stateval, rng, wholeRange, kbStrictness);
+                        var score = tbv.score.numberVsRange(stateval, rng, c.Latitude);
                         scorefor = score[0];
                         scoreagainst = score[1];
                         charused = 1;
@@ -1380,8 +1417,6 @@
                     }
 
                 } else if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular" || c.ValueType == "text") {
-
-                    var kbStrictness = Number(c.Strictness);
 
                     if (taxon[character] == "n/a") {
                         //States selected but not applicable for taxon
@@ -1401,7 +1436,8 @@
                             var kbTaxonStates = taxon[character].getOrdinalRanges(sex);
                             var posStates = c.CharacterStateValues;
                             var isCircular = c.ValueType == "ordinalCircular";
-                            var score = tbv.score.ordinal2(selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular);
+
+                            var score = tbv.score.ordinal(selectedStates, kbTaxonStates, posStates, c.Latitude, isCircular);
 
                         } else { //c.ValueType == "text"
                             //The KB states for this character and taxon.
@@ -1409,7 +1445,7 @@
                             var kbTaxonStates = taxon[character].getStates(sex);
                             var score = tbv.score.character(selectedStates, kbTaxonStates);
                         }
-                        console.log(score)
+                        //console.log(score)
                         scorefor = score[0];
                         scoreagainst = score[1];
                         charused = 1;

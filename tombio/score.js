@@ -4,24 +4,15 @@
 
     tbv.score = {};
 
-    tbv.score.numberVsRange = function (stateval, rng, wholeRange, kbStrictness) {
+    tbv.score.numberVsRange = function (stateval, rng, latitude) {
         //Numeric characters are scored thus:
         //If the specified number is within the range specified for the taxon, the character scores 1.
         //Otherwise the score depends on how far outside the range it is. The maximum distance
         //outside the range at which a specified value can score is here called 'latitude'.
         //If outside the latitude, the specified value scores 0.
-        //The latitude is equal to the whole range of the character across all taxa, 
-        //reduced by an amount proportional to the strictness value. For maximum strictness value (10)
-        //latitude is zero. For minimum strictness value (0) latitude is equal to the whole range.
-        //The score of a specified number is equal to its distance outside the range, divided by its
-        //latitude.
-
         //Only scores with values are passed in, so no need to deal with missing values.
-
-        //console.log(stateval, rng, wholeRange, kbStrictness);
-
+        
         var scorefor;
-        var latitude = (1 - kbStrictness / 10) * wholeRange;
         if (stateval >= rng.min && stateval <= rng.max) {
             scorefor = 1;
         } else if (stateval < rng.min - latitude) {
@@ -37,52 +28,10 @@
         var scoreagainst = 1 - scorefor;
 
         //Return array with both values
-        return [scorefor, scoreagainst];
+        return [scorefor, scoreagainst];    
     }
 
-    tbv.score.ordinal = function (selState, kbTaxonStates, posStates, kbStrictness) {
-
-        //selState is the state we're assessing for a match.
-        //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex).
-        //posStates are the ordinal states that can be taken on by this character.
-        //kbStrictness is the strictness for this character in the KB.
-
-        //For an ordinal value, only one value should be selected by the user (single selects)
-        //but more than one could be specified in the kb to express a range. 
-
-        //This function changes all the ordinal states into scores and then simply refers
-        //the resulting numbers to the numberVsRange function.
-
-        //Deal first with missing KB values
-        if (kbTaxonStates.length == 0) {
-            return [0, 0];
-        }
-
-        var stateval;
-        var rng = { min: null, max: null }
-        posStates.forEach(function (state, rank) {
-            if (state == selState) {
-                stateval = rank;
-            }
-            kbTaxonStates.forEach(function (taxState) {
-                if (!rng.min && taxState == state) {
-                    rng.min = rank;
-                }
-                if (taxState == state) {
-                    rng.max = rank;
-                }
-            })
-        })
-        return tbv.score.numberVsRange(stateval, rng, posStates.length - 1, kbStrictness)
-    }
-
-    tbv.score.ordinal2 = function (selectedStates, kbTaxonStates, posStates, kbStrictness, isCircular) {
-
-        //console.log("selectedStates", selectedStates)
-        //console.log("kbTaxonStates", kbTaxonStates)
-        //console.log("posStates", posStates)
-        //console.log("kbStrictness", kbStrictness)
-        //console.log("isCircular", isCircular)
+    tbv.score.ordinal = function (selectedStates, kbTaxonStates, posStates, latitude, isCircular) {
 
         //selectedStates is an array of states we're assessing for a match. Can be more than one for multiple selection controls.
         //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex) - note
@@ -90,7 +39,7 @@
         //arrays. Within the outer array, single ordinals are an array of size one. In this routine, all the arrays within
         //the outer array will simply be merged into a single array and all treated as alternatives.
         //posStates are the ordinal states that can be taken on by this character.
-        //kbStrictness is the strictness for this character in the KB.
+        //latitude is the latitude for this character in the KB (or derived if strictness specified instead).
 
         //This function changes all the ordinal states into scores and then simply refers
         //the resulting numbers to the numberVsRange function.
@@ -116,15 +65,16 @@
 
             //If the selected state was not in 
             kbAllTaxonStates.forEach(function (taxState) {
-                var taxStateRank;
+                var taxStateRank = -1;
                 posStates.forEach(function (state, rank) {
                     if (state == taxState) taxStateRank = rank;
                 })
-                if (taxStateRank) {
+
+                if (taxStateRank > -1) {
                     //taxStateRank might still be undefined if the taxState was not in the posStates array
                     // - this shouldn't happen but can if kb developer has ignored warnings.
                     var rngTaxonStateRank = { min: taxStateRank, max: taxStateRank };
-                    var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, posStates.length - 1, kbStrictness);
+                    var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, latitude);
                     //console.log("standard", r[0])
                     if (!ret || ret[0] < r[0]) {
                         ret = r;
@@ -140,7 +90,7 @@
                             taxStateRank = taxStateRank - posStates.length;
                         }
                         var rngTaxonStateRankC = { min: taxStateRank, max: taxStateRank };
-                        var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, posStates.length - 1, kbStrictness);
+                        var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, latitude);
                         //console.log("circular", rC[0])
                         if (!ret || ret[0] < rC[0]) {
                             ret = rC;
@@ -149,7 +99,7 @@
                 }
             })
         })
-        //ret could be be undefined if none of the taxon states was not in the posStates array
+        //ret could be be undefined if one of the taxon states was not in the posStates array
         // - this shouldn't happen but can if kb developer has ignored warnings.
         if (ret) {
             return ret;

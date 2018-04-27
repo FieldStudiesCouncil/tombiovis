@@ -93,7 +93,10 @@
 
     }
 
-    visP.sortTaxa = function (array, vis, lastPosAttr) {
+    visP.sortTaxa = function (array) {
+    //visP.sortTaxa = function (array, vis, lastPosAttr) {
+        //lastPosAttr removed for version 1.7.0 because it resulted in unpredictable sorting
+        //e.g. when initialising from URL.
         return array.sort(function (a, b) {
 
             if (a.visState.score.overall > b.visState.score.overall) return -1;
@@ -101,8 +104,13 @@
             if (b.visState.score.overall == a.visState.score.overall) {
                 if (a.visState.score.for > b.visState.score.for) return 1;
                 if (b.visState.score.for > a.visState.score.for) return -1;
-                if (lastPosAttr == undefined || vis == undefined) return 1;
-                if (a.visState[vis][lastPosAttr] > b.visState[vis][lastPosAttr]) {
+                //if (lastPosAttr == undefined || vis == undefined) return 1;
+                //if (a.visState[vis][lastPosAttr] > b.visState[vis][lastPosAttr]) {
+                //    return 1;
+                //} else {
+                //    return -1;
+                //}
+                if (a.kbPosition > b.kbPosition) {
                     return 1;
                 } else {
                     return -1;
@@ -797,7 +805,7 @@
         //Knowledge-base parametrs for this character
         html += "<hr/>";
         html += "<p>Knowledge-base <b>weighting</b> for this character: <b>" + character.Weight + "</b></p>";
-        html += "<p>Knowledge-base <b>strictness</b> for this character: <b>" + character.Strictness + "</b></p>";
+        html += "<p>Knowledge-base <b>latitude</b> for this character: <b>" + character.Latitude + "</b></p>";
 
         //Taxon characters scores
         html += "<hr/>";
