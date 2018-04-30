@@ -232,6 +232,34 @@
 
         //Characters
         errors = $('<ul>');
+
+        //Check that required columns are present on the characters tab
+        var requiredFields = ["Group", "Character", "Label", "Help", "HelpShort", "Status", "ValueType", "ControlType", "Params", "Weight"];
+        var field, fields = [];
+        for (field in tbv.characters[0]) {
+            if (tbv.characters[0].hasOwnProperty(field)) {
+                fields.push(field);
+            }
+        }
+        requiredFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f +"'</b> is missing."));
+                characters = false;
+            }
+        })
+
+        //Check that either 'Strictness' or 'Latitdue' is present. Warn if strictness is used.
+        if ($.inArray("Strictness", fields) == -1 && $.inArray("Latitude", fields) == -1) {
+            errors.append($('<li class="tombioValid3">').html("The column <b>'Latitude'</b> is missing."));
+            characters = false;
+        } else if ($.inArray("Strictness", fields) > -1 && $.inArray("Latitude", fields) > -1) {
+            errors.append($('<li class="tombioValid1">').html("Columns <b>'Strictness'</b> and  <b>'Latitude'</b> are both specified. 'Strictness' has been deprecated and will be ignored in favour of 'Latitude'."));
+            characters = false;
+        } else if ($.inArray("Strictness", fields) > -1) {
+            errors.append($('<li class="tombioValid1">').html("You are using <b>'Strictness'</b> which has been deprecated (since version 1.7.0) in favour of <b>'Latitude'</b>. Strictness will still work, but you are advised to change to Latitude (see documentation)."));
+            characters = false;
+        }
+ 
         //Check that Taxon column has a Group value of Taxonomy
         var taxonRows = tbv.characters.filter(function (c) { return (c.Character == "Taxon") });
         if (taxonRows.length > 0 && taxonRows[0].Group != "Taxonomy") {
@@ -271,11 +299,30 @@
                 errors.append($('<li class="tombioValid3">').html("You must specify a 'Weight' value for <b>'" + c.Character + "'</b> because it has a 'Status' value of 'key'."));
                 characters = false;
             }
-            //Check that all numeric, ordinal and ordinal-circular characters have a strictness value between 0 and 10.
-            var regexStrictness = /^([0-9]|10)$/;
-            if ((c.ValueType == "numeric" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexStrictness.test(c.Strictness)) {
-                errors.append($('<li class="tombioValid3">').html("For numeric, ordinal and ordinalCircular characters, you must specify a 'Strictness' value of between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
-                characters = false;
+            //Check that all numeric, ordinal and ordinal-circular characters have a strictness value between 0 and 10 (if specified)
+            if (typeof (c.Strictness) != "undefined") {
+                if (c.Strictness != "") {
+                    var regexStrictness = /^([0-9]|10)$/;
+                    if ((c.ValueType == "numeric" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexStrictness.test(c.Strictness)) {
+                        errors.append($('<li class="tombioValid2">').html("For numeric, ordinal and ordinalCircular characters, 'Strictness', if specified, must be between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
+                        characters = false;
+                    }
+                }
+            }
+            //Check that all numeric, ordinal and ordinal-circular characters have a numeric Latitude value(if specified)
+            if (typeof (c.Latitude) != "undefined") {
+                if (c.Latitude != "") {
+                    var regexLatitudeN = /^[1-9]\d*(\.\d+)?$/;
+                    if ((c.ValueType == "numeric") && !regexLatitudeN.test(c.Latitude)) {
+                        errors.append($('<li class="tombioValid2">').html("For numeric characters, 'Latitude', if specified, must be a valid number. There is an invalid 'Latitude' value for <b>'" + c.Character + "'</b>."));
+                        characters = false;
+                    }
+                    var regexLatitudeI = /^(?:[0-9]|0[1-9]|10)$/;
+                    if ((c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexLatitudeI.test(c.Latitude)) {
+                        errors.append($('<li class="tombioValid2">').html("For ordinal and ordinalCircular characters, 'Latitude', if specified, must be a whole number. There is an invalid 'Latitude' value for <b>'" + c.Character + "'</b>."));
+                        characters = false;
+                    }
+                }
             }
             //Check that all characters in characters tab that are used in the key a valid value type.
             if (validValueType.indexOf(c.ValueType) == -1) {

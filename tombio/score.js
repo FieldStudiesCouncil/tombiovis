@@ -63,18 +63,23 @@
                 if (state == selState) selStateRank = rank;
             })
 
-            //If the selected state was not in 
             kbAllTaxonStates.forEach(function (taxState) {
+
+                //Set the rank of the selected value
                 var taxStateRank = -1;
                 posStates.forEach(function (state, rank) {
                     if (state == taxState) taxStateRank = rank;
                 })
 
+                //The specified latitude for ordinal is the the number of ranks that should score,
+                //but the software will treat it as the rank that first doesn't score, so add one.
+                var adjustedLatitude = latitude + 1;
+
                 if (taxStateRank > -1) {
                     //taxStateRank might still be undefined if the taxState was not in the posStates array
                     // - this shouldn't happen but can if kb developer has ignored warnings.
                     var rngTaxonStateRank = { min: taxStateRank, max: taxStateRank };
-                    var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, latitude);
+                    var r = tbv.score.numberVsRange(selStateRank, rngTaxonStateRank, adjustedLatitude);
                     //console.log("standard", r[0])
                     if (!ret || ret[0] < r[0]) {
                         ret = r;
@@ -90,7 +95,7 @@
                             taxStateRank = taxStateRank - posStates.length;
                         }
                         var rngTaxonStateRankC = { min: taxStateRank, max: taxStateRank };
-                        var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, latitude);
+                        var rC = tbv.score.numberVsRange(selStateRank, rngTaxonStateRankC, adjustedLatitude);
                         //console.log("circular", rC[0])
                         if (!ret || ret[0] < rC[0]) {
                             ret = rC;

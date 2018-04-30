@@ -347,7 +347,7 @@
             //Initialise visState object
             taxon.visState = {
                 //General score object - shared by most multi-access keys
-                score: {for: null, against: null, overall: null}
+                score: { for: null, against: null, overall: null }
             }
         });
 
@@ -379,7 +379,7 @@
                     }
                 })
             }
-            //If no Latitude attribute specified (i.e. Latitude attribute missing from spreadsheet)
+            //If no Latitude attribute specified (i.e. Latitude field missing from spreadsheet)
             //then use the Strictness value to calculate a value latitude. This is for backwards
             //compatibility for KBs created before v1.7.0 and not modified to use Latitude.
 
@@ -395,21 +395,25 @@
             //latitude.
             if (character.ValueType == "numeric" || character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
                 if (typeof (character.Latitude) != "undefined") {
-                    character.Latitude = Number(character.Latitude);
-                    if (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
-                        //The specified latitude for ordinal is the the number of ranks that should score,
-                        //but the software will treat it as the rank that first doesn't score, so add one.
-                        character.Latitude += 1;
-                    }
-                } else if (character.ValueType == "numeric") {
-                    character.Latitude = (1 - Number(character.Strictness) / 10) * (character.maxVal - character.minVal);
-                } else { //ordinal
-                    var stateNumber = tbv.values.filter(function (v) {
-                        return v.Character == character.Character;
-                    }).length;
-                    character.Latitude = (1 - Number(character.Strictness) / 10) * stateNumber;
-                    if (character.ValueType == "ordinalCircular") {
-                        character.Latitude = character.Latitude / 2;
+                    character.Latitude = Number(character.Latitude); //If latitude unspecified, default will be 0.
+                    //if (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                    //    //The specified latitude for ordinal is the the number of ranks that should score,
+                    //    //but the software will treat it as the rank that first doesn't score, so add one.
+                    //    character.Latitude += 1; (No - do this in socring.)
+                    //}
+                } else {
+                    //Calculate Latitude from Strictness - default strictness is set to maximum (10) if not specified for a character
+                    var strictness = character.Strictness == "" ? 10 : Number(character.Strictness);
+                    if (character.ValueType == "numeric") {
+                        character.Latitude = (1 - strictness / 10) * (character.maxVal - character.minVal);
+                    } else { //ordinal
+                        var stateNumber = tbv.values.filter(function (v) {
+                            return v.Character == character.Character;
+                        }).length;
+                        character.Latitude = (1 - strictness / 10) * stateNumber;
+                        if (character.ValueType == "ordinalCircular") {
+                            character.Latitude = character.Latitude / 2;
+                        }
                     }
                 }
             }
