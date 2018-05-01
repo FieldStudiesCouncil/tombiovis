@@ -469,6 +469,7 @@
                 return filterAndClean(row);
             },
             function (data) {
+                tbv.config = data;
                 tbv.kbconfig = {};
                 tbv.kbmetadata = {};
                 tbv.kbreleaseHistory = [];

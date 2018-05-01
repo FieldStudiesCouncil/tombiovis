@@ -169,6 +169,10 @@ div#tombioInfo {
     background: url("resources/info20.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
+.ui-icon.gear {
+    background: url("resources/options.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
 .ui-icon.vis {
     background: url("resources/lightbulb.png") 0 0 no-repeat;
     background-size: 16px 16px;

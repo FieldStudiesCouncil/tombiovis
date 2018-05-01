@@ -598,6 +598,12 @@
             return;
         }
 
+        if (selectedToolName == "mediaFilesCheck") {
+
+            visModuleLoaded(selectedToolName);
+            return;
+        }
+
         //If we got here, a visualisation (module) was selected.
         //At this point, the tool module (and it's dependencies) may or may not be loaded.
         //So we go through the steps of marking them as 'loadReady' and calling the
@@ -751,6 +757,7 @@
         $("<div>").attr("id", "kbInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioMain");
+        $("<div>").attr("id", "mediaFilesCheck").css("display", "none").appendTo("#tombioMain");
 
         //outlineTopDivs();
     }
@@ -847,6 +854,11 @@
         toolOptions.push($('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>'));
         toolOptions.push($('<option value="visInfo" class="html" data-class="info">About FSC Identikit</option>'));
         toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
+
+        //If the tbv.opts.devel option is set, add item to check media files.
+        if (tbv.opts.devel) {
+            toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="gear">Check media files</option>'));
+        }
 
         //If a selectedTool has been specified as a query parameter then set as default,
         //otherwise, if a selectedTool has been specified in top level options (in HTML) then set as default,
@@ -969,6 +981,43 @@
         }
     }
 
+    function createMediaCheckPage() {
+
+        var html = $("<div id='tombioMediaChecks'>");
+        var divNotFound = $("<div id='tombioMediaNotFound'>").appendTo(html);
+        var divFound = $("<div id='tombioMediaFound'>").appendTo(html);
+
+        divNotFound.append("<h3>Not found</h3>");
+        divNotFound.append("<p>If a file cannot be found but you think it is present, check the case carefully. The case used to name the file must match exactly the case used in the knowledge-base. For example, a file with extension '.JPG' will not match the same filename in the knowledge-base if it is written there as '.jpg'.</p>");
+        divFound.append("<h3>Found</h3>");
+
+        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local") }).forEach(function (m) {
+
+            //Check that the image files actually exist
+            mediaFileExists(m.URI,
+                function () {
+                    $('#tombioMediaFound').append($('<p>').html("The image file '" + m.URI + "' found okay."));
+                },
+                function () {
+                    $('#tombioMediaNotFound').append($('<p>').html("The image file '" + m.URI + "' cannot be found on the server."));
+                }) 
+        })
+        return html;
+
+        function mediaFileExists(uri, fFound, fNotFound) {
+            $.ajax({
+                url: uri,
+                type: 'HEAD',
+                error: function () {
+                    fNotFound();
+                },
+                success: function () {
+                    fFound();
+                }
+            });
+        }
+    }
+
     function createCitationPage() {
 
         var html = $("<div>"), t;
@@ -1059,6 +1108,11 @@
         //If the user has selected to show citation then generate.
         if (selectedToolName == "tombioCitation") {
             $('#tombioCitation').html(createCitationPage());
+        }
+
+        //If the user has selected to check media files
+        if (selectedToolName == "mediaFilesCheck") {
+            $('#mediaFilesCheck').html(createMediaCheckPage());
         }
 
         //If the user has selected to show kb info and not yet loaded,

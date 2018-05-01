@@ -30,6 +30,7 @@
         var taxonomy = true;
         var metadata = true;
         var errors, errors2;
+        var field, fields, requiredFields;
 
         //Derive some variables for use later
         var charactersFromCharactersTab = tbv.characters.map(function (character) {
@@ -107,6 +108,22 @@
 
         //Metadata
         errors = $('<ul>');
+
+        //Check that required columns are present on the config tab
+        requiredFields = ["Key", "Type", "Mandatory", "Value", "Date", "Notes"];
+        fields = [];
+        for (field in tbv.config[0]) {
+            if (tbv.config[0].hasOwnProperty(field)) {
+                fields.push(field);
+            }
+        }
+        requiredFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
+                metadata = false;
+            }
+        })
+
         //Metadata title
         if (!metadataValue('title', "You must specify a title for the KB (Key - title). This is used to generate a citation.")) metadata = false;
         //Metadata year
@@ -234,8 +251,8 @@
         errors = $('<ul>');
 
         //Check that required columns are present on the characters tab
-        var requiredFields = ["Group", "Character", "Label", "Help", "HelpShort", "Status", "ValueType", "ControlType", "Params", "Weight"];
-        var field, fields = [];
+        requiredFields = ["Group", "Character", "Label", "Help", "HelpShort", "Status", "ValueType", "ControlType", "Params", "Weight"];
+        fields = [];
         for (field in tbv.characters[0]) {
             if (tbv.characters[0].hasOwnProperty(field)) {
                 fields.push(field);
@@ -363,6 +380,22 @@
         //Values tab
         errors = $('<ul>');
         errors2 = $('<ul>');
+
+        //Check that required columns are present on the values tab
+        requiredFields = ["Character", "CharacterState", "CharacterStateTranslation", "StateHelp", "StateHelpShort"];
+        fields = [];
+        for (field in tbv.values[0]) {
+            if (tbv.values[0].hasOwnProperty(field)) {
+                fields.push(field);
+            }
+        }
+        requiredFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
+                values = false;
+            }
+        })
+
         //Check that all characters in the values tab have corresponding entry in the characters tab.
         charactersFromValuesTab.forEach(function (character) {
             if (charactersFromCharactersTab.indexOf(character) == -1) {
@@ -457,6 +490,22 @@
 
         //Image media files
         errors = $('<ul>');
+
+        //Check that required columns are present on the media tab
+        requiredFields = ["URI", "ImageWidth", "Type", "Priority", "Caption", "Taxon", "Character", "State", "UseFor", "TipStyle"];
+        fields = [];
+        for (field in tbv.media[0]) {
+            if (tbv.media[0].hasOwnProperty(field)) {
+                fields.push(field);
+            }
+        }
+        requiredFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
+                media = false;
+            }
+        })
+
         tbv.media.filter(function (m) { return (m.Type == "image-local") }).forEach(function (m) {
 
             if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
@@ -487,6 +536,7 @@
                 }
             }
         })
+
         if (!media) {
             $('#tombioKBReport').append($('<h4>').text('On the media worksheet...'));
             $('#tombioKBReport').append(errors);
