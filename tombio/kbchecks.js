@@ -506,7 +506,7 @@
             }
         })
 
-        tbv.media.filter(function (m) { return (m.Type == "image-local") }).forEach(function (m) {
+        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "image-web") }).forEach(function (m) {
 
             if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
                 //A character on the media tab does not appear on the characters tab

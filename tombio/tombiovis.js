@@ -710,7 +710,7 @@
         }
         //Are there any help images on media tab?
         var charImages = tbv.media.filter(function (m) {
-            if (m.Type == "image-local" && m.Character == character) {
+            if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character) {
                 return true;
             }
         });
@@ -991,7 +991,7 @@
         divNotFound.append("<p>If a file cannot be found but you think it is present, check the case carefully. The case used to name the file must match exactly the case used in the knowledge-base. For example, a file with extension '.JPG' will not match the same filename in the knowledge-base if it is written there as '.jpg'.</p>");
         divFound.append("<h3>Found</h3>");
 
-        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local") }).forEach(function (m) {
+        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web") }).forEach(function (m) {
 
             //Check that the image files actually exist
             mediaFileExists(m.URI,
