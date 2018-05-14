@@ -994,7 +994,7 @@
         tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web") }).forEach(function (m) {
 
             //Check that the image files actually exist
-            mediaFileExists(m.URI,
+            mediaFileExists(m.URI, m.Type,
                 function () {
                     $('#tombioMediaFound').append($('<p>').html("The image file '" + m.URI + "' found okay."));
                 },
@@ -1004,17 +1004,33 @@
         })
         return html;
 
-        function mediaFileExists(uri, fFound, fNotFound) {
-            $.ajax({
-                url: uri,
-                type: 'HEAD',
-                error: function () {
-                    fNotFound();
-                },
-                success: function () {
+        function mediaFileExists(uri, mediaType, fFound, fNotFound) {
+
+            if (mediaType == "image-web") {
+                //It's generally not possible to check presence of an image file on another web site asynchronously 
+                //because CORS headers will generally not be set. Only way I can find to check presence of web image is
+                //to load the whole image which will be very slow if lots of images are referenced.
+                var i = new Image();
+                i.onload = function () {
                     fFound();
                 }
-            });
+                i.onerror = function () {
+                    fNotFound();
+                }
+                i.src = uri;
+            } else {
+                $.ajax({
+                    url: uri,
+                    type: 'HEAD',
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        fNotFound();
+                    },
+                    success: function () {
+                        fFound();
+                    }
+                });
+            }
         }
     }
 
