@@ -857,7 +857,7 @@
 
         //If the tbv.opts.devel option is set, add item to check media files.
         if (tbv.opts.devel) {
-            toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="gear">Check media files</option>'));
+            toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
         }
 
         //If a selectedTool has been specified as a query parameter then set as default,

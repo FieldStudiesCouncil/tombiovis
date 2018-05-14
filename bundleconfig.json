@@ -148,5 +148,17 @@
     "inputFiles": [
       "tombio/keyinput.js"
     ]
+  },
+  {
+    "outputFileName": "tombio/visEarthworm2/visEarthworm2.min.js",
+    "inputFiles": [
+      "tombio/visEarthworm2/visEarthworm2.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/visEarthworm2/visEarthworm2.min.css",
+    "inputFiles": [
+      "tombio/visEarthworm2/visEarthworm2.css"
+    ]
   }
 ]
