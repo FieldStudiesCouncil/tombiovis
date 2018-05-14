@@ -670,7 +670,7 @@
     visP.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.media.filter(function (m) {
-            if (m.Taxon == taxon && m.Type == "image-local") return true;
+            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
@@ -680,7 +680,7 @@
     visP.getTaxonTipImage = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.media.filter(function (m) {
-            if (m.Taxon == taxon && m.Type == "image-local") {
+            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
                 //Check UseFor field - it id doesn't exist or exists and empty then allow image
                 //Otherwise ensure that "tip" is amongst comma separated list
                 if (!m.UseFor) {
