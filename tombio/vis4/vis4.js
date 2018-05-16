@@ -234,7 +234,20 @@
         if (!taxonName) return;
 
         //Header
-        $("<div id='vis4TaxonHeader'>").text(taxonName).appendTo(visFullDetails);
+        //If the sub-header character has been defined under tbv.opts.toolconfig.vis4.subTitleChar
+        //(from the calling page), then add this in parentheses after the taxon name. Oterhwise
+        //just use the taxon name.
+        var subCharVal, taxonHeader;
+        if (tbv.opts.toolconfig && tbv.opts.toolconfig.vis4 && tbv.opts.toolconfig.vis4.subTitleChar) {
+            var subChar = tbv.opts.toolconfig.vis4.subTitleChar;
+            subCharVal = tbv.oTaxa[taxonName][subChar].kbValue;
+        }
+        if (subCharVal) {
+            taxonHeader = taxonName + " (" + subCharVal + ")";
+        } else {
+            taxonHeader = taxonName;
+        }
+        $("<div id='vis4TaxonHeader'>").text(taxonHeader).appendTo(visFullDetails);
 
         //Set included flags from checkboxes
         var includeImages = document.getElementById('tbVis4Images').checked;

@@ -219,7 +219,7 @@
         }
 
         //If characters are not grouped, hide the group tabs
-        if (!tbv.charactersGrouped) {
+        if (!tbv.oCharacters.grouped) {
 
             $('#tombioKeyInputListElements').css("display", "none");
             $('#tombioKeyInputTabs').css("padding-left", "0px");
@@ -249,15 +249,31 @@
 
         //Select default tab
         //As of v1.6.0 tbv.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
-        if (typeof tbv.opts.selectedGroup === "undefined") {
-            tbv.opts.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+        //As of v1.7.0, tbv.opts.selectedGroup deprecated in favour of tbv.opts.toolconfig.keyinput.selectedGroup
+        if (typeof tbv.opts.toolconfig.keyinput.selectedGroup === "undefined") {
+            if (typeof tbv.opts.selectedGroup === "undefined") {
+                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+            } else {
+                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.opts.selectedGroup ? tbv.opts.selectedGroup : null;
+            }
         }
-        if (tbv.opts.selectedGroup) {
-            var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.selectedGroup);
+        if (tbv.opts.toolconfig.keyinput.selectedGroup) {
+            var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.toolconfig.keyinput.selectedGroup);
             if (tabIndex > -1) {
                 tabs.tabs("option", "active", tabIndex + 1)
             }
         }
+
+
+        //if (typeof tbv.opts.selectedGroup === "undefined") {
+        //    tbv.opts.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+        //}
+        //if (tbv.opts.selectedGroup) {
+        //    var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.selectedGroup);
+        //    if (tabIndex > -1) {
+        //        tabs.tabs("option", "active", tabIndex + 1)
+        //    }
+        //}
 
 
         //Help handling

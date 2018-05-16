@@ -186,18 +186,26 @@
         var regexOrdinalRange = /^\[[^-]+-[^-]+\]$/;
         allOrdinalCharactersInTaxaTab.forEach(function (character) {
 
+            //Get the permitted ordinal values for this character
+            var fullOrdinalRange = tbv.values.filter(function (vRow) {
+                return vRow.Character == character;
+            });
+            //Get the stateGroups for this character
+            var stateGroups = [];
+            tbv.values.forEach(function (vRow) {
+                if (vRow.Character == character && vRow.StateGroup && stateGroups.indexOf(vRow.StateGroup) == -1) {
+                    stateGroups.push(vRow.StateGroup);
+                }
+            })
+
             tbv.taxa.forEach(function (taxon) {
                 value = taxon[character];
+
                 var stopChecking = false;
                 if (!(value == "" ||
                      value == "n/a" ||
                      value == "?" ||
                      value.substr(0, 1) == "#")) { //ignores comment out character state values
-
-                    //Get the permitted ordinal values for this character
-                    var fullOrdinalRange = tbv.values.filter(function (vRow) {
-                        return vRow.Character == character;
-                    });
 
                     //Split on the or character (|) and check each part
                     var orValues = value.split("|").forEach(function (orValue) {
@@ -215,15 +223,19 @@
                         }
 
                         //Ensure that all specified ordinal values on the taxa tab are represented in the values tab
+                        //where they may be represented either as a state value (CharacterState), or a state group (StateGroup)
                         rangeValues.forEach(function (rValue) {
                             rValue = rValue.trim();
                             var matchingValues = fullOrdinalRange.filter(function (vRow) {
                                 return vRow.CharacterState == rValue;
                             });
                             if (matchingValues.length == 0) {
-                                errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not represented in the values worksheet. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
-                                taxa = false;
-                                continueChecking = false;
+                                //No match found in ordinal values, but now check if theres a match for state group.
+                                if (stateGroups.indexOf(rValue) == -1) {
+                                    errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not represented in the values worksheet either as a state value or a state group. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
+                                    taxa = false;
+                                    continueChecking = false;
+                                } 
                             }
                         })
 
@@ -329,7 +341,7 @@
             //Check that all numeric, ordinal and ordinal-circular characters have a numeric Latitude value(if specified)
             if (typeof (c.Latitude) != "undefined") {
                 if (c.Latitude != "") {
-                    var regexLatitudeN = /^[1-9]\d*(\.\d+)?$/;
+                    var regexLatitudeN = /^[0-9]\d*(\.\d+)?$/;
                     if ((c.ValueType == "numeric") && !regexLatitudeN.test(c.Latitude)) {
                         errors.append($('<li class="tombioValid2">').html("For numeric characters, 'Latitude', if specified, must be a valid number. There is an invalid 'Latitude' value for <b>'" + c.Character + "'</b>."));
                         characters = false;

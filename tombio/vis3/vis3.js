@@ -188,7 +188,7 @@
         taxSel.init(this.controlsDiv, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
-        //if (tbv.charactersGrouped) {
+        //if (tbv.oCharacters.grouped) {
         //    var radios = $("<fieldset>").css("display", "inline-block").css("padding", "0px").css("border", "none").css("vertical-align", "top");
         //    radios.append($("<label>").attr("for", "groupvisible").text("group"));
         //    radios.append($("<input>").attr("type", "radio").attr("name", "groupvisibility").attr("id", "groupvisible").attr("value", "visible"));

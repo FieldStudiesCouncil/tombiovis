@@ -6,7 +6,7 @@
     tbv.stateValue = {
         //This property set when object created based on this one - stores the original value from the knowledge base
         //Must be set on initialisation because it is immediately replaced by the object.
-        v: null 
+        v: null, 
     }
 
     tbv.stateValue.init = function (taxon, characterName) {
@@ -27,6 +27,7 @@
         var translatedValues;
         splitvalues.forEach(function (charValue, iValue) {
 
+            //Strip off training sex brand
             charValue = charValue.trim();
             var noSexVal, sex;
             if (charValue.endsWith("(m)") || charValue.endsWith("(f)")) {
@@ -37,15 +38,31 @@
                 sex = "";
             }
 
-            var translatedValue = _this.translateStateValue(_this.character, noSexVal);
-            if (sex != "") {
-                translatedValue = translatedValue + " " + sex;
-            }
-            if (translatedValues) {
-                translatedValues = translatedValues + " | " + translatedValue;
+            //Deal with state group values
+            if (character.stateGroups && character.stateGroups.indexOf(noSexVal) > -1) {
+                //If the value is actually a group value expand the group to values
+                var expandedValues = [];
+                tbv.values.forEach(function (v) {
+                    if (v.Character == characterName && v.StateGroup == noSexVal) {
+                        expandedValues.push(v.CharacterState)
+                    }
+                })
             } else {
-                translatedValues = translatedValue;
+                var expandedValues = [noSexVal];
             }
+
+            //Translate the characters and append the sex brand
+            expandedValues.forEach(function (val) {
+                var translatedValue = _this.translateStateValue(_this.character, val);
+                if (sex != "") {
+                    translatedValue = translatedValue + " " + sex;
+                }
+                if (translatedValues) {
+                    translatedValues = translatedValues + " | " + translatedValue;
+                } else {
+                    translatedValues = translatedValue;
+                }
+            })
 
             //If value starts with a hash, it is a comment and to be ignored
             if (translatedValues.length > 0 && translatedValues.substr(0, 1) == "#") {
@@ -323,10 +340,39 @@
         }
 
         //Map characters to properties of an object for easy reference by name (Character property)
+        //and enrich the character objects with some additional values.
+        //Here we add values that can (or must) be added before the taxon state values
+        //are set. After the taxon values are set we return to the characters collection
+        //to set some values that must be done after this.
         tbv.oCharacters = {};
         tbv.characters.forEach(function (character) {
             tbv.oCharacters[character.Character] = character;
-        });
+            //CharacterStates is an array of state objects including help text etc
+            character.CharacterStates = [];
+            //CharacterStateValues is an array state values only
+            character.CharacterStateValues = [];
+            //stateSet attribute
+            character.stateSet = false;
+            //userInput attribute
+            character.userInput = null;
+            //Initialise minVal - the minimum value for numeric values
+            character.minVal = null;
+            //Initialise maxVal - the maximum value for numeric values
+            character.maxVal = null;
+
+            if (character.Status == "key" && character.Group.toLowerCase() != "none") {
+                //Indicate characters are grouped
+                tbv.oCharacters.grouped = true
+            }
+
+            //The following must be done before taxa are updated with state values
+            character.stateGroups = [];
+            tbv.values.forEach(function (vRow) {
+                if (vRow.Character == character.Character && vRow.StateGroup && character.stateGroups.indexOf(vRow.StateGroup) == -1) {
+                    character.stateGroups.push(vRow.StateGroup);
+                }
+            })
+        })
 
         //Map taxa to properties of an object for easy reference by name (Taxon property)
         tbv.oTaxa = {};
@@ -351,20 +397,21 @@
             }
         });
 
-        //Add some extra properties to character objects
+        //Add some extra properties to character objects - these are properties which
+        //can only be calculated after the taxon state values have been generated
         tbv.characters.forEach(function (character) {
-            //CharacterStates is an array of state objects including help text etc
-            character.CharacterStates = [];
-            //CharacterStateValues is an array state values only
-            character.CharacterStateValues = [];
-            //stateSet attribute
-            character.stateSet = false;
-            //userInput attribute
-            character.userInput = null;
-            //minVal is the minimum value for numeric values
-            character.minVal = null;
-            //maxVal is the maximum value for numeric values
-            character.maxVal = null;
+            ////CharacterStates is an array of state objects including help text etc
+            //character.CharacterStates = [];
+            ////CharacterStateValues is an array state values only
+            //character.CharacterStateValues = [];
+            ////stateSet attribute
+            //character.stateSet = false;
+            ////userInput attribute
+            //character.userInput = null;
+            ////minVal is the minimum value for numeric values
+            //character.minVal = null;
+            ////maxVal is the maximum value for numeric values
+            //character.maxVal = null;
             //Set minVal & maxVal for numeric characters
             if (character.ValueType == "numeric") {
                 tbv.taxa.forEach(function (taxon) {
@@ -420,12 +467,12 @@
         });
 
         //Set variable to indicate whether or not characters are grouped
-        tbv.charactersGrouped = false;
-        tbv.characters.forEach(function (character) {
-            if (character.Status == "key" && character.Group.toLowerCase() != "none") {
-                tbv.charactersGrouped = true;
-            }
-        });
+        //tbv.charactersGrouped = false;
+        //tbv.characters.forEach(function (character) {
+        //    if (character.Status == "key" && character.Group.toLowerCase() != "none") {
+        //        tbv.charactersGrouped = true;
+        //    }
+        //});
 
         //Update relative URIs of local resources to reflect the full path of knowledge-base
         tbv.media.forEach(function (m) {

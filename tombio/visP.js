@@ -841,7 +841,7 @@
         tbv.characters.forEach(function (character) {
             if (character.Status == "key" || character.Status == "display") {
 
-                if (tbv.charactersGrouped && character.Group != lastCharacterGroup) {
+                if (tbv.oCharacters.grouped && character.Group != lastCharacterGroup) {
                     var tr = $("<tr>");
                     tr.css("background-color", "rgb(100,100,100)");
                     tr.css("color", "rgb(255,255,255)");
