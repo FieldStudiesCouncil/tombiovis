@@ -61,10 +61,17 @@
         taxSel.init(this.controlsDiv, false, taxonSelectCallback);
       
         createCheckBox('tbVis4Images', 'Images', visDiv);
+        createCheckBox('tbVis4NbnMap', 'NBN Map', visDiv);
         createCheckBox('tbVis4Kb', 'Knowledge-base', visDiv);
         createCheckBox('tbVis4Text', 'Show text', visDiv);
 
         function createCheckBox(id, label, parent) {
+
+            //Only create NBN map checkbox if TVK field is present in kb
+            if (id == "tbVis4NbnMap" && !tbv.oCharacters.TVK) {
+                return;
+            }
+
             var cb = $('<div style="display: inline-block; vertical-align:top; margin-left: 20px">').appendTo(parent);
             cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
             cb.append($("<span>").text(label));
@@ -87,6 +94,7 @@
                 imgIndex = 0;
                 txtIndex = 0;
             })
+            
         }
 
         visFullDetails = $('<div>').css("margin", "10px");
@@ -251,14 +259,15 @@
 
         //Set included flags from checkboxes
         var includeImages = document.getElementById('tbVis4Images').checked;
+        var includeNbnMap = document.getElementById('tbVis4NbnMap') && document.getElementById('tbVis4NbnMap').checked;
         var includeKb = document.getElementById('tbVis4Kb').checked;
         var includeText = document.getElementById('tbVis4Text').checked;
 
-        //Adjust included flags depending on availability of images and HTML files
+        //Adjust included flags depending on availability of images, tvk and HTML files
         var htmlFiles = _this.getTaxonHtmlFiles(taxonName);
         includeText = includeText && htmlFiles.length > 0;
         includeImages = includeImages && _this.getTaxonImages(taxonName).length > 0;
-
+        includeNbnMap = includeNbnMap && tbv.oTaxa[taxonName].TVK;
 
         //Image display
         if (includeImages) {
@@ -271,6 +280,16 @@
             imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
             //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
             //but returns HTML value (does some stuff with container)
+        }
+
+        //NBN map display
+        if (includeNbnMap) {
+            var $mapDiv = $('<div style="position: relative">').appendTo(visFullDetails);
+            if (includeText) {
+                //Use a class because we will change style based on media width
+                $mapDiv.attr("class", "vis4Image");
+            }
+            _this.addNBNMap(tbv.oTaxa[taxonName].TVK, $mapDiv);
         }
 
         //HTML files

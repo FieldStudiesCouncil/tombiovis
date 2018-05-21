@@ -171,11 +171,12 @@
                 
                 if (!(value == "" ||
                     value == "n/a" ||
+                    value == "novalue" ||
                     value == "?" ||
                     value.substr(0, 1) == "#" || //ignores comment out character state values
                     regexNumericValue.test(value) ||
                     regexNumericRange.test(value))) {
-                    errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a' and no value.)"));
+                    errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a', 'novalue' and no specified value.)"));
                     taxa = false;
                 }
             });
@@ -204,6 +205,7 @@
                 var stopChecking = false;
                 if (!(value == "" ||
                      value == "n/a" ||
+                     value == "novalue" ||
                      value == "?" ||
                      value.substr(0, 1) == "#")) { //ignores comment out character state values
 
@@ -480,7 +482,7 @@
         //        //taxa tab which aren't represented on the values tab?
         //        if (charactersFromValuesTab.indexOf(character) > -1) {
         //            taxaCharacterValues.forEach(function (value) {
-        //                if (value != "" && value != "n/a" && value != "?") {
+        //                if (value != "" && value != "novalue" && value != "n/a" && value != "?") {
         //                    if (valueCharacterValues.indexOf(value) == -1) {
         //                        errors2.append($('<li class="tombioValid1">').html("The value <b>'" + value + "'</b> listed on the <i>taxa</i> worksheet for the character <b>'" + character + "'</b> is not specified on the <i>values</i> worksheet."));
         //                        taxavalues = false;
@@ -612,5 +614,54 @@
             return false;
         }
     }
+
+    tbv.mediaCheck = function(fSuccess, fFail, fComplete){
+        //Using Promises
+        var pAll = [];
+
+        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web") }).forEach(function (m) {
+
+            var p = new Promise(function (resolve, reject) {
+
+                if (m.Type == "image-web") {
+                    //It's generally not possible to check presence of an image file on another web site asynchronously 
+                    //because CORS headers will generally not be set. Only way I can find to check presence of web image is
+                    //to load the whole image which will be very slow if lots of images are referenced.
+                    var i = new Image();
+                    i.onload = function () {
+                        resolve(m.URI);
+                    }
+                    i.onerror = function () {
+                        reject(m.URI);
+                    }
+                    i.src = m.URI;
+                } else {
+                    $.ajax({
+                        url: m.URI,
+                        type: 'HEAD',
+                        success: function () {
+                            resolve(m.URI);
+                        },
+                        error: function () {
+                            reject(m.URI);
+                        }
+                    });
+                }
+            })
+            .then(
+                function (uri) {
+                    fSuccess(uri)
+                },
+                function (uri) {
+                    fFail(uri)
+                }
+            );
+            pAll.push(p);
+        })
+        Promise.all(pAll).then(function () {
+            fComplete();
+        });
+    }
+
 
 }(jQuery, this.tombiovis));

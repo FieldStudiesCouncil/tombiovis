@@ -470,7 +470,7 @@
                         if (i == 1) {
                             var td0 = $("#visType3Grid").pqGrid("getCell", { rowIndx: pqrowindx, dataIndx: orderedTaxa[0] });
                             if (oCharacter.Status == "key") {
-                                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "" || taxon0[character].kbValue == "?") {
+                                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "novalue" || taxon0[character].kbValue == "" || taxon0[character].kbValue == "?") {
                                     td0.css("background-color", "white");
                                 } else {
                                     td0.css("background-color", scaleOverall(1));
@@ -676,15 +676,15 @@
 
         if (oCharacter.Status == "key") {
 
-            if (taxonI[character].kbValue == "n/a" || taxonI[character].kbValue == "") {
+            if (taxonI[character].kbValue == "n/a" || taxonI[character].kbValue == "novalue" || taxonI[character].kbValue == "") {
 
-                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "") {
+                if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "novalue" || taxon0[character].kbValue == "") {
                     //No score.
                 } else {
                     //Any taxonI character without a value where one is specified for Taxon0 is non-matching.
                     charScore = -1;
                 }
-            } else if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "") {
+            } else if (taxon0[character].kbValue == "n/a" || taxon0[character].kbValue == "novalue" || taxon0[character].kbValue == "") {
 
                 //Any taxonI character with a value where none specified for Taxon0 is non-matching.
                 charScore = -1;

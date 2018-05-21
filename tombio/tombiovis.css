@@ -431,6 +431,46 @@ figcaption {
     -webkit-margin-end: 0px;
 }
 
+.tombioNbnLogo {
+    position: absolute;
+    left: 25px;
+    top: 15px;
+    width: 50px;
+}
+
+.tombioNbnLoading {
+    position: relative;
+    min-height: 50px;
+    left: 85px;
+    top: 15px;
+    font-size: 0.8em;
+}
+
+.tombioSpiningNbn {
+    -webkit-animation: spin .8s infinite linear;
+    animation: spin .8s infinite linear;
+}
+
+@-webkit-keyframes spin {
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes spin {
+    100% {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    100% {
+        -moz-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
 
 /*
     Not sure why the box-sizing was set as shown. This was interfering with 

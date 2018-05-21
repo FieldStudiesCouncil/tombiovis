@@ -2,6 +2,8 @@
 
     "use strict";
 
+    
+
     var visP = tbv.visP = {};
 
     visP.initP = function (visName, parent, contextMenu, tbv) {
@@ -16,6 +18,9 @@
 
         //Initialise the metadata structure for visualisations.
         this.metadata = {};
+
+        //NBN image cache
+        this.nbnMapCache = {};
 
         //Initialise state object for each taxon
         tbv.taxa.forEach(function (taxon) {
@@ -41,9 +46,16 @@
         var ul = $("<ul>").appendTo(tabs);
         ul.append("<li><a href='#tabs-1'>Knowledge-base</a></li>");
         ul.append("<li><a href='#tabs-2'>Images</a></li>");
+        if (tbv.oCharacters.TVK) {
+            ul.append("<li><a href='#tabs-4'>NBN map</a></li>");
+        }
         ul.append("<li><a href='#tabs-3'>Details</a></li>");
         var tab1 = $("<div>").attr("id", "tabs-1").appendTo(tabs);
         var tab2 = $("<div>").attr("id", "tabs-2").appendTo(tabs);
+        if (tbv.oCharacters.TVK) {
+            //If the TVK character is in the kb, add a tab for NBN maps
+            var tab4 = $("<div>").attr("id", "tabs-4").appendTo(tabs);
+        }
         var tab3 = $("<div>").attr("id", "tabs-3").appendTo(tabs);
         
         //Dialog
@@ -85,6 +97,12 @@
         var img = this.getTaxonImagesDiv(taxon, tab2, 0, true, true);
         tab2.append(img);
 
+        //NBN maps
+        if (tbv.oCharacters.TVK && tbv.oTaxa[taxon].TVK) {
+            var $div = $("<div>").css("position", "relative").appendTo(tab4);
+            _this.addNBNMap(tbv.oTaxa[taxon].TVK, $div);
+        }
+
         //HTML files
         //tab3 is passed to function that creates drop down lists so that this
         //can be added to container before selectmenu is called, otherwise
@@ -117,6 +135,47 @@
                 }
             }
         });
+    }
+
+    visP.addNBNMap = function (tvk, $parent) {
+
+        var $div = $("<div>").appendTo($parent)
+            .css("border", "1px solid black")
+            .css("padding", "5px")
+            .css("border-radius", "10px");
+
+        //NBN logo
+        var $nbnLogo = $('<img>').addClass("tombioNbnLogo")
+            .attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-centred.png')
+            .addClass('tombioSpiningNbn')
+            .appendTo($div);
+
+        //Loading text
+        var $nbnLoading = $('<div>').addClass("tombioNbnLoading")
+            .css("font-size", "0.8em")
+            .text("Loading distribution map from NBN...")
+            .appendTo($div);
+
+        if (this.nbnMapCache[tvk]) {
+            var $img = this.nbnMapCache[tvk];
+            $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
+            $nbnLoading.hide();
+        } else {
+            var src = "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+                "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
+                "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100";
+
+            var $img = $('<img>')
+                .css("width", "100%")
+                .on('load', function () {
+                    $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
+                    $nbnLoading.hide();
+                }).attr("src", src)
+
+            this.nbnMapCache[tvk] = $img;
+        }
+
+        $('<div>').append($img).appendTo($div);
     }
 
     visP.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {

@@ -10,27 +10,6 @@
         };
     }
 
-    //ES6 polyfills - we are standardising on ES5, not ES6, but these functions are particularly useful
-    if (!String.prototype.endsWith) {
-        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
-        String.prototype.endsWith = function (searchStr, Position) {
-            // This works much better than >= because
-            // it compensates for NaN:
-            if (!(Position < this.length))
-                Position = this.length;
-            else
-                Position |= 0; // round position
-            return this.substr(Position - searchStr.length,
-                                searchStr.length) === searchStr;
-        };
-    }
-    if (!String.prototype.startsWith) {
-        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
-        String.prototype.startsWith = function (searchString, position) {
-            return this.substr(position || 0, searchString.length) === searchString;
-        };
-    }
-
     if (!tbv.opts) {
         //If tbv.opts doesn't exist, initialise to an empty object
         //to prevent access of properties of tbv.opts from failing.
@@ -265,6 +244,9 @@
 
     //Populate the tbv.JSFiles (jsF) with modules and their 
     //associated CSS files
+
+    //ES6 & ES7 polyfill
+    jsF.add("es6", "dependencies/core-js/core.min.js");
 
     //JQuery
     jsF.add("jquery", "dependencies/jquery-3.1.1/jquery-3.1.1.min.js");

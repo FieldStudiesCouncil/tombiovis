@@ -250,6 +250,10 @@
         //Select default tab
         //As of v1.6.0 tbv.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
         //As of v1.7.0, tbv.opts.selectedGroup deprecated in favour of tbv.opts.toolconfig.keyinput.selectedGroup
+        if (!tbv.opts) tbv.opts = {};
+        if (!tbv.opts.toolconfig) tbv.opts.toolconfig = {};
+        if (!tbv.opts.toolconfig.keyinput) tbv.opts.toolconfig.keyinput = {};
+
         if (typeof tbv.opts.toolconfig.keyinput.selectedGroup === "undefined") {
             if (typeof tbv.opts.selectedGroup === "undefined") {
                 tbv.opts.toolconfig.keyinput.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;

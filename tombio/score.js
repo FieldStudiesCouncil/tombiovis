@@ -115,6 +115,10 @@
 
     tbv.score.character = function (selectedStates, kbTaxonStates) {
 
+        //There is a special case for a text character - Sex.
+        //The character 'Sex' should not score - it's simply there to refine other characters states.
+         
+
         //selState is the state we're assessing for a match.
         //kbTaxonStates are the states recorded in the KB for the taxon (already adjusted for sex).
 

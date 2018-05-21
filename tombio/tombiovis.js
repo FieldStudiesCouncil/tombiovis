@@ -135,7 +135,7 @@
             var state = splitvalues[i];
             state = state.trim();
 
-            if (state != "n/a" && state != "?" && state != "") {
+            if (state != "n/a" && state != "novalue" && state != "?" && state != "") {
                 if (sex == "male" && !state.endsWith("(f)")) {
                     states.push(state.replace("(m)", "").trim());
                 } else if (sex == "female" && !state.endsWith("(m)")) {
@@ -216,6 +216,8 @@
         //for a taxon to a user.
         if (this.kbValue == "n/a") {
             return "<i>not applicable</i>";
+        } else if (this.kbValue == "novalue") {
+            return "<i>not manifest</i>";
         } else if (this.kbValue == "" || this.kbValue == "?") {
             return "<i>no value specified</i>"
         } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
@@ -257,6 +259,8 @@
         //Used, for example, to show character score details for single-column key.
         if (this.kbValue == "n/a") {
             return "<li><i>not applicable</i></li>";
+        } else if (this.kbValue == "novalue") {
+            return "<li><i>not manifest</i></li>";
         } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
             var html = "";
             var splitKbValues = this.kbValue.split("|");
@@ -903,7 +907,7 @@
         toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
 
         //If the tbv.opts.devel option is set, add item to check media files.
-        if (tbv.opts.devel) {
+        if (tbv.opts.checkKB) {
             toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
         }
 
@@ -1031,6 +1035,7 @@
     function createMediaCheckPage() {
 
         var html = $("<div id='tombioMediaChecks'>");
+        var divProgress = $("<h2>").appendTo(html);
         var divNotFound = $("<div id='tombioMediaNotFound'>").appendTo(html);
         var divFound = $("<div id='tombioMediaFound'>").appendTo(html);
 
@@ -1038,47 +1043,20 @@
         divNotFound.append("<p>If a file cannot be found but you think it is present, check the case carefully. The case used to name the file must match exactly the case used in the knowledge-base. For example, a file with extension '.JPG' will not match the same filename in the knowledge-base if it is written there as '.jpg'.</p>");
         divFound.append("<h3>Found</h3>");
 
-        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web") }).forEach(function (m) {
+        divProgress.text("Checking media files...");
 
-            //Check that the image files actually exist
-            mediaFileExists(m.URI, m.Type,
-                function () {
-                    $('#tombioMediaFound').append($('<p>').html("The image file '" + m.URI + "' found okay."));
-                },
-                function () {
-                    $('#tombioMediaNotFound').append($('<p>').html("The image file '" + m.URI + "' cannot be found on the server."));
-                }) 
-        })
-        return html;
-
-        function mediaFileExists(uri, mediaType, fFound, fNotFound) {
-
-            if (mediaType == "image-web") {
-                //It's generally not possible to check presence of an image file on another web site asynchronously 
-                //because CORS headers will generally not be set. Only way I can find to check presence of web image is
-                //to load the whole image which will be very slow if lots of images are referenced.
-                var i = new Image();
-                i.onload = function () {
-                    fFound();
-                }
-                i.onerror = function () {
-                    fNotFound();
-                }
-                i.src = uri;
-            } else {
-                $.ajax({
-                    url: uri,
-                    type: 'HEAD',
-                    error: function (jqXHR, textStatus, errorThrown) {
-
-                        fNotFound();
-                    },
-                    success: function () {
-                        fFound();
-                    }
-                });
+        tbv.mediaCheck(
+            function (uri) {
+                $('#tombioMediaFound').append($('<p>').html("The media file '" + uri + "' found okay."));
+            },
+            function (uri) {
+                $('#tombioMediaNotFound').append($('<p>').html("The media file '" + uri + "' cannot be found."));
+            },
+            function () {
+                divProgress.text("Completed checking media files");
             }
-        }
+        );
+        return (html);
     }
 
     function createCitationPage() {
@@ -1526,6 +1504,12 @@
                         scorena = 1;
                         scorefor = 0;
                         scoreagainst = 0;
+                    } else if (taxon[character] == "novalue") {
+                        //States selcted have a value of 'novalue' (not manifest) score against
+                        charused = 1;
+                        scorena = 0;
+                        scorefor = 0;
+                        scoreagainst = 1;
                     } else {
                         var stateval = Number(c.userInput);
                         var rng = taxon[character].getRange();
@@ -1545,7 +1529,14 @@
                         scorena = 1;
                         scorefor = 0;
                         scoreagainst = 0;
+                    } else if (taxon[character] == "novalue") {
+                        //States selcted have a value of 'novalue' (not manifest) score against
+                        charused = 1;
+                        scorena = 0;
+                        scorefor = 0;
+                        scoreagainst = 1;
                     } else {
+                        
                         //Translate c.userInput which is an array of selected indices into an array of values (for scoring)
                         var selectedStates = c.userInput.map(function (i) {
                             return c.CharacterStateValues[i];
@@ -1563,8 +1554,13 @@
                         } else { //c.ValueType == "text"
                             //The KB states for this character and taxon.
                             //States that are specific to male or female are represented by suffixes of (m) and (f).
-                            var kbTaxonStates = taxon[character].getStates(sex);
-                            var score = tbv.score.character(selectedStates, kbTaxonStates);
+                            //If the character itself is 'Sex', it shouldn't score.
+                            if (character == "Sex") {
+                                var score = [0, 0];
+                            } else {
+                                var kbTaxonStates = taxon[character].getStates(sex);
+                                var score = tbv.score.character(selectedStates, kbTaxonStates);
+                            }
                         }
                         //console.log(score)
                         scorefor = score[0];
