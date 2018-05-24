@@ -256,6 +256,11 @@
     jsF.jqueryui.addCSS("dependencies/jquery-ui-1.12.1/jquery-ui.min.css");
     jsF.jqueryui.addCSS("dependencies/jquery-ui-1.12.1/jquery-ui.theme.min.css");
 
+    //Galleria & Zoom Master
+    jsF.add("galleria", "dependencies/galleria-1.5.7/galleria/galleria-1.5.7.min.js");
+    jsF.galleria.addCSS("dependencies/galleria-1.5.7/galleria/themes/classic/galleria.classic.css");
+    jsF.add("zoomMaster", "dependencies/zoom-master/jquery.zoom.min.js");
+    
     //D3
     jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
 
@@ -315,7 +320,8 @@
     jsF.keyinput.dependencies = [jsF.pqselect, jsF.jquery, jsF.jqueryui];
     jsF.pqgrid.dependencies = [jsF.jquery, jsF.jqueryui];
     jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui];
-    jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.keyinput];
+    jsF.galleria.dependencies = [jsF.jquery];
+    jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.keyinput, jsF.galleria, jsF.zoomMaster];
     jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
     jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
     jsF.vis3.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect, jsF.pqgrid, jsF.score];

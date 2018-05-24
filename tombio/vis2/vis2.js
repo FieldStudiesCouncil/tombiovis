@@ -209,7 +209,6 @@
                         var x = d3.event.clientX - offset.left + document.body.scrollLeft;
                         var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                        //_this.showFloatingImages(d.Taxon, x, y);
                         _this.fullDetails(d.Taxon, 1, x, y);
                     })
             })

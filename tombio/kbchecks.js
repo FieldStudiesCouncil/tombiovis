@@ -663,5 +663,44 @@
         });
     }
 
+    tbv.tvkCheck = function (fSuccess, fFail, fComplete) {
+        //Using Promises
+        var pAll = [];
+
+        if (!tbv.oCharacters.TVK) {
+            fComplete();
+            return;
+        }
+
+        tbv.taxa.forEach(function (t) {
+            if (t.TVK.kbValue) {
+                var p = new Promise(function (resolve, reject) {
+
+                    $.ajax({
+                        url: "https://species-ws.nbnatlas.org/species/" + t.TVK.kbValue,
+                        dataType: "json",
+                        success: function () {
+                            resolve(t);
+                        },
+                        error: function () {
+                            reject(t);
+                        }
+                    });
+                }).then(
+                    function (t) {
+                        fSuccess(t)
+                    },
+                    function (t) {
+                        fFail(t)
+                    }
+                    );
+                pAll.push(p);
+            }
+        })
+
+        Promise.all(pAll).then(function () {
+            fComplete();
+        });
+    }
 
 }(jQuery, this.tombiovis));

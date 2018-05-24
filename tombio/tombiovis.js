@@ -330,6 +330,14 @@
     tbv.loadComplete = function (force) {
         //Called from load.js after all initial loading complete
 
+        //Initialise Galleria
+        Galleria.loadTheme(tbv.opts.tombiopath + 'dependencies/galleria-1.5.7/galleria/themes/classic/galleria.classic.min.js');
+        Galleria.on('image', function (e) {
+            //requires zoom plugin http://www.jacklmoore.com/zoom/
+            $(e.imageTarget).parent().zoom({ on: 'grab' });
+        });
+       
+
         //Build top-level page elements (v1.6.0 and before this was done by including an HTML import page from load.js)
         addTopPageElements();
 
@@ -649,7 +657,7 @@
             return;
         }
 
-        if (selectedToolName == "mediaFilesCheck") {
+        if (selectedToolName == "mediaFilesCheck" || selectedToolName == "tvkCheck") {
 
             visModuleLoaded(selectedToolName);
             return;
@@ -809,6 +817,7 @@
         $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioMain");
         $("<div>").attr("id", "mediaFilesCheck").css("display", "none").appendTo("#tombioMain");
+        $("<div>").attr("id", "tvkCheck").css("display", "none").appendTo("#tombioMain");
 
         //outlineTopDivs();
     }
@@ -909,6 +918,9 @@
         //If the tbv.opts.devel option is set, add item to check media files.
         if (tbv.opts.checkKB) {
             toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
+            if (tbv.oCharacters.TVK) {
+                toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
+            }  
         }
 
         //If a selectedTool has been specified as a query parameter then set as default,
@@ -1056,6 +1068,35 @@
                 divProgress.text("Completed checking media files");
             }
         );
+
+        return (html);
+    }
+
+    function createTvkCheckPage() {
+
+        var html = $("<div id='tombioTvkChecks'>");
+        var divProgress = $("<h2>").appendTo(html);
+        var divNotFound = $("<div id='tombioTvkNotFound'>").appendTo(html);
+        var divFound = $("<div id='tombioTvkFound'>").appendTo(html);
+
+        divNotFound.append("<h3>Not found</h3>");
+        divNotFound.append("<p>If a TVK cannot be found by the NBN web service used for this checking, then you can double-check by going directly to the NBN Atlas page and searching on the TVK (https://nbnatlas.org/). To resolve problems with TVKs not being recognised, you may have to contact the NBN or the NHM who look after the UKSI.</p>");
+        divFound.append("<h3>Found</h3>");
+
+        divProgress.text("Checking TVKs...");
+
+        tbv.tvkCheck(
+            function (t) {
+                $('#tombioTvkFound').append($('<p>').html("TVK '" + t.TVK + "' found."));
+            },
+            function (t) {
+                $('#tombioTvkNotFound').append($('<p>').html("TVK '" + t.TVK + "' for '" + t.Taxon + "' cannot be found."));
+            },
+            function () {
+                divProgress.text("Completed checking TVKs");
+            }
+        );
+
         return (html);
     }
 
@@ -1154,6 +1195,11 @@
         //If the user has selected to check media files
         if (selectedToolName == "mediaFilesCheck") {
             $('#mediaFilesCheck').html(createMediaCheckPage());
+        }
+
+        //If the user has selected to check media files
+        if (selectedToolName == "tvkCheck") {
+            $('#tvkCheck').html(createTvkCheckPage());
         }
 
         //If the user has selected to show kb info and not yet loaded,

@@ -277,9 +277,8 @@
                 //Use a class because we will change style based on media width
                 imageDiv.attr("class", "vis4Image");
             }
-            imageDiv.html(_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex, true, true));
-            //Note getTaxonImagesDiv doesn't actually append generated HTML to passed container,
-            //but returns HTML value (does some stuff with container)
+            _this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex)
+
         }
 
         //NBN map display

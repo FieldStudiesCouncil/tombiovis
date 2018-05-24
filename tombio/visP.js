@@ -2,8 +2,6 @@
 
     "use strict";
 
-    
-
     var visP = tbv.visP = {};
 
     visP.initP = function (visName, parent, contextMenu, tbv) {
@@ -33,7 +31,6 @@
 
     visP.fullDetails = function (taxon, selected, x, y) {
 
-        console.log("full details")
         var _this = this;
 
         //Default parameters
@@ -94,8 +91,7 @@
         tab1.append(divTaxonDetails);
 
         //Images
-        var img = this.getTaxonImagesDiv(taxon, tab2, 0, true, true);
-        tab2.append(img);
+        var img = this.getTaxonImagesDiv(taxon, tab2);
 
         //NBN maps
         if (tbv.oCharacters.TVK && tbv.oTaxa[taxon].TVK) {
@@ -139,6 +135,10 @@
 
     visP.addNBNMap = function (tvk, $parent) {
 
+        //TVK might be passed as a string or as a state value object
+        //so coerce.
+        tvk = tvk += "";
+
         var $div = $("<div>").appendTo($parent)
             .css("border", "1px solid black")
             .css("padding", "5px")
@@ -147,38 +147,121 @@
         //NBN logo
         var $nbnLogo = $('<img>').addClass("tombioNbnLogo")
             .attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-centred.png')
-            .addClass('tombioSpiningNbn')
+            .addClass(function () {
+                if (tvk) return 'tombioSpiningNbn';
+            }())
             .appendTo($div);
 
         //Loading text
         var $nbnLoading = $('<div>').addClass("tombioNbnLoading")
             .css("font-size", "0.8em")
-            .text("Loading distribution map from NBN...")
+            .text(function () {
+                if (tvk) {
+                    return "Loading distribution map from NBN...";
+                } else {
+                    return "No TVK specified for this taxon";
+                } 
+            }())
             .appendTo($div);
 
-        if (this.nbnMapCache[tvk]) {
-            var $img = this.nbnMapCache[tvk];
-            $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
-            $nbnLoading.hide();
-        } else {
-            var src = "https://records-ws.nbnatlas.org/mapping/wms/image?" +
-                "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
-                "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100";
+        if (tvk) {
+            if (this.nbnMapCache[tvk]) {
+                var $img = this.nbnMapCache[tvk];
+                $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
+                $nbnLoading.hide();
+            } else {
+                var src = "https://records-ws.nbnatlas.org/mapping/wms/image?" +
+                    "baselayer=world&format=jpg&pcolour=3531FF&scale=on&popacity=1&q=*:*&fq=lsid:" + tvk +
+                    "&extents=-11.2538,48.6754,3.0270,60.7995&outline=false&outlineColour=0x000000&pradiusmm=1&dpi=200&widthmm=100";
 
-            var $img = $('<img>')
-                .css("width", "100%")
-                .on('load', function () {
-                    $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
-                    $nbnLoading.hide();
-                }).attr("src", src)
+                var $img = $('<img>')
+                    .css("width", "100%")
+                    .on('load', function () {
+                        $nbnLogo.attr('src', tbv.opts.tombiopath + '/resources/nbn-logo-colour-centred.png').removeClass('tombioSpiningNbn');
+                        $nbnLoading.hide();
+                    }).on('error', function () {
+                        $nbnLogo.removeClass('tombioSpiningNbn');
+                        $nbnLoading.text("An error was encountered attemping to retrieve an NBN distribution map for the TVK " + tvk);
+                        $img.hide();
+                    }).attr("src", src)
 
-            this.nbnMapCache[tvk] = $img;
+                this.nbnMapCache[tvk] = $img;
+            }
         }
 
         $('<div>').append($img).appendTo($div);
     }
 
-    visP.getTaxonImagesDiv = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {
+    visP.getTaxonImagesDiv = function (taxon, container, indexSelected, imageRemovalButton) {
+
+        var _this = this;
+        var taxonImages = this.getTaxonImages(taxon);
+        if (!indexSelected) indexSelected = 0;
+
+        if (taxonImages.length == 0) {
+            //If there are no images for this taxon, return a message to that effect.
+            var noImages = $("<div>").css("margin", "10px");
+            noImages.text("No images are specified in the knowledge-base for this taxon.").appendTo(container);
+            return;
+        }
+
+        var pane = $('<div>')
+            .css("position", "relative")
+            .css("max-width", "1200px")
+            .css("height", "400px")
+            .appendTo(container);
+
+        //Create the image gallery data object
+        var data = [];
+        taxonImages.forEach(function (ti) {
+            var img = {
+                image: ti.URI,
+                alt: ti.Caption,
+                title: ti.Caption           
+            }
+            data.push(img);
+        })
+        Galleria.run(pane, {
+            transition: 'fade',
+            //imageCrop: true,
+            //imagePan: true,
+            //lightbox: true,
+            wait: true,
+            dataSource: data,
+            theme: 'classic',
+            show: indexSelected
+        });
+
+        pane.data('galleria').bind('loadfinish', function (e) {
+            if (_this.stateTaxa && _this.stateTaxa[taxon]) {
+                //This required for vis3
+                _this.stateTaxa[taxon].indexSelected = e.index;
+            }
+        });
+
+        //Lightbox button. Have to add this because the click event (on image) which by default 
+        //opens the lightbox is consumed by the zoom plugin
+        $('<img>').attr("src", tbv.opts.tombiopath + "resources/enlarge.png").appendTo(pane)
+            .addClass("tombio-galleria-lightbox-button")
+            .on("click", function () {
+                //Galleria saves its instance inside the data property of the jQuery object
+                pane.data('galleria').openLightbox();
+            })
+
+        //Image removal button
+        if (imageRemovalButton) {
+            $('<img>').attr("src", tbv.opts.tombiopath + "resources/remove.png").appendTo(pane)
+                .addClass("tombio-galleria-remove-button")
+                .on("click", function () {
+                    //Galleria saves its instance inside the data property of the jQuery object
+                    pane.data('galleria').destroy();
+                    container.addClass("userRemoved");
+                    container.remove();
+                })
+        }
+    }
+
+    visP.getTaxonImagesDivSAFE = function (taxon, container, indexSelected, preventContainerResize, surpressImageRemoval) {
 
         var imgZoomOrigLeft, imgZoomOrigTop, imgZoomOrigCentreX, imgZoomOrigCentreY;
         var initialSelectorImage;
@@ -736,7 +819,7 @@
         return taxonImages;
     }
 
-    visP.getTaxonTipImage = function (taxon) {
+    visP.getTaxonTipImage = function (taxon, parentObject) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.media.filter(function (m) {
             if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
@@ -756,7 +839,8 @@
             }
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
-        });
+            });
+
 
         //In the case of more than one image, just return the first
         if (taxonImages.length > 0) {
@@ -784,7 +868,7 @@
     }
 
     visP.showFloatingImages = function (taxon, x, y) {
-
+        //Not currently used (24/05/2018)
         var _this = this;
         var pane = $('<div/>').appendTo('#tombioMain');
         var initialWidth = 350;

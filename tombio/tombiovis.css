@@ -471,20 +471,36 @@ figcaption {
     }
 }
 
+.tombio-galleria-remove-button {
+    position: absolute;
+    top: 18px;
+    right: 13px;
+    width: 25px;
+    opacity: 0.7;
+    z-index: 1;
+}
+.tombio-galleria-lightbox-button {
+    position: absolute;
+    top: 40px;
+    left: 13px;
+    width: 25px;
+    opacity: 0.7;
+    z-index: 1;
+}
+    .tombio-galleria-lightbox-button:hover, .tombio-galleria-remove-button:hover {
+        opacity: 1;
+    }
 
-/*
+ /*
     Not sure why the box-sizing was set as shown. This was interfering with 
     tabbed dialog so removed. If required, be more specific about application.
 */
-/** {
+    /** {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }*/
-
-
-
-/*#tombioTaxDetailsWrapper {
+    /*#tombioTaxDetailsWrapper {
 	position: absolute;
 	z-index: 1;
 	top: 50px;
@@ -494,8 +510,7 @@ figcaption {
 	background: #ccc;
 	overflow: hidden;
 }*/
-
-/*#tombioTaxDetailsScroller {
+    /*#tombioTaxDetailsScroller {
 	position: absolute;
 	z-index: 1;
 	-webkit-tap-highlight-color: rgba(0,0,0,0);

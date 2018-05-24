@@ -16,11 +16,22 @@
     padding: 0 0 10px 0;
 }
 
+#vis4 .galleria-container {
+    border-radius: 10px;
+    /*background: rgb(230,230,230);*/
+}
+
+/*#vis4 .galleria-counter {
+    background: black;
+    opacity: 1 !important;
+    padding: 2px 4px 2px 2px;
+}*/
+
 @media (min-width:601px) {
     .vis4Image{
         display: inline-block;
         width: 50%;
         float: right;
-        padding: 0 0 10px 10px;
+        margin: 0 0 10px 10px;
     }
 }

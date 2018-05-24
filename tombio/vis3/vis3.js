@@ -24,6 +24,9 @@
         //Control doesn't work with character state input controls
         this.charStateInput = null;
 
+        //Object variable to store image index
+        this.imageIndex = 0;
+
         //Help files
         this.helpFiles = [
             tbv.opts.tombiopath + "vis3/vis3Help.html",
@@ -577,8 +580,8 @@
         //Taxa images
         var imgs = [];
         taxa.forEach(function (t) {
-            if (_this.stateTaxa[t].imgDiv) {
-                imgs.push(_this.stateTaxa[t].imgDiv.attr("indexSelected"))
+            if (typeof _this.stateTaxa[t].indexSelected != "undefined") {
+                imgs.push(_this.stateTaxa[t].indexSelected)
             } else {
                 imgs.push("x");
             }
@@ -624,6 +627,7 @@
 
     function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
         taxonImgDiv.on("remove", function () {
+
             vis3ImageDiv.closest(".pq-td-div").css("padding", "");
             vis3ImageDiv.closest("td").css("background-color", "");
             loadImgIcon.fadeIn();
@@ -631,24 +635,22 @@
             _this.stateTaxa[taxon.Taxon.kbValue].imgDiv = null;
             if (taxonImgDiv.is(".userRemoved")) {
                 _this.stateTaxa[taxon.Taxon.kbValue].displayImages = false;
-                _this.stateTaxa[taxon.Taxon.kbValue].indexSelected = 0;
-            } else {
-                //Removed to be recreated when grid refreshed e.g. by resize
-                _this.stateTaxa[taxon.Taxon.kbValue].indexSelected = taxonImgDiv.attr("indexSelected");
             }
         });
     }
 
     function addTaxonImages (vis3ImageDiv) {
 
+        //console.trace();
+
         var taxonName = vis3ImageDiv.attr("taxon");
         var taxon = tbv.oTaxa[taxonName];
 
-        if (_this.stateTaxa[taxonName].indexSelected) {
-            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName, null, _this.stateTaxa[taxonName].indexSelected);
-        } else {
-            var taxonImgDiv = _this.getTaxonImagesDiv(taxonName);
-        }
+        var taxonImgDiv = $('<div>');
+
+        //if (!_this.stateTaxa[taxonName].indexSelected) _this.stateTaxa[taxonName].indexSelected = 0;
+
+        _this.getTaxonImagesDiv(taxonName, taxonImgDiv, _this.stateTaxa[taxonName].indexSelected, true);
 
         _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
 

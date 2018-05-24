@@ -144,9 +144,20 @@
             items: "text",
             content: function () {
                 if (_this.displayToolTips) {
-                    return _this.getTaxonTipImage(this.textContent)
+                    return _this.getTaxonTipImage(this.textContent, this)
                 }
-            }
+            },
+            open: function (event, ui) {
+                //This overcomes problem of orphaned tooltips which cannot
+                //be dismissed. They can now be dismissed by clicking on them.
+                //Not sure what causes in first place, but could be reproduced
+                //by hovering over name to get tip and thenmove away from name 
+                //onto taxon rectangle and click before image disappears.
+                var $element = $(event.target);
+                ui.tooltip.click(function () {
+                    $element.tooltip('close');
+                });
+            },
         })
 
         //Taxon image
@@ -172,25 +183,6 @@
                 .attr("x", 0)
                 .attr("y", 0);
         }
-
-        //Image link (camera icon)
-        //This removed 13/07 when showTaxonCharacterValues replaced with fullDetails
-        //enterSelection.append("svg:image")
-        //    .attr("xlink:href", tbv.opts.tombiopath + "resources/camera.png")
-        //    .attr("class", "taxonImageLink")
-        //    .attr("width", "16px")
-        //    .attr("height", "16px")
-        //    .attr("display", "none")
-        //    .on("click", function (d, i) {
-
-        //        d3.event.stopPropagation();
-
-        //        var offset = $("#tombioMain").offset();
-        //        var x = d3.event.clientX - offset.left + document.body.scrollLeft;
-        //        var y = d3.event.clientY - offset.top + document.body.scrollTop;;
-
-        //        _this.showFloatingImages(d.Taxon, x, y);
-        //    });
 
         //Add height state 
         tbv.taxa.forEach(function (taxon) {
