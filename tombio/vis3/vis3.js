@@ -213,10 +213,10 @@
         visDiv.append(gridDiv);
 
         //Create taxon state object array
-        this.stateTaxa = {};
-        tbv.taxa.forEach(function (taxon) {
-            _this.stateTaxa[taxon.Taxon.kbValue] = {}
-        })
+        //this.stateTaxa = {};
+        //tbv.taxa.forEach(function (taxon) {
+        //    _this.stateTaxa[taxon.Taxon.kbValue] = {}
+        //})
     }
 
     vis3.refresh = function () {
@@ -360,6 +360,9 @@
                 _this.vis3CharColWidth = ui.newWidth;
                 return;
             }
+
+            console.log(ui.newWidth);
+
             _this.vis3ColWidth = ui.newWidth;
 
             resizeColumns();
@@ -419,7 +422,8 @@
                         $(this).append(loadImg);
 
                         //if (taxon.vis3["displayImages"]) {
-                        if(_this.stateTaxa[taxonName].displayImages) {
+                        //if(_this.stateTaxa[taxonName].displayImages) {
+                        if (tbv.oTaxa[taxonName].visState[visName].displayImages) {
                             addTaxonImages(vis3ImageDiv);
                         }
                     }
@@ -522,7 +526,8 @@
             params.imgs.split("-").forEach(function (iImage, i) {
                 var taxon = _this.vis3Taxa[i];
                 if (iImage != "x") {
-                    _this.stateTaxa[taxon].indexSelected = iImage;
+                    //_this.stateTaxa[taxon].indexSelected = iImage;
+                    tbv.oTaxa[taxon].visState[visName].indexSelected = iImage;
 
                     var vis3ImageDiv = $('.vis3ImageDiv[taxon="' + taxon + '"]')
                     var loadImgIcon = vis3ImageDiv.find('.loadImgIcon')
@@ -558,8 +563,6 @@
 
     function getViewURL() {
 
-        console.log("Get the URL")
-
         var params = [];
 
         //Tool
@@ -580,8 +583,10 @@
         //Taxa images
         var imgs = [];
         taxa.forEach(function (t) {
-            if (typeof _this.stateTaxa[t].indexSelected != "undefined") {
-                imgs.push(_this.stateTaxa[t].indexSelected)
+            //if (typeof _this.stateTaxa[t].indexSelected != "undefined") {
+            if (typeof tbv.oTaxa[t].visState[visName].indexSelected != "undefined") {
+                //imgs.push(_this.stateTaxa[t].indexSelected);
+                imgs.push(tbv.oTaxa[t].visState[visName].indexSelected);
             } else {
                 imgs.push("x");
             }
@@ -632,9 +637,11 @@
             vis3ImageDiv.closest("td").css("background-color", "");
             loadImgIcon.fadeIn();
 
-            _this.stateTaxa[taxon.Taxon.kbValue].imgDiv = null;
+            //_this.stateTaxa[taxon.Taxon.kbValue].imgDiv = null;
+            tbv.oTaxa[taxon.Taxon.kbValue].visState[visName].imgDiv = null;
             if (taxonImgDiv.is(".userRemoved")) {
-                _this.stateTaxa[taxon.Taxon.kbValue].displayImages = false;
+                //_this.stateTaxa[taxon.Taxon.kbValue].displayImages = false;
+                tbv.oTaxa[taxon.Taxon.kbValue].visState[visName].displayImages = false;
             }
         });
     }
@@ -648,11 +655,23 @@
 
         var taxonImgDiv = $('<div>');
 
-        //if (!_this.stateTaxa[taxonName].indexSelected) _this.stateTaxa[taxonName].indexSelected = 0;
+        //_this.getTaxonImagesDiv(taxonName, taxonImgDiv, _this.stateTaxa[taxonName].indexSelected, true);
 
-        _this.getTaxonImagesDiv(taxonName, taxonImgDiv, _this.stateTaxa[taxonName].indexSelected, true);
+        console.log(_this.vis3CharColWidth) 
 
-        _this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
+        _this.getTaxonImagesDiv({
+            taxon: taxonName,
+            container: taxonImgDiv,
+            indexSelected: tbv.oTaxa[taxonName].visState[visName].indexSelected,
+            imageRemovalButton: true,
+            height: _this.vis3ColWidth,
+            fImageSelect: function (index) {
+                tbv.oTaxa[taxonName].visState[visName].indexSelected = index;
+            }
+        });
+
+        //_this.stateTaxa[taxonName].imgDiv = taxonImgDiv;
+        tbv.oTaxa[taxonName].visState[visName].imgDiv = taxonImgDiv;
 
         vis3ImageDiv.closest(".pq-td-div").css("padding", 0);
         vis3ImageDiv.closest("td").css("background-color", "lightgrey");
@@ -663,7 +682,9 @@
         loadImgIcon.fadeOut(0);
         addRemoveHandler(vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon);
 
-        _this.stateTaxa[taxonName].displayImages = true;
+        //_this.stateTaxa[taxonName].displayImages = true;
+        tbv.oTaxa[taxonName].visState[visName].displayImages = true;
+
         return taxonImgDiv;
     }
 

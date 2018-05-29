@@ -6,11 +6,30 @@
     padding: 5px 5px 5px 10px;
     border-radius: 5px;
     margin-bottom: 10px;
+    max-height: 1.2em;
+    overflow: hidden;
 }
 
+#vis4TaxonHeaderPadding {
+    color: rgb(100,100,100);
+}
 
+.vis4ImageWithText {
+    display: block;
+    width: 100%;
+    padding: 0 0 10px 0;
+}
 
-.vis4Image {
+@media (min-width:601px) {
+    .vis4ImageWithText {
+        display: inline-block;
+        width: 50%;
+        float: right;
+        margin: 0 0 10px 10px;
+    }
+}
+
+.vis4ImageNoText {
     display: block;
     width: 100%;
     padding: 0 0 10px 0;
@@ -27,11 +46,4 @@
     padding: 2px 4px 2px 2px;
 }*/
 
-@media (min-width:601px) {
-    .vis4Image{
-        display: inline-block;
-        width: 50%;
-        float: right;
-        margin: 0 0 10px 10px;
-    }
-}
+

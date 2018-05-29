@@ -9,8 +9,6 @@
     var taxSel; 
     var win, divImage, divKb, divInfo, visFullDetails;
     var selectedTaxon;
-    var imgIndex = 0;
-    var txtIndex = 0;
 
     vis4.initialise = function () {
 
@@ -76,23 +74,7 @@
             cb.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='" + id + "' id='" + id + "'>"));
             cb.append($("<span>").text(label));
             cb.change(function () {
-                //If an image is already displayed, then get the current image index
-                //and set the module-wide imgIndex variable so that image control
-                //initialises to correct index.
-                var img = $("#" + visName).find(".tombioImage");
-                if (img.length > 0) {
-                    imgIndex = img.attr("indexselected")
-                }
-                //If a text file is already displayed, then get the current text file index
-                //and set the module-wide txtIndex variable so that text control
-                //initialises to correct index.
-                var txt = $("#" + visName).find(".htmlFile");
-                if (txt.length > 0) {
-                    txtIndex = txt.attr("indexselected")
-                }
                 showTaxon(selectedTaxon, true);
-                imgIndex = 0;
-                txtIndex = 0;
             })
             
         }
@@ -117,6 +99,8 @@
             $('#tbVis4Kb').prop("checked", splitOpts.indexOf("kb") > -1);
         }
 
+        var taxon = params.taxon ? params.taxon.replace(/%20/g, " ") : "";
+
         //Set the visibility of hidden controls
         if (params.hc) {
             taxSel.toggleHiddenControls();
@@ -129,19 +113,17 @@
 
         //Set the image index
         if (params.imgi) {
-            //Set module-wide variable
-            imgIndex = params.imgi;
+            tbv.oTaxa[taxon].visState[visName].indexselectedImg = params.imgi;
         }
 
         //Set the text index
         if (params.txti) {
-            //Set module-wide variable 
-            txtIndex = params.txti;
+            tbv.oTaxa[taxon].visState[visName].indexselectedText = params.txti;
         }
 
         //Set the taxon (must come after the image, text and checkbox options set)
-        if (params.taxon) {
-            taxSel.taxonClick(params.taxon.replace(/%20/g, " "));
+        if (taxon) {
+            taxSel.taxonClick(taxon);
         }
 
         //Set the filter (after taxon selected)
@@ -154,9 +136,6 @@
             console.log("setting filter", filter)
             taxSel.setFilter(filter);
         }
-
-        imgIndex = 0; //Reset module-wide variables
-        txtIndex = 0;
     }
 
     function getViewURL() {
@@ -211,15 +190,25 @@
         }
 
         //Image index
-        var img = $("#" + visName).find(".tombioImage");
-        if (img.length > 0) {
-            params.push("imgi=" + img.attr("indexselected"));
+        //var img = $("#" + visName).find(".tombioImage");
+        //if (img.length > 0) {
+        //    params.push("imgi=" + img.attr("indexselected"));
+        //}
+
+        console.log("taxon", ">>" + selectedTaxon + "<<")
+        console.log("tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg", tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg)
+        if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg) {
+            console.log("imgi", tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg)
+            params.push("imgi=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg);
         }
 
         //Text file index
-        var txt = $("#" + visName).find(".htmlFile");
-        if (txt.length > 0) {
-            params.push("txti=" + txt.attr("indexselected"));
+        //var txt = $("#" + visName).find(".htmlFile");
+        //if (txt.length > 0) {
+        //    params.push("txti=" + txt.attr("indexselected"));
+        //}
+        if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText) {
+            params.push("txti=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText);
         }
 
         //Generate the full URL
@@ -253,9 +242,12 @@
         if (subCharVal) {
             taxonHeader = taxonName + " (" + subCharVal + ")";
         } else {
-            taxonHeader = taxonName;
+            taxonHeader = taxonName + " ";
         }
-        $("<div id='vis4TaxonHeader'>").text(taxonHeader).appendTo(visFullDetails);
+        //Hack to ensure that visualisation takes up full available width.
+        taxonHeader = taxonHeader + "<span id='vis4TaxonHeaderPadding'>x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x</span>"
+
+        $("<div id='vis4TaxonHeader'>").html(taxonHeader).appendTo(visFullDetails);
 
         //Set included flags from checkboxes
         var includeImages = document.getElementById('tbVis4Images').checked;
@@ -275,9 +267,21 @@
             var imageDiv = $('<div style="position: relative">').appendTo(visFullDetails);
             if (includeText) {
                 //Use a class because we will change style based on media width
-                imageDiv.attr("class", "vis4Image");
+                imageDiv.attr("class", "vis4ImageWithText");
+            } else {
+                imageDiv.attr("class", "vis4ImageNoText");
             }
-            _this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex)
+            //_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex)
+            var imgIndex = tbv.oTaxa[taxonName].visState[visName].indexselectedImg ? tbv.oTaxa[taxonName].visState[visName].indexselectedImg : 0;
+            _this.getTaxonImagesDiv({
+                taxon: taxonName,
+                container: imageDiv,
+                indexSelected: imgIndex,
+                height: includeText ? 400 : 600,
+                fImageSelect: function (index) {
+                    tbv.oTaxa[taxonName].visState[visName].indexselectedImg = index;
+                }
+            });
 
         }
 
@@ -286,7 +290,9 @@
             var $mapDiv = $('<div style="position: relative">').appendTo(visFullDetails);
             if (includeText) {
                 //Use a class because we will change style based on media width
-                $mapDiv.attr("class", "vis4Image");
+                $mapDiv.attr("class", "vis4ImageWithText");
+            } else {
+                $mapDiv.attr("class", "vis4ImageNoText");
             }
             _this.addNBNMap(tbv.oTaxa[taxonName].TVK, $mapDiv);
         }
@@ -306,7 +312,8 @@
                 htmlSel.selectmenu({
                     change: function (event, data) {
                         _this.showTaxonHtmlInfo(taxonName, htmlDiv, data.item.value);
-                        htmlDiv.attr("indexselected", data.item.value)
+                        //htmlDiv.attr("indexselected", data.item.value);
+                        tbv.oTaxa[taxonName].visState[visName].indexselectedText = data.item.value;
                     }
                 })
                 .selectmenu("menuWidget");
@@ -315,7 +322,7 @@
 
             //First text file
             var htmlDiv = $('<div class="htmlFile">').appendTo(visFullDetails);
-            htmlDiv.attr("indexselected", txtIndex)
+            var txtIndex = tbv.oTaxa[taxonName].visState[visName].indexselectedText ? tbv.oTaxa[taxonName].visState[visName].indexselectedText : 0;
             _this.showTaxonHtmlInfo(taxonName, htmlDiv, txtIndex);
             if (htmlFiles.length > 1) {
                 htmlSel.val(txtIndex).selectmenu('refresh');
