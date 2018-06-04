@@ -336,7 +336,7 @@
     }
 
     //##Interface##
-    tbv.keyInput.initKeyInputFromParams = function (params) {
+    tbv.keyInput.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
 
@@ -355,7 +355,7 @@
     }
 
     //##Interface##
-    tbv.keyInput.setParamsFromKeyInput = function (params) {
+    tbv.keyInput.setParamsFromState = function (params) {
 
         //Update params to indicate which, if any group tab was selected
         params.push("grp=" + $("#tombioKeyInputTabs").tabs("option", "active"));

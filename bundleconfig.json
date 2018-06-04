@@ -1,11 +1,5 @@
 [
   {
-    "outputFileName": "tombio/vis1/vis1 - Copy.min.js",
-    "inputFiles": [
-      "tombio/vis1/vis1 - Copy.js"
-    ]
-  },
-  {
     "outputFileName": "tombio/score.min.js",
     "inputFiles": [
       "tombio/score.js"

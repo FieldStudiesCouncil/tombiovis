@@ -1,4 +1,4 @@
-Key,Type,Mandatory,Value,Date,Notes
+﻿Key,Type,Mandatory,Value,Date,Notes
 #Tools - those default tools to exclude and non-default tools to include,,,,,"As of v1.6.0, all the 'config' type options deprecated in favour of tombiovis.opts set in top-level HTML"
 #excludedDefaultTools,config,no,,,"e.g. 'vis1, vis3' to remove the 'Two-column key' and 'Side-by-side comparison' visualisations"
 #otherIncludedTools,config,no,,,e.g. 'visEarthworm' to add a custom visualisation (must be installed to work)
@@ -12,7 +12,8 @@ authors,metadata,yes,"Bell, C.",,
 publisher,metadata,no,Field Studies Council,,
 location,metadata,no,"Preston Montford, Shrewsbury",,
 contact,metadata,no,,,
-version,metadata,yes,1.0,,
+version,metadata,yes,1.7,,
 #Releases - keep track of the release history below this line. Most recent releases at the top. The version code in the 'value' column below this line should match that of the current release above it.,,,,,
+release,history,no,1.7,6/1/2018,Modified by RB to complement version 1.7.0 release of Identikit.
 release,history,no,1.0,11/22/2016,Modified by RB to illustrate some of the different features of knowledge representation.
 release,history,no,0.1,11/11/2016,CB published an initial test version

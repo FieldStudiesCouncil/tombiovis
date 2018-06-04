@@ -506,11 +506,6 @@
 
     vis3.urlParams = function (params) {
 
-        //Set the visibility of hidden controls
-        if (params.hc) {
-            taxSel.toggleHiddenControls();
-        }
-
         //Set the column widths
         _this.vis3ColWidth = params.colwidth;
 
@@ -545,19 +540,9 @@
             //SVG graphics or whatever) but it can be fixed
             //by calling the taxaselect functions in a timeout.
 
-            //Set the filter (after taxa selected)
-            if (params.filter) {
-                if (params.filter.startsWith("-")) {
-                    var filter = "#" + params.filter.substr(1);
-                } else {
-                    var filter = params.filter;
-                }
-                taxSel.setFilter(filter);
-            }
-            //Set the sort
-            if (params.sort) {
-                taxSel.setSort(params.sort);
-            }
+            //Set the taxon input controls
+            taxSel.initStateFromParams(params);
+
         }, 100)
     }
 
@@ -596,38 +581,12 @@
         //Column width
         params.push("colwidth=" + _this.vis3ColWidth);
 
-        //Filter
-        var filter = taxSel.getFilter();
-        if (filter) {
-            if (filter.startsWith("#")) {
-                var filter = "-" + filter.substr(1);
-            }
-            params.push("filter=" + filter);
-        }
-
-        //Sort
-        if (taxSel.taxonSort) {
-            var sortType;
-            if (taxSel.taxonSort == "radio-a") {
-                var sortType = "a-z";
-            } else if (taxSel.taxonSort == "radio-z") {
-                var sortType = "z-a";
-            }
-            if (sortType) {
-                params.push("sort=" + sortType);
-            }
-        }
-
-        //Hiden controls
-        if (taxSel.hiddenControlsShown) {
-            params.push("hc=show");
-        }
+        //Get the taxon select URL params
+        params = taxSel.setParamsFromState(params);
 
         //Generate the full URL
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
         _this.copyTextToClipboard(url);
-        console.log("URL length:", url.length);
-        console.log(url);
     }
 
     function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {

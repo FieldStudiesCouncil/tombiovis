@@ -490,6 +490,12 @@
         tbv.media.forEach(function (m) {
             if (m.Type == "image-local" || m.Type == "html-local") {
                 m.URI = tbv.opts.tombiokbpath + m.URI;
+                if (m.smallURI) {
+                    m.smallURI = tbv.opts.tombiokbpath + m.smallURI;
+                }
+                if (m.largeURI) {
+                    m.largeURI = tbv.opts.tombiokbpath + m.largeURI;
+                }
             }
         });
 
@@ -536,7 +542,7 @@
                 char.stateSet = true;
             }
         }
-        getVisualisation().inputControl.initKeyInputFromParams(params);
+        getVisualisation().inputControl.initStateFromParams(params);
 
         tbv.refreshVisualisation();
     }
@@ -558,7 +564,7 @@
             }
         })
 
-        return getVisualisation().inputControl.setParamsFromKeyInput(params);
+        return getVisualisation().inputControl.setParamsFromState(params);
     }
 
     tbv.getCitation = function (metadata, sType, coreTitle) {

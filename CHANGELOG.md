@@ -4,14 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [1.6.0] - 2018-06-07
 ### Changed
- - Rebranded as FSC Identikit (replace Tom.Bio ID Framework and similar).
- - Changed structure of code used a 'classes' pattern to conform to the simpler OLOO pattern of Kyle  Simpson. This includes all the visualisation objects and the stateValue object.
- - Replaced the variable named 'core' with 'tbv' which relates better to the top-level 'tombiovis' object that it represents.
+ - Rebranded as *FSC Identikit* (replaces *Tom.Bio ID Framework* and similar).
+ - Changed structure of code from using a 'classes' pattern to conform to the simpler OLOO pattern of Kyle  Simpson. This includes all the visualisation objects and the stateValue object.
+ - Replaced the variable named *core* with *tbv* which relates better to the top-level *tombiovis* object that it represents.
+ - Changed advice for creating HTML documents (in *Building a knowledge-base document*) - partly to overcome handling character encoding problems of 'special characters'.
+ - Changed KB template macro for generating CSV files to create them with character encoding of UTF-8 to help overcome handling 'special characters' in knowledge bases.
+ - Changed image handling control to *Galleria* image control to give a better user-experience and overcome some problems with previous image handling (e.g. https://github.com/burkmarr/tombiovis/issues/15 and https://github.com/burkmarr/tombiovis/issues/16.)
+ - Changed handling of state storage to be consistent across visualisations.
+ - Now standardising on ES6 rather than ES5 - starting to use promises for async processing.
+ - In line with the above, the 'test harness' vile *vis.html* now includes a reference to a polyfil for ES6 to account for users with older browsers.
+ - Changed scoring so that the special *Sex* character no longer scores.
+ - Changed from *Strictness* to *Latitude* in kowledge-base. Support for *Strictness* is still included, but is deprecated. *Latitude* allows for much more predictable results from the point of view of KB developers.
+ - Changed default sorting order of taxa to be independent of their previous sorted position so that the order for any given combination of character input values is predictable.
+ 
 ### Added
+ - Added a new [*Release notes*](ReleaseNotes.md) document to help knowledge-base developers move from one release of the Identikit to the latest release.
+ - Added versioning to *Bisuits KB* template including a link to a YouTube video that explains how to update a knowledge-base to a new template (to pick up new macros etc).
+ - Added media-dependent margins to *vis.html* (the 'test harness').
+ - Added ability to include NBN maps (via NBN Atlas web services) in the *Full taxon details* visualisation and the *Full taxon details* dialog by adding a *TVK* column to the taxa worksheet of the knowledge-base.
+ - Added ability for KB developers to test whether or not their media files are being found.
+ - Added the ability for KB developers to specify a *novalue* value.
+ - Knowledge-base developers can how specify value groups and reference the groups from the taxa worksheet.
+ - Images hosted elsewhere on the web can now be referenced from the media worksheet.
+  
 ### Fixed
-### Removed
+ - Tooltip images that become 'orphaned' can now be removed by clicking on them.
+ - Fixed resizing bug where visualisation was shorter than length of input control tabs.
+ - Fixed bug whereby knowledge-base character called *Height* broke the visualisations (https://github.com/burkmarr/tombiovis/issues/13).
+ - Fixed bug whereby URL generation from keys didn't always reflect currently specified character values (https://github.com/burkmarr/tombiovis/issues/14).
+ - Fixed bug whereby ordinal and numeric character values not specified in values tab caused an error.
 
 ## [1.6.0] - 2017-11-11
 ### Changed

@@ -1214,7 +1214,7 @@
     }
 
     //##Interface##
-    tbv.keyInputEarthworm.initKeyInputFromParams = function (params) {
+    tbv.keyInputEarthworm.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
 
@@ -1226,7 +1226,7 @@
     }
 
     //##Interface##
-    tbv.keyInputEarthworm.setParamsFromKeyInput = function (params) {
+    tbv.keyInputEarthworm.setParamsFromState = function (params) {
 
         //Indicate which character was selected for colouring
         params.push("colourby=" + this.otherState.colourby);

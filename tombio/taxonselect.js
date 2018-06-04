@@ -361,6 +361,63 @@
         }
     }
 
+    //##Interface##
+    tbv.taxonSelect.setParamsFromState = function (params) {
+
+        //Filter
+        var filter = this.getFilter();
+        if (filter) {
+            if (filter.startsWith("#")) {
+                var filter = "-" + filter.substr(1);
+            }
+            params.push("filter=" + filter);
+        }
+
+        //Sort
+        if (this.taxonSort) {
+            var sortType;
+            if (this.taxonSort == "radio-a") {
+                var sortType = "a-z";
+            } else if (this.taxonSort == "radio-z") {
+                var sortType = "z-a";
+            }
+            if (sortType) {
+                params.push("sort=" + sortType);
+            }
+        }
+
+        //Hiden controls
+        if (this.hiddenControlsShown) {
+            params.push("hc=show");
+        }
+
+        return params
+    }
+
+    //##Interface##
+    tbv.taxonSelect.initStateFromParams = function (params) {
+
+        //Set the visibility of hidden controls
+        if (params.hc) {
+            this.toggleHiddenControls();
+        }
+
+        //Set the sort
+        if (params.sort) {
+            this.setSort(params.sort);
+        }
+
+        //Set the filter (after taxon selected)
+        if (params.filter) {
+            if (params.filter.startsWith("-")) {
+                var filter = "#" + params.filter.substr(1);
+            } else {
+                var filter = params.filter;
+            }
+            this.setFilter(filter);
+        }
+    }
+
     //Implementation dependent elements below...
 
     tbv.taxonSelect.sortTaxa = function () {

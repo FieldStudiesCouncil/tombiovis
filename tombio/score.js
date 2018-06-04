@@ -28,7 +28,7 @@
         var scoreagainst = 1 - scorefor;
 
         //Return array with both values
-        return [scorefor, scoreagainst];    
+        return [scorefor, scoreagainst];
     }
 
     tbv.score.ordinal = function (selectedStates, kbTaxonStates, posStates, latitude, isCircular) {

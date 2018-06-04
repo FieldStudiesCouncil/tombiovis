@@ -1,4 +1,4 @@
-Character,CharacterState,CharacterStateTranslation,StateGroup,StateHelp,StateHelpShort
+﻿Character,CharacterState,CharacterStateTranslation,StateGroup,StateHelp,StateHelpShort
 ChocTaste,none,No chocolate taste,,,
 ChocTaste,little,A slight chocolate taste,,,
 ChocTaste,moderate,A moderate chocolate taste,,,

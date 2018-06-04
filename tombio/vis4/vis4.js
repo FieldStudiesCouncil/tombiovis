@@ -101,16 +101,6 @@
 
         var taxon = params.taxon ? params.taxon.replace(/%20/g, " ") : "";
 
-        //Set the visibility of hidden controls
-        if (params.hc) {
-            taxSel.toggleHiddenControls();
-        }
-
-        //Set the sort
-        if (params.sort) {
-            taxSel.setSort(params.sort);
-        }
-
         //Set the image index
         if (params.imgi) {
             tbv.oTaxa[taxon].visState[visName].indexselectedImg = params.imgi;
@@ -126,21 +116,12 @@
             taxSel.taxonClick(taxon);
         }
 
-        //Set the filter (after taxon selected)
-        if (params.filter) {
-            if (params.filter.startsWith("-")) {
-                var filter = "#" + params.filter.substr(1);
-            } else {
-                var filter = params.filter;
-            }
-            console.log("setting filter", filter)
-            taxSel.setFilter(filter);
-        }
+        //Set the taxon input controls
+        taxSel.initStateFromParams(params);
     }
 
     function getViewURL() {
-        console.log("Get the URL")
-
+       
         var params = [];
 
         //Tool
@@ -162,51 +143,15 @@
             params.push("opts=" + opts.join("-"));
         }
 
-        //Filter
-        var filter = taxSel.getFilter();
-        if (filter) {
-            if (filter.startsWith("#")) {
-                var filter = "-" + filter.substr(1);
-            }
-            params.push("filter=" + filter);
-        }
-
-        //Sort
-        if (taxSel.taxonSort) {
-            var sortType;
-            if (taxSel.taxonSort == "radio-a") {
-                var sortType = "a-z";
-            } else if (taxSel.taxonSort == "radio-z") {
-                var sortType = "z-a";
-            }
-            if (sortType) {
-                params.push("sort=" + sortType);
-            }
-        }
-
-        //Hiden controls
-        if (taxSel.hiddenControlsShown) {
-            params.push("hc=show");
-        }
+        //Get the taxon select URL params
+        params = taxSel.setParamsFromState(params);
 
         //Image index
-        //var img = $("#" + visName).find(".tombioImage");
-        //if (img.length > 0) {
-        //    params.push("imgi=" + img.attr("indexselected"));
-        //}
-
-        console.log("taxon", ">>" + selectedTaxon + "<<")
-        console.log("tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg", tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg)
         if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg) {
-            console.log("imgi", tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg)
             params.push("imgi=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg);
         }
 
         //Text file index
-        //var txt = $("#" + visName).find(".htmlFile");
-        //if (txt.length > 0) {
-        //    params.push("txti=" + txt.attr("indexselected"));
-        //}
         if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText) {
             params.push("txti=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText);
         }
@@ -214,7 +159,6 @@
         //Generate the full URL
         var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
         _this.copyTextToClipboard(url);
-        console.log(url);
     }
 
     function taxonSelectCallback(retValue) {

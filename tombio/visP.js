@@ -32,6 +32,7 @@
     visP.fullDetails = function (taxon, selected, x, y) {
 
         var _this = this;
+        var tabOffset;
 
         //Default parameters
         x = (typeof x !== 'undefined') ?  x : 0;
@@ -57,41 +58,44 @@
         
         //Dialog
         var dlg = $("<div>").append(tabs);
-        //dlg.addClass("tombioFullDetailsDlg")
         dlg.attr("title", taxon);
         dlg.dialog({
+            closeText: "",
             height: 550,
             width: 600,
             modal: true,
             resizeStop: function (event, ui) {
-                var img = tab2.find(".baseimage");
-                img.trigger("change");
+                tabs.tabs("refresh"); //Resizes the tabs
+                resizeGalleria();
             }
         });
 
         //Tabs
         tabs.tabs({
+            heightStyle: "fill", //Required to initialise tabOffset
             active: selected,
+            create: function () {
+                //Initialise the taboffset variable which is
+                //used to resize galleria control.
+                tabOffset = dlg.height() - tab1.height();
+                
+            },
             activate: function (event, ui) {
-                //This is necessary to initialise the image correctly
-                //if image is not on tab1.
-                var img = tab2.find(".baseimage");
-                img.trigger("change");
-                //window.setTimeout(function () {
-                //    img.trigger("change");
-                //}, 100);
-                var iframe = tab3.find("#tombioFullDetailsHTMLDiv");
-                _this.resizeIframe(iframe);
+                tabs.tabs("refresh"); //Resizes the tabs
+                if (ui.newTab.index() == 1) {
+                    resizeGalleria();
+                }
             }
         });
         tab3.css("overflow", "hidden"); //Must come after tabs created.
+
 
         //Taxon details
         var divTaxonDetails = this.showTaxonCharacterValues(tbv.oTaxa[taxon], true)
         tab1.append(divTaxonDetails);
 
         //Images
-        var img = this.getTaxonImagesDiv({ taxon: taxon, container: tab2 });
+        var img = this.getTaxonImagesDiv({ taxon: taxon, container: tab2, height: tab2.height() });
 
         //NBN maps
         if (tbv.oCharacters.TVK && tbv.oTaxa[taxon].TVK) {
@@ -105,6 +109,13 @@
         //drop-down menu appears under dialog.
         this.getHTMLFileSelectionDiv(taxon, tab3)
 
+        function resizeGalleria() {
+            var g = dlg.find(".tombio-galleria-pane").first();
+            if (g.data('galleria')) {
+                g.data('galleria').setOptions("height", dlg.height() - tabOffset);
+                g.data('galleria').resize();   
+            }
+        }
     }
 
     visP.sortTaxa = function (array) {
@@ -213,18 +224,24 @@
         }
 
         var pane = $('<div>')
+            .addClass("tombio-galleria-pane")
             .css("position", "relative")
             .css("max-width", "2000px")
             .css("height", height)
             .appendTo(container);
 
         //Create the image gallery data object
+
+        
         var data = [];
         taxonImages.forEach(function (ti) {
+
             var img = {
                 image: ti.URI,
+                thumb: ti.smallURI ? ti.smallURI : null,
+                big: ti.largeURI ? ti.largeURI : null,
                 alt: ti.Caption,
-                title: ti.Caption           
+                title: ti.Caption
             }
             data.push(img);
         })
@@ -495,28 +512,33 @@
             var noFiles = $("<div>").css("margin", "10px").appendTo(htmlDiv);
             noFiles.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
         } else {
-            //Control for selecting HTML file
-            var htmlIframe = $('<iframe id="tombioFullDetailsHTMLDiv" scrolling="no" width="100%" frameborder="0">');
+            
+            //Control for selecting HTML file - prior to v1.7.0 was done in this
+            //iFrame which was different from method used in vis4. Changed for v1.7.0
+            //to bring into line with vis4. This means only simple text is appropriate.
+            //var htmlIframe = $('<iframe id="tombioFullDetailsHTMLDiv" scrolling="no" width="100%" frameborder="0">');
+            var htmlDiv2 = $("<div>");
             if (htmlFiles.length > 1) {
                 var divSelect = $('<div style="margin-bottom: 20px">').appendTo(htmlDiv);
                 var htmlSel = $("<select id='tombioFileSelect'></select>").appendTo(divSelect);
                 htmlFiles.forEach(function (file, iFile) {
-                    //console.log(file.Caption)
                     var opt = $("<option/>").text(file.Caption).attr("value", iFile);
                     htmlSel.append(opt);
                 });
                 htmlSel.selectmenu({
                     change: function (event, data) {
-                        _this.showTaxonHtmlIframe(taxon, htmlIframe, data.item.value);
+                        //_this.showTaxonHtmlIframe(taxon, htmlIframe, data.item.value);
+                        _this.showTaxonHtmlInfo(taxon, htmlDiv2, data.item.value);
                     }
                 });
-                //htmlSel.selectmenu({ width: 300 }); //Do this separately or you get zero width
             }
-            htmlIframe.on("load", function () {
-                _this.resizeIframe($(this));
-            });
-            htmlIframe.appendTo(htmlDiv)
-            this.showTaxonHtmlIframe(taxon, htmlIframe, 0);
+            //htmlIframe.on("load", function () {
+            //    _this.resizeIframe($(this));
+            //});
+            //htmlIframe.appendTo(htmlDiv)
+            htmlDiv2.appendTo(htmlDiv);
+            //this.showTaxonHtmlIframe(taxon, htmlIframe, 0);
+            _this.showTaxonHtmlInfo(taxon, htmlDiv2, 0);
         }
     }
 
