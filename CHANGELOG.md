@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.6.0] - 2018-06-07
+## [1.7.0] - 2018-06-07
 ### Changed
  - Rebranded as *FSC Identikit* (replaces *Tom.Bio ID Framework* and similar).
  - Changed structure of code from using a 'classes' pattern to conform to the simpler OLOO pattern of Kyle  Simpson. This includes all the visualisation objects and the stateValue object.

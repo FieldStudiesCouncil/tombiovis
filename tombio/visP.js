@@ -238,8 +238,8 @@
 
             var img = {
                 image: ti.URI,
-                thumb: ti.smallURI ? ti.smallURI : null,
-                big: ti.largeURI ? ti.largeURI : null,
+                thumb: ti.SmallURI ? ti.SmallURI : null,
+                big: ti.LargeURI ? ti.LargeURI : null,
                 alt: ti.Caption,
                 title: ti.Caption
             }

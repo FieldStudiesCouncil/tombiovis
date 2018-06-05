@@ -490,11 +490,11 @@
         tbv.media.forEach(function (m) {
             if (m.Type == "image-local" || m.Type == "html-local") {
                 m.URI = tbv.opts.tombiokbpath + m.URI;
-                if (m.smallURI) {
-                    m.smallURI = tbv.opts.tombiokbpath + m.smallURI;
+                if (m.SmallURI) {
+                    m.SmallURI = tbv.opts.tombiokbpath + m.SmallURI;
                 }
-                if (m.largeURI) {
-                    m.largeURI = tbv.opts.tombiokbpath + m.largeURI;
+                if (m.LargeURI) {
+                    m.LargeURI = tbv.opts.tombiokbpath + m.LargeURI;
                 }
             }
         });
@@ -795,9 +795,26 @@
     }
 
     function addTopPageElements() {
-        //Build top level intrface elements
+        //Build top level interface elements
+        $("#tombiod3vis").html(""); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
+
+        //Main div
         $("#tombiod3vis").css("position", "relative");
- 
+
+        //Format warning div
+        $("<div>").attr("id", "tombioDeviceWarning").appendTo("#tombiod3vis");
+        $("<div>").attr("id", "tombioDeviceWarningInnerDiv").css("margin", "2em").appendTo($("#tombioDeviceWarning"));
+        $("<p>").text("This Identikit tool is designed for large format devices. If you are working with a small screen or with a touch device, it might not appear or work as intended. We are working to produce a range of 'mobile-first' tools in the latter part of 2018.")
+            .appendTo($("#tombioDeviceWarningInnerDiv"));
+        $("<img>").attr("id", "tombioDeviceWarningButton")
+            .attr("src", tbv.opts.tombiopath + "/resources/remove.png")
+            .css("position", "absolute")
+            .css("right", "10px").css("top", "10px")
+            .appendTo($("#tombioDeviceWarningInnerDiv"));
+        $("#tombioDeviceWarningButton").on("click", function () {
+            $("#tombioDeviceWarning").hide();
+        })
+
         //An area for printing diagnostic text in cases where a console is not available, e.g.on mobile device browsers
         $("<div>").attr("id", "tombioDebugText").css("display", "none").appendTo("#tombiod3vis");
 
@@ -1064,16 +1081,36 @@
         divProgress.text("Checking media files...");
 
         tbv.mediaCheck(
+            "URI",
             function (uri) {
                 $('#tombioMediaFound').append($('<p>').html("The media file '" + uri + "' found okay."));
             },
             function (uri) {
                 $('#tombioMediaNotFound').append($('<p>').html("The media file '" + uri + "' cannot be found."));
-            },
-            function () {
-                divProgress.text("Completed checking media files");
             }
-        );
+        ).then(function () {
+            tbv.mediaCheck(
+                "SmallURI",
+                function (uri) {
+                    $('#tombioMediaFound').append($('<p>').html("The small media file '" + uri + "' found okay."));
+                },
+                function (uri) {
+                    $('#tombioMediaNotFound').append($('<p>').html("The small media file '" + uri + "' cannot be found."));
+                }
+            )
+        }).then(function () {
+            tbv.mediaCheck(
+                "LargeURI",
+                function (uri) {
+                    $('#tombioMediaFound').append($('<p>').html("The large media file '" + uri + "' found okay."));
+                },
+                function (uri) {
+                    $('#tombioMediaNotFound').append($('<p>').html("The large media file '" + uri + "' cannot be found."));
+                }
+            )
+        }).then(function () {
+            divProgress.text("Completed checking media files");
+        });
 
         return (html);
     }

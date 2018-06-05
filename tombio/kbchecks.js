@@ -615,11 +615,11 @@
         }
     }
 
-    tbv.mediaCheck = function(fSuccess, fFail, fComplete){
+    tbv.mediaCheck = function(uriField, fSuccess, fFail){
         //Using Promises
         var pAll = [];
 
-        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web") }).forEach(function (m) {
+        tbv.media.filter(function (m) { return (m[uriField] &&(m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web")) }).forEach(function (m) {
 
             var p = new Promise(function (resolve, reject) {
 
@@ -629,21 +629,21 @@
                     //to load the whole image which will be very slow if lots of images are referenced.
                     var i = new Image();
                     i.onload = function () {
-                        resolve(m.URI);
+                        resolve(m[uriField]);
                     }
                     i.onerror = function () {
-                        reject(m.URI);
+                        reject(m[uriField]);
                     }
-                    i.src = m.URI;
+                    i.src = m[uriField];
                 } else {
                     $.ajax({
-                        url: m.URI,
+                        url: m[uriField],
                         type: 'HEAD',
                         success: function () {
-                            resolve(m.URI);
+                            resolve(m[uriField]);
                         },
                         error: function () {
-                            reject(m.URI);
+                            reject(m[uriField]);
                         }
                     });
                 }
@@ -658,9 +658,7 @@
             );
             pAll.push(p);
         })
-        Promise.all(pAll).then(function () {
-            fComplete();
-        });
+        return (Promise.all(pAll));
     }
 
     tbv.tvkCheck = function (fSuccess, fFail, fComplete) {
