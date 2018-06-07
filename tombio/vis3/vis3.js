@@ -19,7 +19,7 @@
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
-        this.metadata.version = '1.1.0';
+        this.metadata.version = '1.2';
 
         //Control doesn't work with character state input controls
         this.charStateInput = null;
@@ -585,8 +585,7 @@
         params = taxSel.setParamsFromState(params);
 
         //Generate the full URL
-        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
-        _this.copyTextToClipboard(url);
+        _this.createViewURL(params);
     }
 
     function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {

@@ -45,7 +45,7 @@
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Preston Montford, Shropshire";
         this.metadata.contact = null;
-        this.metadata.version = "0.1.0";
+        this.metadata.version = "1.0";
 
         //Initialisations
         this.abbrvnames = true;
@@ -479,11 +479,8 @@
         //Image tooltips
         params.push("imgtips=" + _this.displayToolTips);
 
-        //
         //Generate the full URL
-        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
-        _this.copyTextToClipboard(url);
-        console.log(url);
+        _this.createViewURL(params);
     }
 
     function highlightTopScorers(transitionRefresh) {

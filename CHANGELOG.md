@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Fixed bug whereby knowledge-base character called *Height* broke the visualisations (https://github.com/burkmarr/tombiovis/issues/13).
  - Fixed bug whereby URL generation from keys didn't always reflect currently specified character values (https://github.com/burkmarr/tombiovis/issues/14).
  - Fixed bug whereby ordinal and numeric character values not specified in values tab caused an error.
+ - Fixed a bug with generation of view URLs on hosted sites (e.g. on Drupal pages).
 
 ## [1.6.0] - 2017-11-11
 ### Changed

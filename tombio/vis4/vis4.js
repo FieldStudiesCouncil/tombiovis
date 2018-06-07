@@ -21,7 +21,7 @@
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
-        this.metadata.version = '1.0';
+        this.metadata.version = '1.1';
 
         //Other initialisations
         var taxonName;
@@ -157,8 +157,7 @@
         }
 
         //Generate the full URL
-        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
-        _this.copyTextToClipboard(url);
+        _this.createViewURL(params);
     }
 
     function taxonSelectCallback(retValue) {

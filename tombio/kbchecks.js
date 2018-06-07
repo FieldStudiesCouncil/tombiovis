@@ -30,7 +30,7 @@
         var taxonomy = true;
         var metadata = true;
         var errors, errors2;
-        var field, fields, requiredFields;
+        var field, fields, requiredFields, optionalFields;
 
         //Derive some variables for use later
         var charactersFromCharactersTab = tbv.characters.map(function (character) {
@@ -264,21 +264,27 @@
         //Characters
         errors = $('<ul>');
 
-        //Check that required columns are present on the characters tab
-        requiredFields = ["Group", "Character", "Label", "Help", "HelpShort", "Status", "ValueType", "ControlType", "Params", "Weight"];
+        //Check that required columns are present on the characters tab  
         fields = [];
         for (field in tbv.characters[0]) {
             if (tbv.characters[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
+        requiredFields = ["Group", "Character", "Label", "Help", "Status", "ValueType", "ControlType", "Params", "Weight"];
         requiredFields.forEach(function (f) {
             if ($.inArray(f, fields) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f +"'</b> is missing."));
                 characters = false;
             }
         })
-
+        optionalFields = ["HelpShort"];
+        optionalFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
+                characters = false;
+            }
+        })
         //Check that either 'Strictness' or 'Latitdue' is present. Warn if strictness is used.
         if ($.inArray("Strictness", fields) == -1 && $.inArray("Latitude", fields) == -1) {
             errors.append($('<li class="tombioValid3">').html("The column <b>'Latitude'</b> is missing."));
@@ -396,16 +402,24 @@
         errors2 = $('<ul>');
 
         //Check that required columns are present on the values tab
-        requiredFields = ["Character", "CharacterState", "CharacterStateTranslation", "StateHelp", "StateHelpShort"];
+        
         fields = [];
         for (field in tbv.values[0]) {
             if (tbv.values[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
+        requiredFields = ["Character", "CharacterState", "CharacterStateTranslation", "StateHelp"];
         requiredFields.forEach(function (f) {
             if ($.inArray(f, fields) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
+                values = false;
+            }
+        })
+        optionalFields = ["StateHelpShort"];
+        optionalFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                 values = false;
             }
         })
@@ -506,16 +520,23 @@
         errors = $('<ul>');
 
         //Check that required columns are present on the media tab
-        requiredFields = ["URI", "ImageWidth", "Type", "Priority", "Caption", "Taxon", "Character", "State", "UseFor", "TipStyle"];
         fields = [];
         for (field in tbv.media[0]) {
             if (tbv.media[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
+        requiredFields = ["URI", "ImageWidth", "Type", "Priority", "Caption", "Taxon", "Character", "State"];
         requiredFields.forEach(function (f) {
             if ($.inArray(f, fields) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
+                media = false;
+            }
+        })
+        optionalFields = ["UseFor", "TipStyle", "SmallURI", "LargeURI"];
+        optionalFields.forEach(function (f) {
+            if ($.inArray(f, fields) == -1) {
+                errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                 media = false;
             }
         })

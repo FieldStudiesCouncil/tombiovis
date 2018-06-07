@@ -621,6 +621,15 @@
         document.body.removeChild(textArea);
     }
 
+    visP.createViewURL = function (params) {
+        //var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
+        //Split on ?tbv= to avoid problems with pages that use other params, e.g. Drupal
+        var baseURL = window.location.href.split('tbv=')[0];
+        var j = (baseURL.indexOf("?") == -1) ? "?" : "&";
+        var url = encodeURI(baseURL + j + "tbv=&" + params.join("&"));
+        this.copyTextToClipboard(url);
+    }
+
     //Colour ramp for the matching indicators to be used across all visualisations
     //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
     visP.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
