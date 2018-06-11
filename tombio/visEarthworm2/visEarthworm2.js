@@ -12,7 +12,7 @@
         _this = this;
 
         //Initialise the meta data
-        this.metadata.title = "Earthworm multi-access key";
+        this.metadata.title = "Bespoke earthworm key";
         this.metadata.authors = 'Rich Burkmar';
         this.metadata.year = '2018';
         this.metadata.publisher = 'Field Studies Council';
@@ -704,6 +704,9 @@
             });
     }
 
+    visEarthworm2.urlParams = function (params) {
+    }
+
     function sortTaxa(array, lastPosAttr) {
         return array.sort(function (a, b) {
 
@@ -730,12 +733,9 @@
 
         //Get user input control params
         Array.prototype.push.apply(params, tbv.setParamsFromControls());
-
         
         //Generate the full URL
-        var url = encodeURI(window.location.href.split('?')[0] + "?" + params.join("&"));
-        _this.copyTextToClipboard(url);
-        console.log(url);
+        _this.createViewURL(params);
     }
 
     function segDiff(val, range) {
@@ -1090,7 +1090,7 @@
         //Add SVG for colourby key
         $tr = $("<tr>").appendTo($table);
         $("<td>").appendTo($tr);
-        $td = $("<td>").appendTo($tr);
+        $td = $("<td style='display:flex'>").appendTo($tr);
         $el = $('<svg xmlns="http://www.w3.org/2000/svg" version="1.1">').attr("id", "tombioEsbLegend").appendTo($td);
         $el.css("width", this.keyItemWidth).css("height", 0); //.css("background-color", "red");
 

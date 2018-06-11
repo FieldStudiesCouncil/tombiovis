@@ -153,6 +153,7 @@
         var file = files[0];
         file.loading = true;
         var s = document.createElement('script');
+        //s.type = 'application/javascript';
 
         //If not working in development, minify file names
         var jsFile;
@@ -311,7 +312,7 @@
     jsF.vis5.addCSS("vis5/vis5.css");
     jsF.add("visEarthworm", "visEarthworm/visEarthworm.js?ver=" + tbv.opts.tombiover, "Earthworm multi-access key");
     jsF.visEarthworm.addCSS("visEarthworm/visEarthworm.css");
-    jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Earthworm multi-access key 2");
+    jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Bespoke earthworm key");
     jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
 
     //Specify module dependencies

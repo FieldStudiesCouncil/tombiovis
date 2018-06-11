@@ -477,7 +477,7 @@ figcaption {
     right: 13px;
     width: 25px;
     opacity: 0.7;
-    z-index: 1;
+    z-index: 3;
 }
 .tombio-galleria-lightbox-button {
     position: absolute;
@@ -485,7 +485,7 @@ figcaption {
     left: 13px;
     width: 25px;
     opacity: 0.7;
-    z-index: 1;
+    z-index: 3;
 }
     .tombio-galleria-lightbox-button:hover, .tombio-galleria-remove-button:hover {
         opacity: 1;
