@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.1] - 2018-06-11
+### Fixed
+ - Addressed problem with 'close' and 'full-size' image controls not working in the side-by-side comparison tool when galleria image small.
+ - Updated tool help to reflect new image control.
 ## [1.7.0] - 2018-06-07
 ### Changed
  - Rebranded as *FSC Identikit* (replaces *Tom.Bio ID Framework* and similar).

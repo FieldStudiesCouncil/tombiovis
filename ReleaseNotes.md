@@ -1,5 +1,7 @@
 # Release notes for existing knoweldge-base developers
 These notes are intended to help existing knowledge-base developers move from one version of the FSC Identikit to another. These notes were first released with version 1.7.0 of the Identikit and will be updated on each succeeding release.
+## Release 1.7.1
+This was a minor update to address a couple of small bugs with 1.7.0. Knowledge-base developers moving to version 1.7.1 from earlier versions should consult the notes below for version 1.7.0.
 ## Release 1.7.0
 Most of the significant changes to the Identikit with release 1.7.0 are architectural (i.e. 'under the hood') in preparation for significant changes coming later in 2018 when we will produce a multi-access key that is 'mobile-first' and suitable for delivering ID resources that can be used in the field. Nevertheless there have been one or two significant changes in this release. Most changes are backwards-compatible which means that knowledge-bases that were written for earlier releases will work unchanged with this new release. But if you want to capitalise on some of the improvements, you may need to make some changes as outlined below.
 
