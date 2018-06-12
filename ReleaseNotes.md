@@ -29,6 +29,9 @@ You can now group a large number of alternative state values for a single charac
 ### New *novalue* state value
 There is a new way to indicate cases on the *Taxon* worksheet where none of the possible states for the character are manifest for a particular taxon. It is an important way to distinguish between empty cells – representing missing values – and those where the character does not manifest itself for the taxon because they score differently. It has a different meaning - and scores differently from the value 'n/a' (not applicable) and is most useful for characters which describe highly distinctive features of certain taxa but which are not meaningful for most taxa. (See section *3.1.4 - Special character state values* of the *Building a knowledge-base* document).
 
+### Move from *Strictness* to *Latitude*
+From version 1.7.0, the *Strictness* column is deprecated in favour of the new *Latitude* column. So *Strictness* will still work for now, but you are urged to change to *Latitude*. Predicting the results of the values you supply for *Latitude* is much easier than for *Strictness*. For full details on using *Latitude*, see the section *3.2.9 - The Latitude column* of the *Building a knowledge-base* document.
+
 ### Recommendataion to use Notepad++ to edit HTML
 We provide *vis.html* as a kind of test harness that you can use to host the Identikit whilst you are developing and testing a knowledge-base. Previously we have recommended that you use a simple text editor such as Windows Notepad, to edit this (as shown in the video demonstrating updating a release installation). But as the Identikit matures, more options can be specified in the calling web page and editing with Notepad is increasingly difficult. For editing HTML files like these for Identikit, we are now recommending a more sophisticated editor (though still 'light-weight' and free) called *Notepad++*.
 
@@ -50,7 +53,7 @@ We strongly recommend that instead of trying to update your current test HTML pa
 (And remember we recommend that you download and use Notepad++ to edit it.)
 
 ### Using the new version of the Excel knowledge-base
-The Excel knowledge-base template (*Biscuits.xlsm*) has been updated to reflect the addition of new columns (e.g. the change from *Strictness* to *Latitude* on the *Characters* worksheet - see below) and changes to some of the macros.
+The Excel knowledge-base template (*Biscuits.xlsm*) has been updated to reflect the addition of new columns (e.g. the change from *Strictness* to *Latitude* on the *Characters* worksheet - see above) and changes to some of the macros.
 
 In all likelihood, the new release will work just fine with your old knowledge-base. If you need to alter anything in your knowledge-base to take advantage of new features (e.g. adding a column to one of the worksheets), it will be easy for you to simply update your current knowledge-base spreadsheet. The difficulty is if you want to take advantage of changes to the macros. For example release 1.7.0 includes a fix to the macro which creates the *CSV* files to overcome some problems with the display non-standard (e.g. accented) characters. If you want to take advantage of that, you will need to update your knowedge-base.
 
