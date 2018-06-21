@@ -1,0 +1,119 @@
+﻿
+#tombioKeyInputTabs .characterlabel {
+    line-height: 21px;
+}
+
+#tombioKeyInputTabs .pq-select-button {
+    background: rgb(237, 245, 245) repeat;
+    margin-bottom: 10px;
+}
+
+#tombioKeyInputTabs .pq-select-button .ui-icon-triangle-1-s {
+    display: none;
+}
+
+/*Next is needed to counteract style put on in Drupal*/
+#tombioKeyInputTabs .pq-select-option-label {
+    font-weight: normal;
+}
+
+#tombioKeyInputTabs .ui-spinner {
+    /*width: 246px;*/
+    width: 204px;
+    margin-bottom: 10px;
+}
+
+#tombioKeyInputTabs #tombioReset {
+    margin-left: 5px;
+}
+
+#tombioKeyInputTabs {
+    position: relative;
+    padding-left: 7.5em;
+    border-width: 0px;
+}
+
+#tombioKeyInputTabs .ui-tabs-nav {
+    background: none;
+    border-left: none;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+    position: absolute;
+    left: 0.25em;
+    top: 0.25em;
+    bottom: 0.25em;
+    width: 7em;
+    padding: 0.2em 0 0.2em 0.2em;
+    -moz-border-radius: 0px 0px 0px 0px;
+    -webkit-border-radius: 0px 0px 0px 0px;
+    border-radius: 0px 0px 0px 0px;
+}
+
+#tombioKeyInputTabs .ui-tabs-nav li {
+    right: 1px;
+    width: 100%;
+    border-bottom-width: 1px !important;
+    -moz-border-radius: 4px 0px 0px 4px;
+    -webkit-border-radius: 4px 0px 0px 4px;
+    border-radius: 4px 0px 0px 4px;
+    overflow: hidden;
+}
+
+#tombioKeyInputTabs .ui-tabs-nav li.ui-tabs-selected,
+#tombioKeyInputTabs .ui-tabs-nav li.ui-state-active {
+    xborder-right: 1px solid transparent;
+}
+
+#tombioKeyInputTabs .ui-tabs-nav li a {
+    float: right;
+    width: 100%;
+    text-align: right;
+}
+
+#tombioKeyInputTabs .ui-tabs-panel {
+    xheight: 2000px;
+}
+
+#tombioKeyInputTabs li {
+    margin-bottom: 4px;
+}
+
+#tombioKeyInputTabs {
+    background: white repeat;
+}
+
+#tombioKeyInputTabs .ui-tabs-panel {
+    padding: 3px 5px 5px 7px;
+    xborder: 1px solid lightgrey;
+    xwidth: 245px;
+}
+
+#tombioKeyInputTabs .spinclear {
+    width: 26px;
+    height: 26px;
+    padding: 0.4em 0.8em 0.4em 0.8em !important;
+    margin-bottom: 10px;
+    margin-left: 3px;
+    margin-right: 0px;
+}
+
+#tombioKeyInputTabs .ui-spinner-input {
+    margin-bottom: 4px;
+}
+
+#tombioKeyInputTabs .characterlabel {
+    font-weight: bold;
+}
+
+#tombioKeyInputTabs .characterhelp {
+    cursor: help;
+}
+
+.keyInputHelpFigure {
+    display: block;
+    -webkit-margin-before: 0px;
+    -webkit-margin-after: 0px;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}

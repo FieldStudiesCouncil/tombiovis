@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis1";
-    var vis1 = tbv[visName] = Object.create(tbv.visP);
+    var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
     var _this;
 
     vis1.initialise = function () {
@@ -64,14 +64,14 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
 
         //Shares key input with several other multi-access keys
-        if (!tbv.sharedKeyInput) {
-            tbv.sharedKeyInput = Object.create(tbv.keyInput);
-            tbv.sharedKeyInput.init($("#tombioControls"));
+        if (!tbv.gui.sharedKeyInput) {
+            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInputBasic);
+            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
         }
-        vis1.inputControl = tbv.sharedKeyInput;
+        vis1.inputControl = tbv.gui.sharedKeyInput;
 
-        //vis1.inputControl = Object.create(tbv.keyInputEarthworm);
-        //vis1.inputControl.init($("#tombioControls"));
+        //vis1.inputControl = Object.create(tbv.gui.keyInputEarthworm);
+        //vis1.inputControl.init($("#tombioGuiMain1Controls"));
     }
 
     vis1.refresh = function () {
@@ -97,7 +97,7 @@
 
         //Initialise graphics on the enter selection
         var enterSelection = d3.select("#vis1Svg").selectAll(".taxon")
-            .data(tbv.taxa, function (d, i) { return d.Taxon; }) //Key is needed because other visualisation may sort taxa
+            .data(tbv.d.taxa, function (d, i) { return d.Taxon; }) //Key is needed because other visualisation may sort taxa
             .enter()
             .append("g")
             .attr("class", "taxon")
@@ -134,8 +134,7 @@
             })
             .on("click", function (d) {
                 d3.event.stopPropagation();
-                //_this.showTaxonCharacterValues(d);
-                _this.fullDetails(d.Taxon, 0);
+                _this.createFullDetailsDialog(d.Taxon, 0);
             });
 
         //Tooltips
@@ -185,7 +184,7 @@
         }
 
         //Add height state 
-        tbv.taxa.forEach(function (taxon) {
+        tbv.d.taxa.forEach(function (taxon) {
             if (taxon.visState['vis1'].height == undefined)
                 taxon.visState['vis1'].height = taxheight;
         })
@@ -198,7 +197,7 @@
         var taxaout = [];
 
         //Assign taxon to relevant column list
-        tbv.taxa.forEach(function (taxon) {
+        tbv.d.taxa.forEach(function (taxon) {
             if (taxon.visState.score.for > taxon.visState.score.against) {
                 taxain.push(taxon);
             } else {
@@ -274,10 +273,10 @@
             });
 
         //Prepare scales for the indicators
-        var maxFor = d3.max(tbv.taxa, function (d) { return d.visState.score.for; });
-        var maxAgainst = d3.max(tbv.taxa, function (d) { return d.visState.score.against; });
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var maxFor = d3.max(tbv.d.taxa, function (d) { return d.visState.score.for; });
+        var maxAgainst = d3.max(tbv.d.taxa, function (d) { return d.visState.score.against; });
+        var maxOverall = d3.max(tbv.d.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.d.taxa, function (d) { return d.visState.score.overall; });
 
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
@@ -373,7 +372,7 @@
                 //if (d.height != taxheight) {
                 if (d.visState['vis1'].height != taxheight) {
                     //Check if there are any images for this taxon
-                    var charImages = tbv.media.filter(function (m) {
+                    var charImages = tbv.d.media.filter(function (m) {
                         //Return images for matching taxon
                         if (m.Taxon == d.Taxon) return true;
                     });
@@ -462,9 +461,9 @@
         }
 
         //Add/remove context menu item to contract all items
-        if (tbv.taxa.some(function (taxon) { return (taxon.visState['vis1'].height != taxheight) })) {
+        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height != taxheight) })) {
             this.contextMenu.addItem("Contract all taxon items", function () {
-                tbv.taxa.forEach(function (taxon) { taxon.visState['vis1'].height = taxheight });
+                tbv.d.taxa.forEach(function (taxon) { taxon.visState['vis1'].height = taxheight });
                 _this.contextMenu.removeItem("Contract all taxon items");
                 _this.refresh();
             }, [this.visName]);
@@ -473,9 +472,9 @@
         }
 
         //Add/remove context menu item to expand all items
-        if (tbv.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
+        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
             this.contextMenu.addItem("Expand all taxon items", function () {
-                tbv.taxa.forEach(function (taxon, i) {
+                tbv.d.taxa.forEach(function (taxon, i) {
                     var taxonImages = _this.getTaxonImages(taxon.Taxon);
                     if (taxon.visState['vis1'].height == taxheight && taxonImages.length > 0) {
                         var imgLoad = new Image;
@@ -515,16 +514,16 @@
                 var iEnd = range.split("-")[1];
                 if (iEnd) {
                     for (var i = Number(iStart) ; i <= Number(iEnd) ; i++) {
-                        expandTaxon(tbv.taxa[i], i);
+                        expandTaxon(tbv.d.taxa[i], i);
                     }
                 } else {
-                    expandTaxon(tbv.taxa[iStart], iStart);
+                    expandTaxon(tbv.d.taxa[iStart], iStart);
                 }
             })
         }
 
         //Set the state controls
-        tbv.initControlsFromParams(params);
+        tbv.f.initControlsFromParams(params);
     }
 
     function getViewURL() {
@@ -535,7 +534,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.f.setParamsFromControls());
 
         //Image tooltips
         params.push("imgtips=" + _this.displayToolTips);
@@ -546,7 +545,7 @@
         var rangeStart = null;
         var rangeCounter;
         var ranges = [];
-        tbv.taxa.forEach(function (taxon, i) {
+        tbv.d.taxa.forEach(function (taxon, i) {
             
             if (taxon.visState['vis1'].height > _this.taxheight) {
                 

@@ -35,15 +35,31 @@
     //on laptop browsers, it doesn't seem to work on Android Chrome or iOS Safari (03/07/2017)
     //so in that case we have to specify (and change) the tombiover variable in the calling
     //HTML page.
-    if (!tbv.opts.tombiover) {
-        tbv.opts.tombiover = "none";
-    }
+    //if (!tbv.opts.tombiover) {
+    //    tbv.opts.tombiover = "none";
+    //}
+
+    //Object for storing general functions
+    tbv.f = {};
+
+    //Object to store all data
+    tbv.d = {};
+
+    //Object to store visualisation information
+    tbv.v = {};
+    tbv.v.visualisations = {} //Stores the visualisation
+
+    //Object to store all the JS related stuff
+    tbv.js = {};
+
+    //Object to store all the gui related stuff
+    tbv.gui = {};
 
     //Metadata about the core software. This should be updated for any
     //new release. This includes changes to all code and files in the
     //root source directory, but not that in the sub-directories of the
     //visualisations which each have their own metadata.
-    tbv.metadata = {
+    tbv.d.softwareMetadata = {
         title: "FSC Identikit",
         year: "2018",
         authors: "Burkmar, R.",
@@ -55,150 +71,116 @@
 
     //Variables for the tools to be included
     var defaultTools = ["vis1", "vis2", "vis5", "vis4", "vis3"];
-    tbv.includedTools = [];
+    tbv.v.includedVisualisations = [];
 
     //Application-wide structure for holding all the necessary information for
     //dynamically loaded JS modules and associated CSS files
-    var jsF = tbv.jsFiles = {
+    var jsF = tbv.js.jsFiles = {
         add: function (id, file, toolName) {
-            tbv.jsFiles[id] = Object.create(tbv.jsFile);
-            tbv.jsFiles[id].init(id, file, toolName);
+            tbv.js.jsFiles[id] = Object.create(jsFile);
+            tbv.js.jsFiles[id].init(id, file, toolName);
         },
         asArray: function () {
             var ret = [];
-            for (var f in tbv.jsFiles) {
-                if (tbv.jsFiles.hasOwnProperty(f)) {
-                    ret.push(tbv.jsFiles[f]);
+            for (var f in tbv.js.jsFiles) {
+                if (tbv.js.jsFiles.hasOwnProperty(f)) {
+                    ret.push(tbv.js.jsFiles[f]);
                 }
             }
             return ret;
         }
     };
 
-    //Template object for representing a JS module,
+    //Object for representing a JS module,
     //its dependencies and associated CSS files.
     //For each module, an object is created using this as its
-    //prototype and is added to the tbv.jsFiles collection
-    tbv.jsFile = {
+    //prototype and is added to the tbv.js.jsFiles collection
+    var jsFile = {
         init: function (id, file, toolName) {
             this.id = id;
-            this.file = tbv.opts.tombiopath + file;
-            this.dependencies = [];
+            this.file = minifyIfRequired(tbv.opts.tombiopath + file);
+            this.requires = [];
+            this.requiresFirst = [];
             this.css = [];
-            this.load = false;
-            this.loading = false;
-            this.loaded = false;
             this.toolName = toolName;
         },
         addCSS: function (cssFile) {
-            this.css.push(tbv.opts.tombiopath + cssFile)
+            this.css.push(minifyIfRequired(tbv.opts.tombiopath + cssFile));
         },
-        markLoadReady: function () {
-            //Set the load flag for this object to be true
-            this.load = true;
-            //And that of any dependencies
-            this.dependencies.forEach(function (d) {
-                d.markLoadReady();
-            })
+        loadJs: function (requiredBy, before) {
+
+            if (!this.p) {
+                var thisId = this.id;
+
+                //Get promises for other JS required with this JS
+                var pRequires = [];
+                this.requires.forEach(function (id) {
+                    pRequires.push(jsF[id].loadJs(thisId, false));
+                });
+
+                //Get promises for other JS required before this JS
+                var pRequiresFirst = [];
+                this.requiresFirst.forEach(function (id) {
+                    pRequiresFirst.push(jsF[id].loadJs(thisId, true));
+                });
+
+                var js = this.file;
+                var css = this.css;
+                var initF = this.initF;
+
+                this.p = Promise.all(pRequiresFirst).then(function () {
+
+                    //Create a promise for this JS file, but only after all other JS required before this JS resolved
+                    var p = new Promise(function (resolve, reject) {
+                        var s = document.createElement('script');
+                        s.src = js
+                        s.onreadystatechange = s.onload = function () {
+                            //Cross-browser test of when element loaded correctly (from jQuery)
+                            if (!s.readyState || /loaded|complete/.test(s.readyState)) {
+                                var msgDep = "";
+                                if (requiredBy) {
+                                    if (before) {
+                                        msgDep = " (req before " + requiredBy + ")";
+                                    } else {
+                                        msgDep = " (req by " + requiredBy + ")";
+                                    }
+                                }
+                                console.log("%cLoaded JS file for " + thisId + msgDep, "color: blue");
+
+                                //Execute any required initialisations
+                                if (initF) initF();
+
+                                //Load CSS associated with this JS
+                                css.forEach(function (cssFile) {
+                                    var l = document.createElement('link');
+                                    l.rel = 'stylesheet';
+                                    l.type = 'text/css';
+                                    l.href = cssFile;
+                                    document.querySelector('head').appendChild(l);
+                                    console.log("%cLoaded CSS file " + nameFromPath(cssFile), "color: green");
+                                })
+
+
+                                resolve();
+                            } else {
+                                console.log("%cFiled to load JS file for " + thisId, "color: red");
+                                reject();
+                            }
+                        };
+                        document.querySelector('head').appendChild(s);
+                    });
+                    //Add this promise to the pRequires array
+                    pRequires.push(p);
+                    //Return a promise for load of this JS file and all dependecies
+                    return Promise.all(pRequires);
+                });
+            }
+            return this.p;
         }
-    }
-
-    //Application-wide function for dynamically loading JS scripts and CSS files.
-    //When this is called, any scripts marked as 'loadReady' in the tbv.jsFiles
-    //object (and not yet loaded) will be loaded along with any associated 
-    //CSS files. It loads each file sequentially (by means of recursive calls).
-    //Note that this function is ansynchronous and returns immediately. If it
-    //if called again whilst it is already running, it doesn't work properly
-    //because things get out of synch with the global tbv.jsFiles object, so
-    //avoid doing that!
-    tbv.loadScripts = function (callback) {
-        //Filter jsF collection to get all those with load set to true and loaded set to false
-        var files = jsF.asArray().filter(function (f) {
-            if (f.load && !f.loading && !f.loaded) {
-                //At this point we a file marked as ready for load which
-                //has not already been loaded (or currently loading).
-                //Now we also check its dependencies - only taking those with no unloaded dependencies.
-                for (var i = 0; i < f.dependencies.length; i++) {
-                    if (!f.dependencies[i].loaded) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        })
-
-        //If at this point, we have an empty array if all loadReady files are
-        //be loaded - if so call the callback.
-        if (files.length == 0) {
-            //Check to see if all loadReady files have been loaded because
-            //if not then something has gone wrong in specification of dependencies.
-            var notLoaded = jsF.asArray().filter(function (f) {
-                if (f.load && !f.loaded) {
-                    return true;
-                }
-            })
-            if (notLoaded.length > 0) {
-                console.log("%cLoading - something's gone wrong, these files were not loaded...", "color: red")
-                notLoaded.forEach(function (f) {
-                    console.log(f.id, "load: " + f.load, "loading: " + f.loading, "loaded: " + f.loaded);
-                })
-                return;
-            }
-
-            //All is well
-            callback();
-            return;
-        }
-        //Otherwise, take the first file from the array and load it.
-        var file = files[0];
-        file.loading = true;
-        var s = document.createElement('script');
-        //s.type = 'application/javascript';
-
-        //If not working in development, minify file names
-        var jsFile;
-        if (!tbv.opts.devel) {
-            jsFile = minifiedName(file.file);
-        } else {
-            jsFile = file.file;
-        }
-        s.src = jsFile;
-
-        s.onreadystatechange = s.onload = function () {
-            //Cross-browser test of when element loaded correctly from jQuery
-            if (!s.readyState || /loaded|complete/.test(s.readyState)) {
-                console.log("%cLoading - javascript file loaded: " + jsFile, "color: blue");
-                //Mark this file as loaded
-                file.loaded = true;
-                file.loading = false;
-                //Recursively call this function, passing on the callback.
-                tbv.loadScripts(callback);
-            } else {
-                console.log("%cLoading - javascript file load failed: " + jsFile, "color: red");
-            }
-        };
-        document.querySelector('head').appendChild(s);
-
-        //Add any CSS
-        file.css.forEach(function (cssFile) {
-            var l = document.createElement('link');
-            l.rel = 'stylesheet';
-            l.type = 'text/css';
-            //If not working in development, minify file names
-            var cssFileName;
-            if (!tbv.opts.devel) {
-                cssFileName = minifiedName(cssFile);
-            } else {
-                cssFileName = cssFile;
-            }
-            l.href = cssFileName;
-            document.querySelector('head').appendChild(l);
-            console.log("%cLoading - CSS file added to head: " + cssFileName, "color: blue");
-        })
     }
 
     //Application-wide download spinner create
-    tbv.showDownloadSpinner = function () {
+    tbv.f.showDownloadSpinner = function () {
         //Empty out any thing (e.g. nbsp; already in div)
         //document.getElementById('tombiod3').innerHTML = "";
 
@@ -237,56 +219,67 @@
     }
 
     //Application-wide download spinner hide
-    tbv.hideDownloadSpinner = function () {
+    tbv.f.hideDownloadSpinner = function () {
         var tombiod3 = document.getElementById('tombiod3');
         var spinner = document.getElementById('downloadspin');
         tombiod3.removeChild(spinner);
     }
 
-    //Populate the tbv.JSFiles (jsF) with modules and their 
-    //associated CSS files
-
-    //ES6 & ES7 polyfill
-    jsF.add("es6", "dependencies/core-js/core.min.js");
-
-    //JQuery
+    //Populate the tbv.js.jsFiles (jsF) with modules and their associated CSS files
+    //The following are always required and loaded first therefore don't need to be
+    //specified as being required by other JS files.
+    jsF.add("spinner", "dependencies/spin.min.js");
     jsF.add("jquery", "dependencies/jquery-3.1.1/jquery-3.1.1.min.js");
+    jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
 
     //JQuery UI
     jsF.add("jqueryui", "dependencies/jquery-ui-1.12.1/jquery-ui.min.js");
     jsF.jqueryui.addCSS("dependencies/jquery-ui-1.12.1/jquery-ui.min.css");
     jsF.jqueryui.addCSS("dependencies/jquery-ui-1.12.1/jquery-ui.theme.min.css");
+    jsF.jqueryui.addCSS("css/jquery-ui-tombio.css");
 
-    //Galleria & Zoom Master
-    jsF.add("galleria", "dependencies/galleria-1.5.7/galleria/galleria-1.5.7.min.js");
-    jsF.galleria.addCSS("dependencies/galleria-1.5.7/galleria/themes/classic/galleria.classic.css");
+    //Galleria & Zoom Master reference by visP
     jsF.add("zoomMaster", "dependencies/zoom-master/jquery.zoom.min.js");
-    
-    //D3
-    jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
-
-    //Load spinner
-    jsF.add("spinner", "dependencies/spin.min.js");
+    jsF.add("galleria", "dependencies/galleria-1.5.7/galleria/galleria-1.5.7.min.js");
+    jsF.galleria.addCSS("dependencies/galleria-1.5.7/galleria/themes/classic/galleria.classic.css")
+    jsF.galleria.initF = function () {
+        //Initialise Galleria
+        Galleria.loadTheme(tbv.opts.tombiopath + 'dependencies/galleria-1.5.7/galleria/themes/classic/galleria.classic.min.js');
+        Galleria.on('image', function (e) {
+            //requires zoom plugin http://www.jacklmoore.com/zoom/
+            $(e.imageTarget).parent().zoom({ on: 'grab' });
+        });
+    }
 
     //These required by visP to provide various interface elements
     jsF.add("mousewheel", "dependencies/jquery.mousewheel.min.js");
-    jsF.add("touchpunch", "dependencies/jquery.ui.touch-punch.min.js");
     jsF.add("hammer", "dependencies/hammer.min.js");
-
+    //jsF.add("touchpunch", "dependencies/jquery.ui.touch-punch.min.js");
+    //jsF.touchpunch.requires = ["jqueryui"];
+    
     //Required by the character input controls
     jsF.add("pqselect", "dependencies/pqselect-1.3.2/pqselect.min.js");
     jsF.pqselect.addCSS("dependencies/pqselect-1.3.2/pqselect.min.css");
+    jsF.pqselect.requiresFirst = ["jqueryui"];
 
     //Required by vis3
     jsF.add("pqgrid", "dependencies/pqgrid-2.1.0/pqgrid.min.js");
     jsF.pqgrid.addCSS("dependencies/pqgrid-2.1.0/pqgrid.min.css");
+    jsF.pqgrid.requiresFirst = ["jqueryui"];
 
     //KeyInput
     jsF.add("keyinput", "keyinput.js?ver=" + tbv.opts.tombiover);
+    jsF.keyinput.addCSS("css/keyinput.css");
+    jsF.keyinput.requires = ["pqselect", "jqueryui"];
+
+    //KeyInputBasic
+    jsF.add("keyinputbasic", "keyinputBasic.js?ver=" + tbv.opts.tombiover);
+    jsF.keyinputbasic.addCSS("css/keyinputbasic.css");
 
     //The main tombiovis module
     jsF.add("tombiovis", "tombiovis.js?ver=" + tbv.opts.tombiover);
-    jsF.tombiovis.addCSS("tombiovis.css");
+    jsF.tombiovis.addCSS("css/tombiovis.css");
+    jsF.tombiovis.requires = ["kbchecks", "keyinput", "keyinputbasic", "guiMain1"];
 
     //Knowledge-base checks
     jsF.add("kbchecks", "kbchecks.js?ver=" + tbv.opts.tombiover);
@@ -294,54 +287,75 @@
 
     //Taxon selection control used by some visualisations
     jsF.add("taxonselect", "taxonselect.js?ver=" + tbv.opts.tombiover);
-    jsF.taxonselect.addCSS("taxonselect.css");
+    jsF.taxonselect.addCSS("css/taxonselect.css");
+    jsF.taxonselect.requires = ["jqueryui"];
 
-    //The prototype visualisation module
+    //The base prototype visualisation module
     jsF.add("visP", "visP.js?ver=" + tbv.opts.tombiover);
+    jsF.visP.addCSS("css/visP.css");
+    jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
+
+    //The prototype visualisation module for large format jQueryUI interfaces
+    jsF.add("visPjQueryUILargeFormat", "visPjQueryUILargeFormat.js?ver=" + tbv.opts.tombiover);
+    jsF.visPjQueryUILargeFormat.addCSS("css/visp-jquery-ui-large-format.css")
+    jsF.visPjQueryUILargeFormat.requiresFirst = ["visP"];
+
+    //The main GUI
+    jsF.add("guiMain1", "guiMain1.js?ver=" + tbv.opts.tombiover);
+    jsF.guiMain1.addCSS("css/guiMain1.css");
+    jsF.guiMain1.requires = ["jqueryui"];
 
     //The visualisation modules
     jsF.add("vis1", "vis1/vis1.js?ver=" + tbv.opts.tombiover, "Two-column key");
     jsF.vis1.addCSS("vis1/vis1.css");
+    jsF.vis1.requiresFirst = ["visPjQueryUILargeFormat"];
+    jsF.vis1.requires = ["jqueryui", "score", "keyinput"];
+
     jsF.add("vis2", "vis2/vis2.js?ver=" + tbv.opts.tombiover, "Single-column key");
     jsF.vis2.addCSS("vis2/vis2.css");
+    jsF.vis2.requiresFirst = ["visPjQueryUILargeFormat"];
+    jsF.vis2.requires = ["jqueryui", "score", "keyinput"];
+
     jsF.add("vis3", "vis3/vis3.js?ver=" + tbv.opts.tombiover, "Side by side comparison");
     jsF.vis3.addCSS("vis3/vis3.css");
+    jsF.vis3.requiresFirst = ["visPjQueryUILargeFormat"];
+    jsF.vis3.requires = ["jqueryui", "taxonselect", "pqgrid", "score"];
+
     jsF.add("vis4", "vis4/vis4.js?ver=" + tbv.opts.tombiover, "Full taxon details");
     jsF.vis4.addCSS("vis4/vis4.css");
+    jsF.vis4.requiresFirst = ["visPjQueryUILargeFormat"];
+    jsF.vis4.requires = ["jqueryui", "taxonselect"];
+
     jsF.add("vis5", "vis5/vis5.js?ver=" + tbv.opts.tombiover, "Circle-pack key");
     jsF.vis5.addCSS("vis5/vis5.css");
-    jsF.add("visEarthworm", "visEarthworm/visEarthworm.js?ver=" + tbv.opts.tombiover, "Earthworm multi-access key");
-    jsF.visEarthworm.addCSS("visEarthworm/visEarthworm.css");
+    jsF.vis5.requiresFirst = ["visPjQueryUILargeFormat"];
+    jsF.vis5.requires = ["jqueryui", "score", "keyinput"];
+
     jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Bespoke earthworm key");
     jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
+    jsF.visEarthworm2.requiresFirst = ["visP"];
+    jsF.visEarthworm2.requires = ["jqueryui", "score"];
 
-    //Specify module dependencies
-    jsF.visP.dependencies = [jsF.mousewheel, jsF.hammer];
-    jsF.taxonselect.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui];
-    jsF.keyinput.dependencies = [jsF.pqselect, jsF.jquery, jsF.jqueryui];
-    jsF.pqgrid.dependencies = [jsF.jquery, jsF.jqueryui];
-    jsF.pqselect.dependencies = [jsF.jquery, jsF.jqueryui];
-    jsF.galleria.dependencies = [jsF.jquery];
-    jsF.tombiovis.dependencies = [jsF.jquery, jsF.jqueryui, jsF.kbchecks, jsF.keyinput, jsF.galleria, jsF.zoomMaster];
-    jsF.vis1.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
-    jsF.vis2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
-    jsF.vis3.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect, jsF.pqgrid, jsF.score];
-    jsF.vis4.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.taxonselect];
-    jsF.vis5.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score, jsF.keyinput];
-    jsF.visEarthworm.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP];
-    jsF.visEarthworm2.dependencies = [jsF.d3, jsF.jquery, jsF.jqueryui, jsF.visP, jsF.score];
+    tbv.f.startLoad = function () {
 
-    tbv.startLoad = function () {
-        //Because of the asynchronous nature of tbv.loadScripts,
-        //all functionality is called by chaining from one
-        //function to another via the callback of tbv.loadScripts.
-
-        //Load and show the spinner
-        jsF.spinner.markLoadReady();
-        tbv.loadScripts(function () {
-            tbv.showDownloadSpinner();
-            //Call jquery load
-            jQueryLoad();
+        jsF.spinner.loadJs()
+        .then(function () {
+            tbv.f.showDownloadSpinner();
+            return Promise.all([jsF.d3.loadJs(), jsF.jquery.loadJs()]);
+        })
+        .then(function () {
+            //Use jQuery to create div for visualisations
+            jQuery(document).ready(function () {
+                jQuery('#tombiod3').append(jQuery('<div id="tombiod3vis">'));
+            })
+            return loadKB();
+        })
+        .then(function () {
+            jsF.tombiovis.loadJs().then(function () {
+                tbv.f.hideDownloadSpinner();
+                //Call the application-wide loadComplete (supplied by tombiovis)
+                tbv.f.loadcomplete();
+            })
         });
     }
 
@@ -350,50 +364,135 @@
     //by the HMTL. (This is to wait for dynamic loads in the main web page.)
     //But if that option is not set, then kick off the load immediately.
     if (!tbv.opts.loadWait) {
-        tbv.startLoad();
+        tbv.f.startLoad();
     }
 
-    function minifiedName(file) {
-
-        var i = file.lastIndexOf('.');
-        var fileExtension = file.substr(i + 1);
-        var fileName = file.substr(0, i);
-
-        //If file is already minified (fileName ends in .min) then
-        //no need to change name.
-        if (fileName.endsWith(".min")) {
-            return file;
-        } else {
-            return fileName + ".min." + fileExtension;
-        }  
-    }
-
-    //Load jQuery
-    function jQueryLoad() {
-        jsF.jquery.markLoadReady();
-        tbv.loadScripts(function () {
-            //Use jQuery to create div for visualisations
-            jQuery(document).ready(function () {
-                jQuery('#tombiod3').append(jQuery('<div id="tombiod3vis">'));
-            })
-            //Now load D3
-            loadD3andKB();
-        });
-    }
-
-    //Load D3
-    function loadD3andKB() {
-        jsF.d3.markLoadReady();
-        tbv.loadScripts(function () {
-            //Now load the KB
-            loadKB();
-        });
-    }
-
-    //Load the KB
+    //Load the KB - returns a promise which fulfills when all loaded
     function loadKB() {
         //Read in the data
         var antiCache = "none"; //Allow caching because of new reload function
+
+        var pAll = [], p;
+        p = new Promise(function (resolve) {
+            d3.csv(tbv.opts.tombiokbpath + "taxa.csv?" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                },
+                function (data) {
+                    tbv.d.taxa = data;
+                    console.log("%cLoading - kb taxa loaded", "color: blue");
+                    resolve();
+                });
+        })
+        pAll.push(p);
+
+        p = new Promise(function (resolve) {
+            d3.csv(tbv.opts.tombiokbpath + "characters.csv?" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                },
+                function (data) {
+                    tbv.d.characters = data;
+                    console.log("%cLoading - kb characters loaded", "color: blue");
+                    resolve();
+                });
+        })
+        pAll.push(p);
+
+        p = new Promise(function (resolve) {
+            d3.csv(tbv.opts.tombiokbpath + "values.csv?" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                },
+                function (data) {
+                    tbv.d.values = data;
+                    console.log("%cLoading - kb values loaded", "color: blue");
+                    resolve();
+                });
+        })
+        pAll.push(p);
+
+        p = new Promise(function (resolve) {
+            d3.csv(tbv.opts.tombiokbpath + "media.csv?" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                },
+                function (data) {
+                    tbv.d.media = data;
+                    console.log("%cLoading - kb media loaded", "color: blue");
+                    resolve();
+                });
+        })
+        pAll.push(p);
+
+        p = new Promise(function (resolve) {
+            d3.csv(tbv.opts.tombiokbpath + "config.csv?" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                },
+                function (data) {
+                    tbv.d.config = data;
+                    tbv.d.kbconfig = {};
+                    tbv.d.kbmetadata = {};
+                    tbv.d.kbreleaseHistory = [];
+                    var excludedTools = [];
+                    data.forEach(function (d) {
+                        //Set config values
+                        if (d.Type == "config") {
+                            tbv.d.kbconfig[d.Key] = d.Value;
+                        }
+                        //tbv.opts.selectedTool (specified in HTML) trumps kb selectedTool setting
+                        if (tbv.opts.selectedTool) {
+
+                        }
+                        //Populate array of excluded default tools from metadata
+                        if (d.Key == "excludedDefaultTools") {
+                            if (d.Value.trim() != "") {
+                                var excluded = d.Value.split(",");
+                                excluded.forEach(function (tool) {
+                                    excludedTools.push(tool.trim());
+                                });
+                            }
+                        }
+                        //Add other tools from metadata to list of included tools
+                        if (d.Key == "otherIncludedTools") {
+                            if (d.Value.trim() != "") {
+                                var excluded = d.Value.split(",");
+                                excluded.forEach(function (tool) {
+                                    tbv.v.includedVisualisations.push(tool.trim());
+                                });
+                            }
+                        }
+                        //Set metadata values
+                        if (d.Type == "metadata") {
+                            tbv.d.kbmetadata[d.Key] = d.Value;
+                        }
+                        //Set metadata values
+                        if (d.Key == "release") {
+                            tbv.d.kbreleaseHistory.push(d);
+                        }
+                    });
+                    //Update list of included tools from default tools not
+                    //explicitly excluded.
+                    defaultTools.forEach(function (tool) {
+                        if (excludedTools.indexOf(tool) == -1) {
+                            tbv.v.includedVisualisations.push(tool);
+                        }
+                    })
+                    //tbv.opts.tools (specified in HTML) trumps kb settings
+                    if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
+                        tbv.v.includedVisualisations = tbv.opts.tools;
+                    }
+                    console.log("%cLoading - kb config loaded", "color: blue");
+                    resolve();
+                });
+        })
+        pAll.push(p);
+
+        //This function returns a promise which fulfills when all KB files are loaded
+        return Promise.all(pAll).then(function () {
+            console.log("%cKB is loaded!", "color: blue");
+        })
 
         function filterAndClean(row) {
             //Filter out rows with first cells that are either blank or contain a value starting with #
@@ -421,143 +520,37 @@
                 return null;
             }
         }
-
-        d3.csv(tbv.opts.tombiokbpath + "taxa.csv?" + antiCache,
-            function (row) {
-                return filterAndClean(row);
-            },
-            function (data) {
-                tbv.taxa = data;
-                console.log("%cLoading - kb taxa loaded", "color: blue");
-                loadStatus();
-            });
-
-        d3.csv(tbv.opts.tombiokbpath + "characters.csv?" + antiCache,
-           function (row) {
-               return filterAndClean(row);  
-           },
-           function (data) {
-               tbv.characters = data;
-               //tbv.characters.columns = null; ///////////////////////////////
-               console.log("%cLoading - kb characters loaded", "color: blue");
-               loadStatus();
-            });
-
-        d3.csv(tbv.opts.tombiokbpath + "values.csv?" + antiCache,
-            function (row) {
-                return filterAndClean(row);
-            },
-            function (data) {
-                tbv.values = data;
-                console.log("%cLoading - kb values loaded", "color: blue");
-                loadStatus();
-            });
-
-        d3.csv(tbv.opts.tombiokbpath + "config.csv?" + antiCache,
-            function (row) {
-                return filterAndClean(row);
-            },
-            function (data) {
-                tbv.config = data;
-                tbv.kbconfig = {};
-                tbv.kbmetadata = {};
-                tbv.kbreleaseHistory = [];
-                var excludedTools = [];
-                data.forEach(function (d) {
-                    //Set config values
-                    if (d.Type == "config") {
-                        tbv.kbconfig[d.Key] = d.Value;
-                    }
-                    //tbv.opts.selectedTool (specified in HTML) trumps kb selectedTool setting
-                    if (tbv.opts.selectedTool) {
-
-                    }
-                    //Populate array of excluded default tools from metadata
-                    if (d.Key == "excludedDefaultTools") {
-                        if (d.Value.trim() != "") {
-                            var excluded = d.Value.split(",");
-                            excluded.forEach(function (tool) {
-                                excludedTools.push(tool.trim());
-                            });
-                        }
-                    }
-                    //Add other tools from metadata to list of included tools
-                    if (d.Key == "otherIncludedTools") {
-                        if (d.Value.trim() != "") {
-                            var excluded = d.Value.split(",");
-                            excluded.forEach(function (tool) {
-                                tbv.includedTools.push(tool.trim());
-                            });
-                        }
-                    }
-                    //Set metadata values
-                    if (d.Type == "metadata") {
-                        tbv.kbmetadata[d.Key] = d.Value;
-                    }
-                    //Set metadata values
-                    if (d.Key == "release") {
-                        tbv.kbreleaseHistory.push(d);
-                    }
-                });
-                //Update list of included tools from default tools not
-                //explicitly excluded.
-                defaultTools.forEach(function (tool) {
-                    if (excludedTools.indexOf(tool) == -1) {
-                        tbv.includedTools.push(tool);
-                    }
-                })
-                //tbv.opts.tools (specified in HTML) trumps kb settings
-                if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
-                    tbv.includedTools = tbv.opts.tools;
-                }
-
-                console.log("%cLoading - kb metadata loaded", "color: blue");
-                loadStatus();
-            });
-
-        d3.csv(tbv.opts.tombiokbpath + "media.csv?" + antiCache,
-            function (row) {
-                return filterAndClean(row);
-            },
-            function (data) {
-                tbv.media = data;
-                console.log("%cLoading - kb media loaded", "color: blue");
-                loadStatus();
-            });
     }
 
-    //Called by loadKB every time one of the
-    //CSVs is loaded. Since they are loaded 
-    //asynchronously we don't know the order
-    //they will complete, so loadStatus checks
-    //their completion and only calls kbLoadComplete
-    //when they are all loaded.
-    function loadStatus() {
+    function minifyIfRequired(file) {
+        if (!tbv.opts.devel) {
+            var i = file.lastIndexOf('.');
+            var fileExtension = file.substr(i + 1);
+            var fileName = file.substr(0, i);
 
-        if (tbv.taxa &&
-            tbv.characters &&
-            tbv.values &&
-            tbv.kbmetadata &&
-            tbv.media) {
-
-            console.log("%cKB is loaded!", "color: blue");
-            kbLoadComplete();
+            //If file is already minified (fileName ends in .min) then
+            //no need to change name.
+            if (fileName.endsWith(".min")) {
+                return file;
+            } else {
+                return fileName + ".min." + fileExtension;
+            }
+        } else {
+            return file;
         }
     }
 
-    function kbLoadComplete() {
-        //Finally load tombiovis and invoke function in tombiovis.js to get things going
-        jsF.tombiovis.markLoadReady();
-        tbv.loadScripts(function () {
-            tbv.hideDownloadSpinner();
-            //Call the application-wide loadComplete
-            //(supplied by tombiovis).
-            tbv.loadComplete();
-        });
+    function nameFromPath(file) {
+        var split = file.split("/");
+        return split[split.length - 1];
     }
-    
 })(
     //Pass the tombiovis object into this IIFE if it exists (e.g. defined in HTML page)
     //otherwise, initialise it to empty object.
     this.tombiovis ? this.tombiovis : this.tombiovis = {}
-    );
+);
+
+//Set top level shortcut for tombiovis to allow easier interrogation in browser console
+if (tombiovis.opts.devel) {
+    var v = tombiovis;
+}

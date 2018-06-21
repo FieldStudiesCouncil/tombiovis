@@ -3,7 +3,7 @@
     "use strict";
 
     var visName = "visEarthworm2";
-    var visEarthworm2 = tbv[visName] = Object.create(tbv.visP);
+    var visEarthworm2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
 
@@ -33,8 +33,8 @@
         //but it does supply its own.
         this.charStateInput = true;
         //Specify key input control (defined in this module)
-        this.inputControl = Object.create(tbv.keyInputEarthworm);
-        this.inputControl.init($("#tombioControls"));
+        this.inputControl = Object.create(tbv.gui.keyInputEarthworm);
+        this.inputControl.init($("#tombioGuiMain1Controls"));
 
         //Help files
         this.helpFiles = [
@@ -146,7 +146,7 @@
 
         //Initialise scoring characters array stored for convenient lookup
         this.scoreChars = [];
-        tbv.characters
+        tbv.d.characters
             .filter(function (c) { return c.EsbKeyOrder })
             .sort(function (a, b) { return a.EsbKeyOrder - b.EsbKeyOrder })
             .forEach(function (c) {
@@ -155,7 +155,7 @@
 
         //Initialise display characters array
         this.displayChars = [];
-        tbv.characters
+        tbv.d.characters
             .filter(function (c) { return (c.EsbKeyOrder || c.EsbColourParams) })
             .sort(function (a, b) {
                 if (a.EsbKeyOrder && b.EsbKeyOrder) {
@@ -176,7 +176,7 @@
 
         //Add the structure to each of the taxa that will keep track of scoring specific to this
         //visualisation.
-        tbv.taxa.forEach(function (t) {
+        tbv.d.taxa.forEach(function (t) {
             t.visState.visEarthworm2.scores = {}
             _this.scoreChars.forEach(function (c) {
                 t.visState.visEarthworm2.scores[c.Character] = null; //{score: null}
@@ -191,7 +191,7 @@
         var svg = d3.select("#tombioEsbMultiaccess"); 
 
         this.worms = d3.select("#tombioEsbMultiaccess").selectAll(".tombioEsbWorm")
-            .data(tbv.taxa)
+            .data(tbv.d.taxa)
             .enter()
             .append("g")
             .attr("x", 0)
@@ -319,7 +319,7 @@
         //Score each taxon against input characters and assign to correct column array
         var taxain = [];
         var taxaout = [];
-        tbv.taxa.forEach(function (t) {
+        tbv.d.taxa.forEach(function (t) {
             t.visState.visEarthworm2.redlineTotal = 0;
             t.visState.visEarthworm2.segdiffTotal = 0;
             //t.visState.visEarthworm2.sizediffTotal = 0;
@@ -396,17 +396,17 @@
         }
 
         //If user has selected to colour rectangles, work out the colours
-        var colourby = tbv.visEarthworm2.inputControl.otherState.colourby;
+        var colourby = tbv.v.visualisations.visEarthworm2.inputControl.otherState.colourby;
         if (colourby) {
             //Define the D3 colour scale
             //This really just reflects the code in the earthworm input control and really
             //should use common code. Otherwise, as is, changes made in one will need to be
             //reflected in the other.
-            var colourType = tbv.oCharacters[colourby].EsbColourParams.split(" ")[1];
+            var colourType = tbv.d.oCharacters[colourby].EsbColourParams.split(" ")[1];
             var colour, domainMin, domainMax;
             if (colourType == "number" || colourType == "log") {
-                domainMin = tbv.oCharacters[colourby].minVal;
-                domainMax = tbv.oCharacters[colourby].maxVal;
+                domainMin = tbv.d.oCharacters[colourby].minVal;
+                domainMax = tbv.d.oCharacters[colourby].maxVal;
                 if (colourType == "log") {
                     domainMin = Math.log(domainMin);
                     domainMax = Math.log(domainMax);
@@ -416,8 +416,8 @@
             } else if (colourType == "default" || colourType == "specified") {
                 var stateValues, colours;
                 if (colourType == "default") {
-                    stateValues = tbv.oCharacters[colourby].CharacterStateValues;
-                    if (tbv.oCharacters[colourby].CharacterStateValues.length <= 10) {
+                    stateValues = tbv.d.oCharacters[colourby].CharacterStateValues;
+                    if (tbv.d.oCharacters[colourby].CharacterStateValues.length <= 10) {
                         colours = d3.schemeCategory10;
                     } else {
                         colours = d3.schemeCategory20;
@@ -425,7 +425,7 @@
                 } else { //colourType == "specified"
                     stateValues = [];
                     colours = [];
-                    tbv.values.filter(function (v) {
+                    tbv.d.values.filter(function (v) {
                         return v.Character == colourby;
                     }).forEach(function (v) {
                         stateValues.push(v.CharacterState);
@@ -436,7 +436,7 @@
             } 
         }
         //Create the gradients
-        tbv.taxa.forEach(function (t) {
+        tbv.d.taxa.forEach(function (t) {
             if (colourby) {
                 //This really just reflects the code in the earthworm input control and really
                 //should use common code. Otherwise, as is, changes made in one will need to be
@@ -732,7 +732,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.f.setParamsFromControls());
         
         //Generate the full URL
         _this.createViewURL(params);
@@ -882,7 +882,7 @@
     "use strict";
 
     //##Interface##
-    tbv.keyInputEarthworm = {
+    tbv.gui.keyInputEarthworm = {
         //##Interface##
         //Variables that are part of the required interface...
 
@@ -893,7 +893,7 @@
     };
 
     //##Interface##
-    tbv.keyInputEarthworm.init = function ($parent) {
+    tbv.gui.keyInputEarthworm.init = function ($parent) {
 
         //Dynamically create the character input widgets
         var _this = this;
@@ -902,7 +902,7 @@
         $("<div>").attr("id", "tombioEsbKeyInput").appendTo($parent);
 
         //Set the property which identifies the top-level div for this input
-        tbv.keyInputEarthworm.$div = $("#tombioEsbKeyInput");
+        tbv.gui.keyInputEarthworm.$div = $("#tombioEsbKeyInput");
 
         var $table, $tr, $td, $el, $input, $reset
         $table = $("<table>").attr("id", "tombioEsbControlsTable")
@@ -933,7 +933,7 @@
                 $(".tombioEsbInputMenu").val("").selectmenu('refresh');
 
                 //Reset stateSet flags
-                tbv.characters.forEach(function (character) {
+                tbv.d.characters.forEach(function (character) {
                     character.stateSet = false;
                     character.userInput = null;
                 });
@@ -948,7 +948,7 @@
         //Get those characters from knowledgebase that are marked for inclusion in this 
         //particular key by addition of a rank value to special column EsbKeyOrder
         //on characters tab.
-        tbv.characters.filter(function (c) {
+        tbv.d.characters.filter(function (c) {
             //Filter to get only those marked for inclusion
             if (c.EsbKeyOrder == "") {
                 return false;
@@ -1060,7 +1060,7 @@
         $input = $("<select>").attr("id", "tombioEsbColourBy").addClass("tombioEsbInputMenu").appendTo($td);
         //Dropdown options
         $el = $("<option>").attr("value", "").attr("selected", "selected").text("").appendTo($input);
-        tbv.characters.filter(function (c) {
+        tbv.d.characters.filter(function (c) {
             //Filter to get only those marked for inclusion
             if (c.EsbColourParams == "") {
                 return false;
@@ -1185,9 +1185,9 @@
     }
 
     //Interface
-    tbv.keyInputEarthworm.initFromCharacterState = function () {
+    tbv.gui.keyInputEarthworm.initFromCharacterState = function () {
         //Set the character state input controls
-        tbv.characters.forEach(function (c, cIndex) {
+        tbv.d.characters.forEach(function (c, cIndex) {
 
             if (c.ControlType === "spin") {
                 var control = $("#tombioEsbInput-" + c.Character);
@@ -1214,7 +1214,7 @@
     }
 
     //##Interface##
-    tbv.keyInputEarthworm.initStateFromParams = function (params) {
+    tbv.gui.keyInputEarthworm.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
 
@@ -1226,7 +1226,7 @@
     }
 
     //##Interface##
-    tbv.keyInputEarthworm.setParamsFromState = function (params) {
+    tbv.gui.keyInputEarthworm.setParamsFromState = function (params) {
 
         //Indicate which character was selected for colouring
         params.push("colourby=" + this.otherState.colourby);
@@ -1236,7 +1236,7 @@
     }
 
     //##Interface##
-    tbv.keyInputEarthworm.otherState = {
+    tbv.gui.keyInputEarthworm.otherState = {
         keys: ["colourby", "tolerance"],
         colourby: null,
         tolerance: null
@@ -1247,20 +1247,20 @@
     function controlsChanged(character, value) {
 
         //console.log("Controls changed");
-        //tbv.characters.forEach(function (c) {
+        //tbv.d.characters.forEach(function (c) {
         //    if (c.stateSet) {
         //        console.log(c.Character, c.userInput);
         //    }
         //});
-        tbv.refreshVisualisation();
+        tbv.f.refreshVisualisation();
     }
 
     function colourUp(milliDuration) {
 
         var _this = this;
-        var kiw = tbv.keyInputEarthworm.keyItemWidth;
-        var kih = tbv.keyInputEarthworm.keyItemHeight;
-        var kis = tbv.keyInputEarthworm.keyItemSpace;
+        var kiw = tbv.gui.keyInputEarthworm.keyItemWidth;
+        var kih = tbv.gui.keyInputEarthworm.keyItemHeight;
+        var kis = tbv.gui.keyInputEarthworm.keyItemSpace;
         var legendobjs = [];
 
         //Delete any current legend colour swatches
@@ -1272,11 +1272,11 @@
         if (colourby != "") {
 
             //Get the type of colouring from EsbColourParams
-            var colourType = tbv.oCharacters[colourby].EsbColourParams.split(" ")[1];
+            var colourType = tbv.d.oCharacters[colourby].EsbColourParams.split(" ")[1];
             var colour, domainMin, domainMax;
             if (colourType == "number" || colourType == "log") {
-                domainMin = tbv.oCharacters[colourby].minVal;
-                domainMax = tbv.oCharacters[colourby].maxVal;
+                domainMin = tbv.d.oCharacters[colourby].minVal;
+                domainMax = tbv.d.oCharacters[colourby].maxVal;
                 if (colourType == "log") {
                     domainMin = Math.log(domainMin);
                     domainMax = Math.log(domainMax);
@@ -1284,14 +1284,14 @@
                 colour = d3.scaleLinear().domain([domainMin, domainMax]).range(['yellow', 'blue']); //Not used yet
                 legendobjs = [{
                     colval: "url(#" + createGradient('yellow', 'blue', domainMin + '-' + domainMax) + ")",
-                    coltext: tbv.oCharacters[colourby].Label,
-                    coltitle: "Range is " + tbv.oCharacters[colourby].minVal + "-" + tbv.oCharacters[colourby].maxVal
+                    coltext: tbv.d.oCharacters[colourby].Label,
+                    coltitle: "Range is " + tbv.d.oCharacters[colourby].minVal + "-" + tbv.d.oCharacters[colourby].maxVal
                 }]
             } else if (colourType == "default" || colourType == "specified") {
                 var stateValues, colours;
                 if (colourType == "default") {
-                    stateValues = tbv.oCharacters[colourby].CharacterStateValues;
-                    if (tbv.oCharacters[colourby].CharacterStateValues.length <= 10) {
+                    stateValues = tbv.d.oCharacters[colourby].CharacterStateValues;
+                    if (tbv.d.oCharacters[colourby].CharacterStateValues.length <= 10) {
                         colours = d3.schemeCategory10;
                     } else {
                         colours = d3.schemeCategory20;
@@ -1299,7 +1299,7 @@
                 } else { //colourType == "specified"
                     stateValues = [];
                     colours = [];
-                    tbv.values.filter(function (v) {
+                    tbv.d.values.filter(function (v) {
                         return v.Character == colourby;
                     }).forEach(function (v) {
                         stateValues.push(v.CharacterState);

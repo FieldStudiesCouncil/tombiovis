@@ -3,7 +3,7 @@
     "use strict";
 
     //##Interface##
-    tbv.keyInput = {
+    tbv.gui.keyInput = {
         //##Interface##
         //Variables that are part of the required interface...
         
@@ -17,7 +17,7 @@
     };
 
     //##Interface##
-    tbv.keyInput.init = function ($parent) {
+    tbv.gui.keyInput.init = function ($parent) {
 
         //Dynamically create the character input widgets
         var _this = this;
@@ -45,14 +45,15 @@
         $("<div>").attr("id", "tombioKeyInputTabs").css("background-color", "rgba( 255,255, 255, 0.7)").appendTo($parent);
         $("<ul>").attr("id", "tombioKeyInputListElements").appendTo("#tombioKeyInputTabs");
 
+        //##Interface##
         //Set the property which identifies the top-level div for this input
-        tbv.keyInput.$div = $("#tombioKeyInputTabs");
+        tbv.gui.keyInput.$div = $("#tombioKeyInputTabs");
 
         var chargroup;
         var characters = { "All": [] };
         var states = {};
 
-        tbv.characters.forEach(function (character) {
+        tbv.d.characters.forEach(function (character) {
             if (character.Status == "key") {
 
                 if (!characters[character.Group]) {
@@ -65,8 +66,8 @@
             }
         });
 
-        //Set minimum  height of tombio controls based on a constant ()
-        $("#tombioControls").css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
+        //Set minimum  height of tombio controls otherwise overlaps input control tabs in guiMain1
+        $("#tombioGuiMain1Controls").css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
 
         for (var chargroup in characters) {
 
@@ -92,7 +93,7 @@
                 radios.append($("<input>").attr("type", "radio").attr("name", "charvisibility").attr("id", "incharvisible").attr("value", "invisible"));
                 tab.append(radios);
                 $("[name='charvisibility']").checkboxradio({ icon: false });
-                radios.on("change", _this.setCloneVisibility);
+                radios.on("change", setCloneVisibility);
 
                 //Reset button
                 var reset = $("<button>")
@@ -113,14 +114,14 @@
                         });
 
                         //Reset stateSet flags
-                        tbv.characters.forEach(function (character) {
+                        tbv.d.characters.forEach(function (character) {
                             character.stateSet = false;
                             character.userInput = null;
                         });
 
                         //colourChart(0);
-                        tbv.refreshVisualisation();
-                        _this.setCloneVisibility();
+                        tbv.f.refreshVisualisation();
+                        setCloneVisibility();
                     });
                 tab.append(reset);
             }
@@ -136,7 +137,7 @@
                 tab.append(characterDiv);
 
                 //Prepare help attrs
-                if (tbv.characterHasHelp(character.Character)) {
+                if (tbv.f.characterHasHelp(character.Character)) {
                     characterlabel.attr("character", character.Character);
                     characterlabel.addClass("characterhelp");
                 }
@@ -163,7 +164,7 @@
                     div.append(spincontrol)
                     div.append(spinclear);
                     tab.append(div);
-                    this.makeSpinner(spinID, spinMin, spinMax, spinStep);
+                    makeSpinner(spinID, spinMin, spinMax, spinStep);
 
                     //Clone this to the 'All' tab
                     var div2 = $("<div></div>");
@@ -172,7 +173,7 @@
                     div2.append(clonespincontrol)
                     div2.append(clonespinclear);
                     cloneDiv.append(div2);
-                    this.makeSpinner("clone-" + spinID, spinMin, spinMax, spinStep);
+                    makeSpinner("clone-" + spinID, spinMin, spinMax, spinStep);
 
                 } else {
 
@@ -205,21 +206,21 @@
 
                         selectcontrol.append(option);
                     });
-                    this.makeSelect(selectID);
+                    makeSelect(selectID);
 
 
                     //Clone this to the 'All' tab (inside the clone div)
                     var cloneControl = $("#" + selectID).clone();
                     cloneControl.attr("id", "clone-" + selectID)
                     cloneDiv.append(cloneControl);
-                    this.makeSelect("clone-" + selectID);
+                    makeSelect("clone-" + selectID);
                 }
             }
             //}
         }
 
         //If characters are not grouped, hide the group tabs
-        if (!tbv.oCharacters.grouped) {
+        if (!tbv.d.oCharacters.grouped) {
 
             $('#tombioKeyInputListElements').css("display", "none");
             $('#tombioKeyInputTabs').css("padding-left", "0px");
@@ -234,7 +235,7 @@
                 $(".stateselect").each(function () {
                     //$(this).pqSelect('refresh');
                 });
-                tbv.resizeControlsAndTaxa();  
+                tbv.f.resizeControlsAndTaxa();  
 
                 ////Below doesn't work because doesn't get called on first activated control
                 //if ($("#tombioControls").css("min-height") == "0px") {
@@ -248,7 +249,7 @@
         });
 
         //Select default tab
-        //As of v1.6.0 tbv.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
+        //As of v1.6.0 tbv.d.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
         //As of v1.7.0, tbv.opts.selectedGroup deprecated in favour of tbv.opts.toolconfig.keyinput.selectedGroup
         if (!tbv.opts) tbv.opts = {};
         if (!tbv.opts.toolconfig) tbv.opts.toolconfig = {};
@@ -256,7 +257,7 @@
 
         if (typeof tbv.opts.toolconfig.keyinput.selectedGroup === "undefined") {
             if (typeof tbv.opts.selectedGroup === "undefined") {
-                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.d.kbconfig.defaultControlGroup ? tbv.d.kbconfig.defaultControlGroup : null;
             } else {
                 tbv.opts.toolconfig.keyinput.selectedGroup = tbv.opts.selectedGroup ? tbv.opts.selectedGroup : null;
             }
@@ -270,7 +271,7 @@
 
 
         //if (typeof tbv.opts.selectedGroup === "undefined") {
-        //    tbv.opts.selectedGroup = tbv.kbconfig.defaultControlGroup ? tbv.kbconfig.defaultControlGroup : null;
+        //    tbv.opts.selectedGroup = tbv.d.kbconfig.defaultControlGroup ? tbv.d.kbconfig.defaultControlGroup : null;
         //}
         //if (tbv.opts.selectedGroup) {
         //    var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.selectedGroup);
@@ -300,18 +301,18 @@
                 track: true,
                 items: "span",
                 content: function () {
-                    return _this.getCharacterToolTip($(this).attr("character"));
+                    return getCharacterToolTip($(this).attr("character"));
                 }
             })
             .click(function () {
-                _this.showCharacterHelp($(this).attr("character"));
+                showCharacterHelp($(this).attr("character"));
             });
     }
 
     //##Interface##
-    tbv.keyInput.initFromCharacterState = function () {
+    tbv.gui.keyInput.initFromCharacterState = function () {
         //Set the character state input controls
-        tbv.characters.forEach(function (c, cIndex) {
+        tbv.d.characters.forEach(function (c, cIndex) {
             if (c.ControlType === "spin") {
                 var control = $("#" + c.Character + ".statespinner");
                 var clone = $("#clone-" + c.Character + ".statespinner");
@@ -336,7 +337,7 @@
     }
 
     //##Interface##
-    tbv.keyInput.initStateFromParams = function (params) {
+    tbv.gui.keyInput.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
 
@@ -351,11 +352,11 @@
 
         $("[name='charvisibility']").checkboxradio('refresh');
 
-        this.setCloneVisibility();
+        setCloneVisibility();
     }
 
     //##Interface##
-    tbv.keyInput.setParamsFromState = function (params) {
+    tbv.gui.keyInput.setParamsFromState = function (params) {
 
         //Update params to indicate which, if any group tab was selected
         params.push("grp=" + $("#tombioKeyInputTabs").tabs("option", "active"));
@@ -367,13 +368,13 @@
     }
 
     //##Interface##
-    tbv.keyInput.otherState = {
+    tbv.gui.keyInput.otherState = {
         keys: []
     }
 
     //Implementation dependent elements below...
 
-    tbv.keyInput.setCloneVisibility = function () {
+    function setCloneVisibility () {
 
         var visibility = $("input[name=charvisibility]:checked").val();
 
@@ -388,16 +389,16 @@
 
                 if (visibility == "visible") {
 
-                    $(this).parents(".cloneInput").show(500, tbv.resizeControlsAndTaxa);
+                    $(this).parents(".cloneInput").show(500, tbv.f.resizeControlsAndTaxa);
                 } else {
 
                     var stateval = $(this).val();
                     //console..log("val: " + stateval);
                     if (stateval && stateval != "") {
                         //Single selects return single value, multi-selects comma separated string of values.
-                        $(this).parents(".cloneInput").show(500, tbv.resizeControlsAndTaxa);
+                        $(this).parents(".cloneInput").show(500, tbv.f.resizeControlsAndTaxa);
                     } else {
-                        $(this).parents(".cloneInput").hide(500, tbv.resizeControlsAndTaxa);
+                        $(this).parents(".cloneInput").hide(500, tbv.f.resizeControlsAndTaxa);
                     }
                 }
             }
@@ -406,9 +407,7 @@
         //console..log("Controls height: " + );
     }
 
-    tbv.keyInput.makeSelect = function (id) {
-
-        var _this = this;
+    function makeSelect (id) {
 
         //initialize the pqSelect widgets
         var select = $("#" + id).pqSelect({
@@ -434,7 +433,7 @@
             $("#" + counterpartID).pqSelect('refreshData');
 
             $("#" + id).pqSelect('refresh'); //This causes the drop-down list to be removed on each select
-            _this.setCloneVisibility();
+            setCloneVisibility();
 
             //Set state set flag
             if (id.substring(0, 6) == "clone-") {
@@ -443,20 +442,21 @@
                 var character = id;
             }
             var stateSet = select.val() != null && select.val() != "";
-            tbv.oCharacters[character].stateSet = stateSet;
+            tbv.d.oCharacters[character].stateSet = stateSet;
 
             //userInput for text controls is an array of values representing the index of the 
             //selected character states 
             if (stateSet) {
                 var values = [];
-                tbv.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+                tbv.d.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
                     if (select.val().indexOf(stateValue) > -1) {
                         values.push(index);
                     }
                 })
-                tbv.oCharacters[character].userInput = values;
+
+                tbv.d.oCharacters[character].userInput = values;
             } else {
-                tbv.oCharacters[character].userInput = null;
+                tbv.d.oCharacters[character].userInput = null;
             }
 
             //Set the tooltip for the character states selected. This has to be done every time
@@ -466,7 +466,7 @@
                 var selItems = $("#" + selID).next().children().find(".pq-select-item-text");
                 selItems.attr("title", function () {
                     var _this = this;
-                    var charText = tbv.values.filter(function (v) {
+                    var charText = tbv.d.values.filter(function (v) {
                         if (v.Character == character && v.CharacterState == $(_this).text()) return true;
                     });
                     if (charText.length == 1) {
@@ -480,7 +480,7 @@
                 })
             })
 
-            tbv.refreshVisualisation();
+            tbv.f.refreshVisualisation();
         });
 
         //Next is a workaround to set a value for each select control and then clear it.
@@ -491,7 +491,7 @@
         select.val("").pqSelect('refreshData');
     }
 
-    tbv.keyInput.makeSpinner = function (id, min, max, step) {
+    function makeSpinner (id, min, max, step) {
 
         var _this = this;
 
@@ -523,15 +523,15 @@
             } else {
                 var character = id;
             }
-            tbv.oCharacters[character].stateSet = true;
-            tbv.oCharacters[character].userInput = val;
+            tbv.d.oCharacters[character].stateSet = true;
+            tbv.d.oCharacters[character].userInput = val;
 
             console.log(val)
 
             //if (!isClone) {
             //Update the taxon representation.
-            tbv.refreshVisualisation();
-            _this.setCloneVisibility();
+            tbv.f.refreshVisualisation();
+            setCloneVisibility();
             //}
         });
 
@@ -566,14 +566,14 @@
             } else {
                 var character = id;
             }
-            tbv.oCharacters[character].stateSet = false;
-            tbv.oCharacters[character].userInput = null;
+            tbv.d.oCharacters[character].stateSet = false;
+            tbv.d.oCharacters[character].userInput = null;
 
-            tbv.refreshVisualisation();
+            tbv.f.refreshVisualisation();
         });
     }
 
-    tbv.keyInput.getCharacterToolTip = function (character) {
+    function getCharacterToolTip (character) {
 
         var ret = $('<div/>');
         var tipTextPresent = false;
@@ -581,15 +581,15 @@
         //Help text for character
         //If HelpShort exists - use this for tip text, else use Help text. Must allow
         //for KBs where HelpShort column doesn't exist for backward compatibility.
-        if (tbv.oCharacters[character].HelpShort && tbv.oCharacters[character].HelpShort != "") {
-            var helpText = tbv.oCharacters[character].HelpShort;
+        if (tbv.d.oCharacters[character].HelpShort && tbv.d.oCharacters[character].HelpShort != "") {
+            var helpText = tbv.d.oCharacters[character].HelpShort;
             tipTextPresent = true;
         } else {
-            var helpText = tbv.oCharacters[character].Help;
+            var helpText = tbv.d.oCharacters[character].Help;
         }
 
         //Retrieve collection of media image rows for this character and sort by priority.
-        var charImagesFull = tbv.media.filter(function (m) {
+        var charImagesFull = tbv.d.media.filter(function (m) {
             if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character) {
                 return true;
             }
@@ -635,7 +635,7 @@
         if (tipImage) {
             //For tooltips, only one image - the top priority image - is displayed.
             figure = $('<figure/>');
-            figure.addClass("helpFigure");
+            figure.addClass("keyInputHelpFigure");
             var img = $('<img/>', { src: tipImage.URI }).appendTo(figure).css("margin-top", 2);
             if (tipImage.ImageWidth) {
                 img.css("width", tipImage.ImageWidth);
@@ -678,7 +678,7 @@
         })
 
         //Is there any state value help text? Required to determine 'click for' text.
-        var valueHelp = tbv.values.filter(function (v) {
+        var valueHelp = tbv.d.values.filter(function (v) {
             if (v.Character == character && v.StateHelp) return true;
         });
 
@@ -699,17 +699,17 @@
         return ret
     }
 
-    tbv.keyInput.showCharacterHelp = function (character) {
+    function showCharacterHelp (character) {
 
         //Clear existing HTML
         $("#tombioKeyInputDialog").html("");
 
         //Header for character
-        $('<h3/>', { text: tbv.oCharacters[character].Label }).appendTo('#tombioKeyInputDialog');
-        $('<p/>', { html: tbv.oCharacters[character].Help }).appendTo('#tombioKeyInputDialog');
+        $('<h3/>', { text: tbv.d.oCharacters[character].Label }).appendTo('#tombioKeyInputDialog');
+        $('<p/>', { html: tbv.d.oCharacters[character].Help }).appendTo('#tombioKeyInputDialog');
 
         //Help images for character (not necessarily illustrating particular states)
-        var charImages = tbv.media.filter(function (m) {
+        var charImages = tbv.d.media.filter(function (m) {
             //Only return images for matching character if no state value is set
             if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character && !m.State) {
                 //Check UseFor field - it id doesn't exist (backward compatibility for older KBs) 
@@ -748,7 +748,7 @@
         });
 
         //Help text character states
-        var charText = tbv.values.filter(function (v) {
+        var charText = tbv.d.values.filter(function (v) {
             if (v.Character == character && v.StateHelp) return true;
         });
 
@@ -766,7 +766,7 @@
             para.append(spanHelp);
 
             //Help images for character states
-            var charImages = tbv.media.filter(function (m) {
+            var charImages = tbv.d.media.filter(function (m) {
                 //Only return images for matching character if no state value is set
                 if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character && m.State == charState.CharacterState) return true;
             }).sort(function (a, b) {

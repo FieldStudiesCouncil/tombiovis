@@ -17,11 +17,6 @@
     font-size: 0.8em;
 }
 
-/*.ui-widget-overlay {
-    background: #077678 repeat;
-    opacity: 0.7;
-}*/
-
 .tombioEsbBooklink {
     font-style:italic;
     text-decoration: underline;
@@ -114,39 +109,6 @@
     left: -20px;
 }
 
-/*#tombioControlsTable {
-     margin: 0;
-}*/
-
-/*table {
-     background-color: transparent;
-     border: 0px;
-}*/
-/*tr {
-     background-color: transparent;
-     border: 0px;
-}
-td {
-     background-color: transparent;
-     border: 0px;
-}*/
-
-/*tbody {
-     border: 0px;
-}*/
-
-/*#tombioMapControls {
-    position: absolute;
-    top: 10px;
-    left: 0px;
-}*/
-
-/*#tombioSpInfo {
-    position: absolute;
-    top: 10px;
-    left: 0px;
-}*/
-
 #tombioEsbNbnLogo {
     position: absolute;
     left: 0px;
@@ -208,18 +170,16 @@ td {
     fill: black;
 }
 
-.ui-widget {
-    font-size: 12px;
-}
-
 #tombioEsbKeyInput td {
     padding: 2px;
 }
 #tombioEsbKeyInput select {
     width: 130px;
 }
-#tombioEsbLegend {
-    xwidth: 130px;
+
+#tombioEsbKeyInput .ui-selectmenu-button {
+    /*width: 130px;*/ /* For ESB website */
+    width: 103px; /* For development */
 }
 
 #tombioEsbOptions, #tombioEsbReset {
@@ -229,10 +189,6 @@ td {
 #tombioEsbKeyInput .ui-spinner {
     margin-bottom: 0px;
     width: 127px;
-}
-
-#tombioEsbKeyInput .ui-selectmenu-button {
-    width: 103px;
 }
 
 .tombioEsbMorphoLabel {

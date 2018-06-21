@@ -4,7 +4,8 @@
     "use strict";
 
     var visName = "vis2";
-    var vis2 = tbv[visName] = Object.create(tbv.visP);
+    var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
+    
     var _this;
 
     vis2.initialise = function () {
@@ -39,11 +40,11 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis2Svg");
 
         //Shares key input with several other multi-access keys
-        if (!tbv.sharedKeyInput) {
-            tbv.sharedKeyInput = Object.create(tbv.keyInput);
-            tbv.sharedKeyInput.init($("#tombioControls"));
+        if (!tbv.gui.sharedKeyInput) {
+            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInput);
+            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
         }
-        vis2.inputControl = tbv.sharedKeyInput;
+        vis2.inputControl = tbv.gui.sharedKeyInput;
     }
 
     vis2.refresh = function () {
@@ -63,15 +64,15 @@
             .range(_this.scoreColours);
 
         //Set up scale for overall score indicator
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var maxOverall = d3.max(tbv.d.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.d.taxa, function (d) { return d.visState.score.overall; });
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
             .range(_this.scoreColours);
 
         //Set up sort array
         var sortedTaxa = [];
-        tbv.taxa.forEach(function (taxon) {
+        tbv.d.taxa.forEach(function (taxon) {
             sortedTaxa.push(taxon);
         });
         //this.sortTaxa(sortedTaxa, "vis2", "lastPosition");
@@ -109,7 +110,7 @@
         //and loop through them to get maximum size.
         var characterHeight = 0;
         var usedCharacters = [];
-        tbv.characters.forEach(function (character) {
+        tbv.d.characters.forEach(function (character) {
             if (character.stateSet) {
                 usedCharacters.push(character);
             }
@@ -152,8 +153,7 @@
                     })
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        //_this.showTaxonCharacterValues(d);
-                        _this.fullDetails(d.Taxon, 0);
+                        _this.createFullDetailsDialog(d.Taxon, 0);
                     });
 
                 //Tooltips
@@ -194,7 +194,7 @@
                     })
                     .style("display", function () {
                         //Check if there are any images for this taxon
-                        var charImages = tbv.media.filter(function (m) {
+                        var charImages = tbv.d.media.filter(function (m) {
                             //Return images for matching taxon
                             if (m.Taxon == d.Taxon.kbValue) return true;
                         });
@@ -205,11 +205,11 @@
                         }
                     })
                     .on("click", function () {
-                        var offset = $("#tombioMain").offset();
+                        var offset = $("#tombioGuiMain1").offset();
                         var x = d3.event.clientX - offset.left + document.body.scrollLeft;
                         var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                        _this.fullDetails(d.Taxon, 1, x, y);
+                        _this.createFullDetailsDialog(d.Taxon, 1, x, y);
                     })
             })
             .merge(mtU);
@@ -299,7 +299,7 @@
                 .attr("class", "type2VisIndicators-" + taxonTag)
                 .style("cursor", "pointer") 
                 .on("click", function (d, i) {
-                    _this.showCharacterScoreDetails(taxon, d);
+                    _this.createCharacterScoreDialog(taxon, d);
                 })
                 .each(function () {
 
@@ -337,7 +337,7 @@
                         .attr("text", function () {
                             //Text can't be transitioned - have to grab the object and change it
                             if (_this.showWeightedScores) {
-                                var weight = Number(tbv.oCharacters[d.Character].Weight) / 10;
+                                var weight = Number(tbv.d.oCharacters[d.Character].Weight) / 10;
                             } else {
                                 var weight = 1;
                             }
@@ -414,7 +414,7 @@
                 return taxonWidth + gap + usedCharacters.length * indSpacing;
             })
             .attr("height", function (d, i) {
-                return characterHeight + tbv.taxa.length * indSpacing;
+                return characterHeight + tbv.d.taxa.length * indSpacing;
             });
 
         //resizeControlsAndTaxa();
@@ -470,13 +470,13 @@
         }
 
         //Set the state controls
-        tbv.initControlsFromParams(params);
+        tbv.f.initControlsFromParams(params);
 
-        //Bit of a hack to ensure that tombioControlsAndTaxa is resized enough
+        //Bit of a hack to ensure that tombioGuiMain1ControlsAndTaxa is resized enough
         //to accommodate the reset character values.
         setTimeout(function () {
-            var controlsWidth = $('#tombioControls').width();
-            $('#tombioControlsAndTaxa').css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
+            var controlsWidth = $('#tombioGuiMain1Controls').width();
+            $('#tombioGuiMain1ControlsAndTaxa').css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
         }, 700)
     }
 
@@ -488,7 +488,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.f.setParamsFromControls());
 
         //Weighted scores?
         params.push("weighted=" + _this.showWeightedScores);

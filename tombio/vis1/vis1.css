@@ -1,2 +1,49 @@
-﻿body {
+﻿
+#vis1 #headerTaxa {
+    height: 20px;
+    position: relative;
+    font-size: 1.4em;
+    color: rgb(128, 128, 128);
+}
+
+#vis1 .taxarect {
+    fill: lightgrey;
+    rx: 5;
+    ry: 5;
+}
+
+#vis1 .indicator {
+    /*stroke: black;
+    stroke-width: 1;*/
+    rx: 3;
+    ry: 3;
+}
+
+#vis1 .taxonimage {
+    rx: 3;
+    ry: 3;
+}
+
+#vis1 .scientificnames {
+    font-family: Arial;
+    font-size: 12px;
+    stroke-width: 0px;
+    font-style: italic;
+    fill: black;
+}
+
+#vis1 .scientificnames:hover {
+    fill: #D55E00;
+    font-style: italic;
+}
+
+#vis1 .indtext {
+    font-family: Arial;
+    font-size: 11px;
+    stroke-width: 0px;
+    fill: black;
+}
+
+#vis1 .taxonImageLink {
+    cursor: pointer;
 }

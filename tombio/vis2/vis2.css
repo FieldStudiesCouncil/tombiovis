@@ -38,6 +38,29 @@
     stroke-width: 0px;
     fill: black;
 }
-svg {
+#vis2 svg {
     overflow: visible;
+}
+
+#vis2 .taxarect {
+    fill: lightgrey;
+    rx: 5;
+    ry: 5;
+}
+
+#vis2 .scientificnames {
+    font-family: Arial;
+    font-size: 12px;
+    stroke-width: 0px;
+    font-style: italic;
+    fill: black;
+}
+
+#vis2 .scientificnames:hover {
+    fill: #D55E00;
+    font-style: italic;
+}
+
+#vis2 .taxonImageLink {
+    cursor: pointer;
 }

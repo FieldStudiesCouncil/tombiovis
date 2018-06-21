@@ -2,15 +2,25 @@
 
     "use strict";
 
-    var visP = tbv.visP = {};
+    //This is the base prototype for visualisations and should not contain any
+    //GUI framework dependent stuff, e.g. jQuery UI or D3.
+    //It should be just plain HTML5 and jQuery.
 
-    visP.initP = function (visName, parent, contextMenu, tbv) {
+    var visP = tbv.v.visP = {};
+
+    //Colour ramp for the matching indicators to be used across all visualisations
+    //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
+    visP.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
+
+    visP.initP = function (visName, gui) {
+
+        var parent = gui.visParent;
+        var contextMenu = gui.contextMenu;
 
         this.visName = visName;
         this.contextMenu = contextMenu;
         this.div = $("<div/>").attr("id", visName).css("display", "none").appendTo(parent);
         this.cssSel = parent + " > #" + visName;
-        this.mobile = /Mobi/.test(navigator.userAgent);
 
         var _this = this;
 
@@ -21,101 +31,12 @@
         this.nbnMapCache = {};
 
         //Initialise state object for each taxon
-        tbv.taxa.forEach(function (taxon) {
+        tbv.d.taxa.forEach(function (taxon) {
             taxon.visState[visName] = {};
         })
 
         //Fire the visualisations own initialisation function.
         this.initialise();
-    }
-
-    visP.fullDetails = function (taxon, selected, x, y) {
-
-        var _this = this;
-        var tabOffset;
-
-        //Default parameters
-        x = (typeof x !== 'undefined') ?  x : 0;
-        y = (typeof y !== 'undefined') ?  y : 0;
-        selected = (typeof selected !== 'undefined') ? selected : 1;
-        
-        var tabs = $("<div>").addClass("tombioFullDetailsTabs");
-        tabs.css("border", "none");
-        var ul = $("<ul>").appendTo(tabs);
-        ul.append("<li><a href='#tabs-1'>Knowledge-base</a></li>");
-        ul.append("<li><a href='#tabs-2'>Images</a></li>");
-        if (tbv.oCharacters.TVK) {
-            ul.append("<li><a href='#tabs-4'>NBN map</a></li>");
-        }
-        ul.append("<li><a href='#tabs-3'>Details</a></li>");
-        var tab1 = $("<div>").attr("id", "tabs-1").appendTo(tabs);
-        var tab2 = $("<div>").attr("id", "tabs-2").appendTo(tabs);
-        if (tbv.oCharacters.TVK) {
-            //If the TVK character is in the kb, add a tab for NBN maps
-            var tab4 = $("<div>").attr("id", "tabs-4").appendTo(tabs);
-        }
-        var tab3 = $("<div>").attr("id", "tabs-3").appendTo(tabs);
-        
-        //Dialog
-        var dlg = $("<div>").append(tabs);
-        dlg.attr("title", taxon);
-        dlg.dialog({
-            closeText: "",
-            height: 550,
-            width: 600,
-            modal: true,
-            resizeStop: function (event, ui) {
-                tabs.tabs("refresh"); //Resizes the tabs
-                resizeGalleria();
-            }
-        });
-
-        //Tabs
-        tabs.tabs({
-            heightStyle: "fill", //Required to initialise tabOffset
-            active: selected,
-            create: function () {
-                //Initialise the taboffset variable which is
-                //used to resize galleria control.
-                tabOffset = dlg.height() - tab1.height();
-                
-            },
-            activate: function (event, ui) {
-                tabs.tabs("refresh"); //Resizes the tabs
-                if (ui.newTab.index() == 1) {
-                    resizeGalleria();
-                }
-            }
-        });
-        tab3.css("overflow", "hidden"); //Must come after tabs created.
-
-
-        //Taxon details
-        var divTaxonDetails = this.showTaxonCharacterValues(tbv.oTaxa[taxon], true)
-        tab1.append(divTaxonDetails);
-
-        //Images
-        var img = this.getTaxonImagesDiv({ taxon: taxon, container: tab2, height: tab2.height() });
-
-        //NBN maps
-        if (tbv.oCharacters.TVK && tbv.oTaxa[taxon].TVK) {
-            var $div = $("<div>").css("position", "relative").appendTo(tab4);
-            _this.addNBNMap(tbv.oTaxa[taxon].TVK, $div);
-        }
-
-        //HTML files
-        //tab3 is passed to function that creates drop down lists so that this
-        //can be added to container before selectmenu is called, otherwise
-        //drop-down menu appears under dialog.
-        this.getHTMLFileSelectionDiv(taxon, tab3)
-
-        function resizeGalleria() {
-            var g = dlg.find(".tombio-galleria-pane").first();
-            if (g.data('galleria')) {
-                g.data('galleria').setOptions("height", dlg.height() - tabOffset);
-                g.data('galleria').resize();   
-            }
-        }
     }
 
     visP.sortTaxa = function (array) {
@@ -144,7 +65,7 @@
         });
     }
 
-    visP.addNBNMap = function (tvk, $parent) {
+    visP.addNBNMapToContainer = function (tvk, $parent) {
 
         //TVK might be passed as a string or as a state value object
         //so coerce.
@@ -203,8 +124,7 @@
         $('<div>').append($img).appendTo($div);
     }
 
-    //visP.getTaxonImagesDiv = function (taxon, container, indexSelected, imageRemovalButton) {
-    visP.getTaxonImagesDiv = function (options) {
+    visP.addTaxonImagesToContainer = function (options) {
 
         var taxon = options.taxon;
         var container = options.container;
@@ -231,8 +151,6 @@
             .appendTo(container);
 
         //Create the image gallery data object
-
-        
         var data = [];
         taxonImages.forEach(function (ti) {
 
@@ -283,9 +201,35 @@
         }
     }
 
+    visP.addTaxonHtmlToContainer = function (taxon, container, iFile) {
+
+        var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
+
+        if (iFile <= taxonHtmlFiles.length - 1) {
+            $.get(taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
+
+                //We need to extract the html in the body tag and ignore everything
+                //else. Trouble is when using jQuery to insert the full HTML into 
+                //an element such as a div, the body and header don't come through.
+                //So we use good old javascript searching for the body start and end
+                //tags to find it instead. Then insert that into a div and extract the
+                //HTML (which is without body).
+                var bStart = data.indexOf("<body");
+                var bEnd = data.indexOf("</body");
+                var bodyHtml = data.slice(bStart, bEnd);
+
+                var $tmpDiv = $("<div>").html(bodyHtml);
+                container.html($tmpDiv.html());
+
+            });
+        } else {
+            container.html(null);
+        }
+    }
+
     visP.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
-        var taxonImages = tbv.media.filter(function (m) {
+        var taxonImages = tbv.d.media.filter(function (m) {
             if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
@@ -295,7 +239,7 @@
 
     visP.getTaxonTipImage = function (taxon, parentObject) {
         //Return list of all media images for taxon, sorted by priority
-        var taxonImages = tbv.media.filter(function (m) {
+        var taxonImages = tbv.d.media.filter(function (m) {
             if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
                 //Check UseFor field - it id doesn't exist or exists and empty then allow image
                 //Otherwise ensure that "tip" is amongst comma separated list
@@ -333,7 +277,7 @@
 
     visP.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
-        var taxonHtmlFiles = tbv.media.filter(function (m) {
+        var taxonHtmlFiles = tbv.d.media.filter(function (m) {
             if (m.Taxon == taxon && m.Type == "html-local") return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
@@ -341,57 +285,7 @@
         return taxonHtmlFiles;
     }
 
-    visP.showFloatingImages = function (taxon, x, y) {
-        //Not currently used (24/05/2018)
-        var _this = this;
-        var pane = $('<div/>').appendTo('#tombioMain');
-        var initialWidth = 350;
-
-        pane.attr("class", "tombioFloatingImage")
-            .css("position", "absolute")
-            .css("top", y)
-            .css("left", x)
-            .css("width", initialWidth)
-            .css("background-color", "grey")
-            .css("border-radius", 10)
-            .css("cursor", "move")
-            .css("z-index", function () {
-                var zindex = 5000;
-                $(".tombioFloatingImage").each(function () {
-                    var thisZindex = Number($(this).css("z-index"));
-                    if (thisZindex > zindex)
-                        zindex = thisZindex;
-                });
-                return zindex + 1;
-            })
-            .draggable()
-            .resizable({
-                //aspectRatio: true,
-                resize: function () {
-                    var img = pane.find(".baseimage");
-                    img.trigger("change");
-                }
-            })
-            .click(function () {
-                var zindex = 5000;
-                $(".tombioFloatingImage").each(function () {
-                    var thisZindex = Number($(this).css("z-index"));
-                    if (thisZindex > zindex)
-                        zindex = thisZindex;
-                });
-                $(this).css("z-index", zindex + 1);
-            });
-
-        pane.append(this.getTaxonImagesDiv({ taxon: taxon, container: pane }));
-
-        //Add context menu item to remove all images
-        this.contextMenu.addItem("Close all images", function () {
-            $(".tombioFloatingImage").remove();
-            _this.contextMenu.removeItem("Close all images");
-        }, [this.visName]);
-    }
-
-    visP.showCharacterScoreDetails = function (taxon, character) {
+    visP.getCharacterScoreDetails = function (taxon, character) {
 
         //Character state specified
         var html;
@@ -433,20 +327,10 @@
         html += "; against, " + Math.round((taxon[character.Character].score.against + taxon[character.Character].score.na) * 100) / 100 + ")</p>";
         html += "<p>Weighted character score: <b>" + Math.round(taxon[character.Character].score.overall * character.Weight * 10) / 100 + "</b></p>";
 
-        //console..log(taxon);
-
-        var $dlg = $("<div>");
-        $dlg.dialog({
-            height: 300,
-            width: 600,
-            modal: true,
-            title: 'Character score details'
-        });
-        $dlg.html(html);
-        $dlg.dialog("open");
+        return html
     }
 
-    visP.showTaxonCharacterValues = function (taxon, returnAsHtml) {
+    visP.getTaxonCharacterValues = function (taxon) {
 
         var html = $("<table>");
         html.css("width", "100%");
@@ -455,10 +339,10 @@
         var iChar = 0;
         var lastCharacterGroup = "";
 
-        tbv.characters.forEach(function (character) {
+        tbv.d.characters.forEach(function (character) {
             if (character.Status == "key" || character.Status == "display") {
 
-                if (tbv.oCharacters.grouped && character.Group != lastCharacterGroup) {
+                if (tbv.d.oCharacters.grouped && character.Group != lastCharacterGroup) {
                     var tr = $("<tr>");
                     tr.css("background-color", "rgb(100,100,100)");
                     tr.css("color", "rgb(255,255,255)");
@@ -487,101 +371,7 @@
 
         html.find("td").css("padding", "2");
 
-        if (returnAsHtml) {
-            return html;
-        } else {
-            //Otherwise create dialog and display
-            $("#tombioHelpAndInfoDialog").dialog('option', 'title', taxon.Taxon);
-            $("#tombioHelpAndInfoDialog").html(html);
-            $("#tombioHelpAndInfoDialog").dialog("open");
-        }  
-    }
-
-    visP.getHTMLFileSelectionDiv = function (taxon, container) {
-
-        //It's important that the container to which the dropdown list is added, is passed
-        //to this function and added here *before* selectmenu is called, otherwise the selectmenu
-        //can appear under dialogs.
-        var htmlDiv = $('<div>').appendTo(container);
-
-        var _this = this;
-        var htmlFiles = this.getTaxonHtmlFiles(taxon);
-
-        if (htmlFiles.length == 0) {
-            //If there are no images for this taxon, return a message to that effect.
-            var noFiles = $("<div>").css("margin", "10px").appendTo(htmlDiv);
-            noFiles.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
-        } else {
-            
-            //Control for selecting HTML file - prior to v1.7.0 was done in this
-            //iFrame which was different from method used in vis4. Changed for v1.7.0
-            //to bring into line with vis4. This means only simple text is appropriate.
-            //var htmlIframe = $('<iframe id="tombioFullDetailsHTMLDiv" scrolling="no" width="100%" frameborder="0">');
-            var htmlDiv2 = $("<div>");
-            if (htmlFiles.length > 1) {
-                var divSelect = $('<div style="margin-bottom: 20px">').appendTo(htmlDiv);
-                var htmlSel = $("<select id='tombioFileSelect'></select>").appendTo(divSelect);
-                htmlFiles.forEach(function (file, iFile) {
-                    var opt = $("<option/>").text(file.Caption).attr("value", iFile);
-                    htmlSel.append(opt);
-                });
-                htmlSel.selectmenu({
-                    change: function (event, data) {
-                        //_this.showTaxonHtmlIframe(taxon, htmlIframe, data.item.value);
-                        _this.showTaxonHtmlInfo(taxon, htmlDiv2, data.item.value);
-                    }
-                });
-            }
-            //htmlIframe.on("load", function () {
-            //    _this.resizeIframe($(this));
-            //});
-            //htmlIframe.appendTo(htmlDiv)
-            htmlDiv2.appendTo(htmlDiv);
-            //this.showTaxonHtmlIframe(taxon, htmlIframe, 0);
-            _this.showTaxonHtmlInfo(taxon, htmlDiv2, 0);
-        }
-    }
-
-    visP.resizeIframe = function (iframe) {
-        iframe.height(10); //This is necessary to get the iframe to decrease in size when a smaller document is loaded.
-        iframe.height(iframe.contents().height() + 100); //The extra 100 can help avoid some documents not being displayed in full
-    }
-
-    visP.showTaxonHtmlIframe = function (taxon, iframe, iFile) {
-
-        var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
-
-        if (iFile <= taxonHtmlFiles.length - 1) {
-            iframe.attr("src", taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover);
-        } else {
-            iframe.attr("src", null);
-        }
-    }
-
-    visP.showTaxonHtmlInfo = function (taxon, container, iFile) {
-        
-        var taxonHtmlFiles = this.getTaxonHtmlFiles(taxon);
-
-        if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
-
-                //We need to extract the html in the body tag and ignore everything
-                //else. Trouble is when using jQuery to insert the full HTML into 
-                //an element such as a div, the body and header don't come through.
-                //So we use good old javascript searching for the body start and end
-                //tags to find it instead. Then insert that into a div and extract the
-                //HTML (which is without body).
-                var bStart = data.indexOf("<body");
-                var bEnd = data.indexOf("</body");
-                var bodyHtml = data.slice(bStart, bEnd);
-
-                var $tmpDiv = $("<div>").html(bodyHtml);
-                container.html($tmpDiv.html());
-
-            });
-        } else {
-            container.html(null);
-        }
+        return html;
     }
 
     visP.shortName = function (name) {
@@ -629,9 +419,5 @@
         var url = encodeURI(baseURL + j + "tbv=&" + params.join("&"));
         this.copyTextToClipboard(url);
     }
-
-    //Colour ramp for the matching indicators to be used across all visualisations
-    //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
-    visP.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
 
 })(jQuery, this.tombiovis);

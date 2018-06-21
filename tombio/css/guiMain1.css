@@ -1,0 +1,101 @@
+﻿
+#tombioGuiMain1 {
+    /*font-size: 12px;*/
+    overflow: visible;
+}
+
+#tombioGuiMain1Visualisation-menu {
+    padding-right: 10px;
+    padding-top: 5px;
+}
+
+#tombioGuiMain1Visualisation-button {
+    /*width: 100%;*/
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-bottom: 10px;
+    z-index: 50;
+}
+
+#tombioGuiMain1Visualisation-button .ui-selectmenu-text {
+    position: relative;
+    left: 1em;
+}
+
+#tombioGuiMain1ControlsAndTaxa {
+    position: relative;
+    /*border: 2px solid blue;*/
+}
+
+#tombioGuiMain1Controls {
+    vertical-align: top;
+    display: inline-block;
+    position: relative;
+    z-index: 70;
+}
+
+#tombioGuiMain1Taxa {
+    vertical-align: top;
+    display: inline-block;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-menu-item-wrapper {
+    padding: 0.5em 0 0.5em 3em;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon {
+    height: 24px;
+    width: 24px;
+    top: 0.1em;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon.options {
+    background: url("../resources/options.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon.info {
+    background: url("../resources/info20.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon.wrench {
+    background: url("../resources/wrench.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon.vis {
+    background: url("../resources/lightbulb.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiMain1Visualisation-menu .ui-icon.reload {
+    background: url("../resources/reset.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiMain1DeviceWarning {
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    font-size: x-large;
+    position: fixed;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+}
+
+@media screen and (max-width: 959px) {
+    #tombioGuiMain1DeviceWarning {
+        display: block;
+    }
+}
+
+@media screen and (min-width: 960px) {
+    #tombioGuiMain1DeviceWarning {
+        display: none;
+    }
+}

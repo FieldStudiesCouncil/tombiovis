@@ -1,0 +1,35 @@
+﻿
+.tombioNoSelect { 
+    /*To prevent object selection by accidental dragging*/
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.tombioCitation {
+    margin-top: 0.5em;
+}
+
+figure { 
+    display: block;
+    overflow: hidden;
+}
+
+figcaption { 
+    display: block;
+    font-size: 0.9em;
+    color: black;
+}
+
+.tombioValid3 {
+    background-color: #FF9797;
+    margin: 5px 0;
+}
+.tombioValid2 {
+    background-color: #FFBD82;
+    margin: 5px 0;
+}
+.tombioValid1 {
+    background-color: #A8CFFF;
+    margin: 5px 0;
+}

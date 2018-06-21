@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis5";
-    var vis5 = tbv[visName] = Object.create(tbv.visP);
+    var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
     var _this;
 
     var root, 
@@ -100,7 +100,7 @@
 
         //First build an array of all the Taxonomy characters.
         taxonRanks = [];
-        tbv.characters.forEach(function (c) {
+        tbv.d.characters.forEach(function (c) {
             if (c.Group == "Taxonomy" || c.Character == "Taxon"){
                 taxonRanks.push(c.Character);
             }
@@ -123,7 +123,7 @@
         var stratTable = [{name: "All taxa", parent: ""}], ir = 0;
         //Create a table suitable for input into the d3.stratify function
         taxonRanks.forEach(function (r, iR) {
-            tbv.taxa.forEach(function (t, iT) {
+            tbv.d.taxa.forEach(function (t, iT) {
                 var rankValue = t[r].kbValue;
                 //if (rankValue != "" && !stratTable.find(function (entry) { return entry.name == rankValue })) {
                 if (rankValue != "" && !findEntry(stratTable, rankValue)) {
@@ -138,7 +138,7 @@
                         name: rankValue,
                         parent: rvParent,
                         rankColumn: r,
-                        rank: tbv.oCharacters[r].Label,
+                        rank: tbv.d.oCharacters[r].Label,
                         abbrv: [rankValue,
                             getAbbrv(rankValue, 1, (r == "Taxon")),
                             getAbbrv(rankValue, 2, (r == "Taxon")),
@@ -178,19 +178,19 @@
         taxaRootCurrent = taxaRoot;
 
         //Shares key input with several other multi-access keys
-        if (!tbv.sharedKeyInput) {
-            tbv.sharedKeyInput = Object.create(tbv.keyInput);
-            tbv.sharedKeyInput.init($("#tombioControls"));
+        if (!tbv.gui.sharedKeyInput) {
+            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInput);
+            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
         }
-        vis5.inputControl = tbv.sharedKeyInput;
+        vis5.inputControl = tbv.gui.sharedKeyInput;
     }
 
     vis5.refresh = function () {
 
         _this = this;
 
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
-        var minOverall = d3.min(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var maxOverall = d3.max(tbv.d.taxa, function (d) { return d.visState.score.overall; });
+        var minOverall = d3.min(tbv.d.taxa, function (d) { return d.visState.score.overall; });
 
         //console.log(taxonRanks.length, )
 
@@ -216,7 +216,7 @@
             }, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.addItem("Show names for each " + tbv.oCharacters[rank].Label, function () {
+                _this.contextMenu.addItem("Show names for each " + tbv.d.oCharacters[rank].Label, function () {
                     displayTextForRank(rank);
                     _this.refresh();
                 }, [_this.visName]);
@@ -232,7 +232,7 @@
             }, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.removeItem("Show names for each " + tbv.oCharacters[rank].Label);
+                _this.contextMenu.removeItem("Show names for each " + tbv.d.oCharacters[rank].Label);
             });
 
             _this.contextMenu.removeItem("Ignore higher taxa");
@@ -355,8 +355,7 @@
             .on("click", function (d) {
                 if (!d.data.data.taxon) return
                 d3.event.stopPropagation();
-                //_this.showTaxonCharacterValues(d.data.data.taxon);
-                _this.fullDetails(d.data.data.taxon.Taxon, 0);
+                _this.createFullDetailsDialog(d.data.data.taxon.Taxon, 0);
             })
             
         textM = textE.merge(textU)
@@ -451,7 +450,7 @@
         }
 
         //Set the state controls
-        tbv.initControlsFromParams(params);
+        tbv.f.initControlsFromParams(params);
     }
 
     function getViewURL() {
@@ -462,7 +461,7 @@
         params.push("selectedTool=" + visName)
 
         //Get user input control params
-        Array.prototype.push.apply(params, tbv.setParamsFromControls());
+        Array.prototype.push.apply(params, tbv.f.setParamsFromControls());
 
         //Abbreviated names?
         params.push("abbrvnames=" + _this.abbrvnames);
@@ -485,7 +484,7 @@
 
     function highlightTopScorers(transitionRefresh) {
 
-        var maxOverall = d3.max(tbv.taxa, function (d) { return d.visState.score.overall; });
+        var maxOverall = d3.max(tbv.d.taxa, function (d) { return d.visState.score.overall; });
 
         circleM.transition(transitionRefresh)
             .filter(function (d) {
@@ -644,7 +643,6 @@
             //console.log("mouse click in zoom end")
             //var taxon = d3.event.sourceEvent.srcElement.__data__.data.data.taxon;
             //if (!taxon) return
-            //_this.showTaxonCharacterValues(taxon);
         } else {
             //console.log("zoom end")
             //For mouse zoom operations, redraw of text is prevented during mouse zoom

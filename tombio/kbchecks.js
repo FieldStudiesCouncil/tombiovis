@@ -2,25 +2,30 @@
 
     "use strict";
 
-    tbv.checkKnowledgeBase = function() {
+    tbv.f.checkKnowledgeBase = function() {
 
         /*
         At this point, the following objects are available for checking
-        tbv.taxa
-        tbv.characters
-        tbv.values
-        tbv.media
-        tbv.metadata
-        tbv.kbconfig
+        tbv.d.taxa
+        tbv.d.characters
+        tbv.d.values
+        tbv.d.media
+        tbv.d.softwareMetadata
+        tbv.d.kbconfig
         */
-        //Only carry out the validity checks if tbv.kbconfig.checkValidity set to yes.
+        //Only carry out the validity checks if tbv.d.kbconfig.checkValidity set to yes.
         //Deprecated in version 1.6.0 in favour of top level tbv.opts.checkKB flag (which therefore has precedence).
         if (typeof tbv.opts.checkKB  === "undefined") {
-            tbv.opts.checkKB = tbv.kbconfig.checkValidity && tbv.kbconfig.checkValidity == "yes";
+            tbv.opts.checkKB = tbv.d.kbconfig.checkValidity && tbv.d.kbconfig.checkValidity == "yes";
         }
         if (!tbv.opts.checkKB) {
             return true;
         }
+
+        //Create HTML report elements.
+        $("<div>").attr("id", "tombioKBReport").css("display", "none").appendTo("#tombiod3vis");
+        $("<button>").attr("id", "tombioReload").text("Reload").appendTo("#tombioKBReport");
+        $("<button>").attr("id", "tombioContinue").text("Continue").appendTo("#tombioKBReport");
 
         var taxa = true;
         var characters = true;
@@ -33,40 +38,40 @@
         var field, fields, requiredFields, optionalFields;
 
         //Derive some variables for use later
-        var charactersFromCharactersTab = tbv.characters.map(function (character) {
+        var charactersFromCharactersTab = tbv.d.characters.map(function (character) {
             return character.Character;
         });
 
-        var charactersFromTaxaTab = Object.keys(tbv.taxa[0]).filter(function (character) {
+        var charactersFromTaxaTab = Object.keys(tbv.d.taxa[0]).filter(function (character) {
             return character != "";
         });
         var charactersFromValuesTab = [];
-        tbv.values.forEach(function (row) {
+        tbv.d.values.forEach(function (row) {
             if (charactersFromValuesTab.indexOf(row.Character) == -1) {
                 charactersFromValuesTab.push(row.Character);
             }
         });
 
-        var numericCharactersInTaxaTab = tbv.characters.filter(function (character) {
+        var numericCharactersInTaxaTab = tbv.d.characters.filter(function (character) {
             return character.ValueType == "numeric" && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
-        var allOrdinalCharactersInTaxaTab = tbv.characters.filter(function (character) {
+        var allOrdinalCharactersInTaxaTab = tbv.d.characters.filter(function (character) {
             return (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
-        var circularOrdinalCharactersInTaxaTab = tbv.characters.filter(function (character) {
+        var circularOrdinalCharactersInTaxaTab = tbv.d.characters.filter(function (character) {
             return (character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
         function metadataValue(key, error) {
-            if (!tbv.kbmetadata[key] || String(tbv.kbmetadata[key]).trim() == "") {
+            if (!tbv.d.kbmetadata[key] || String(tbv.d.kbmetadata[key]).trim() == "") {
                 metadata = false;
                 errors.append($('<li class="tombioValid3">').text(error));
                 return false;
@@ -93,7 +98,7 @@
               $("#downloadspin").show();
               $('#tombioKBReport').hide();
               //If I don't use a setTimeout function here, the spinner doesn't re-appear
-              setTimeout(function () { tbv.loadComplete("force") }, 100);
+              setTimeout(function () { tbv.f.loadcomplete("force") }, 100);
           })
 
         $('#tombioKBReport').append($('<h3>').text('First fix these knowledge-base problems...'));
@@ -112,8 +117,8 @@
         //Check that required columns are present on the config tab
         requiredFields = ["Key", "Type", "Mandatory", "Value", "Date", "Notes"];
         fields = [];
-        for (field in tbv.config[0]) {
-            if (tbv.config[0].hasOwnProperty(field)) {
+        for (field in tbv.d.config[0]) {
+            if (tbv.d.config[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
@@ -140,13 +145,13 @@
         //Taxa
         errors = $('<ul>');
         //Taxon column must be present
-        if (!tbv.taxa[0]["Taxon"]) {
+        if (!tbv.d.taxa[0]["Taxon"]) {
             errors.append($('<li class="tombioValid3">').html("There must be a column called <i>Taxon</i> (case sensitive) which stores the names of the taxa you are working with."));
             taxa = false;
         }
         //Check that character names are alphanumeric without any space
         var regexCharID = /^[a-zA-Z0-9\-_]+$/;
-        Object.keys(tbv.taxa[0]).forEach(function (character, iCol) {
+        Object.keys(tbv.d.taxa[0]).forEach(function (character, iCol) {
             if (!regexCharID.test(character)) {
                 errors.append($('<li class="tombioValid3">').html("<b>'" + character + "'</b> (column " + (iCol + 1) + ") is not a valid identifier for a character. Use only alphanumerics with no spaces."));
                 taxa = false;
@@ -160,7 +165,7 @@
         var regexNumericRange = /^\[(\d+(\.\d*)?|\.\d+)-(\d+(\.\d*)?|\.\d+)\]$/;
 
         numericCharactersInTaxaTab.forEach(function (character) {
-            tbv.taxa.forEach(function (taxon) {
+            tbv.d.taxa.forEach(function (taxon) {
                 value = taxon[character];
                 //Sometimes, unpredictably, we seem to get here and on line that tables value.substr we get a 'value.substr is
                 //not a function' error - presumably because value is undefined. Can't work out why, but put an error trap
@@ -188,18 +193,18 @@
         allOrdinalCharactersInTaxaTab.forEach(function (character) {
 
             //Get the permitted ordinal values for this character
-            var fullOrdinalRange = tbv.values.filter(function (vRow) {
+            var fullOrdinalRange = tbv.d.values.filter(function (vRow) {
                 return vRow.Character == character;
             });
             //Get the stateGroups for this character
             var stateGroups = [];
-            tbv.values.forEach(function (vRow) {
+            tbv.d.values.forEach(function (vRow) {
                 if (vRow.Character == character && vRow.StateGroup && stateGroups.indexOf(vRow.StateGroup) == -1) {
                     stateGroups.push(vRow.StateGroup);
                 }
             })
 
-            tbv.taxa.forEach(function (taxon) {
+            tbv.d.taxa.forEach(function (taxon) {
                 value = taxon[character];
 
                 var stopChecking = false;
@@ -266,8 +271,8 @@
 
         //Check that required columns are present on the characters tab  
         fields = [];
-        for (field in tbv.characters[0]) {
-            if (tbv.characters[0].hasOwnProperty(field)) {
+        for (field in tbv.d.characters[0]) {
+            if (tbv.d.characters[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
@@ -298,7 +303,7 @@
         }
  
         //Check that Taxon column has a Group value of Taxonomy
-        var taxonRows = tbv.characters.filter(function (c) { return (c.Character == "Taxon") });
+        var taxonRows = tbv.d.characters.filter(function (c) { return (c.Character == "Taxon") });
         if (taxonRows.length > 0 && taxonRows[0].Group != "Taxonomy") {
             errors.append($('<li class="tombioValid3">').html("The Taxon character must have a Group value of 'Taxonomy'. It is currently set to '" + taxonRows[0].Group + "'."));
             characters = false;
@@ -318,7 +323,7 @@
             }
         });
         //Check other character parameters.
-        tbv.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
+        tbv.d.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
             var validValueType = ["numeric", "ordinal", "ordinalCircular", "text"];
             var validControlType = ["single", "multi", "spin"];
             var validControlsForValues = {
@@ -404,8 +409,8 @@
         //Check that required columns are present on the values tab
         
         fields = [];
-        for (field in tbv.values[0]) {
-            if (tbv.values[0].hasOwnProperty(field)) {
+        for (field in tbv.d.values[0]) {
+            if (tbv.d.values[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
@@ -432,7 +437,7 @@
             }
         });
 
-        tbv.values.forEach(function (v) {
+        tbv.d.values.forEach(function (v) {
             //Check that any character with StateHelpShort set also has StateHelp set.
             if (v.StateHelpShort && !v.StateHelp) {
                 errors.append($('<li class="tombioValid2">').html("A value for 'StateHelpShort' is set but there is no value for 'StateHelp' for <b>'" + v.Character + " - " + v.CharacterState + "'</b>. You can set 'StateHelp' without setting 'StateHelpShort', but not the other way around."));
@@ -459,7 +464,7 @@
         //charactersFromValuesTab.forEach(function (character) {
 
         //    valueCharacterValues = [];
-        //    tbv.values.forEach(function (row) {
+        //    tbv.d.values.forEach(function (row) {
         //        if (row.Character == character) {
         //            valueCharacterValues.push(row.CharacterState);
         //        }
@@ -467,7 +472,7 @@
 
         //    if (charactersFromTaxaTab.indexOf(character) > -1) {
         //        taxaCharacterValues = [];
-        //        tbv.taxa.forEach(function (taxon) {
+        //        tbv.d.taxa.forEach(function (taxon) {
 
         //            var splitvalues = taxon[character].split("|");
         //            splitvalues.forEach(function (charValue) {
@@ -521,8 +526,8 @@
 
         //Check that required columns are present on the media tab
         fields = [];
-        for (field in tbv.media[0]) {
-            if (tbv.media[0].hasOwnProperty(field)) {
+        for (field in tbv.d.media[0]) {
+            if (tbv.d.media[0].hasOwnProperty(field)) {
                 fields.push(field);
             }
         }
@@ -541,7 +546,7 @@
             }
         })
 
-        tbv.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "image-web") }).forEach(function (m) {
+        tbv.d.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "image-web") }).forEach(function (m) {
 
             if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
                 //A character on the media tab does not appear on the characters tab
@@ -549,7 +554,7 @@
                 media = false;
             } else if (m.Character != "") {
                 //If a character is specified on media tab, no help text specified on characters tab
-                //var character = tbv.characters.filter(function (c) { return (c.Character == m.Character) })[0];
+                //var character = tbv.d.characters.filter(function (c) { return (c.Character == m.Character) })[0];
                 //if (character.Help == "") {
                 //    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but no help text is provided for that character on the characters worksheet, so it won't be displayed."));
                 //    media = false;
@@ -563,7 +568,7 @@
             }
             if (m.State != "" && m.Character != "") {
                 //If a character/value pair is not present on values tab or does not have an associated help value
-                var values = tbv.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
+                var values = tbv.d.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
 
                 if (values.length == 0 || values[0].StateHelp == "") {
                     errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
@@ -579,7 +584,7 @@
 
         //Taxonomy checks
         errors = $('<ul>');
-        var taxonomyCharacters = tbv.characters.filter(function (c) { return (c.Group == "Taxonomy") });
+        var taxonomyCharacters = tbv.d.characters.filter(function (c) { return (c.Group == "Taxonomy") });
         var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
         //Check that the row representing Taxon is the last Taxonomy group column on the Characters tab
         if (lastTaxonomyCol && lastTaxonomyCol != "Taxon") {
@@ -596,14 +601,14 @@
                 var parentRankCol = taxonomyCharacters[iRank - 1].Character;
                 var parentRankColName = taxonomyCharacters[iRank - 1].Label;
                 var uniqueRankValues = [];
-                tbv.taxa.forEach(function (t) {
+                tbv.d.taxa.forEach(function (t) {
                     if (t[rankCol] != "" && uniqueRankValues.indexOf(t[rankCol]) == -1) {
                         uniqueRankValues.push(t[rankCol]);
                     }
                 })
                 uniqueRankValues.forEach(function (rankVal) {
                     var uniqueHigherRankValues = [];
-                    var taxa = tbv.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
+                    var taxa = tbv.d.taxa.filter(function (t) { return (t[rankCol] == rankVal) });
                     taxa.forEach(function (t) {
                         if (uniqueHigherRankValues.indexOf(t[parentRankCol]) == -1) {
                             uniqueHigherRankValues.push(t[parentRankCol]);
@@ -636,11 +641,11 @@
         }
     }
 
-    tbv.mediaCheck = function(uriField, fSuccess, fFail){
+    tbv.f.mediaCheck = function(uriField, fSuccess, fFail){
         //Using Promises
         var pAll = [];
 
-        tbv.media.filter(function (m) { return (m[uriField] &&(m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web")) }).forEach(function (m) {
+        tbv.d.media.filter(function (m) { return (m[uriField] &&(m.Type == "image-local" || m.Type == "html-local" || m.Type == "image-web")) }).forEach(function (m) {
 
             var p = new Promise(function (resolve, reject) {
 
@@ -682,16 +687,16 @@
         return (Promise.all(pAll));
     }
 
-    tbv.tvkCheck = function (fSuccess, fFail, fComplete) {
+    tbv.f.tvkCheck = function (fSuccess, fFail, fComplete) {
         //Using Promises
         var pAll = [];
 
-        if (!tbv.oCharacters.TVK) {
+        if (!tbv.d.oCharacters.TVK) {
             fComplete();
             return;
         }
 
-        tbv.taxa.forEach(function (t) {
+        tbv.d.taxa.forEach(function (t) {
             if (t.TVK.kbValue) {
                 var p = new Promise(function (resolve, reject) {
 

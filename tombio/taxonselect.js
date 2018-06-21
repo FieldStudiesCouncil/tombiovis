@@ -10,7 +10,7 @@
      * */
 
     //##Interface##
-    tbv.taxonSelect = {
+    tbv.gui.taxonSelect = {
         //##Interface##
         //Variables that are part of the required interface...
         hiddenControlsShown: false, 
@@ -26,7 +26,7 @@
     };
 
     //##Interface##
-    tbv.taxonSelect.init = function ($parent, multi, callback) {
+    tbv.gui.taxonSelect.init = function ($parent, multi, callback) {
 
         // $parent - the jQuery HTML element where the taxon select HTML is inserted.
         // multi - boolean that indicates whether or not this is to act as a multi (or single) select control.
@@ -44,10 +44,10 @@
         this.filterText = "";
         this.selectedTaxa = [];
 
-        //Create the taxon array (from tbv.taxa) that this control
+        //Create the taxon array (from tbv.d.taxa) that this control
         //will work with.
         this.taxa = [];
-        tbv.taxa.forEach(function (t, i) {
+        tbv.d.taxa.forEach(function (t, i) {
             this.taxa.push({
                 name: t.Taxon.kbValue,
                 abbrv: "",
@@ -191,7 +191,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.setFilter = function (filter) { 
+    tbv.gui.taxonSelect.setFilter = function (filter) { 
         this.filterText = filter;
         this.$textFilter.val(filter);
         this.checkFilterColour();
@@ -199,7 +199,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.getFilter = function () {
+    tbv.gui.taxonSelect.getFilter = function () {
         if (this.filterText != this.filterMessage) {
             return this.filterText;
         } else {
@@ -208,7 +208,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.setSort = function (sort) {
+    tbv.gui.taxonSelect.setSort = function (sort) {
 
         if (sort == "a-z") {
             sort = "radio-a"
@@ -231,7 +231,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.toggleHiddenControls = function () {
+    tbv.gui.taxonSelect.toggleHiddenControls = function () {
         if (this.$hiddenControlsDiv.css("display") == "none") {
             this.$hiddenControlsDiv.slideDown(400);
             this.$controlsArrow.attr("src", tbv.opts.tombiopath + "resources/chevron-up.png")
@@ -244,7 +244,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.taxonClick = function (taxon) {
+    tbv.gui.taxonSelect.taxonClick = function (taxon) {
 
         var deselectedTaxon;
 
@@ -318,7 +318,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.deselectAllTaxa = function () {
+    tbv.gui.taxonSelect.deselectAllTaxa = function () {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
         var D3rect = this.D3svg.selectAll("rect");
@@ -336,7 +336,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.deselectTaxon = function (taxon) {
+    tbv.gui.taxonSelect.deselectTaxon = function (taxon) {
 
         //Get the rectangle and text objects corresponding to the deselected taxon
         var D3rect = this.D3svg.select("rect[taxonName=\"" + taxon + "\"]");
@@ -362,7 +362,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.setParamsFromState = function (params) {
+    tbv.gui.taxonSelect.setParamsFromState = function (params) {
 
         //Filter
         var filter = this.getFilter();
@@ -395,7 +395,7 @@
     }
 
     //##Interface##
-    tbv.taxonSelect.initStateFromParams = function (params) {
+    tbv.gui.taxonSelect.initStateFromParams = function (params) {
 
         //Set the visibility of hidden controls
         if (params.hc) {
@@ -420,7 +420,7 @@
 
     //Implementation dependent elements below...
 
-    tbv.taxonSelect.sortTaxa = function () {
+    tbv.gui.taxonSelect.sortTaxa = function () {
 
         var _this = this;
 
@@ -453,7 +453,7 @@
         })
     }
 
-    tbv.taxonSelect.updateTaxa = function () {
+    tbv.gui.taxonSelect.updateTaxa = function () {
 
         var _this = this;
 
@@ -592,14 +592,14 @@
             .attr('height', svgHeight)
     }
 
-    tbv.taxonSelect.checkEmptyFilter = function () {
+    tbv.gui.taxonSelect.checkEmptyFilter = function () {
         if (this.filterText == "") {
             this.filterText = this.filterMessage;
             this.$textFilter.val(this.filterMessage);
         }
     }
 
-    tbv.taxonSelect.checkFilterColour = function () {
+    tbv.gui.taxonSelect.checkFilterColour = function () {
         if (this.filterText == this.filterMessage || this.filterText == this.filterSelectedOnly) {
             this.$textFilter.css("color", "silver");
         } else {

@@ -154,5 +154,71 @@
     "inputFiles": [
       "tombio/visEarthworm2/visEarthworm2.css"
     ]
+  },
+  {
+    "outputFileName": "tombio/guiMain1.min.js",
+    "inputFiles": [
+      "tombio/guiMain1.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/guiMain1.min.css",
+    "inputFiles": [
+      "tombio/guiMain1.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/visPjQueryUILargeFormat.min.js",
+    "inputFiles": [
+      "tombio/visPjQueryUILargeFormat.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/keyinput.min.css",
+    "inputFiles": [
+      "tombio/css/keyinput.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/jquery-ui-tombio.min.css",
+    "inputFiles": [
+      "tombio/css/jquery-ui-tombio.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/visP.min.css",
+    "inputFiles": [
+      "tombio/css/visP.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/guiMain1.min.css",
+    "inputFiles": [
+      "tombio/css/guiMain1.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/taxonselect.min.css",
+    "inputFiles": [
+      "tombio/css/taxonselect.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/tombiovis.min.css",
+    "inputFiles": [
+      "tombio/css/tombiovis.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/visp-jquery-ui-large-format.min.css",
+    "inputFiles": [
+      "tombio/css/visp-jquery-ui-large-format.css"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/keyinputbasic.min.css",
+    "inputFiles": [
+      "tombio/css/keyinputbasic.css"
+    ]
   }
 ]

@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis4";
-    var vis4 = tbv[visName] = Object.create(tbv.visP);
+    var vis4 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
     var _this;
     var taxSel; 
     var win, divImage, divKb, divInfo, visFullDetails;
@@ -55,7 +55,7 @@
         var visDiv = $("<div/>").css("display", "block").css("overflow", "hidden"); 
         $flexContainer.append(visDiv);
 
-        taxSel = Object.create(tbv.taxonSelect);
+        taxSel = Object.create(tbv.gui.taxonSelect);
         taxSel.init(this.controlsDiv, false, taxonSelectCallback);
       
         createCheckBox('tbVis4Images', 'Images', visDiv);
@@ -66,7 +66,7 @@
         function createCheckBox(id, label, parent) {
 
             //Only create NBN map checkbox if TVK field is present in kb
-            if (id == "tbVis4NbnMap" && !tbv.oCharacters.TVK) {
+            if (id == "tbVis4NbnMap" && !tbv.d.oCharacters.TVK) {
                 return;
             }
 
@@ -103,12 +103,12 @@
 
         //Set the image index
         if (params.imgi) {
-            tbv.oTaxa[taxon].visState[visName].indexselectedImg = params.imgi;
+            tbv.d.oTaxa[taxon].visState[visName].indexselectedImg = params.imgi;
         }
 
         //Set the text index
         if (params.txti) {
-            tbv.oTaxa[taxon].visState[visName].indexselectedText = params.txti;
+            tbv.d.oTaxa[taxon].visState[visName].indexselectedText = params.txti;
         }
 
         //Set the taxon (must come after the image, text and checkbox options set)
@@ -147,13 +147,13 @@
         params = taxSel.setParamsFromState(params);
 
         //Image index
-        if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg) {
-            params.push("imgi=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedImg);
+        if (tbv.d.oTaxa[selectedTaxon].visState[visName].indexselectedImg) {
+            params.push("imgi=" + tbv.d.oTaxa[selectedTaxon].visState[visName].indexselectedImg);
         }
 
         //Text file index
-        if (tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText) {
-            params.push("txti=" + tbv.oTaxa[selectedTaxon].visState[visName].indexselectedText);
+        if (tbv.d.oTaxa[selectedTaxon].visState[visName].indexselectedText) {
+            params.push("txti=" + tbv.d.oTaxa[selectedTaxon].visState[visName].indexselectedText);
         }
 
         //Generate the full URL
@@ -180,7 +180,7 @@
         var subCharVal, taxonHeader;
         if (tbv.opts.toolconfig && tbv.opts.toolconfig.vis4 && tbv.opts.toolconfig.vis4.subTitleChar) {
             var subChar = tbv.opts.toolconfig.vis4.subTitleChar;
-            subCharVal = tbv.oTaxa[taxonName][subChar].kbValue;
+            subCharVal = tbv.d.oTaxa[taxonName][subChar].kbValue;
         }
         if (subCharVal) {
             taxonHeader = taxonName + " (" + subCharVal + ")";
@@ -202,7 +202,7 @@
         var htmlFiles = _this.getTaxonHtmlFiles(taxonName);
         includeText = includeText && htmlFiles.length > 0;
         includeImages = includeImages && _this.getTaxonImages(taxonName).length > 0;
-        includeNbnMap = includeNbnMap && tbv.oTaxa[taxonName].TVK;
+        includeNbnMap = includeNbnMap && tbv.d.oTaxa[taxonName].TVK;
 
         //Image display
         if (includeImages) {
@@ -214,15 +214,14 @@
             } else {
                 imageDiv.attr("class", "vis4ImageNoText");
             }
-            //_this.getTaxonImagesDiv(taxonName, imageDiv, imgIndex)
-            var imgIndex = tbv.oTaxa[taxonName].visState[visName].indexselectedImg ? tbv.oTaxa[taxonName].visState[visName].indexselectedImg : 0;
-            _this.getTaxonImagesDiv({
+            var imgIndex = tbv.d.oTaxa[taxonName].visState[visName].indexselectedImg ? tbv.d.oTaxa[taxonName].visState[visName].indexselectedImg : 0;
+            _this.addTaxonImagesToContainer({
                 taxon: taxonName,
                 container: imageDiv,
                 indexSelected: imgIndex,
                 height: includeText ? 400 : 600,
                 fImageSelect: function (index) {
-                    tbv.oTaxa[taxonName].visState[visName].indexselectedImg = index;
+                    tbv.d.oTaxa[taxonName].visState[visName].indexselectedImg = index;
                 }
             });
 
@@ -237,7 +236,7 @@
             } else {
                 $mapDiv.attr("class", "vis4ImageNoText");
             }
-            _this.addNBNMap(tbv.oTaxa[taxonName].TVK, $mapDiv);
+            _this.addNBNMapToContainer(tbv.d.oTaxa[taxonName].TVK, $mapDiv);
         }
 
         //HTML files
@@ -254,9 +253,9 @@
                 });
                 htmlSel.selectmenu({
                     change: function (event, data) {
-                        _this.showTaxonHtmlInfo(taxonName, htmlDiv, data.item.value);
+                        _this.addTaxonHtmlToContainer(taxonName, htmlDiv, data.item.value);
                         //htmlDiv.attr("indexselected", data.item.value);
-                        tbv.oTaxa[taxonName].visState[visName].indexselectedText = data.item.value;
+                        tbv.d.oTaxa[taxonName].visState[visName].indexselectedText = data.item.value;
                     }
                 })
                 .selectmenu("menuWidget");
@@ -265,8 +264,8 @@
 
             //First text file
             var htmlDiv = $('<div class="htmlFile">').appendTo(visFullDetails);
-            var txtIndex = tbv.oTaxa[taxonName].visState[visName].indexselectedText ? tbv.oTaxa[taxonName].visState[visName].indexselectedText : 0;
-            _this.showTaxonHtmlInfo(taxonName, htmlDiv, txtIndex);
+            var txtIndex = tbv.d.oTaxa[taxonName].visState[visName].indexselectedText ? tbv.d.oTaxa[taxonName].visState[visName].indexselectedText : 0;
+            _this.addTaxonHtmlToContainer(taxonName, htmlDiv, txtIndex);
             if (htmlFiles.length > 1) {
                 htmlSel.val(txtIndex).selectmenu('refresh');
             }
@@ -275,7 +274,7 @@
         //Set KB values
         if (includeKb) {
             visFullDetails.append($("<h2>").css("clear", "both").text("Knowledge-base values"));
-            visFullDetails.append(_this.showTaxonCharacterValues(tbv.oTaxa[taxonName], true));
+            visFullDetails.append(_this.getTaxonCharacterValues(tbv.d.oTaxa[taxonName]));
         }
 
         //Trigger the image change function whenever browser
