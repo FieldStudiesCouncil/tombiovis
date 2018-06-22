@@ -8,7 +8,6 @@
         //Variables that are part of the required interface...
         
         //Other variables 
-       
     };
 
     //##Interface##
@@ -37,21 +36,23 @@
             }
         });
 
+        //Button to clear all input controls
+        $("<button>").appendTo($input).text("Clear input").click(function () {
+            tbv.d.characters.forEach(function (character) {
+                //Clear input control value
+                var id = "#tbvKib" + character.Character;
+                $(id).val(null);
+                //Clear character input state
+                character.stateSet = false;
+                character.userInput = null;
+            });
+            tbv.f.refreshVisualisation();
+        });
 
         for (var chargroup in characters) {
 
             //Print header for group
             $("<div>").addClass("characterGroup").text(chargroup).appendTo($input);
-
-            //Reset stateSet flags - when clearing a value
-            //tbv.d.characters.forEach(function (character) {
-            //    character.stateSet = false;
-            //    character.userInput = null;
-            //});
-
-            //Reset vis when changing values
-            //tbv.f.refreshVisualisation();
-
 
             //New control for each character
             for (var i = 0; i < characters[chargroup].length; i++) {
@@ -125,60 +126,31 @@
 
     //##Interface##
     tbv.gui.keyInputBasic.initFromCharacterState = function () {
-        ////Set the character state input controls
-        //tbv.d.characters.forEach(function (c, cIndex) {
-        //    if (c.ControlType === "spin") {
-        //        var control = $("#" + c.Character + ".statespinner");
-        //        var clone = $("#clone-" + c.Character + ".statespinner");
+        //Set the character state input controls
+        tbv.d.characters.forEach(function (c) {
 
-        //        var val = c.stateSet ? c.userInput : "";
-        //        control.spinner("value", c.userInput);
-        //        clone.spinner("value", val);
-        //    } else {
-        //        var control = $("#" + c.Character + ".stateselect");
-        //        var clone = $("#clone-" + c.Character + ".stateselect");
-        //        if (c.stateSet) {
-        //            var stateValues = c.userInput.map(function (valueIndex) {
-        //                return c.CharacterStateValues[valueIndex];
-        //            })
-        //        } else {
-        //            var stateValues = [];
-        //        }
-        //        control.val(stateValues).pqSelect('refreshData');
-        //        clone.val(stateValues).pqSelect('refreshData');
-        //    }
-        //})
+            var control = $("#tbvKib" + c.Character);
+            control.val(c.stateSet ? c.userInput : null);
+        })
     }
 
     //##Interface##
     tbv.gui.keyInputBasic.initStateFromParams = function (params) {
 
-        //this.initFromCharacterState();
+        this.initFromCharacterState();
 
-        ////Set selected group
-        //$("#tombioKeyInputTabs").tabs("option", "active", params["grp"]);  //##Requires attention - tombioKeyInputTabs
-
-        ////Visibility of unused controls (clones)
-        //$("[name='charvisibility']")
-        //    .removeProp('checked')
-        //    .filter('[value="' + params["cvis"] + '"]')
-        //    .prop('checked', true);
-
-        //$("[name='charvisibility']").checkboxradio('refresh');
-
-        //setCloneVisibility();
+        //This routine can be used to initialise interface
+        //from parameters, e.g. a selected group or visibility stuff. 
+        //Counterpart of setParamsFromState.
     }
 
     //##Interface##
     tbv.gui.keyInputBasic.setParamsFromState = function (params) {
 
-        ////Update params to indicate which, if any group tab was selected
-        //params.push("grp=" + $("#tombioKeyInputTabs").tabs("option", "active"));
-
-        ////Update params to indicate unused controls visibility (clones)
-        //params.push("cvis=" + $("input[name=charvisibility]:checked").val());
-
-        //return params
+        //Here we can create parameters to describe other interface
+        //state, e.g. selected group or visibility etc.
+        //Counterpart of initStateFromParams.
+        return params
     }
 
     //##Interface##

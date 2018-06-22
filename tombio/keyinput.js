@@ -66,8 +66,8 @@
             }
         });
 
-        //Set minimum  height of tombio controls otherwise overlaps input control tabs in guiMain1
-        $("#tombioGuiMain1Controls").css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
+        //Set minimum  height of tombio controls otherwise overlaps input control tabs
+        $(tbv.gui.main.visControls).css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
 
         for (var chargroup in characters) {
 
@@ -251,8 +251,6 @@
         //Select default tab
         //As of v1.6.0 tbv.d.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
         //As of v1.7.0, tbv.opts.selectedGroup deprecated in favour of tbv.opts.toolconfig.keyinput.selectedGroup
-        if (!tbv.opts) tbv.opts = {};
-        if (!tbv.opts.toolconfig) tbv.opts.toolconfig = {};
         if (!tbv.opts.toolconfig.keyinput) tbv.opts.toolconfig.keyinput = {};
 
         if (typeof tbv.opts.toolconfig.keyinput.selectedGroup === "undefined") {

@@ -4,7 +4,8 @@
     "use strict";
 
     var visName = "vis1";
-    var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
+    var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+
     var _this;
 
     vis1.initialise = function () {
@@ -64,14 +65,12 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis1Svg");    
 
         //Shares key input with several other multi-access keys
-        if (!tbv.gui.sharedKeyInput) {
-            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInputBasic);
-            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
+        var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
+        if (!tbv.gui.sharedKeyInput[keyinput]) {
+            tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
         }
-        vis1.inputControl = tbv.gui.sharedKeyInput;
-
-        //vis1.inputControl = Object.create(tbv.gui.keyInputEarthworm);
-        //vis1.inputControl.init($("#tombioGuiMain1Controls"));
+        vis1.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
 
     vis1.refresh = function () {
@@ -134,7 +133,7 @@
             })
             .on("click", function (d) {
                 d3.event.stopPropagation();
-                _this.createFullDetailsDialog(d.Taxon, 0);
+                _this.showFullDetails(d.Taxon, 0);
             });
 
         //Tooltips

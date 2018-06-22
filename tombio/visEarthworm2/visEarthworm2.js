@@ -34,7 +34,7 @@
         this.charStateInput = true;
         //Specify key input control (defined in this module)
         this.inputControl = Object.create(tbv.gui.keyInputEarthworm);
-        this.inputControl.init($("#tombioGuiMain1Controls"));
+        this.inputControl.init($(tbv.gui.main.visControls));
 
         //Help files
         this.helpFiles = [

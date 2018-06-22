@@ -4,7 +4,8 @@
     "use strict";
 
     var visName = "vis5";
-    var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
+    var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+
     var _this;
 
     var root, 
@@ -178,11 +179,12 @@
         taxaRootCurrent = taxaRoot;
 
         //Shares key input with several other multi-access keys
-        if (!tbv.gui.sharedKeyInput) {
-            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInput);
-            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
+        var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
+        if (!tbv.gui.sharedKeyInput[keyinput]) {
+            tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
         }
-        vis5.inputControl = tbv.gui.sharedKeyInput;
+        vis5.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
 
     vis5.refresh = function () {
@@ -355,7 +357,7 @@
             .on("click", function (d) {
                 if (!d.data.data.taxon) return
                 d3.event.stopPropagation();
-                _this.createFullDetailsDialog(d.data.data.taxon.Taxon, 0);
+                _this.showFullDetails(d.data.data.taxon.Taxon, 0);
             })
             
         textM = textE.merge(textU)

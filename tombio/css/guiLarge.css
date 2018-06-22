@@ -1,0 +1,75 @@
+﻿
+#tombioGuiLarge {
+    /*font-size: 12px;*/
+    overflow: visible;
+}
+
+#tombioGuiLargeVisualisation-menu {
+    padding-right: 10px;
+    padding-top: 5px;
+}
+
+#tombioGuiLargeVisualisation-button {
+    /*width: 100%;*/
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-bottom: 10px;
+    z-index: 50;
+}
+
+#tombioGuiLargeVisualisation-button .ui-selectmenu-text {
+    position: relative;
+    left: 1em;
+}
+
+#tombioGuiLargeControlsAndTaxa {
+    position: relative;
+    /*border: 2px solid blue;*/
+}
+
+#tombioGuiLargeControls {
+    vertical-align: top;
+    display: inline-block;
+    position: relative;
+    z-index: 70;
+}
+
+#tombioGuiLargeTaxa {
+    vertical-align: top;
+    display: inline-block;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-menu-item-wrapper {
+    padding: 0.5em 0 0.5em 3em;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon {
+    height: 24px;
+    width: 24px;
+    top: 0.1em;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon.options {
+    background: url("../resources/options.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon.info {
+    background: url("../resources/info20.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon.wrench {
+    background: url("../resources/wrench.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon.vis {
+    background: url("../resources/lightbulb.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
+#tombioGuiLargeVisualisation-menu .ui-icon.reload {
+    background: url("../resources/reset.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}

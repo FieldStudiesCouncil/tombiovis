@@ -9,7 +9,7 @@
 
     var visP = tbv.v.visPjQueryUILargeFormat = Object.create(tbv.v.visP);
 
-    visP.createFullDetailsDialog = function (taxon, selected, x, y) {
+    visP.showFullDetails = function (taxon, selected, x, y) {
 
         var _this = this;
         var tabOffset;
@@ -134,7 +134,7 @@
         }
     }
 
-    visP.createCharacterScoreDialog = function (taxon, character) {
+    visP.showCharacterScore = function (taxon, character) {
 
         var html = this.getCharacterScoreDetails(taxon, character)
         var $dlg = $("<div>");

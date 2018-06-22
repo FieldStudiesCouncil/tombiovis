@@ -220,5 +220,17 @@
     "inputFiles": [
       "tombio/css/keyinputbasic.css"
     ]
+  },
+  {
+    "outputFileName": "tombio/guiLargeJqueryUi.min.js",
+    "inputFiles": [
+      "tombio/guiLargeJqueryUi.js"
+    ]
+  },
+  {
+    "outputFileName": "tombio/css/guiLargeJqueryUi.min.css",
+    "inputFiles": [
+      "tombio/css/guiLargeJqueryUi.css"
+    ]
   }
 ]

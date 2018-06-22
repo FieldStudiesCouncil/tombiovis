@@ -4,8 +4,8 @@
     "use strict";
 
     var visName = "vis2";
-    var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
-    
+    var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+
     var _this;
 
     vis2.initialise = function () {
@@ -40,11 +40,12 @@
         d3.select("#" + this.visName).append("svg").attr("id", "vis2Svg");
 
         //Shares key input with several other multi-access keys
-        if (!tbv.gui.sharedKeyInput) {
-            tbv.gui.sharedKeyInput = Object.create(tbv.gui.keyInput);
-            tbv.gui.sharedKeyInput.init($("#tombioGuiMain1Controls"));
+        var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
+        if (!tbv.gui.sharedKeyInput[keyinput]) {
+            tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
         }
-        vis2.inputControl = tbv.gui.sharedKeyInput;
+        vis2.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
 
     vis2.refresh = function () {
@@ -153,7 +154,7 @@
                     })
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        _this.createFullDetailsDialog(d.Taxon, 0);
+                        _this.showFullDetails(d.Taxon, 0);
                     });
 
                 //Tooltips
@@ -205,11 +206,11 @@
                         }
                     })
                     .on("click", function () {
-                        var offset = $("#tombioGuiMain1").offset();
+                        var offset = $(tbv.gui.main.visTop).offset();
                         var x = d3.event.clientX - offset.left + document.body.scrollLeft;
                         var y = d3.event.clientY - offset.top + document.body.scrollTop;;
 
-                        _this.createFullDetailsDialog(d.Taxon, 1, x, y);
+                        _this.showFullDetails(d.Taxon, 1, x, y);
                     })
             })
             .merge(mtU);
@@ -299,7 +300,7 @@
                 .attr("class", "type2VisIndicators-" + taxonTag)
                 .style("cursor", "pointer") 
                 .on("click", function (d, i) {
-                    _this.createCharacterScoreDialog(taxon, d);
+                    _this.showCharacterScore(taxon, d);
                 })
                 .each(function () {
 
@@ -472,11 +473,10 @@
         //Set the state controls
         tbv.f.initControlsFromParams(params);
 
-        //Bit of a hack to ensure that tombioGuiMain1ControlsAndTaxa is resized enough
-        //to accommodate the reset character values.
+        //Hack to ensure that guiLargeJqueryUI is resized to accommodate the reset character values
         setTimeout(function () {
-            var controlsWidth = $('#tombioGuiMain1Controls').width();
-            $('#tombioGuiMain1ControlsAndTaxa').css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
+            var controlsWidth = $(tbv.gui.main.visControls).width();
+            $(tbv.gui.main.visTaxaAndControls).css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
         }, 700)
     }
 

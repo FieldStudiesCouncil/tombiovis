@@ -1,15 +1,15 @@
 ﻿
-#tombioGuiMain1 {
+#tombioGuiLargeJqueryUi {
     /*font-size: 12px;*/
     overflow: visible;
 }
 
-#tombioGuiMain1Visualisation-menu {
+#tombioGuiLargeJqueryUiVisualisation-menu {
     padding-right: 10px;
     padding-top: 5px;
 }
 
-#tombioGuiMain1Visualisation-button {
+#tombioGuiLargeJqueryUiVisualisation-button {
     /*width: 100%;*/
     padding-right: 0px;
     padding-left: 0px;
@@ -17,64 +17,64 @@
     z-index: 50;
 }
 
-#tombioGuiMain1Visualisation-button .ui-selectmenu-text {
+#tombioGuiLargeJqueryUiVisualisation-button .ui-selectmenu-text {
     position: relative;
     left: 1em;
 }
 
-#tombioGuiMain1ControlsAndTaxa {
+#tombioGuiLargeJqueryUiControlsAndTaxa {
     position: relative;
     /*border: 2px solid blue;*/
 }
 
-#tombioGuiMain1Controls {
+#tombioGuiLargeJqueryUiControls {
     vertical-align: top;
     display: inline-block;
     position: relative;
     z-index: 70;
 }
 
-#tombioGuiMain1Taxa {
+#tombioGuiLargeJqueryUiTaxa {
     vertical-align: top;
     display: inline-block;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-menu-item-wrapper {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-menu-item-wrapper {
     padding: 0.5em 0 0.5em 3em;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon {
     height: 24px;
     width: 24px;
     top: 0.1em;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon.options {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.options {
     background: url("../resources/options.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon.info {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.info {
     background: url("../resources/info20.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon.wrench {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.wrench {
     background: url("../resources/wrench.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon.vis {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.vis {
     background: url("../resources/lightbulb.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
-#tombioGuiMain1Visualisation-menu .ui-icon.reload {
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.reload {
     background: url("../resources/reset.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
-#tombioGuiMain1DeviceWarning {
+#tombioGuiLargeJqueryUiDeviceWarning {
     left: 0px;
     top: 0px;
     bottom: 0px;
@@ -89,13 +89,13 @@
 }
 
 @media screen and (max-width: 959px) {
-    #tombioGuiMain1DeviceWarning {
+    #tombioGuiLargeJqueryUiDeviceWarning {
         display: block;
     }
 }
 
 @media screen and (min-width: 960px) {
-    #tombioGuiMain1DeviceWarning {
+    #tombioGuiLargeJqueryUiDeviceWarning {
         display: none;
     }
 }

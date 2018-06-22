@@ -1,31 +1,31 @@
 ﻿(function ($, tbv) {
 
-    "use strict";
+    "use strict"; 
 
-    tbv.gui.main1 = {};
+    tbv.gui.main = {};
 
     //Required for standard gui interface
-    tbv.gui.main1.toolSet = function (toolName) {
-        if ($('#tombioGuiMain1Visualisation').val() != toolName) {
-            $('#tombioGuiMain1Visualisation').val(toolName);
+    tbv.gui.main.setSelectedTool = function (toolName) {
+        if ($('#tombioGuiLargeVisualisation').val() != toolName) {
+            $('#tombioGuiLargeVisualisation').val(toolName);
         }
     }
 
     //Required for standard gui interface
-    tbv.gui.main1.resizeControlsAndTaxa = function () {
-        //Because we want to prevent normal flow where tombioGuiMain1Taxa div would be moved
-        //under tombioGuiMain1Controls div, we set a min width of their parent div to accommodate
+    tbv.gui.main.resizeControlsAndTaxa = function () {
+        //Because we want to prevent normal flow where tombioGuiLargeTaxa div would be moved
+        //under tombioGuiLargeControls div, we set a min width of their parent div to accommodate
         //them both.
-        if ($("#tombioGuiMain1Controls").is(":visible")) {
-            var controlsWidth = $('#tombioGuiMain1Controls').width();
-            $('#tombioGuiMain1ControlsAndTaxa').css("min-width", controlsWidth + $('#tombioGuiMain1Taxa').width() + 50);
+        if ($("#tombioGuiLargeControls").is(":visible")) {
+            var controlsWidth = $('#tombioGuiLargeControls').width();
+            $('#tombioGuiLargeControlsAndTaxa').css("min-width", controlsWidth + $('#tombioGuiLargeTaxa').width() + 50);
         } else {
-            $('#tombioGuiMain1ControlsAndTaxa').css("min-width", "0px");
+            $('#tombioGuiLargeControlsAndTaxa').css("min-width", "0px");
         }
     }
 
     //Required for standard gui interface
-    tbv.gui.main1.addTopPageElements = function() {
+    tbv.gui.main.addTopPageElements = function() {
         //Build top level interface elements
         $("#tombiod3vis").html(""); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
 
@@ -33,61 +33,52 @@
         $("#tombiod3vis").css("position", "relative");
 
         //Main div
-        $("<div>").attr("id", "tombioGuiMain1").addClass("needsclick").css("display", "none").appendTo("#tombiod3vis");
+        $("<div>").attr("id", "tombioGuiLarge").css("display", "none").appendTo("#tombiod3vis");
 
-        //Format warning div
-        $("<div>").attr("id", "tombioGuiMain1DeviceWarning").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "tombioGuiMain1DeviceWarningInnerDiv").css("margin", "2em").appendTo($("#tombioGuiMain1DeviceWarning"));
-        $("<p>").text("This Identikit tool is designed for large format devices. If you are working with a small screen or with a touch device, it might not appear or work as intended. We are working to produce a range of 'mobile-first' tools in the latter part of 2018.")
-            .appendTo($("#tombioGuiMain1DeviceWarningInnerDiv"));
-        $("<img>").attr("id", "tombioGuiMain1DeviceWarningButton")
-            .attr("src", tbv.opts.tombiopath + "/resources/remove.png")
-            .css("position", "absolute")
-            .css("right", "10px").css("top", "10px")
-            .appendTo($("#tombioGuiMain1DeviceWarningInnerDiv"));
-        $("#tombioGuiMain1DeviceWarningButton").on("click", function () {
-            $("#tombioGuiMain1DeviceWarning").hide();
-        })
-
-        //An area for printing diagnostic text in cases where a console is not available, e.g.on mobile device browsers
-        $("<div>").attr("id", "tombioGuiMain1DebugText").css("display", "none").appendTo("#tombioGuiMain1");
-
+        //An area tools to add info
+        $("<div>").attr("id", "tombioGuiLargeFlashDisplay").css("display", "none").appendTo("#tombioGuiLarge");
 
         //Tool drop-down
-        $("<select>").attr("id", "tombioGuiMain1Visualisation").appendTo("#tombioGuiMain1");
+        $("<select>").attr("id", "tombioGuiLargeVisualisation").appendTo("#tombioGuiLarge");
 
         //Divs for taxa and controls
-        $("<div>").addClass("tombioNoSelect").attr("id", "tombioGuiMain1ControlsAndTaxa").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "tombioGuiMain1Controls").css("display", "none").appendTo("#tombioGuiMain1ControlsAndTaxa");
-        $("<span>").attr("id", "tombioGuiMain1Taxa").appendTo("#tombioGuiMain1ControlsAndTaxa");
-        tbv.gui.main1.visParent = "#tombioGuiMain1Taxa"
+        $("<div>").addClass("tombioNoSelect").attr("id", "tombioGuiLargeControlsAndTaxa").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "tombioGuiLargeControls").css("display", "none").appendTo("#tombioGuiLargeControlsAndTaxa");
+        $("<span>").attr("id", "tombioGuiLargeTaxa").appendTo("#tombioGuiLargeControlsAndTaxa");
+
+        //##Interface
+        tbv.gui.main.visTop = "#tombioGuiLarge";
+        tbv.gui.main.visTaxa = "#tombioGuiLargeTaxa";
+        tbv.gui.main.visControls = "#tombioGuiLargeControls";
+        tbv.gui.main.visTaxaAndControls = "#tombioGuiLargeControlsAndTaxa";
+        tbv.gui.main.visFlashDisplay = "#tombioGuiLargeFlashDisplay";
 
         //Divs for information
-        $("<div>").attr("id", "currentVisInfo").css("display", "none").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "kbInfo").css("display", "none").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "mediaFilesCheck").css("display", "none").appendTo("#tombioGuiMain1");
-        $("<div>").attr("id", "tvkCheck").css("display", "none").appendTo("#tombioGuiMain1");
+        $("<div>").attr("id", "currentVisInfo").css("display", "none").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "kbInfo").css("display", "none").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "visInfo").css("display", "none").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "mediaFilesCheck").css("display", "none").appendTo("#tombioGuiLarge");
+        $("<div>").attr("id", "tvkCheck").css("display", "none").appendTo("#tombioGuiLarge");
 
         //outlineTopDivs();
         function outlineTopDivs() {
             $("#tombiod3vis").css("border", "5px solid red") //.attr("title", "tombiod3vis")
-            $("#tombioGuiMain1").css("border", "5px solid blue") //.attr("title", "tombioGuiMain1")
-            $("#tombioGuiMain1ControlsAndTaxa").css("border", "5px solid green") //.attr("title", "tombioGuiMain1ControlsAndTaxa")
-            $("#tombioGuiMain1Controls").css("border", "5px solid yellow") //.attr("title", "tombioGuiMain1Controls")
-            $("#tombioGuiMain1Taxa").css("border", "5px solid cyan") //.attr("title", "tombioGuiMain1Taxa")
+            $("#tombioGuiLarge").css("border", "5px solid blue") //.attr("title", "tombioGuiLarge")
+            $("#tombioGuiLargeControlsAndTaxa").css("border", "5px solid green") //.attr("title", "tombioGuiLargeControlsAndTaxa")
+            $("#tombioGuiLargeControls").css("border", "5px solid yellow") //.attr("title", "tombioGuiLargeControls")
+            $("#tombioGuiLargeTaxa").css("border", "5px solid cyan") //.attr("title", "tombioGuiLargeTaxa")
         }
     }
 
     //Required for standard gui interface
-    tbv.gui.main1.createUIControls = function () {
+    tbv.gui.main.createUIControls = function () {
 
-        //tombioGuiMain1 must be made visible before UI created otherwise size styling is not right
-        $("#tombioGuiMain1").css("display", "");
+        //tombioGuiLarge must be made visible before UI created otherwise size styling is not right
+        $("#tombioGuiLarge").css("display", "");
 
-        //Context menu
-        createContextMenu();
+        //dummy context menu
+        createContextMenu()
 
         //Drop-down menu options for the visualisations
         var toolOptions = []; 
@@ -147,61 +138,21 @@
         });
 
         //Append options to select control
-        $("#tombioGuiMain1Visualisation").append(toolOptions);
+        $("#tombioGuiLargeVisualisation").append(toolOptions);
 
-        //This call to the jQuery widget method is taken straight from the jQuery online
-        //examples for adding widgets to selectmenu items.
-        $.widget("custom.iconselectmenu", $.ui.selectmenu, {
-            _renderItem: function (ul, item) {
-                var li = $("<li>"),
-                    wrapper = $("<div>", { text: item.label });
-
-                if (item.disabled) {
-                    li.addClass("ui-state-disabled");
-                }
-
-                $("<span>", {
-                    style: item.element.attr("data-style"),
-                    "class": "ui-icon " + item.element.attr("data-class")
-                })
-                    .appendTo(wrapper);
-
-                return li.append(wrapper).appendTo(ul);
-            }
-        });
-        //Add custom icons to visualisation select menu
-        $("#tombioGuiMain1Visualisation")
-            .iconselectmenu({
-                //open: function () {
-                //    //This is a workaround to prevent problems with the 'fastclick.js' library
-                //    //loaded with Drupal 8. This was preventing menu item selection on Drupal 8 sites on iPad (including Chrome emulator).
-                //    //Couldn't find a way to disable or not load the javascript, so used this option of fastclick which
-                //    //is to add a class - needsclick - on elements that you don't want fastclick to work on.
-                //    //To make matters worse, just adding the "needsclick" class with addClass in jQuery, doesn't work -
-                //    //the addition is lost. So you have to use something like the following in this open option, to
-                //    //make it work (https://stackoverflow.com/questions/42534593/add-class-to-jquery-ui-selectmenu-li-from-original-option)
-                //    //This is very much a workaround.
-                //    $('div.ui-selectmenu-menu li.ui-menu-item').each(function(){
-                //        $(this).find("div").addClass("needsclick")
-                //    })
-                //},
-                change: function () {
-                    tbv.v.selectedTool = $("#tombioGuiMain1Visualisation").val();
-                    tbv.f.visChanged(tbv.v.selectedTool);
-                }
-                //width: "100%"
-            })
-            .iconselectmenu("menuWidget")
-            .addClass("ui-menu-icons customicons");
+        $("#tombioGuiLargeVisualisation").change(function () {
+            tbv.v.selectedTool = $("#tombioGuiLargeVisualisation").val();
+            tbv.f.visChanged(tbv.v.selectedTool);
+        })
 
         //If the hideVisDropdown option has been set, then hide the dropdown list.
         if (tbv.opts.hideVisDropdown == true) {
-            $("#tombioGuiMain1Visualisation-button").hide()
+            $("#tombioGuiLargeVisualisation-button").hide()
         }
     }
 
     //Required for standard gui interface
-    tbv.gui.main1.visShow = function (selectedToolName) {
+    tbv.gui.main.visShow = function (selectedToolName) {
 
         //Get the selected visualisation
         var selectedTool = tbv.v.visualisations[selectedToolName];
@@ -221,8 +172,7 @@
             $('#tvkCheck').html(tbv.f.createTvkCheckPage());
         }
 
-        //If the user has selected to show kb info and not yet loaded,
-        //then load.
+        //If the user has selected to show kb info and not yet loaded, then load.
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
             //var title = $('<h2>').text(tbv.d.kbmetadata['title']);
             //$('#kbInfo').html(title);
@@ -302,6 +252,7 @@
             })
         }
 
+        console.log("selectedToolName", selectedToolName)
         //Change tool if necessary and associated input control
         if (selectedToolName != tbv.v.currentTool) {
 
@@ -316,6 +267,7 @@
                     prevTool.inputControl.$div.hide();
                 }
             }
+
             //Show selected tool
             var $currentToolDiv = $("#" + selectedToolName);
             $currentToolDiv.show();
@@ -335,12 +287,12 @@
             controlsShowHide(false);
         }
 
-        //If no visualisation is selected then hide the entire tombioGuiMain1ControlsAndTaxa element
+        //If no visualisation is selected then hide the entire tombioGuiLargeControlsAndTaxa element
         //(otherwise it takes up space at top of info pages).
         if (selectedTool) {
-            $("#tombioGuiMain1ControlsAndTaxa").show();
+            $("#tombioGuiLargeControlsAndTaxa").show();
         } else {
-            $("#tombioGuiMain1ControlsAndTaxa").hide();
+            $("#tombioGuiLargeControlsAndTaxa").hide();
         }
 
         //Refresh the selected tool
@@ -352,14 +304,9 @@
         //Store the last used visualisation and change the name of the menu
         //item for getting info about it.
         if (Object.keys(tbv.v.visualisations).indexOf(selectedToolName) > -1) {
-
             tbv.v.lastVis = selectedToolName;
             $("#optCurrentVisInfo").text("Using the " + tbv.v.visualisations[tbv.v.lastVis].metadata.title);
-            $("#tombioGuiMain1Visualisation").iconselectmenu("refresh");
         }
-
-        //Refresh context menu
-        tbv.gui.main1.contextMenu.contextChanged(selectedToolName);
 
         //If this is the first time through - i.e. page just loaded - and
         //this is a visualisation too, then process any URL initialisation parameters.
@@ -416,8 +363,7 @@
         html.append($("<b>").html(tbv.f.getCitation(tbv.d.kbmetadata, "Knowledge-base", tbv.d.softwareMetadata.title)));
 
         var button = $("<button>Copy citations</button>");
-        button.button();
-
+  
         button.click(function () {
             $("#tbSelectedCitations").html("");//Clear
 
@@ -448,134 +394,21 @@
             display = show;
         } else {
             //Toggle
-            display = !($("#tombioGuiMain1Controls").is(":visible"));
+            display = !($("#tombioGuiLargeControls").is(":visible"));
         }
         if (display) {
-            $("#tombioGuiMain1Controls").show(0, tbv.f.resizeControlsAndTaxa);
+            $("#tombioGuiLargeControls").show(0, tbv.f.resizeControlsAndTaxa);
         } else {
-            $("#tombioGuiMain1Controls").hide(0, tbv.f.resizeControlsAndTaxa);
+            $("#tombioGuiLargeControls").hide(0, tbv.f.resizeControlsAndTaxa);
         }
     }
 
     function createContextMenu() {
-
-        //Create the context menu object and store in the module state object.
-        tbv.gui.main1.contextMenu = {};
-
-        //Add a property which is an object which links to each item
-        //in the menu. 
-        tbv.gui.main1.contextMenu.items = {};
-
-        //Add a property which is an object which stores the
-        //contexts (visualisations) valid for each item.
-        tbv.gui.main1.contextMenu.contexts = {};
-
-        //Initialise the ul element which will form basis of menu
-        tbv.gui.main1.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioGuiMain1')
-            .addClass("contextMenu")
-            .css("position", "absolute")
-            .css("display", "none")
-            .css("z-index", 999999);
-        //.append($('<li>').text("menu test"))
-
-        //Make it into a jQuery menu
-        tbv.gui.main1.contextMenu.menu.menu();
-
-        //Handle the invocation of the menu
-        $("#tombioGuiMain1").on("contextmenu", function (event) {
-
-            tbv.gui.main1.contextMenu.menu.position({
-                //This will not work for the first click for
-                //some reason - subsequent clicks okay
-                //my: "top left",
-                //of: event
-            });
-
-            //Alternative method
-            var parentOffset = $(this).parent().offset();
-            var relX = event.pageX - parentOffset.left;
-            var relY = event.pageY - parentOffset.top;
-            tbv.gui.main1.contextMenu.menu.css({ left: relX, top: relY });
-
-            tbv.gui.main1.contextMenu.menu.show();
-
-            return false; //Cancel default context menu
-        })
-
-        //Handle removal of the menu
-        $("#tombioGuiMain1").on("click", function () {
-            tbv.gui.main1.contextMenu.menu.hide();
-        });
-
-        //Add method to add an item
-        tbv.gui.main1.contextMenu.addItem = function (label, f, contexts, bReplace) {
-
-            //Replace item if already exists 
-            //(workaround to let different visualisations have same items with different functions)
-            if (bReplace && label in tbv.gui.main1.contextMenu.items) {
-                tbv.gui.main1.contextMenu.items[label].remove();
-                delete tbv.gui.main1.contextMenu.items[label];
-                delete tbv.gui.main1.contextMenu.contexts[label];
-            }
-
-            //Add item if it does not already exist
-            if (!(label in tbv.gui.main1.contextMenu.items)) {
-
-                var item = $("<li>").append($("<div>").text(label).click(f));
-                tbv.gui.main1.contextMenu.menu.append(item);
-                tbv.gui.main1.contextMenu.menu.menu("refresh");
-                tbv.gui.main1.contextMenu.items[label] = item;
-                tbv.gui.main1.contextMenu.contexts[label] = contexts;
-            }
-        }
-
-        //Add method to remove an item
-        tbv.gui.main1.contextMenu.removeItem = function (label) {
-            if (label in tbv.gui.main1.contextMenu.items) {
-                tbv.gui.main1.contextMenu.items[label].remove();
-                delete tbv.gui.main1.contextMenu.items[label];
-                delete tbv.gui.main1.contextMenu.contexts[label];
-            }
-        }
-
-        //Add method to signal that the context has changed
-        tbv.gui.main1.contextMenu.contextChanged = function (context) {
-
-            //Go through each item in context menu and hide it if 
-            //not valid for this context.
-            for (var label in tbv.gui.main1.contextMenu.items) {
-
-                if (tbv.gui.main1.contextMenu.contexts[label].indexOf(context) > -1) {
-                    tbv.gui.main1.contextMenu.items[label].show();
-                    //console.log("show menu item")
-                } else {
-                    tbv.gui.main1.contextMenu.items[label].hide();
-                    //console.log("hide menu item", label)
-                }
-            }
-        }
-    }
-
-    function debugText(text, append) {
-        //A general utility function for printing diagnostic text in cases where a console is not available,
-        //e.g. on mobile device browsers. Requires element #tombioGuiMain1DebugText.
-        var d = $("#tombioGuiMain1DebugText");
-        if (text === null) {
-            //Hide error display element
-            d.html("");
-            d.hide();
-        } else {
-            d.show();
-            //Random number helps us distinguish when function is called repeatedly
-            //with the same text
-            var rand = Math.floor(Math.random() * 1000);
-            text = rand + " " + text;
-            if (append) {
-                d.html(d.html() + "<br/>" + text);
-            } else {
-                d.html(text);
-            }
-        }
+        //Build a dummy context menu.
+        //The visualisations expect to find these objects.
+        tbv.gui.main.contextMenu = {};
+        tbv.gui.main.contextMenu.addItem = function () { };
+        tbv.gui.main.contextMenu.removeItem = function () { };
     }
 
 }(jQuery, this.tombiovis));

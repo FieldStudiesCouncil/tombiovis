@@ -10,11 +10,12 @@
         };
     }
 
+    //Options object initialisations
     if (!tbv.opts) {
-        //If tbv.opts doesn't exist, initialise to an empty object
-        //to prevent access of properties of tbv.opts from failing.
-        //(For backwards compatibility - tvb.opts was not introduced until 1.6.0)
         tbv.opts = {}
+    }
+    if (!tbv.opts.toolconfig) {
+        tbv.opts.toolconfig = {}
     }
 
     //For backward compatibility (prior to 1.6.0) allow for direct
@@ -54,6 +55,7 @@
 
     //Object to store all the gui related stuff
     tbv.gui = {};
+    tbv.gui.sharedKeyInput = {};
 
     //Metadata about the core software. This should be updated for any
     //new release. This includes changes to all code and files in the
@@ -268,18 +270,18 @@
     jsF.pqgrid.requiresFirst = ["jqueryui"];
 
     //KeyInput
-    jsF.add("keyinput", "keyinput.js?ver=" + tbv.opts.tombiover);
-    jsF.keyinput.addCSS("css/keyinput.css");
-    jsF.keyinput.requires = ["pqselect", "jqueryui"];
+    jsF.add("keyInput", "keyinput.js?ver=" + tbv.opts.tombiover);
+    jsF.keyInput.addCSS("css/keyinput.css");
+    jsF.keyInput.requires = ["pqselect", "jqueryui"];
 
     //KeyInputBasic
-    jsF.add("keyinputbasic", "keyinputBasic.js?ver=" + tbv.opts.tombiover);
-    jsF.keyinputbasic.addCSS("css/keyinputbasic.css");
+    jsF.add("keyInputBasic", "keyinputBasic.js?ver=" + tbv.opts.tombiover);
+    jsF.keyInputBasic.addCSS("css/keyinputbasic.css");
 
     //The main tombiovis module
     jsF.add("tombiovis", "tombiovis.js?ver=" + tbv.opts.tombiover);
     jsF.tombiovis.addCSS("css/tombiovis.css");
-    jsF.tombiovis.requires = ["kbchecks", "keyinput", "keyinputbasic", "guiMain1"];
+    jsF.tombiovis.requires = ["kbchecks"];
 
     //Knowledge-base checks
     jsF.add("kbchecks", "kbchecks.js?ver=" + tbv.opts.tombiover);
@@ -299,37 +301,48 @@
     jsF.add("visPjQueryUILargeFormat", "visPjQueryUILargeFormat.js?ver=" + tbv.opts.tombiover);
     jsF.visPjQueryUILargeFormat.addCSS("css/visp-jquery-ui-large-format.css")
     jsF.visPjQueryUILargeFormat.requiresFirst = ["visP"];
+    jsF.visPjQueryUILargeFormat.requires = ["jqueryui"];
 
-    //The main GUI
-    jsF.add("guiMain1", "guiMain1.js?ver=" + tbv.opts.tombiover);
-    jsF.guiMain1.addCSS("css/guiMain1.css");
-    jsF.guiMain1.requires = ["jqueryui"];
+    //The prototype visualisation module for large format without jQuery UI (for testing)
+    jsF.add("visPlargeFormat", "visPlargeFormat.js?ver=" + tbv.opts.tombiover);
+    //jsF.visPlargeFormat.addCSS("css/visp-jquery-ui-large-format.css")
+    jsF.visPlargeFormat.requiresFirst = ["visP"];
+
+    //Main GUI - Large format with jQuery UI
+    jsF.add("guiLargeJqueryUi", "guiLargeJqueryUi.js?ver=" + tbv.opts.tombiover);
+    jsF.guiLargeJqueryUi.addCSS("css/guiLargeJqueryUi.css");
+    jsF.guiLargeJqueryUi.requires = ["jqueryui"];
+
+    //Main GUI - Large format test (no jQuery)
+    jsF.add("guiLarge", "guiLarge.js?ver=" + tbv.opts.tombiover);
+    jsF.guiLarge.addCSS("css/guiLarge.css");
+    //jsF.guiLarge.requires = ["jqueryui"];
 
     //The visualisation modules
     jsF.add("vis1", "vis1/vis1.js?ver=" + tbv.opts.tombiover, "Two-column key");
     jsF.vis1.addCSS("vis1/vis1.css");
-    jsF.vis1.requiresFirst = ["visPjQueryUILargeFormat"];
-    jsF.vis1.requires = ["jqueryui", "score", "keyinput"];
+    jsF.vis1.requires = ["score"];
+    setVisDependencies("vis1", true);
 
     jsF.add("vis2", "vis2/vis2.js?ver=" + tbv.opts.tombiover, "Single-column key");
     jsF.vis2.addCSS("vis2/vis2.css");
-    jsF.vis2.requiresFirst = ["visPjQueryUILargeFormat"];
-    jsF.vis2.requires = ["jqueryui", "score", "keyinput"];
+    jsF.vis2.requires = ["jqueryui", "score"];
+    setVisDependencies("vis2", true);
 
     jsF.add("vis3", "vis3/vis3.js?ver=" + tbv.opts.tombiover, "Side by side comparison");
     jsF.vis3.addCSS("vis3/vis3.css");
-    jsF.vis3.requiresFirst = ["visPjQueryUILargeFormat"];
     jsF.vis3.requires = ["jqueryui", "taxonselect", "pqgrid", "score"];
+    setVisDependencies("vis3", false);
 
     jsF.add("vis4", "vis4/vis4.js?ver=" + tbv.opts.tombiover, "Full taxon details");
     jsF.vis4.addCSS("vis4/vis4.css");
-    jsF.vis4.requiresFirst = ["visPjQueryUILargeFormat"];
     jsF.vis4.requires = ["jqueryui", "taxonselect"];
+    setVisDependencies("vis4", false);
 
     jsF.add("vis5", "vis5/vis5.js?ver=" + tbv.opts.tombiover, "Circle-pack key");
     jsF.vis5.addCSS("vis5/vis5.css");
-    jsF.vis5.requiresFirst = ["visPjQueryUILargeFormat"];
-    jsF.vis5.requires = ["jqueryui", "score", "keyinput"];
+    jsF.vis5.requires = ["jqueryui", "score"];
+    setVisDependencies("vis5", true);
 
     jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Bespoke earthworm key");
     jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
@@ -341,6 +354,7 @@
         jsF.spinner.loadJs()
         .then(function () {
             tbv.f.showDownloadSpinner();
+            //D3 and jQuery always loaded up front
             return Promise.all([jsF.d3.loadJs(), jsF.jquery.loadJs()]);
         })
         .then(function () {
@@ -351,7 +365,15 @@
             return loadKB();
         })
         .then(function () {
-            jsF.tombiovis.loadJs().then(function () {
+            //Load tombiovis and the main gui
+            if (tbv.opts.gui) {
+                var gui = tbv.opts.gui;
+            } else {
+                //For when gui not specified in opts
+                var gui = "guiLargeJqueryUi";
+            }
+            var pLoad = [jsF.tombiovis.loadJs(), jsF[gui].loadJs()];
+            Promise.all(pLoad).then(function () {
                 tbv.f.hideDownloadSpinner();
                 //Call the application-wide loadComplete (supplied by tombiovis)
                 tbv.f.loadcomplete();
@@ -543,6 +565,39 @@
     function nameFromPath(file) {
         var split = file.split("/");
         return split[split.length - 1];
+    }
+
+    function setVisDependencies (vis, hasKeyInput) {
+
+        if (!tbv.opts.toolconfig[vis]) tbv.opts.toolconfig[vis] = {};
+        if (!jsF[vis].requiresFirst) jsF[vis].requiresFirst = [];
+        //Set prototype option
+        if (!tbv.opts.toolconfig[vis].prototype) {
+            //Prototype for tool is not specified in opts
+            if (tbv.opts.toolconfig.defaultPrototype) {
+                //General prototype specified in opts so set to this
+                tbv.opts.toolconfig[vis].prototype = tbv.opts.toolconfig.defaultPrototype;
+            } else {
+                //No general prototype specified either, so set default
+                tbv.opts.toolconfig[vis].prototype = "visPjQueryUILargeFormat";
+            }
+        }
+        jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].prototype);
+
+        if (hasKeyInput) {
+            var keyinput;
+            if (!tbv.opts.toolconfig[vis].keyinput) {
+                //keyinput for tool is not specified in opts
+                if (tbv.opts.toolconfig.defaultKeyinput) {
+                    //General keyinput specified in opts so set to this
+                    tbv.opts.toolconfig[vis].keyinput = tbv.opts.toolconfig.defaultKeyinput;
+                } else {
+                    //No general keyinput specified either, so set to default
+                    tbv.opts.toolconfig[vis].keyinput = "keyInput";
+                }
+            }
+            jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].keyinput);
+        }
     }
 })(
     //Pass the tombiovis object into this IIFE if it exists (e.g. defined in HTML page)

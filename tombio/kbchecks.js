@@ -82,9 +82,6 @@
 
         //Reload button to avoid cache when KB problems are fixed.
         $('#tombioReload')
-          .button({
-              icons: { primary: 'ui-icon-reset', secondary: null }
-          })
           .click(function (event) {
               //Force reload of entire page - ignoring cache.
               window.location.reload(true);
@@ -92,7 +89,6 @@
 
         //Continue button to force continue.
         $('#tombioContinue')
-          .button()
           .css("margin-left", "5px")
           .click(function (event) {
               $("#downloadspin").show();

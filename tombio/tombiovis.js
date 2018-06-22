@@ -462,10 +462,10 @@
         addValuesToCharacters();
 
         //Build top-level page elements.
-        tbv.gui.main1.addTopPageElements();
+        tbv.gui.main.addTopPageElements();
 
         //Create main interface controls
-        tbv.gui.main1.createUIControls();
+        tbv.gui.main.createUIControls();
 
         //Get rid of the load spinner
         $("#downloadspin").remove();
@@ -505,7 +505,7 @@
         }
 
         if (selectedToolName == "visInfo" || selectedToolName == "kbInfo") {
-            tbv.gui.main1.visShow(selectedToolName);
+            tbv.gui.main.visShow(selectedToolName);
             return;
         }
 
@@ -537,17 +537,17 @@
                 //(may happen if option not selected from built-in drop-down list)
                 if (!tbv.v.visualisations[lastVis].visName) {
                     var visObj = tbv.v.visualisations[lastVis];
-                    visObj.initP(lastVis, tbv.gui.main1);
+                    visObj.initP(lastVis, tbv.gui.main);
                 }
                 tbv.v.lastVis = lastVis;
-                tbv.gui.main1.visShow(selectedToolName);
+                tbv.gui.main.visShow(selectedToolName);
             })
             return;
         }
 
         if (selectedToolName == "mediaFilesCheck" || selectedToolName == "tvkCheck") {
 
-            tbv.gui.main1.visShow(selectedToolName);
+            tbv.gui.main.visShow(selectedToolName);
             return;
         }
 
@@ -557,16 +557,16 @@
             tbv.f.hideDownloadSpinner();
             if (!tbv.v.visualisations[selectedToolName].visName) {
                 var visObj = tbv.v.visualisations[selectedToolName];
-                visObj.initP(selectedToolName, tbv.gui.main1);
+                visObj.initP(selectedToolName, tbv.gui.main);
             }
             console.log("Starting", selectedToolName);
-            tbv.gui.main1.visShow(selectedToolName);
+            tbv.gui.main.visShow(selectedToolName);
         })
 
         //Because this routine can be called outside of the immediate interface, we need
         //to send the interface a message to say that the tool has been selected
         //so that interface can change its displayed value if necessary.
-        tbv.gui.main1.toolSet(selectedToolName);
+        tbv.gui.main.setSelectedTool(selectedToolName);
     }
 
     tbv.f.initControlsFromParams = function (params) {
@@ -651,7 +651,7 @@
     }
 
     tbv.f.resizeControlsAndTaxa = function () {
-        tbv.gui.main1.resizeControlsAndTaxa();
+        tbv.gui.main.resizeControlsAndTaxa();
     };
 
     tbv.f.characterHasHelp = function (character) {

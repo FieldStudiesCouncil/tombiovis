@@ -14,7 +14,7 @@
 
     visP.initP = function (visName, gui) {
 
-        var parent = gui.visParent;
+        var parent = gui.visTaxa;
         var contextMenu = gui.contextMenu;
 
         this.visName = visName;

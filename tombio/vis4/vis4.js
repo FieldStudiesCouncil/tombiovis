@@ -4,7 +4,8 @@
     "use strict";
 
     var visName = "vis4";
-    var vis4 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
+    var vis4 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+
     var _this;
     var taxSel; 
     var win, divImage, divKb, divInfo, visFullDetails;
@@ -178,7 +179,7 @@
         //(from the calling page), then add this in parentheses after the taxon name. Oterhwise
         //just use the taxon name.
         var subCharVal, taxonHeader;
-        if (tbv.opts.toolconfig && tbv.opts.toolconfig.vis4 && tbv.opts.toolconfig.vis4.subTitleChar) {
+        if (tbv.opts.toolconfig.vis4 && tbv.opts.toolconfig.vis4.subTitleChar) {
             var subChar = tbv.opts.toolconfig.vis4.subTitleChar;
             subCharVal = tbv.d.oTaxa[taxonName][subChar].kbValue;
         }

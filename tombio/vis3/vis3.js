@@ -4,7 +4,8 @@
     "use strict";
     
     var visName = "vis3";
-    var vis3 = tbv.v.visualisations[visName] = Object.create(tbv.v.visPjQueryUILargeFormat);
+    var vis3 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+
     var _this;
     var taxSel;
 
