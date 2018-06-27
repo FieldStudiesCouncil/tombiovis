@@ -446,17 +446,25 @@
             tbv.oCharacters[character].stateSet = stateSet;
 
             //userInput for text controls is an array of values representing the index of the 
-            //selected character states 
+            //selected character states.
+            //select.val() for single select controls is a string, but for a multi-select control is
+            //an array. Coerce string values to arrays. (To fix bug #19 17/06/2018).
             if (stateSet) {
+                if (typeof select.val() == 'string') {
+                    var selectVal = [select.val()];
+                } else {
+                    var selectVal = select.val();
+                }
                 var values = [];
-                tbv.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
-                    if (select.val().indexOf(stateValue) > -1) {
+                tbv.d.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+                    if (selectVal.indexOf(stateValue) > -1) {
                         values.push(index);
                     }
                 })
-                tbv.oCharacters[character].userInput = values;
+
+                tbv.d.oCharacters[character].userInput = values;
             } else {
-                tbv.oCharacters[character].userInput = null;
+                tbv.d.oCharacters[character].userInput = null;
             }
 
             //Set the tooltip for the character states selected. This has to be done every time
