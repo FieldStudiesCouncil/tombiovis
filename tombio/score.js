@@ -65,9 +65,9 @@
         selectedStates.forEach(function (selState) {
             var selStateRank;
             posStates.forEach(function (state, rank) {
-                if (state == selState) selStateRank = rank;
+                if (state == selState) selStateRank = rank;  
             })
-
+         
             kbAllTaxonStates.forEach(function (taxState) {
 
                 //Set the rank of the selected value

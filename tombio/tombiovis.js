@@ -928,7 +928,7 @@
                         scorefor = 0;
                         scoreagainst = 1;
                     } else {
-                        
+
                         //Translate c.userInput which is an array of selected indices into an array of values (for scoring)
                         var selectedStates = c.userInput.map(function (i) {
                             return c.CharacterStateValues[i];

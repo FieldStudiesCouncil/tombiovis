@@ -443,11 +443,18 @@
             tbv.d.oCharacters[character].stateSet = stateSet;
 
             //userInput for text controls is an array of values representing the index of the 
-            //selected character states 
+            //selected character states.
+            //select.val() for single select controls is a string, but for a multi-select control is
+            //an array. Coerce string values to arrays.
             if (stateSet) {
+                if (typeof select.val() == 'string') {
+                    var selectVal = [select.val()];
+                } else {
+                    var selectVal = select.val();
+                }
                 var values = [];
                 tbv.d.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
-                    if (select.val().indexOf(stateValue) > -1) {
+                    if (selectVal.indexOf(stateValue) > -1) {
                         values.push(index);
                     }
                 })
