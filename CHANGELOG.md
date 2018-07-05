@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.2] - 2018-07-05
+### Fixed
+ - Addressed issue #19 - single select text items sometimes mis-selected.
 ## [1.7.1] - 2018-06-11
 ### Fixed
  - Addressed problem with 'close' and 'full-size' image controls not working in the side-by-side comparison tool when galleria image small.
