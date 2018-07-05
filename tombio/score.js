@@ -104,6 +104,7 @@
                 }
             })
         })
+
         //ret could be be undefined if one of the taxon states was not in the posStates array
         // - this shouldn't happen but can if kb developer has ignored warnings.
         if (ret) {

@@ -455,16 +455,19 @@
                 } else {
                     var selectVal = select.val();
                 }
+
+                console.log(selectVal)
                 var values = [];
-                tbv.d.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+                tbv.oCharacters[character].CharacterStateValues.forEach(function (stateValue, index) {
+
                     if (selectVal.indexOf(stateValue) > -1) {
                         values.push(index);
                     }
                 })
 
-                tbv.d.oCharacters[character].userInput = values;
+                tbv.oCharacters[character].userInput = values;
             } else {
-                tbv.d.oCharacters[character].userInput = null;
+                tbv.oCharacters[character].userInput = null;
             }
 
             //Set the tooltip for the character states selected. This has to be done every time
