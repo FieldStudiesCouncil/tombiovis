@@ -29,12 +29,9 @@
         this.indrad = 6;
         this.imagedim = 12;
 
-        //This visualisation does not use the generic state input controls, 
-        //but it does supply its own.
-        this.charStateInput = true;
         //Specify key input control (defined in this module)
         this.inputControl = Object.create(tbv.gui.keyInputEarthworm);
-        this.inputControl.init($(tbv.gui.main.visControls));
+        this.inputControl.init($(tbv.gui.main.divInput));
 
         //Help files
         this.helpFiles = [
@@ -293,7 +290,7 @@
 
         //Resize the SVG
         d3.select("#tombioEsbMultiaccess")
-            .style("width", this.taxwidth * 2 + this.taxspace * 3);
+            .style("width", this.taxwidth * 2 + this.taxspace * 3)
     }
 
     visEarthworm2.refresh = function () {
@@ -313,7 +310,7 @@
         //Colour the confidence button
         var charSpecifiedRamp = d3.scaleLinear()
             .domain([0, this.scoreChars.length/2, this.scoreChars.length])
-            .range(this.scoreColours);
+            .range(tbv.d.scoreColours);
         $(".tombioEsbConfidenceLevel").css("background", charSpecifiedRamp(charUsed));
 
         //Score each taxon against input characters and assign to correct column array
@@ -707,6 +704,19 @@
     visEarthworm2.urlParams = function (params) {
     }
 
+    visEarthworm2.show = function () {
+        //Responsible for showing all gui elements of this tool
+        $("#visEarthworm2").show();
+        visEarthworm2.inputControl.$div.show();
+        visEarthworm2.inputControl.initFromCharacterState();
+    }
+
+    visEarthworm2.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#visEarthworm2").hide();
+        visEarthworm2.inputControl.$div.hide();
+    }
+
     function sortTaxa(array, lastPosAttr) {
         return array.sort(function (a, b) {
 
@@ -735,7 +745,7 @@
         Array.prototype.push.apply(params, tbv.f.setParamsFromControls());
         
         //Generate the full URL
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
     function segDiff(val, range) {
@@ -899,10 +909,14 @@
         var _this = this;
 
         //Create tool interface
-        $("<div>").attr("id", "tombioEsbKeyInput").appendTo($parent);
+        var $mainDiv = $("<div>").attr("id", "tombioEsbKeyInput").appendTo($parent);
+
+        //##Interface##
+        //Set the property which identifies the top-level div for this input
+        this.$div = $mainDiv;
 
         //Set the property which identifies the top-level div for this input
-        tbv.gui.keyInputEarthworm.$div = $("#tombioEsbKeyInput");
+        //tbv.gui.keyInputEarthworm.$div = $("#tombioEsbKeyInput");
 
         var $table, $tr, $td, $el, $input, $reset
         $table = $("<table>").attr("id", "tombioEsbControlsTable")
@@ -1182,6 +1196,10 @@
             });
             $("#tombioEsbHelpTabs").tabs();
         });
+
+        //For some reason this needs to be done with a setTimeout otherwise the 
+        //control hasn't resized properly.
+        setTimeout(tbv.gui.main.resizeControlsAndTaxa, 100)
     }
 
     //Interface

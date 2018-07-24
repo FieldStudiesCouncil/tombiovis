@@ -7,5 +7,4 @@ test-*.js
 test-*.html
 test-*.css
 .vs/
-your-first-pwapp-master/
 kb/biscuits/*.csv

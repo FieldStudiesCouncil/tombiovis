@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis5";
-    var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+    var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
 
@@ -50,9 +50,6 @@
 
         //Initialisations
         this.abbrvnames = true;
-
-        //Reset this value if control can work with character state input controls
-        this.charStateInput = true;
 
         //Initialise taxon image tooltips
         this.displayToolTips = false;
@@ -182,7 +179,7 @@
         var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
         if (!tbv.gui.sharedKeyInput[keyinput]) {
             tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
-            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.divInput));
         }
         vis5.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
@@ -260,7 +257,7 @@
         //Prepare scales for the indicators
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(_this.scoreColours);
+            .range(tbv.d.scoreColours);
 
         //If the minimum overall score is greater than zero, correction is zero, otherwise
         //the correction is the absolute value of the minimum overall score.
@@ -294,7 +291,7 @@
                 cls += " " + d.data.data.rankColumn;
                 return cls;
             })
-            .attr("id", function (d) { return _this.taxonTag(d.data.id); })
+            .attr("id", function (d) { return tbv.f.taxonTag(d.data.id); })
             .on("click", function (d) {
                 if (focus !== d) {
                     d3.event.stopPropagation();
@@ -352,12 +349,12 @@
             .attr("class", function (d) {
                 return "label " + d.data.data.rankColumn;
             })
-            .attr("circleId", function (d) { return _this.taxonTag(d.data.id); })
+            .attr("circleId", function (d) { return tbv.f.taxonTag(d.data.id); })
             .style("display", "none")
             .on("click", function (d) {
                 if (!d.data.data.taxon) return
                 d3.event.stopPropagation();
-                _this.showFullDetails(d.data.data.taxon.Taxon, 0);
+                tbv.gui.main.showFullDetails(d.data.data.taxon.Taxon, 0);
             })
             
         textM = textE.merge(textU)
@@ -371,23 +368,27 @@
           
         textU.exit().remove();
 
-        $("circle, text").tooltip({
-            classes: {
-                "ui-tooltip": "taxon-tooltip ui-corner-all ui-widget-shadow"
-            },
-            track: true,
-            position: { my: "left+20 center", at: "right center" },
-            open: function (event, ui) {
-                setTimeout(function () {
-                    $(ui.tooltip).hide({ effect: "fade", duration: 500 });
-                }, 3000);
-            },
-            content: function () {
-                return $(this).attr("title");
-            }
-        });
-
-
+        //Tooltips varies depending on what gui this visualisation is working with.
+        //Wherever possible we want to avoid using gui-specific code within visualisations like this,
+        //but this code is simply not relevant to other visualisations or guis, so should stay here.
+        if (tbv.opts.gui == "guiLargeJqueryUi") {
+            $("circle, text").tooltip({
+                classes: {
+                    "ui-tooltip": "taxon-tooltip ui-corner-all ui-widget-shadow"
+                },
+                track: true,
+                position: { my: "left+20 center", at: "right center" },
+                open: function (event, ui) {
+                    setTimeout(function () {
+                        $(ui.tooltip).hide({ effect: "fade", duration: 500 });
+                    }, 3000);
+                },
+                content: function () {
+                    return $(this).attr("title");
+                }
+            });
+        }
+       
         if (view) {
             //If view exists, we are already zoomed somewhere
             zoomToView(view, view, transitionRefresh, true);
@@ -417,7 +418,7 @@
                 html = "<i>" + d.data.id + "</i>";
             }
             if (_this.displayToolTips) {
-                var img = _this.getTaxonTipImage(d.data.id);
+                var img = tbv.f.getTaxonTipImage(d.data.id);
                 if (img) {
                     img.css("margin-top", 5);
                     html = html + img[0].outerHTML;
@@ -455,6 +456,19 @@
         tbv.f.initControlsFromParams(params);
     }
 
+    vis5.show = function () {
+        //Responsible for showing all gui elements of this tool
+        $("#vis5").show();
+        vis5.inputControl.$div.show();
+        vis5.inputControl.initFromCharacterState();
+    }
+
+    vis5.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#vis5").hide();
+        vis5.inputControl.$div.hide();
+    }
+
     function getViewURL() {
 
         var params = [];
@@ -481,7 +495,7 @@
         params.push("imgtips=" + _this.displayToolTips);
 
         //Generate the full URL
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
     function highlightTopScorers(transitionRefresh) {
@@ -526,8 +540,9 @@
     function zoomToView(newView, endView, transitionRefresh, drawText) {
 
         //Remove any tool tip currently shown
-        $(".node-taxa").tooltip("close");
-        //$(".node").tooltip("close");
+        if (tbv.opts.toolconfig[visName].prototype == "visPjQueryUILargeFormat") {
+            $(".node-taxa").tooltip("close");
+        }
 
         var k = diameter / newView[2]; view = newView;
 

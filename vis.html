@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>FSC Identikit</title>
+
     <script>
         //Legacy method (still supported)
         //var tombiopath = "tombio/" //deprecated from 1.6.0
@@ -12,23 +13,24 @@
         //Set options to tailor page configuration (from 1.6.0 onwards)
         var tombiovis = {
             opts: {
-                gui: "guiLarge",
+                //gui: "guiLargeJqueryUi",
+                //gui: "guiLarge",
+                //gui: "guiOnsenUi",
                 hideVisDropdown: false,
                 ignoreNegativeScoring: false,
                 tools: ["vis1", "vis2", "vis5", "vis3", "vis4"],
-                //selectedTool: "vis5", //visInfo, kbInfo, currentVisInfo, tombioCitation
+                //selectedTool: "kbInfo", //visInfo, kbInfo, currentVisInfo, tombioCitation
                 //lastVisualisation: "vis1",
                 toolconfig: {
                     keyinput: {
                         selectedGroup: "Structure",
                     },
-                    defaultPrototype: "visPlargeFormat",
-                    defaultKeyinput: "keyInputBasic",
+                    //defaultKeyinput: "keyInput",
+                    //defaultKeyinput: "keyInputBasic",
                     //vis1: {
-                    //    prototype: "visPjQueryUILargeFormat",
                     //    keyinput: "keyInput"
-                    //}
-                    //    prototype: "visPlargeFormat",
+                    //},
+                    //vis2: {
                     //    keyinput: "keyInputBasic"
                     //}
                     //vis4: {
@@ -39,7 +41,7 @@
                 checkKB: true,
                 devel: true,
                 tombiopath: "tombio/",
-                tombiokbpath: "kb/biscuits/"
+                tombiokbpath: "kb2/harvestmen-test/"
             },
         }
     </script>
@@ -79,8 +81,8 @@
     </style>
 </head>
 <body>
-    <h1 id="tombiod3-header">FSC Identikit test</h1>
+    <!--<h1 id="tombiod3-header">FSC Identikit test</h1>-->
     <div id="tombiod3"></div>
-    <div id="tombiod3-footer" style="width: 100%">footers</div>
+    <!--<div id="tombiod3-footer" style="width: 100%">footers</div>-->
 </body>
 </html>

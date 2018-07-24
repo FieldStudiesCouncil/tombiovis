@@ -21,9 +21,6 @@
         this.metadata.contact = null;
         this.metadata.version = null;
 
-        //Reset this value if control can work with character state input controls
-        this.charStateInput = true;
-
         //Help files
         this.helpFiles = [
             //tbv.opts.tombiopath + "vis4/vis4Help.html",
@@ -49,6 +46,14 @@
         //Replace the following to initialise visualisation
         //from parameters.
         console.log("URL parameters:", params);
+    }
+
+    visT.show = function () {
+        //Responsible for showing all gui elements of this tool
+    }
+
+    visT.hide = function () {
+        //Responsible for hiding all gui elements of this tool
     }
 
 })(jQuery, this.tombiovis)

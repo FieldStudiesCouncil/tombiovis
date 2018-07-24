@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis2";
-    var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+    var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
 
@@ -20,9 +20,6 @@
         this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.1';
-
-        //Controls works with character state input controls
-        this.charStateInput = true;
 
         //Help files
         this.helpFiles = [
@@ -43,7 +40,7 @@
         var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
         if (!tbv.gui.sharedKeyInput[keyinput]) {
             tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
-            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.divInput));
         }
         vis2.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
@@ -62,22 +59,22 @@
         //Set up scale for characters indiators indicator
         var scaleCharInd = d3.scaleLinear()
             .domain([-1, 0, 1])
-            .range(_this.scoreColours);
+            .range(tbv.d.scoreColours);
 
         //Set up scale for overall score indicator
         var maxOverall = d3.max(tbv.d.taxa, function (d) { return d.visState.score.overall; });
         var minOverall = d3.min(tbv.d.taxa, function (d) { return d.visState.score.overall; });
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(_this.scoreColours);
+            .range(tbv.d.scoreColours);
 
         //Set up sort array
         var sortedTaxa = [];
         tbv.d.taxa.forEach(function (taxon) {
             sortedTaxa.push(taxon);
         });
-        //this.sortTaxa(sortedTaxa, "vis2", "lastPosition");
-        this.sortTaxa(sortedTaxa);
+        //tbv.f.sortTaxa(sortedTaxa, "vis2", "lastPosition");
+        tbv.f.sortTaxa(sortedTaxa);
 
         ////A sort bug in Chrome and others means requires a workaround to ensure that 
         ////seemingly random changes amongst equal items are not produced. Remember last
@@ -154,19 +151,8 @@
                     })
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        _this.showFullDetails(d.Taxon, 0);
+                        tbv.gui.main.showFullDetails(d.Taxon, 0);
                     });
-
-                //Tooltips
-                $(".scientificnames").tooltip({
-                    track: true,
-                    items: "text",
-                    content: function () {
-                        if (_this.displayToolTips) {
-                            return _this.getTaxonTipImage(this.textContent)
-                        } 
-                    }
-                })
 
                 d3.select(this).append("rect")
                     .attr("class", "type2VisOverallInd")
@@ -206,11 +192,7 @@
                         }
                     })
                     .on("click", function () {
-                        var offset = $(tbv.gui.main.visTop).offset();
-                        var x = d3.event.clientX - offset.left + document.body.scrollLeft;
-                        var y = d3.event.clientY - offset.top + document.body.scrollTop;;
-
-                        _this.showFullDetails(d.Taxon, 1, x, y);
+                        tbv.gui.main.showFullDetails(d.Taxon, 1);
                     })
             })
             .merge(mtU);
@@ -283,15 +265,16 @@
             .style("opacity", 0)
             .remove();
 
-        $(".type2VisOverallInd").tooltip();
-        $(".type2VisOverallIndText").tooltip();
+        tbv.gui.main.createTaxonToolTips(".scientificnames", this.displayToolTips);
+        tbv.gui.main.tooltip(".type2VisOverallInd");
+        tbv.gui.main.tooltip(".type2VisOverallIndText");
 
         //Character state indicators
         mtM.each(function (d, i) {
 
             var iTaxon = i;
             var taxon = d;
-            var taxonTag = d.Taxon.kbValue.replace(/[\/|&;$%@"<>()+:.,' ]/g, '');
+            var taxonTag = tbv.f.taxonTag(d.Taxon.kbValue);                     
 
             var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
                 .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });
@@ -300,7 +283,7 @@
                 .attr("class", "type2VisIndicators-" + taxonTag)
                 .style("cursor", "pointer") 
                 .on("click", function (d, i) {
-                    _this.showCharacterScore(taxon, d);
+                    tbv.gui.main.showCharacterScore(taxon, d);
                 })
                 .each(function () {
 
@@ -472,12 +455,19 @@
 
         //Set the state controls
         tbv.f.initControlsFromParams(params);
+    }
 
-        //Hack to ensure that guiLargeJqueryUI is resized to accommodate the reset character values
-        setTimeout(function () {
-            var controlsWidth = $(tbv.gui.main.visControls).width();
-            $(tbv.gui.main.visTaxaAndControls).css("min-width", controlsWidth + $('#vis2Svg').width() + 50);
-        }, 700)
+    vis2.show = function () {
+        //Responsible for showing all gui elements of this tool
+        $("#vis2").show();
+        vis2.inputControl.$div.show();
+        vis2.inputControl.initFromCharacterState();
+    }
+
+    vis2.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#vis2").hide();
+        vis2.inputControl.$div.hide();
     }
 
     function getViewURL() {
@@ -498,7 +488,7 @@
 
         //Generate the full URL
 
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
 })(jQuery, this.tombiovis)

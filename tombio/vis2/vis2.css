@@ -40,6 +40,7 @@
 }
 #vis2 svg {
     overflow: visible;
+    margin: 5px;
 }
 
 #vis2 .taxarect {

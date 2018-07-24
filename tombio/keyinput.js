@@ -6,12 +6,10 @@
     tbv.gui.keyInput = {
         //##Interface##
         //Variables that are part of the required interface...
-        
+        width: 360, //Default modified depending on whether or not tabs are present
         //Other variables 
         bullet: "", //"&#x26AB "
         inputCharGroups: [],
-        helpAndInfoDialogWidth: 550,
-        helpAndInfoDialogHeight: 400,
         //lastGroup: null,
         verticalTabSpace: 33
     };
@@ -21,25 +19,6 @@
 
         //Dynamically create the character input widgets
         var _this = this;
-
-        //Create dialog for input control help and information
-        $("<div>").attr("id", "tombioKeyInputDialog").css("display", "none").appendTo($parent); //.appendTo("#tombiod3vis");
-        $("#tombioKeyInputDialog").dialog({
-            modal: false,
-            width: this.helpAndInfoDialogWidth,
-            height: this.helpAndInfoDialogHeight,
-            resizable: true,
-            draggable: true,
-            autoOpen: false,
-            show: {
-                effect: "highlight",
-                duration: 500
-            },
-            hide: {
-                effect: "fade",
-                duration: 250
-            }
-        })
 
         //For group tabs
         $("<div>").attr("id", "tombioKeyInputTabs").css("background-color", "rgba( 255,255, 255, 0.7)").appendTo($parent);
@@ -67,7 +46,7 @@
         });
 
         //Set minimum  height of tombio controls otherwise overlaps input control tabs
-        $(tbv.gui.main.visControls).css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
+        $(tbv.gui.main.divInput).css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
 
         for (var chargroup in characters) {
 
@@ -146,7 +125,7 @@
                 //that visibility can be set as a unit.
                 var cloneDiv = $("<div/>").attr("class", "cloneInput");
                 cloneDiv.append(characterDiv.clone());
-                $("#tombioKeyInputTab-All").append(cloneDiv);
+                $("#tombioKeyInputTab-All").css("display", "inline-block").append(cloneDiv);
 
                 if (character.ValueType == "numeric") {
                     //Numeric control so create a spinner
@@ -158,7 +137,7 @@
                     var spinMax = Number(spinParams[1]);
                     var spinStep = Number(spinParams[2]);
 
-                    var div = $("<div></div>");
+                    var div = $("<div>");
                     var spincontrol = $("<input></input>").attr("class", "spinner").attr("id", spinID);
                     var spinclear = $("<div value='x'>").attr("class", "widget").attr("class", "spinclear").attr("id", spinID + "-clear");
                     div.append(spincontrol)
@@ -167,7 +146,7 @@
                     makeSpinner(spinID, spinMin, spinMax, spinStep);
 
                     //Clone this to the 'All' tab
-                    var div2 = $("<div></div>");
+                    var div2 = $("<div>");
                     var clonespincontrol = $("<input></input>").attr("class", "spinner").attr("id", "clone-" + spinID);
                     var clonespinclear = $("<div value='x'>").attr("class", "widget").attr("class", "spinclear").attr("id", "clone-" + spinID + "-clear");
                     div2.append(clonespincontrol)
@@ -224,6 +203,8 @@
 
             $('#tombioKeyInputListElements').css("display", "none");
             $('#tombioKeyInputTabs').css("padding-left", "0px");
+            //Reset recorded width
+            tbv.gui.keyInput.width = 255;
         }
 
         var tabs = $("#tombioKeyInputTabs").tabs({
@@ -294,17 +275,12 @@
                         'color': 'black'
                     }, 'fast');
                 }
-            )
-            .tooltip({
-                track: true,
-                items: "span",
-                content: function () {
-                    return getCharacterToolTip($(this).attr("character"));
-                }
-            })
+            ) 
             .click(function () {
                 showCharacterHelp($(this).attr("character"));
             });
+
+        tbv.gui.main.createCharacterTooltips(".characterhelp");
     }
 
     //##Interface##
@@ -531,8 +507,6 @@
             tbv.d.oCharacters[character].stateSet = true;
             tbv.d.oCharacters[character].userInput = val;
 
-            console.log(val)
-
             //if (!isClone) {
             //Update the taxon representation.
             tbv.f.refreshVisualisation();
@@ -578,140 +552,14 @@
         });
     }
 
-    function getCharacterToolTip (character) {
-
-        var ret = $('<div/>');
-        var tipTextPresent = false;
-
-        //Help text for character
-        //If HelpShort exists - use this for tip text, else use Help text. Must allow
-        //for KBs where HelpShort column doesn't exist for backward compatibility.
-        if (tbv.d.oCharacters[character].HelpShort && tbv.d.oCharacters[character].HelpShort != "") {
-            var helpText = tbv.d.oCharacters[character].HelpShort;
-            tipTextPresent = true;
-        } else {
-            var helpText = tbv.d.oCharacters[character].Help;
-        }
-
-        //Retrieve collection of media image rows for this character and sort by priority.
-        var charImagesFull = tbv.d.media.filter(function (m) {
-            if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character) {
-                return true;
-            }
-        }).sort(function (a, b) {
-            return Number(a.Priority) - Number(b.Priority)
-        })
-
-        //Loop through images for this character and set image for tooltip as highest
-        //priority image for which *no state value* is set (i.e. defined for character itself)
-        //and also count the number of *other* images that would be displayed in full help window
-        //(which includes state value images) - to help determine 'click for' text to append to tip.
-        var tipImage;
-        var otherFullImageCount = 0;
-        var fullImageCount = 0;
-        charImagesFull.forEach(function (m) {
-            var isForFull = false;
-            var isForTip = false;
-            if (!m.UseFor) {
-                isForTip = m.State ? false : true;
-                isForFull = true;
-            } else {
-                m.UseFor.split(",").forEach(function (useForVal) {
-                    if (useForVal.toLowerCase().trim() == "tip") {
-                        isForTip = m.State ? false : true;
-                    }
-                    if (useForVal.toLowerCase().trim() == "full") {
-                        isForFull = true;
-                    }
-                })
-            }
-            if (isForTip && !tipImage) {
-                tipImage = m;
-            } else if (isForFull) {
-                otherFullImageCount++;
-            }
-            if (isForFull) {
-                fullImageCount++;
-            }
-        })
-
-        var figure;
-        var floating = false;
-        if (tipImage) {
-            //For tooltips, only one image - the top priority image - is displayed.
-            figure = $('<figure/>');
-            figure.addClass("keyInputHelpFigure");
-            var img = $('<img/>', { src: tipImage.URI }).appendTo(figure).css("margin-top", 2);
-            if (tipImage.ImageWidth) {
-                img.css("width", tipImage.ImageWidth);
-            }
-            var cap = $('<figcaption/>', { html: tipImage.Caption }).appendTo(figure);
-
-            //If the TipStyle column exists (be prepared for it not to for older KBs)
-            //then adjust the style of the figure appropriately
-            if (tipImage.TipStyle && tipImage.TipStyle != "") {
-                //TipStyle should be something like this: right-25 or left-40
-                var tipStyleElements = tipImage.TipStyle.split("-");
-                var float = tipStyleElements[0];
-                var percent = tipStyleElements[1];
-                figure.css("width", percent + "%");
-                figure.css("float", float);
-                figure.css("margin-bottom", 5);
-                if (float == "right") {
-                    figure.css("margin-left", 5);
-                } else {
-                    figure.css("margin-right", 5);
-                }
-                floating = true;
-            }
-        }
-
-        //Add the elements in the correct order. If there is a floating image, it must come
-        //first so that it floats at the top. If not floating, it must come second.
-        var elements = [];
-        if (floating) {
-            elements.push(figure);
-        }
-        if (helpText.length > 0) {
-            elements.push($('<span/>').html(helpText))
-        }
-        if (!floating && figure) {
-            elements.push(figure);
-        }
-        elements.forEach(function (el) {
-            ret.append(el)
-        })
-
-        //Is there any state value help text? Required to determine 'click for' text.
-        var valueHelp = tbv.d.values.filter(function (v) {
-            if (v.Character == character && v.StateHelp) return true;
-        });
-
-        //Add 'click for' text for full help dialog. If tip text is present then there will be fuller help text.
-        //then this message should make it clear that *further* help is available. Otherwise a general message
-        //about a resizable dialog.
-
-        var clickForText = ""
-        if (tipTextPresent || otherFullImageCount > 0 || valueHelp.length > 0) {
-            var clickForText = "(Click for <b>more detailed help</b>.)"
-        } else if (tipImage && fullImageCount > 0) {
-            var clickForText = "(Click for resizeable help window.)"
-        }
-        if (clickForText) {
-            $('<div/>').css("margin-top", 5).css("font-weight", "normal").html(clickForText).appendTo(ret);
-        }
-
-        return ret
-    }
-
     function showCharacterHelp (character) {
 
         //Clear existing HTML
-        $("#tombioKeyInputDialog").html("");
+        var $divHelp = $("<div>");
 
         //Header for character
-        $('<h3/>', { text: tbv.d.oCharacters[character].Label }).appendTo('#tombioKeyInputDialog');
-        $('<p/>', { html: tbv.d.oCharacters[character].Help }).appendTo('#tombioKeyInputDialog');
+        $('<h3/>', { text: tbv.d.oCharacters[character].Label }).appendTo($divHelp);
+        $('<p/>', { html: tbv.d.oCharacters[character].Help }).appendTo($divHelp);
 
         //Help images for character (not necessarily illustrating particular states)
         var charImages = tbv.d.media.filter(function (m) {
@@ -737,7 +585,7 @@
         });
 
         charImages.forEach(function (charState, i) {
-            var fig = $('<figure/>').appendTo('#tombioKeyInputDialog');
+            var fig = $('<figure/>').appendTo($divHelp);
             fig.addClass('helpFigure');
             var img = $('<img/>', { src: charState.URI })
             var cap = $('<figcaption/>', { html: charState.Caption });
@@ -745,7 +593,7 @@
             if (i > 0) {
                 img.css("margin-top", 10);
             }
-            cap.appendTo('#tombioKeyInputDialog');
+            cap.appendTo($divHelp);
 
             if (charState.ImageWidth) {
                 img.css("width", charState.ImageWidth);
@@ -764,7 +612,7 @@
             } else {
                 var charStateText = charState.CharacterState;
             }
-            var para = $('<p/>').appendTo('#tombioKeyInputDialog');
+            var para = $('<p/>').appendTo($divHelp);
             var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
             para.append(spanState);
             var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
@@ -779,15 +627,15 @@
             });
 
             charImages.forEach(function (charState, i) {
-                //var fig = $('<figure/>').appendTo('#tombioKeyInputDialog');
+                //var fig = $('<figure/>').appendTo($divHelp);
                 var img = $('<img/>', { src: charState.URI })
                 var cap = $('<figcaption/>', { html: charState.Caption });
                 //fig.append(img).append(cap);
-                img.appendTo('#tombioKeyInputDialog')
+                img.appendTo($divHelp)
                 if (i > 0) {
                     img.css("margin-top", 10);
                 }
-                cap.appendTo('#tombioKeyInputDialog');
+                cap.appendTo($divHelp);
                 if (charState.ImageWidth) {
                     img.css("width", charState.ImageWidth);
                 }
@@ -795,8 +643,7 @@
         });
 
         //Display the help dialog
-        $("#tombioKeyInputDialog").dialog('option', 'title', 'Character help and information');
-        $("#tombioKeyInputDialog").dialog("open");
+        tbv.gui.main.dialog('Character help & info', $divHelp.html())
     }
 
 }(jQuery, this.tombiovis));

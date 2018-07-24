@@ -24,19 +24,14 @@
 
 #tombioGuiLargeControlsAndTaxa {
     position: relative;
-    /*border: 2px solid blue;*/
 }
 
 #tombioGuiLargeControls {
-    vertical-align: top;
-    display: inline-block;
-    position: relative;
+    float: left;
     z-index: 70;
 }
 
 #tombioGuiLargeTaxa {
-    vertical-align: top;
-    display: inline-block;
 }
 
 #tombioGuiLargeVisualisation-menu .ui-menu-item-wrapper {

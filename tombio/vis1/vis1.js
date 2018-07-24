@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis1";
-    var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+    var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
 
@@ -26,9 +26,6 @@
         this.taxheight = 35;
         this.indVoffset = 18;
 
-        //Reset this value if control can work with character state input controls
-        this.charStateInput = true;
-
         //Help files
         this.helpFiles = [
             tbv.opts.tombiopath + "vis1/vis1Help.html",
@@ -49,6 +46,7 @@
                      $("<span>")
                         .attr("id", "candidateTaxa")
                         .css("position", "absolute")
+                        .css("width", this.taxwidth)
                         .css("left", this.margin)
                         .css("font-size", "small")
                         .text("Evidence balance positive")
@@ -57,6 +55,7 @@
                      $("<span>")
                         .attr("id", "excludedTaxa")
                         .css("position", "absolute")
+                        .css("width", this.taxwidth)
                         .css("left", this.taxwidth + 2 * this.margin)
                         .css("font-size", "small")
                         .text("Evidence balance negative")
@@ -68,12 +67,16 @@
         var keyinput = tbv.opts.toolconfig[this.visName].keyinput;
         if (!tbv.gui.sharedKeyInput[keyinput]) {
             tbv.gui.sharedKeyInput[keyinput] = Object.create(tbv.gui[keyinput]);
-            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.visControls));
+            tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.divInput));
         }
+
+        //Interface
         vis1.inputControl = tbv.gui.sharedKeyInput[keyinput];
     }
 
     vis1.refresh = function () {
+
+        console.log("refresh")
 
         //Constants for laying out graphics for vis
         var margin = this.margin;
@@ -133,30 +136,10 @@
             })
             .on("click", function (d) {
                 d3.event.stopPropagation();
-                _this.showFullDetails(d.Taxon, 0);
+                tbv.gui.main.showFullDetails(d.Taxon, 0);
             });
 
-        //Tooltips
-        $(".scientificnames").tooltip({
-            track: true,
-            items: "text",
-            content: function () {
-                if (_this.displayToolTips) {
-                    return _this.getTaxonTipImage(this.textContent, this)
-                }
-            },
-            open: function (event, ui) {
-                //This overcomes problem of orphaned tooltips which cannot
-                //be dismissed. They can now be dismissed by clicking on them.
-                //Not sure what causes in first place, but could be reproduced
-                //by hovering over name to get tip and thenmove away from name 
-                //onto taxon rectangle and click before image disappears.
-                var $element = $(event.target);
-                ui.tooltip.click(function () {
-                    $element.tooltip('close');
-                });
-            },
-        })
+        tbv.gui.main.createTaxonToolTips(".scientificnames", this.displayToolTips);
 
         //Taxon image
         enterSelection.append("svg:image")
@@ -205,10 +188,10 @@
         });
 
         //Sort the lists of taxa 
-        //this.sortTaxa(taxain, "vis1", "lastPosInTaxain");
-        //this.sortTaxa(taxaout, "vis1", "lastPosInTaxaout");
-        this.sortTaxa(taxain, "vis1");
-        this.sortTaxa(taxaout, "vis1");
+        //tbv.f.sortTaxa(taxain, "vis1", "lastPosInTaxain");
+        //tbv.f.sortTaxa(taxaout, "vis1", "lastPosInTaxaout");
+        tbv.f.sortTaxa(taxain, "vis1");
+        tbv.f.sortTaxa(taxaout, "vis1");
 
         //Record the current position in each list so that when next sorted, this
         //can be taken into account in order to minimise travel through list. If
@@ -279,16 +262,16 @@
 
         var scaleOverall = d3.scaleLinear()
             .domain([minOverall, 0, maxOverall])
-            .range(this.scoreColours);
+            .range(tbv.d.scoreColours);
         var scaleFor = d3.scaleLinear()
             .domain([0, maxFor])
-            .range(this.scoreColours.slice(1));
+            .range(tbv.d.scoreColours.slice(1));
         var scaleAgainst = d3.scaleLinear()
             .domain([0, maxAgainst])
-            .range(this.scoreColours.slice(0,1).reverse());
+            .range(tbv.d.scoreColours.slice(0,1).reverse());
         var scaleCharacters = d3.scaleLinear()
             .domain([0, 10])
-            .range(this.scoreColours.slice(1));
+            .range(tbv.d.scoreColours.slice(1));
 
         var colourScales = [
             { "scale": scaleOverall, "attr": "overall" },
@@ -471,10 +454,10 @@
         }
 
         //Add/remove context menu item to expand all items
-        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && _this.getTaxonImages(taxon.Taxon).length > 0) })) {
+        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && tbv.f.getTaxonImages(taxon.Taxon).length > 0) })) {
             this.contextMenu.addItem("Expand all taxon items", function () {
                 tbv.d.taxa.forEach(function (taxon, i) {
-                    var taxonImages = _this.getTaxonImages(taxon.Taxon);
+                    var taxonImages = tbv.f.getTaxonImages(taxon.Taxon);
                     if (taxon.visState['vis1'].height == taxheight && taxonImages.length > 0) {
                         var imgLoad = new Image;
                         imgLoad.onload = function () {
@@ -523,6 +506,19 @@
 
         //Set the state controls
         tbv.f.initControlsFromParams(params);
+    }
+
+    vis1.show = function () {
+        //Responsible for showing all gui elements of this tool
+        $("#vis1").show();
+        vis1.inputControl.$div.show();
+        vis1.inputControl.initFromCharacterState();
+    }
+
+    vis1.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#vis1").hide();
+        vis1.inputControl.$div.hide();
     }
 
     function getViewURL() {
@@ -583,12 +579,12 @@
         params.push("expand=" + ranges.join(","));
 
         //Generate the full URL
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
     function expandTaxon(d, i) {
 
-        var taxonImages = _this.getTaxonImages(d.Taxon);
+        var taxonImages = tbv.f.getTaxonImages(d.Taxon);
         if (taxonImages.length > 0) {
 
             var imgLoad = new Image;

@@ -30,6 +30,14 @@
     if (typeof tombiokbpath !== 'undefined') {
         tbv.opts.tombiokbpath = tombiokbpath;
     }
+
+    //If main gui is set as a parameter, override that already set
+    var urlParams = new URLSearchParams(window.location.search);
+    var gui = urlParams.get('gui');
+    console.log("gui", gui)
+    if (gui) {
+        tbv.opts.gui = gui;
+    }
     
     //The reload option (tombiovis.js) uses window.location.reload(true)
     //to reload the page without cache. While this seems to reload all javascript files
@@ -45,6 +53,11 @@
 
     //Object to store all data
     tbv.d = {};
+    tbv.d.nbnMapCache = {}; //NBN image cache
+
+    //Colour ramp for the matching indicators to be used across all visualisations
+    //Vermillion-Yellow-Blue http://jfly.iam.u-tokyo.ac.jp/color/
+    tbv.d.scoreColours = ['#fc8d59', '#ffffbf', '#91bfdb'];
 
     //Object to store visualisation information
     tbv.v = {};
@@ -123,6 +136,7 @@
                 //Get promises for other JS required before this JS
                 var pRequiresFirst = [];
                 this.requiresFirst.forEach(function (id) {
+                    console.log(id)
                     pRequiresFirst.push(jsF[id].loadJs(thisId, true));
                 });
 
@@ -188,7 +202,9 @@
 
         //Div for wait spinner
         var waitDiv = document.createElement('div');
+
         waitDiv.id = 'downloadspin';
+
         //waitDiv.style = "position: absolute";
         //document.getElementById('tombiod3').appendChild(waitDiv);
         var tombiod3 = document.getElementById('tombiod3');
@@ -294,19 +310,8 @@
 
     //The base prototype visualisation module
     jsF.add("visP", "visP.js?ver=" + tbv.opts.tombiover);
-    jsF.visP.addCSS("css/visP.css");
-    jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
-
-    //The prototype visualisation module for large format jQueryUI interfaces
-    jsF.add("visPjQueryUILargeFormat", "visPjQueryUILargeFormat.js?ver=" + tbv.opts.tombiover);
-    jsF.visPjQueryUILargeFormat.addCSS("css/visp-jquery-ui-large-format.css")
-    jsF.visPjQueryUILargeFormat.requiresFirst = ["visP"];
-    jsF.visPjQueryUILargeFormat.requires = ["jqueryui"];
-
-    //The prototype visualisation module for large format without jQuery UI (for testing)
-    jsF.add("visPlargeFormat", "visPlargeFormat.js?ver=" + tbv.opts.tombiover);
-    //jsF.visPlargeFormat.addCSS("css/visp-jquery-ui-large-format.css")
-    jsF.visPlargeFormat.requiresFirst = ["visP"];
+    //jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
+    jsF.visP.requires = ["mousewheel", "galleria", "zoomMaster"];
 
     //Main GUI - Large format with jQuery UI
     jsF.add("guiLargeJqueryUi", "guiLargeJqueryUi.js?ver=" + tbv.opts.tombiover);
@@ -316,32 +321,47 @@
     //Main GUI - Large format test (no jQuery)
     jsF.add("guiLarge", "guiLarge.js?ver=" + tbv.opts.tombiover);
     jsF.guiLarge.addCSS("css/guiLarge.css");
-    //jsF.guiLarge.requires = ["jqueryui"];
+
+    //Onsen mobile-first GUI
+    jsF.add("guiOnsenUi", "guiOnsenUi.js?ver=" + tbv.opts.tombiover);
+    jsF.guiOnsenUi.addCSS("css/guiOnsenUi.css");
+    jsF.guiOnsenUi.requiresFirst = ["onsenui"];
+
+    //Onsenui
+    jsF.add("onsenui", "dependencies/onsenui-2.10.3/js/onsenui.js");
+    jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui.css");
+    jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsen-css-components.min.css");
+    jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui-fonts.css");
 
     //The visualisation modules
     jsF.add("vis1", "vis1/vis1.js?ver=" + tbv.opts.tombiover, "Two-column key");
     jsF.vis1.addCSS("vis1/vis1.css");
+    jsF.vis1.requiresFirst = ["visP"];
     jsF.vis1.requires = ["score"];
     setVisDependencies("vis1", true);
 
     jsF.add("vis2", "vis2/vis2.js?ver=" + tbv.opts.tombiover, "Single-column key");
     jsF.vis2.addCSS("vis2/vis2.css");
-    jsF.vis2.requires = ["jqueryui", "score"];
+    jsF.vis2.requiresFirst = ["visP"];
+    jsF.vis2.requires = ["score"];
     setVisDependencies("vis2", true);
 
     jsF.add("vis3", "vis3/vis3.js?ver=" + tbv.opts.tombiover, "Side by side comparison");
     jsF.vis3.addCSS("vis3/vis3.css");
-    jsF.vis3.requires = ["jqueryui", "taxonselect", "pqgrid", "score"];
+    jsF.vis3.requiresFirst = ["visP"];
+    jsF.vis3.requires = ["taxonselect", "pqgrid", "score"];
     setVisDependencies("vis3", false);
 
     jsF.add("vis4", "vis4/vis4.js?ver=" + tbv.opts.tombiover, "Full taxon details");
     jsF.vis4.addCSS("vis4/vis4.css");
-    jsF.vis4.requires = ["jqueryui", "taxonselect"];
+    jsF.vis4.requiresFirst = ["visP"];
+    jsF.vis4.requires = ["taxonselect"];
     setVisDependencies("vis4", false);
 
     jsF.add("vis5", "vis5/vis5.js?ver=" + tbv.opts.tombiover, "Circle-pack key");
     jsF.vis5.addCSS("vis5/vis5.css");
-    jsF.vis5.requires = ["jqueryui", "score"];
+    jsF.vis5.requiresFirst = ["visP"];
+    jsF.vis5.requires = ["score"];
     setVisDependencies("vis5", true);
 
     jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Bespoke earthworm key");
@@ -505,6 +525,7 @@
                     if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
                         tbv.v.includedVisualisations = tbv.opts.tools;
                     }
+
                     console.log("%cLoading - kb config loaded", "color: blue");
                     resolve();
                 });
@@ -571,18 +592,19 @@
 
         if (!tbv.opts.toolconfig[vis]) tbv.opts.toolconfig[vis] = {};
         if (!jsF[vis].requiresFirst) jsF[vis].requiresFirst = [];
-        //Set prototype option
-        if (!tbv.opts.toolconfig[vis].prototype) {
-            //Prototype for tool is not specified in opts
-            if (tbv.opts.toolconfig.defaultPrototype) {
-                //General prototype specified in opts so set to this
-                tbv.opts.toolconfig[vis].prototype = tbv.opts.toolconfig.defaultPrototype;
-            } else {
-                //No general prototype specified either, so set default
-                tbv.opts.toolconfig[vis].prototype = "visPjQueryUILargeFormat";
-            }
-        }
-        jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].prototype);
+
+        ////Set prototype option
+        //if (!tbv.opts.toolconfig[vis].prototype) {
+        //    //Prototype for tool is not specified in opts
+        //    if (tbv.opts.toolconfig.defaultPrototype) {
+        //        //General prototype specified in opts so set to this
+        //        tbv.opts.toolconfig[vis].prototype = tbv.opts.toolconfig.defaultPrototype;
+        //    } else {
+        //        //No general prototype specified either, so set default
+        //        tbv.opts.toolconfig[vis].prototype = "visPjQueryUILargeFormat";
+        //    }
+        //}
+        //jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].prototype);
 
         if (hasKeyInput) {
             var keyinput;

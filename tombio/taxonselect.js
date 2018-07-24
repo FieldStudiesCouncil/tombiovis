@@ -15,6 +15,7 @@
         //Variables that are part of the required interface...
         hiddenControlsShown: false, 
         taxonSort: null,
+        width: 225, 
         //Other variables for layout...
         //Implementation constants delegated to the taxonSelect object
         filterMessage: "Filter names (use # for 'starts with')",
@@ -58,6 +59,10 @@
         //Create the main control div
         var $mainDiv = $('<div class="taxonSelect" />').css("width", this.taxonWidth).appendTo($parent);
         var D3mainDiv = d3.select($mainDiv[0]);
+
+        //##Interface##
+        //Set the property which identifies the top-level div for this input
+        this.$div = $mainDiv;
 
         //Filter textbox
         var $textFilter = $('<input type="text"/>').addClass("ui-widget ui-widget-content ui-corner-all");
@@ -590,6 +595,9 @@
                 return D3x.empty() ? 0 : tranTime;
             })
             .attr('height', svgHeight)
+            .on("end", function () {
+                tbv.gui.main.resizeControlsAndTaxa();
+            })
     }
 
     tbv.gui.taxonSelect.checkEmptyFilter = function () {

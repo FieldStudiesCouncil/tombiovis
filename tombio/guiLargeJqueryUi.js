@@ -13,14 +13,20 @@
 
     //Required for standard gui interface
     tbv.gui.main.resizeControlsAndTaxa = function () {
-        //Because we want to prevent normal flow where tombioGuiLargeJqueryUiTaxa div would be moved
-        //under tombioGuiLargeJqueryUiControls div, we set a min width of their parent div to accommodate
-        //them both.
+
         if ($("#tombioGuiLargeJqueryUiControls").is(":visible")) {
+            //tombioGuiLargeJqueryUiControls is floated on the left.
+            //Reset left-margin of tombioGuiLargeJqueryUiTaxa to ensure it occupies correct width.
             var controlsWidth = $('#tombioGuiLargeJqueryUiControls').width();
-            $('#tombioGuiLargeJqueryUiControlsAndTaxa').css("min-width", controlsWidth + $('#tombioGuiLargeJqueryUiTaxa').width() + 50);
+            $('#tombioGuiLargeJqueryUiTaxa').css("margin-left", controlsWidth + 10);
+            //Reset min-height of tombioGuiLargeJqueryUiControlsAndTaxa to ensure that stuff that comes
+            //after (e.g. footer) comes under floated tombioGuiLargeJqueryUiControls.
+            var controlsHeight = $('#tombioGuiLargeJqueryUiControls').height();
+            $('#tombioGuiLargeJqueryUiControlsAndTaxa').css("min-height", controlsHeight + 10);
         } else {
-            $('#tombioGuiLargeJqueryUiControlsAndTaxa').css("min-width", "0px");
+
+            $('#tombioGuiLargeJqueryUiTaxa').css("margin-left", 0);
+            $('#tombioGuiLargeJqueryUiControlsAndTaxa').css("min-height", "0px");
         }
     }
 
@@ -49,10 +55,7 @@
             $("#tombioGuiLargeJqueryUiDeviceWarning").hide();
         })
 
-        //An area for printing diagnostic text in cases where a console is not available, e.g.on mobile device browsers
-        $("<div>").attr("id", "tombioGuiLargeJqueryUiDebugText").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
-
-        //An area tools to add info
+        //An area for tools to add info
         $("<div>").attr("id", "tombioGuiLargeJqueryUiFlashDisplay").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
 
         //Tool drop-down
@@ -60,15 +63,12 @@
 
         //Divs for taxa and controls
         $("<div>").addClass("tombioNoSelect").attr("id", "tombioGuiLargeJqueryUiControlsAndTaxa").appendTo("#tombioGuiLargeJqueryUi");
-        $("<div>").attr("id", "tombioGuiLargeJqueryUiControls").css("display", "none").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
-        $("<span>").attr("id", "tombioGuiLargeJqueryUiTaxa").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
+        $("<div>").attr("id", "tombioGuiLargeJqueryUiControls").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
+        $("<div>").attr("id", "tombioGuiLargeJqueryUiTaxa").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
 
         //##Interface
-        tbv.gui.main.visTop = "#tombioGuiLargeJqueryUi";
-        tbv.gui.main.visTaxa = "#tombioGuiLargeJqueryUiTaxa";
-        tbv.gui.main.visControls = "#tombioGuiLargeJqueryUiControls";
-        tbv.gui.main.visTaxaAndControls = "#tombioGuiLargeJqueryUiControlsAndTaxa";
-        tbv.gui.main.visFlashDisplay = "#tombioGuiLargeJqueryUiFlashDisplay";
+        tbv.gui.main.divVis = "#tombioGuiLargeJqueryUiTaxa";
+        tbv.gui.main.divInput = "#tombioGuiLargeJqueryUiControls";
 
         //Divs for information
         $("<div>").attr("id", "currentVisInfo").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
@@ -102,6 +102,8 @@
 
         //Add reload option
         toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload</option>'));
+        toolOptions.push($('<option value="reloadGuiOnsen" class="html" data-class="reload">Reload with mobile-first interface</option>'));
+        toolOptions.push($('<option value="reloadGuiJQuery" class="html" data-class="reload">Reload with large format interface</option>'));
 
         //Add the required visualisation tools
         tbv.v.includedVisualisations.forEach(function (toolName, iTool) {
@@ -129,22 +131,6 @@
             if (tbv.d.oCharacters.TVK) {
                 toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
             }
-        }
-
-        //If a selectedTool has been specified as a query parameter then set as default,
-        //otherwise, if a selectedTool has been specified in top level options (in HTML) then set as default,
-        //otherwise look to see if one is specified in the knowledge base to use as default.
-        var paramSelectedTool = tbv.f.getURLParameter("selectedTool");
-        if (paramSelectedTool) {
-            tbv.v.selectedTool = paramSelectedTool;
-        } else if (tbv.opts.selectedTool) {
-            tbv.v.selectedTool = tbv.opts.selectedTool;
-        } else if (tbv.d.kbconfig.selectedTool) {
-            //Deprecated
-            tbv.v.selectedTool = tbv.d.kbconfig.selectedTool;
-        } else {
-            //Otherwise select first tool
-            tbv.v.selectedTool = tbv.v.includedVisualisations[0];
         }
 
         //Loop through options marked default as selected
@@ -193,9 +179,8 @@
                 //        $(this).find("div").addClass("needsclick")
                 //    })
                 //},
-                change: function () {
-                    tbv.v.selectedTool = $("#tombioGuiLargeJqueryUiVisualisation").val();
-                    tbv.f.visChanged(tbv.v.selectedTool);
+                change: function () {       
+                    tbv.f.visChanged($("#tombioGuiLargeJqueryUiVisualisation").val());
                 }
                 //width: "100%"
             })
@@ -216,7 +201,7 @@
 
         //If the user has selected to show citation then generate
         if (selectedToolName == "tombioCitation") {
-            $('#tombioCitation').html(createCitationPage());
+            $('#tombioCitation').html(tbv.f.createCitationPage());
         }
 
         //If the user has selected to check media files
@@ -229,120 +214,42 @@
             $('#tvkCheck').html(tbv.f.createTvkCheckPage());
         }
 
-        //If the user has selected to show kb info and not yet loaded,
-        //then load.
+        //If the user has selected to show kb info and not yet loaded
         if (selectedToolName == "kbInfo" && $('#kbInfo').html().length == 0) {
-            //var title = $('<h2>').text(tbv.d.kbmetadata['title']);
-            //$('#kbInfo').html(title);
-            $.get(tbv.opts.tombiokbpath + "info.html", function (html) {
-                $('#kbInfo').append(html.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath));
-            }).always(function () {
-                //Citation
-                var citation = $('<h3>').attr("id", "tombioKbCitation").text("Citation");
-                $('#kbInfo').append(citation);
-                $('#kbInfo').append(tbv.f.getCitation(tbv.d.kbmetadata, "Knowledge-base", tbv.d.softwareMetadata.title));
-                //Add the revision history
-                var header = $('<h3>').attr("id", "tombioKbRevisionHistory").text("Knowledge-base revision history");
-                $('#kbInfo').append(header);
-                var currentVersion = $('<p>').html('<b>Current version: ' + tbv.d.kbmetadata['version'] + '</b>');
-                $('#kbInfo').append(currentVersion);
-
-                var table = $('<table>');
-                var tr = $('<tr>')
-                    .css('background-color', 'black')
-                    .css('color', 'white');
-                tr.append($('<td>').text('Date').css('padding', '3px'));
-                tr.append($('<td>').text('Version').css('padding', '3px'));
-                tr.append($('<td>').text('Notes').css('padding', '3px'));
-                table.append(tr);
-
-                tbv.d.kbreleaseHistory.forEach(function (version, iRow) {
-                    tr = $('<tr>');
-                    if (iRow % 2 == 0) {
-                        tr.css('background-color', 'rgb(200,200,200)');
-                    } else {
-                        tr.css('background-color', 'rgb(230,230,230)');
-                    }
-                    var d = new Date(version.Date);
-
-                    tr.append($('<td>').css('padding', '3px').text(d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear()));
-                    tr.append($('<td>').css('padding', '3px').text(version.Value));
-                    tr.append($('<td>').css('padding', '3px').text(version.Notes));
-                    table.append(tr);
-                });
-                $('#kbInfo').append(table);
-            });
+            tbv.f.setKbInfo($('#kbInfo'));
         }
 
-        //If the user has selected to show general tombio vis info and not yet loaded,
-        //then load.
+        //If the user has selected to show general tombio vis info and not yet loaded
         if (selectedToolName == "visInfo" && $('#visInfo').html().length == 0) {
-            $.get(tbv.opts.tombiopath + "visInfo.html", function (html) {
-                $('#visInfo').html(html.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath));
-            });
+            tbv.f.setVisInfo($('#visInfo'));
         }
 
         //If the user has selected to show info for current visualisation then load.
         //(This is done every time because info can changed depending on last selected tool.)
         if (selectedToolName == "currentVisInfo") {
-
-            //Dimension and empty array to accommodate all the help files referenced by this object. 
-            //We do this  be sure that html files are in their correct position in array which if 
-            //we relied on load order might not be right since they load asynchronously.
-            var helpFiles = new Array(tbv.v.visualisations[tbv.v.lastVis].helpFiles.length);
-            var pFiles = [];
-            tbv.v.visualisations[tbv.v.lastVis].helpFiles.forEach(function (helpFile, i) {
-
-                pFiles.push(new Promise(function (resolve, reject) {
-                    $.get(helpFile, function (html) {
-                        helpFiles[i] = html;
-                        resolve();
-                    });
-                }));
-            });
-            Promise.all(pFiles).then(function () {
-                var help = "";
-                helpFiles.forEach(function (helpFile) {
-                    help += helpFile;
-                });
-                help = help.replace(/##tombiopath##/g, tbv.opts.tombiopath).replace(/##tombiokbpath##/g, tbv.opts.tombiokbpath);
-                $('#currentVisInfo').html(help);
-            })
+            $('#currentVisInfo').html('');
+            tbv.f.setSelectedToolInfo($('#currentVisInfo'));
         }
 
-        console.log("selectedToolName", selectedToolName)
+        console.log("selectedToolName", selectedToolName);
+
         //Change tool if necessary and associated input control
         if (selectedToolName != tbv.v.currentTool) {
 
             //Hide previous tool and input control
             if (tbv.v.currentTool) {
-                //Hide tool
-                var $prevToolDiv = $("#" + tbv.v.currentTool)
-                $prevToolDiv.hide();
-                //Hide input control
-                var prevTool = tbv.v.visualisations[tbv.v.currentTool]
-                if (prevTool && prevTool.inputControl) {
-                    prevTool.inputControl.$div.hide();
+                if (tbv.v.visualisations[tbv.v.currentTool]) {
+                    tbv.v.visualisations[tbv.v.currentTool].hide();
+                } else {
+                    $('#' + tbv.v.currentTool).hide();
                 }
             }
-
-            //Show selected tool
-            var $currentToolDiv = $("#" + selectedToolName);
-            $currentToolDiv.show();
-            //Show input control of selected tool (if there is one)
-            //and initialise input controls from current character input
-            var currentTool = tbv.v.visualisations[selectedToolName]
-            if (currentTool && currentTool.inputControl) {
-                currentTool.inputControl.$div.show();
-                currentTool.inputControl.initFromCharacterState();
+            //Show new control
+            if (tbv.v.visualisations[selectedToolName]) {
+                tbv.v.visualisations[selectedToolName].show();
+            } else {
+                $('#' + selectedToolName).show();
             }
-        }
-
-        //Show hide the key input controls and relevant context menu items
-        if (selectedTool && selectedTool.charStateInput) {
-            controlsShowHide(true);
-        } else {
-            controlsShowHide(false);
         }
 
         //If no visualisation is selected then hide the entire tombioGuiLargeJqueryUiControlsAndTaxa element
@@ -393,78 +300,214 @@
         }
     }
 
-    function createCitationPage () {
+    //Required for standard gui interface
+    tbv.gui.main.dialog = function (title, html) {
 
-        var html = $("<div>"), t;
+        $("#tombioGuiDialog").remove();
 
-        //Generate the citation for the core software
-        html.append($("<h3>").text("Citation for FSC Identikit (core software)"))
-        t = "This is the reference you can use for the FSC Identikit - in other words the core software.";
-        t += " The core version number is updated whenever there is a new major release of the core software.";
-        html.append($("<p>").html(t));
-        html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationCore' id='tbCitationCore'>"));
-        html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(tbv.f.getCitation(tbv.d.softwareMetadata, "Software")));
-
-        //Generate the citation for the current tool
-        html.append($("<h3>").text("Citation for last selected visualisation tool"))
-        t = "This is the reference you can use for the last selected visualisation tool.";
-        t += " The tool version number is updated whenever there is a new release of the tool.";
-        t += " If you cite a tool, there's no need to cite the core software separately since it is implicit.";
-        html.append($("<p>").html(t));
-        html.append($("<input style='position: relative; top: 0.2em' type='checkbox' name='tbCitationVis' id='tbCitationVis'>"));
-        html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title)));
-
-        //Generate the citation for the knowledge-base
-        html.append($("<h3>").text("Citation for knowledge-base"))
-        t = "This is the reference you can use for the knowledge-base currently driving the software.";
-        t += " The knowledge-base version number is updated whenever there is a new release of the knowledge-base.";
-        html.append($("<p>").html(t));
-        html.append($("<input style='position: relative; top: 0.2em' checked='checked' type='checkbox' name='tbCitationKb' id='tbCitationKb'>"));
-        html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(tbv.f.getCitation(tbv.d.kbmetadata, "Knowledge-base", tbv.d.softwareMetadata.title)));
-
-        var button = $("<button>Copy citations</button>");
-        button.button();
-
-        button.click(function () {
-            $("#tbSelectedCitations").html("");//Clear
-
-            if (document.getElementById('tbCitationCore').checked) {
-                $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.d.softwareMetadata, "Software"));
+        //Create dialog for input control help and information
+        $("<div>").attr("id", "tombioGuiDialog").css("display", "none").appendTo($("#tombioGuiLargeJqueryUi"));
+        $("#tombioGuiDialog").dialog({
+            modal: false,
+            width: 550,
+            height: 450,
+            resizable: true,
+            draggable: true,
+            autoOpen: false,
+            show: {
+                effect: "highlight",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 250
             }
-            if (document.getElementById('tbCitationVis').checked) {
-                $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title));
-            }
-            if (document.getElementById('tbCitationKb').checked) {
-                $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.d.kbmetadata, "Knowledge-base", tbv.d.softwareMetadata.title));
-            }
-            tbv.f.selectElementText(document.getElementById("tbSelectedCitations"));
-            $('#tbCitationInstructions').show();
-        });
-
-        html.append($("<p>").append(button).append("&nbsp;The selected citations will appear together below - just copy and paste"));
-        html.append($("<div id='tbSelectedCitations'>"));
-        html.append($("<p id='tbCitationInstructions' style='display: none'>").text("You can now copy and paste the selected citation text."));
-
-        return html;
+        })
+        
+        $("#tombioGuiDialog").dialog('option', 'title', title);
+        $("#tombioGuiDialog").html(html);
+        $("#tombioGuiDialog").dialog("open");
     }
 
-    function controlsShowHide(show) {
+    //Required for standard gui interface
+    tbv.gui.main.createCharacterTooltips = function(selector) {
+        $(selector).tooltip({
+            track: true,
+            items: "span",
+            content: function () {
+                return getCharacterToolTip($(this).attr("character"));
+            }
+        })
+    }
 
-        var display;
-        if (show != undefined) {
-            display = show;
-        } else {
-            //Toggle
-            display = !($("#tombioGuiLargeJqueryUiControls").is(":visible"));
+    //interface
+    tbv.gui.main.createTaxonToolTips = function (selector, displayToolTips) {
+        $(selector).tooltip({
+            track: true,
+            items: "text",
+            content: function () {
+                if (displayToolTips) {
+                    return tbv.f.getTaxonTipImage(this.textContent, this)
+                }
+            },
+            open: function (event, ui) {
+                //This overcomes problem of orphaned tooltips which cannot
+                //be dismissed. They can now be dismissed by clicking on them.
+                //Not sure what causes in first place, but could be reproduced
+                //by hovering over name to get tip and thenmove away from name 
+                //onto taxon rectangle and click before image disappears.
+                var $element = $(event.target);
+                ui.tooltip.click(function () {
+                    $element.tooltip('close');
+                });
+            },
+        })
+    }
+
+    //##Interface
+    tbv.gui.main.tooltip = function (selector) {
+        $(selector).tooltip();
+    }
+
+    //##Interface
+    tbv.gui.main.showFullDetails = function (taxon, selected, x, y) {
+
+        var _this = this;
+        var tabOffset;
+
+        //Default parameters
+        x = (typeof x !== 'undefined') ? x : 0;
+        y = (typeof y !== 'undefined') ? y : 0;
+        selected = (typeof selected !== 'undefined') ? selected : 1;
+
+        var tabs = $("<div>").addClass("tombioFullDetailsTabs");
+        tabs.css("border", "none");
+        var ul = $("<ul>").appendTo(tabs);
+        ul.append("<li><a href='#tabs-1'>Knowledge-base</a></li>");
+        ul.append("<li><a href='#tabs-2'>Images</a></li>");
+        if (tbv.d.oCharacters.TVK) {
+            ul.append("<li><a href='#tabs-4'>NBN map</a></li>");
         }
-        if (display) {
-            $("#tombioGuiLargeJqueryUiControls").show(0, tbv.f.resizeControlsAndTaxa);
-        } else {
-            $("#tombioGuiLargeJqueryUiControls").hide(0, tbv.f.resizeControlsAndTaxa);
+        ul.append("<li><a href='#tabs-3'>Details</a></li>");
+        var tab1 = $("<div>").attr("id", "tabs-1").appendTo(tabs);
+        var tab2 = $("<div>").attr("id", "tabs-2").appendTo(tabs);
+        if (tbv.d.oCharacters.TVK) {
+            //If the TVK character is in the kb, add a tab for NBN maps
+            var tab4 = $("<div>").attr("id", "tabs-4").appendTo(tabs);
         }
+        var tab3 = $("<div>").attr("id", "tabs-3").appendTo(tabs);
+
+        //Dialog
+        var dlg = $("<div>").append(tabs);
+        dlg.attr("title", taxon);
+        dlg.dialog({
+            closeText: "",
+            height: 550,
+            width: 600,
+            modal: true,
+            resizeStop: function (event, ui) {
+                tabs.tabs("refresh"); //Resizes the tabs
+                resizeGalleria();
+            }
+        });
+
+        //Tabs
+        tabs.tabs({
+            heightStyle: "fill", //Required to initialise tabOffset
+            active: selected,
+            create: function () {
+                //Initialise the taboffset variable which is
+                //used to resize galleria control.
+                tabOffset = dlg.height() - tab1.height();
+
+            },
+            activate: function (event, ui) {
+                tabs.tabs("refresh"); //Resizes the tabs
+                if (ui.newTab.index() == 1) {
+                    resizeGalleria();
+                }
+            }
+        });
+        tab3.css("overflow", "hidden"); //Must come after tabs created.
+
+
+        //Taxon details
+        var divTaxonDetails = tbv.f.getTaxonCharacterValues(tbv.d.oTaxa[taxon])
+        tab1.append(divTaxonDetails);
+
+        //Images
+        var img = tbv.f.addTaxonImagesToContainer({ taxon: taxon, container: tab2, height: tab2.height() });
+
+        //NBN maps
+        if (tbv.d.oCharacters.TVK && tbv.d.oTaxa[taxon].TVK) {
+            var $div = $("<div>").css("position", "relative").appendTo(tab4);
+            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].TVK, $div);
+        }
+
+        //HTML files
+        //tab3 is passed to function that creates drop down lists so that this
+        //can be added to container before selectmenu is called, otherwise
+        //drop-down menu appears under dialog.
+        getHTMLFileSelectionDiv(taxon, tab3)
+
+        function resizeGalleria() {
+            var g = dlg.find(".tombio-galleria-pane").first();
+            if (g.data('galleria')) {
+                g.data('galleria').setOptions("height", dlg.height() - tabOffset);
+                g.data('galleria').resize();
+            }
+        }
+
+        function getHTMLFileSelectionDiv(taxon, container) {
+
+            //It's important that the container to which the dropdown list is added, is passed
+            //to this function and added here *before* selectmenu is called, otherwise the selectmenu
+            //can appear under dialogs.
+            var htmlDiv = $('<div>').appendTo(container);
+
+            var htmlFiles = tbv.f.getTaxonHtmlFiles(taxon);
+
+            if (htmlFiles.length == 0) {
+                //If there are no html files for this taxon, return a message to that effect.
+                var noFiles = $("<div>").css("margin", "10px").appendTo(htmlDiv);
+                noFiles.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
+            } else {
+                //Control for selecting HTML file - prior to v1.7.0 was done in this
+                //iFrame which was different from method used in vis4. Changed for v1.7.0
+                //to bring into line with vis4. This means only simple text is appropriate.
+                var htmlDiv2 = $("<div>");
+                if (htmlFiles.length > 1) {
+                    var divSelect = $('<div style="margin-bottom: 20px">').appendTo(htmlDiv);
+                    var htmlSel = $("<select id='tombioFileSelect'></select>").appendTo(divSelect);
+                    htmlFiles.forEach(function (file, iFile) {
+                        var opt = $("<option/>").text(file.Caption).attr("value", iFile);
+                        htmlSel.append(opt);
+                    });
+                    htmlSel.selectmenu({
+                        change: function (event, data) {
+                            tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, data.item.value);
+                        }
+                    });
+                }
+                htmlDiv2.appendTo(htmlDiv);
+                tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, 0);
+            }
+        }
+    }
+
+    //##Interface
+    tbv.gui.main.showCharacterScore = function (taxon, character) {
+
+        var html = tbv.f.getCharacterScoreDetails(taxon, character)
+        var $dlg = $("<div>");
+        $dlg.dialog({
+            height: 300,
+            width: 600,
+            modal: true,
+            title: 'Character score details'
+        });
+        $dlg.html(html);
+        $dlg.dialog("open");
     }
 
     function createContextMenu() {
@@ -568,8 +611,8 @@
 
     function debugText(text, append) {
         //A general utility function for printing diagnostic text in cases where a console is not available,
-        //e.g. on mobile device browsers. Requires element #tombioGuiLargeJqueryUiDebugText.
-        var d = $("#tombioGuiLargeJqueryUiDebugText");
+        //e.g. on mobile device browsers. Requires element #tombioGuiLargeJqueryUiFlashDisplay.
+        var d = $("#tombioGuiLargeJqueryUiFlashDisplay");
         if (text === null) {
             //Hide error display element
             d.html("");
@@ -586,6 +629,132 @@
                 d.html(text);
             }
         }
+    }
+
+    function getCharacterToolTip(character) {
+
+        var ret = $('<div/>');
+        var tipTextPresent = false;
+
+        //Help text for character
+        //If HelpShort exists - use this for tip text, else use Help text. Must allow
+        //for KBs where HelpShort column doesn't exist for backward compatibility.
+        if (tbv.d.oCharacters[character].HelpShort && tbv.d.oCharacters[character].HelpShort != "") {
+            var helpText = tbv.d.oCharacters[character].HelpShort;
+            tipTextPresent = true;
+        } else {
+            var helpText = tbv.d.oCharacters[character].Help;
+        }
+
+        //Retrieve collection of media image rows for this character and sort by priority.
+        var charImagesFull = tbv.d.media.filter(function (m) {
+            if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character) {
+                return true;
+            }
+        }).sort(function (a, b) {
+            return Number(a.Priority) - Number(b.Priority)
+        })
+
+        //Loop through images for this character and set image for tooltip as highest
+        //priority image for which *no state value* is set (i.e. defined for character itself)
+        //and also count the number of *other* images that would be displayed in full help window
+        //(which includes state value images) - to help determine 'click for' text to append to tip.
+        var tipImage;
+        var otherFullImageCount = 0;
+        var fullImageCount = 0;
+        charImagesFull.forEach(function (m) {
+            var isForFull = false;
+            var isForTip = false;
+            if (!m.UseFor) {
+                isForTip = m.State ? false : true;
+                isForFull = true;
+            } else {
+                m.UseFor.split(",").forEach(function (useForVal) {
+                    if (useForVal.toLowerCase().trim() == "tip") {
+                        isForTip = m.State ? false : true;
+                    }
+                    if (useForVal.toLowerCase().trim() == "full") {
+                        isForFull = true;
+                    }
+                })
+            }
+            if (isForTip && !tipImage) {
+                tipImage = m;
+            } else if (isForFull) {
+                otherFullImageCount++;
+            }
+            if (isForFull) {
+                fullImageCount++;
+            }
+        })
+
+        var figure;
+        var floating = false;
+        if (tipImage) {
+            //For tooltips, only one image - the top priority image - is displayed.
+            figure = $('<figure/>');
+            figure.addClass("keyInputHelpFigure");
+            var img = $('<img/>', { src: tipImage.URI }).appendTo(figure).css("margin-top", 2);
+            if (tipImage.ImageWidth) {
+                img.css("width", tipImage.ImageWidth);
+            }
+            var cap = $('<figcaption/>', { html: tipImage.Caption }).appendTo(figure);
+
+            //If the TipStyle column exists (be prepared for it not to for older KBs)
+            //then adjust the style of the figure appropriately
+            if (tipImage.TipStyle && tipImage.TipStyle != "") {
+                //TipStyle should be something like this: right-25 or left-40
+                var tipStyleElements = tipImage.TipStyle.split("-");
+                var float = tipStyleElements[0];
+                var percent = tipStyleElements[1];
+                figure.css("width", percent + "%");
+                figure.css("float", float);
+                figure.css("margin-bottom", 5);
+                if (float == "right") {
+                    figure.css("margin-left", 5);
+                } else {
+                    figure.css("margin-right", 5);
+                }
+                floating = true;
+            }
+        }
+
+        //Add the elements in the correct order. If there is a floating image, it must come
+        //first so that it floats at the top. If not floating, it must come second.
+        var elements = [];
+        if (floating) {
+            elements.push(figure);
+        }
+        if (helpText.length > 0) {
+            elements.push($('<span/>').html(helpText))
+        }
+        if (!floating && figure) {
+            elements.push(figure);
+        }
+        elements.forEach(function (el) {
+            ret.append(el)
+        })
+
+        //Is there any state value help text? Required to determine 'click for' text.
+        var valueHelp = tbv.d.values.filter(function (v) {
+            if (v.Character == character && v.StateHelp) return true;
+        });
+
+        //Add 'click for' text for full help dialog. If tip text is present then there will be fuller help text.
+        //then this message should make it clear that *further* help is available. Otherwise a general message
+        //about a resizable dialog.
+
+        var clickForText = ""
+        if (tipTextPresent || otherFullImageCount > 0 || valueHelp.length > 0) {
+            var clickForText = "(Click for <b>more detailed help</b>.)"
+        } else if (tipImage && fullImageCount > 0) {
+            var clickForText = "(Click for resizeable help window.)"
+        }
+        if (clickForText) {
+            $('<div/>').css("margin-top", 5).css("font-weight", "normal").html(clickForText).appendTo(ret);
+        }
+
+        return ret
     }
 
 }(jQuery, this.tombiovis));

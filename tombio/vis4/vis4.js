@@ -4,7 +4,7 @@
     "use strict";
 
     var visName = "vis4";
-    var vis4 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+    var vis4 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
     var taxSel; 
@@ -27,9 +27,6 @@
         //Other initialisations
         var taxonName;
 
-        //Reset this value if control can work with character state input controls
-        this.charStateInput = false;
-
         //Help files
         this.helpFiles = [
             tbv.opts.tombiopath + "vis4/vis4Help.html",
@@ -42,23 +39,14 @@
             getViewURL();
         }, [this.visName]);
 
-        //Controls div (reworked to avoid flexbox which IE didn't handle
-        //This solution described here: https://stackoverflow.com/questions/6938900/how-can-i-put-an-input-element-on-the-same-line-as-its-label/6938990#6938990
-        var $flexContainer = $("<div>").appendTo($(this.cssSel));
-        //$flexContainer.css("display", "flex");//////////
-        $(this.cssSel).append($flexContainer);
-
-        this.controlsDiv = $("<div/>").css("width", 210)
-            .css("float", "left");
-        $flexContainer.append(this.controlsDiv);
-
-        //var visDiv = $("<div/>").css("flex-grow", 1); ///////////
+        //Controls div
         var visDiv = $("<div/>").css("display", "block").css("overflow", "hidden"); 
-        $flexContainer.append(visDiv);
+        $(this.cssSel).append(visDiv);
 
+        //Taxon select control
         taxSel = Object.create(tbv.gui.taxonSelect);
-        taxSel.init(this.controlsDiv, false, taxonSelectCallback);
-      
+        taxSel.init(tbv.gui.main.divInput, false, taxonSelectCallback);
+
         createCheckBox('tbVis4Images', 'Images', visDiv);
         createCheckBox('tbVis4NbnMap', 'NBN Map', visDiv);
         createCheckBox('tbVis4Kb', 'Knowledge-base', visDiv);
@@ -82,6 +70,9 @@
 
         visFullDetails = $('<div>').css("margin", "10px");
         visDiv.append(visFullDetails);
+       
+        //Interface
+        this.taxonSelect = taxSel;
     }
 
     vis4.refresh = function () {
@@ -121,6 +112,19 @@
         taxSel.initStateFromParams(params);
     }
 
+    vis4.show = function () {
+        //Responsible for showing all gui elements of this tool
+        console.log("Show vis4")
+        $("#vis4").show();
+        taxSel.$div.show();
+    }
+
+    vis4.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#vis4").hide();
+        taxSel.$div.hide();
+    }
+
     function getViewURL() {
        
         var params = [];
@@ -158,7 +162,7 @@
         }
 
         //Generate the full URL
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
     function taxonSelectCallback(retValue) {
@@ -200,9 +204,9 @@
         var includeText = document.getElementById('tbVis4Text').checked;
 
         //Adjust included flags depending on availability of images, tvk and HTML files
-        var htmlFiles = _this.getTaxonHtmlFiles(taxonName);
+        var htmlFiles = tbv.f.getTaxonHtmlFiles(taxonName);
         includeText = includeText && htmlFiles.length > 0;
-        includeImages = includeImages && _this.getTaxonImages(taxonName).length > 0;
+        includeImages = includeImages && tbv.f.getTaxonImages(taxonName).length > 0;
         includeNbnMap = includeNbnMap && tbv.d.oTaxa[taxonName].TVK;
 
         //Image display
@@ -216,7 +220,7 @@
                 imageDiv.attr("class", "vis4ImageNoText");
             }
             var imgIndex = tbv.d.oTaxa[taxonName].visState[visName].indexselectedImg ? tbv.d.oTaxa[taxonName].visState[visName].indexselectedImg : 0;
-            _this.addTaxonImagesToContainer({
+            tbv.f.addTaxonImagesToContainer({
                 taxon: taxonName,
                 container: imageDiv,
                 indexSelected: imgIndex,
@@ -237,7 +241,7 @@
             } else {
                 $mapDiv.attr("class", "vis4ImageNoText");
             }
-            _this.addNBNMapToContainer(tbv.d.oTaxa[taxonName].TVK, $mapDiv);
+            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxonName].TVK, $mapDiv);
         }
 
         //HTML files
@@ -254,7 +258,7 @@
                 });
                 htmlSel.selectmenu({
                     change: function (event, data) {
-                        _this.addTaxonHtmlToContainer(taxonName, htmlDiv, data.item.value);
+                        tbv.f.addTaxonHtmlToContainer(taxonName, htmlDiv, data.item.value);
                         //htmlDiv.attr("indexselected", data.item.value);
                         tbv.d.oTaxa[taxonName].visState[visName].indexselectedText = data.item.value;
                     }
@@ -266,7 +270,7 @@
             //First text file
             var htmlDiv = $('<div class="htmlFile">').appendTo(visFullDetails);
             var txtIndex = tbv.d.oTaxa[taxonName].visState[visName].indexselectedText ? tbv.d.oTaxa[taxonName].visState[visName].indexselectedText : 0;
-            _this.addTaxonHtmlToContainer(taxonName, htmlDiv, txtIndex);
+            tbv.f.addTaxonHtmlToContainer(taxonName, htmlDiv, txtIndex);
             if (htmlFiles.length > 1) {
                 htmlSel.val(txtIndex).selectmenu('refresh');
             }
@@ -275,7 +279,7 @@
         //Set KB values
         if (includeKb) {
             visFullDetails.append($("<h2>").css("clear", "both").text("Knowledge-base values"));
-            visFullDetails.append(_this.getTaxonCharacterValues(tbv.d.oTaxa[taxonName]));
+            visFullDetails.append(tbv.f.getTaxonCharacterValues(tbv.d.oTaxa[taxonName]));
         }
 
         //Trigger the image change function whenever browser

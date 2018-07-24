@@ -4,7 +4,7 @@
     "use strict";
     
     var visName = "vis3";
-    var vis3 = tbv.v.visualisations[visName] = Object.create(tbv.v[tbv.opts.toolconfig[visName].prototype]);
+    var vis3 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
 
     var _this;
     var taxSel;
@@ -22,9 +22,6 @@
         this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = '1.2';
 
-        //Control doesn't work with character state input controls
-        this.charStateInput = null;
-
         //Object variable to store image index
         this.imageIndex = 0;
 
@@ -41,7 +38,7 @@
             tbv.d.taxa.forEach(function (taxon) {
                 sortedTaxa.push(taxon);
             });
-            _this.sortTaxa(sortedTaxa);
+            tbv.f.sortTaxa(sortedTaxa);
 
             if (sortedTaxa.length > n) {
                 var slicedTaxa = sortedTaxa.slice(0, n);
@@ -174,22 +171,16 @@
 
         //Initialise the list with the top two matching taxa
         _this.vis3Taxa = [];
-        //addTop(2);
 
-        var $flexContainer = $("<div>").appendTo($(this.cssSel));
-        $flexContainer.css("display", "flex");
-
-        this.controlsDiv = $("<div/>").css("width", 210);
-            //.css("float", "left");
-        $flexContainer.append(this.controlsDiv);
-
+        //Top level div
         var visDiv = $("<div/>")
             //The following adjustment necessary to move to top of div
             .css("position", "relative").css("top", -13);
-        $flexContainer.append(visDiv);
+        $(this.cssSel).append(visDiv);
 
+        //Taxon selection control
         taxSel = Object.create(tbv.gui.taxonSelect);
-        taxSel.init(this.controlsDiv, true, taxonSelectCallback);
+        taxSel.init(tbv.gui.main.divInput, true, taxonSelectCallback);
 
         //Radio buttons to group characters or not
         //if (tbv.d.oCharacters.grouped) {
@@ -218,6 +209,9 @@
         //tbv.d.taxa.forEach(function (taxon) {
         //    _this.stateTaxa[taxon.Taxon.kbValue] = {}
         //})
+
+        //Interface
+        this.taxonSelect = taxSel;
     }
 
     vis3.refresh = function () {
@@ -408,7 +402,7 @@
                     var taxonName = $(this).attr("taxon");
                     var taxon = tbv.d.oTaxa[taxonName];
 
-                    if (_this.getTaxonImages(taxonName).length > 0) {
+                    if (tbv.f.getTaxonImages(taxonName).length > 0) {
 
                         var loadImg = $("<img>")
                         .attr("src", tbv.opts.tombiopath + "resources/camera.png")
@@ -434,7 +428,7 @@
             //in list.
             var scaleOverall = d3.scaleLinear()
                 .domain([-1, 0, 1])
-                .range(_this.scoreColours);
+                .range(tbv.d.scoreColours);
 
             //Get the column model to reflect the order of the columns
             var orderedTaxa = [];
@@ -547,6 +541,18 @@
         }, 100)
     }
 
+    vis3.show = function () {
+        //Responsible for showing all gui elements of this tool
+        $("#vis3").show();
+        taxSel.$div.show();
+    }
+
+    vis3.hide = function () {
+        //Responsible for hiding all gui elements of this tool
+        $("#vis3").hide();
+        taxSel.$div.hide();
+    }
+
     function getViewURL() {
 
         var params = [];
@@ -586,7 +592,7 @@
         params = taxSel.setParamsFromState(params);
 
         //Generate the full URL
-        _this.createViewURL(params);
+        tbv.f.createViewURL(params);
     }
 
     function addRemoveHandler (vis3ImageDiv, taxonImgDiv, loadImgIcon, taxon) {
@@ -614,7 +620,7 @@
 
         var taxonImgDiv = $('<div>');
 
-        _this.addTaxonImagesToContainer({
+        tbv.f.addTaxonImagesToContainer({
             taxon: taxonName,
             container: taxonImgDiv,
             indexSelected: tbv.d.oTaxa[taxonName].visState[visName].indexSelected,

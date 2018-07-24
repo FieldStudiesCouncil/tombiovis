@@ -1,4 +1,20 @@
 ﻿
+#tombioNbnMapImage {
+    width: 100%;
+}
+
+.tombioFullDetailsTabs .ui-tabs-panel {
+    padding: 0.5em 0 0 0;
+}
+
+.tombioFullDetailsTabs .ui-dialog {
+    overflow: visible
+}
+
+.tombioFullDetailsTabs .ui-dialog .ui-dialog-content {
+    overflow: inherit;
+}
+
 #tombioGuiLargeJqueryUi {
     /*font-size: 12px;*/
     overflow: visible;
@@ -24,19 +40,14 @@
 
 #tombioGuiLargeJqueryUiControlsAndTaxa {
     position: relative;
-    /*border: 2px solid blue;*/
 }
 
 #tombioGuiLargeJqueryUiControls {
-    vertical-align: top;
-    display: inline-block;
-    position: relative;
+    float: left;
     z-index: 70;
 }
 
 #tombioGuiLargeJqueryUiTaxa {
-    vertical-align: top;
-    display: inline-block;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-menu-item-wrapper {
