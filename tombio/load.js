@@ -34,7 +34,6 @@
     //If main gui is set as a parameter, override that already set
     var urlParams = new URLSearchParams(window.location.search);
     var gui = urlParams.get('gui');
-    console.log("gui", gui)
     if (gui) {
         tbv.opts.gui = gui;
     }
@@ -136,7 +135,7 @@
                 //Get promises for other JS required before this JS
                 var pRequiresFirst = [];
                 this.requiresFirst.forEach(function (id) {
-                    console.log(id)
+                    //console.log(id)
                     pRequiresFirst.push(jsF[id].loadJs(thisId, true));
                 });
 

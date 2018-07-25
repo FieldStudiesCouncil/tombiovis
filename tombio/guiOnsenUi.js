@@ -69,6 +69,9 @@
         html += '</ons-toolbar-button>';
         html += '</div>';
         html += '<div class="right">';
+        html += '<ons-toolbar-button id="tombioUiContextMenuButton" onclick="tombiovis.gui.main.openContext()">';
+        html += '<ons-icon icon="md-more-vert"></ons-icon>';
+        html += '</ons-toolbar-button>';
         html += '<ons-toolbar-button onclick="tombiovis.gui.main.popPage()">';
         html += '<ons-icon icon="md-menu"></ons-icon>';
         html += '</ons-toolbar-button>';
@@ -93,6 +96,20 @@
         html += '</ons-page>';
         html += '</template>';
 
+        //Context menu template
+        html += '<template id="tombioOnsContextTemplate">';
+        html += '<ons-page id="tombioOnsContext">';
+        html += '<ons-toolbar>';
+        html += '<div class="left">';
+        html += '<ons-back-button></ons-back-button>';
+        html += '</div>';
+        html += '<div class="center">Context menu</div>';
+        html += '</ons-toolbar>';
+        //html += '<div id="tombioOnsContextContent" style="margin: 1em"></div>';
+        html += '<ons-list id="tombioOnsContextContent"></ons-list>';
+        html += '</ons-page>';
+        html += '</template>';
+
         $("#tombioOns").append($(html));
 
         tbv.gui.main.openMenu = function () {
@@ -100,8 +117,21 @@
             menu.open();
         };
 
+        tbv.gui.main.openContext = function () {
+            document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsContextTemplate')
+                .then(function () {
+                    generateContextMenu();
+                })
+        };
+
         tbv.gui.main.popPage = function () {
-            document.querySelector('#tombioOnsNavigator').popPage();
+            document.querySelector('#tombioOnsNavigator').popPage()
+                .then(function () {
+                    console.log("Page popped");
+                })
+                .catch(function () {
+                    console.log("Page pop error");
+                })
         }
 
         tbv.gui.main.showDialog = function (title, html) {
@@ -170,10 +200,7 @@
     }
 
     //Required for standard gui interface
-    tbv.gui.main.createUIControls = function (dontSkip) {
-
-        //Onsenui template delays creation of main ui so we don't want this to run until
-        if (!dontSkip) return;
+    tbv.gui.main.createUIControls = function () {
 
         //dummy context menu
         createContextMenu()
@@ -239,7 +266,6 @@
                     tbv.f.visChanged(tbv.v.selectedTool);
                 })
             }
-            
         })
 
         $("#tombioOnsTools").append(toolOptions);
@@ -379,7 +405,7 @@
             html += '</div>';
             html += '<div id="tombioOnsFullDetailsTitle" class="center"></div>';
             html += '</ons-toolbar>';
-            html += '<ons-tabbar swipeable position="auto">';
+            html += '<ons-tabbar id="tombioOnsFullDetailsTabBar" swipeable position="auto">';
             html += '<ons-tab page="tombioOnsFullDetailsTab1Template" label="Knowledge" icon="md-grid" active>';
             html += '</ons-tab>';
             html += '<ons-tab page="tombioOnsFullDetailsTab2Template" label="Images" icon="md-image">';
@@ -423,6 +449,7 @@
             document.addEventListener('show', function (event) {
 
                 var taxon = document.querySelector('#tombioOnsNavigator').topPage.data.taxon;
+                var tab = document.querySelector('#tombioOnsNavigator').topPage.data.tab;
 
                 if (event.target.matches('#tombioOnsFullDetailsTab1')) {
                     $('#tombioOnsFullDetailsTitle').html("<i>" + taxon + "</i>");
@@ -441,6 +468,10 @@
                 if (event.target.matches('#tombioOnsFullDetailsTab4')) {
                     $('#tombioOnsFullDetailsTab4Content').html("");
                     getHTMLFileSelectionDiv(taxon, $('#tombioOnsFullDetailsTab4Content'));
+                }
+
+                if (event.target.matches('#tombioOnsFullDetails') && tab) {
+                    document.querySelector('#tombioOnsFullDetailsTabBar').setActiveTab(tab)
                 }
 
             }, false);
@@ -476,7 +507,7 @@
         }
 
         document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsFullDetailsTemplate', {
-            data: { taxon: taxon }
+            data: { taxon: taxon, tab: selected}
         }).then(function () {
             //This may work just as well as using the event listerner waiting for page show, but I don't
             //know - some problems with page scrolling? Maybe not.
@@ -570,20 +601,95 @@
     }
 
     function createContextMenu() {
-        //Build a dummy context menu.
-        //The visualisations expect to find these objects.
-        tbv.gui.main.contextMenu = {};
-        tbv.gui.main.contextMenu.addItem = function () { };
-        tbv.gui.main.contextMenu.removeItem = function () { };
+
+        //Create the context menu object
+        tbv.gui.main.contextMenu = {
+            items: {}, //Links to each item in the menu
+            functions: {}, //Stores the functions to be executed when items selection
+            visContexts: {}, //The visualisations contexts valid for each item
+            guiContexts: {} //The GUI contexts valid for each item
+        };
+
+        //Add method to add an item
+        tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
+
+            //Replace item if already exists 
+            //(workaround to let different visualisations have same items with different functions)
+            if (bReplace && label in tbv.gui.main.contextMenu.items) {
+                tbv.gui.main.contextMenu.items[label].remove();
+                delete tbv.gui.main.contextMenu.items[label];
+                delete tbv.gui.main.contextMenu.functions[label];
+                delete tbv.gui.main.contextMenu.visContexts[label];
+                delete tbv.gui.main.contextMenu.guiContexts[label];
+            }
+
+            //Add item if it does not already exist
+            if (!(label in tbv.gui.main.contextMenu.items)) {
+
+                var icon = '<div class="left"><ons-icon icon="md-dot-circle" class="list-item__icon"></ons-icon></div>'
+                var item = $('<ons-list-item>' + icon + label + '</ons-list-item>');
+
+                tbv.gui.main.contextMenu.items[label] = item;
+                tbv.gui.main.contextMenu.visContexts[label] = visContexts;
+                tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
+                tbv.gui.main.contextMenu.functions[label] = f;
+            }
+        }
+
+        //Add method to remove an item
+        tbv.gui.main.contextMenu.removeItem = function (label) {
+            if (label in tbv.gui.main.contextMenu.items) {
+                delete tbv.gui.main.contextMenu.items[label];
+                delete tbv.gui.main.contextMenu.functions[label];
+                delete tbv.gui.main.contextMenu.visContexts[label];
+                delete tbv.gui.main.contextMenu.guiContexts[label];
+            }
+        } 
+    }
+
+    function generateContextMenu() {
+        //var html = "";
+        var contextItems = [];
+
+        for (var label in tbv.gui.main.contextMenu.items) {
+
+            var show = true;
+            //For visualisation contexts, then the menu item will be show if the current visualisation
+            //appears in that items visContexts array.
+            if (tbv.gui.main.contextMenu.visContexts[label].indexOf(tbv.v.currentTool) == -1) {
+                show = false;
+            }
+            //For GUI contexts then if the guiContexts is empty array or undefined, then the menu item
+            //will be shown, otherwise it will only be shown if the current gui appears in the guiContexts array.
+            if (tbv.gui.main.contextMenu.guiContexts[label]) {
+                if (tbv.gui.main.contextMenu.guiContexts[label].indexOf(tbv.opts.gui) == -1) {
+                    show = false;
+                }
+            }
+
+            if (show) {
+                //html += tbv.gui.main.contextMenu.items[label];
+                //tbv.gui.main.contextMenu.items[label].on("click", function () {
+                //    tbv.gui.main.contextMenu.functions[label]();
+                //    tbv.gui.main.popPage();
+                //});
+                tbv.gui.main.contextMenu.items[label].on("click", tbv.gui.main.popPage);
+                tbv.gui.main.contextMenu.items[label].on("click", tbv.gui.main.contextMenu.functions[label]);
+                contextItems.push(tbv.gui.main.contextMenu.items[label]);
+            }
+        }
+
+        $('#tombioOnsContextContent').html("");
+        $("#tombioOnsContextContent").append(contextItems);
     }
 
     function resizeElements() {
         if ($('#tombioOnsFullDetailsTab3').length > 0) {
             $("#tombioNbnMapImage").css("height", $('#tombioOnsFullDetailsTab3').height() - 10);
         }
+
         if ($('#tombioOnsFullDetailsTab2').length > 0) {
-            $('#tombioOnsFullDetailsTab2Content').html("");
-            tbv.f.addTaxonImagesToContainer({ taxon: $('#tombioOnsFullDetailsTab2Content').attr('data-taxon'), container: $('#tombioOnsFullDetailsTab2Content'), height: $('#tombioOnsFullDetailsTab2').css('height') });
+            $('.tombio-galleria-pane').data('galleria').resize({ height: $('#tombioOnsFullDetailsTab2').height() });
         }
     }
 

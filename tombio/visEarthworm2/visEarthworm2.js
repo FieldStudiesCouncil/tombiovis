@@ -296,9 +296,9 @@
     visEarthworm2.refresh = function () {
 
         //Add/remove context menu item for getting the view URL
-        this.contextMenu.addItem("Get URL for earthworm key", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for earthworm key", function () {
             getViewURL();
-        }, [this.visName]);
+        }, false, [this.visName]);
 
         //If no characters are set in key, hide the confidence button
         var charUsed = this.scoreChars.filter(function (c) { return c.stateSet }).length;
@@ -895,6 +895,7 @@
     tbv.gui.keyInputEarthworm = {
         //##Interface##
         //Variables that are part of the required interface...
+        width: 280,
 
         //Other variables 
         keyItemWidth: 130,

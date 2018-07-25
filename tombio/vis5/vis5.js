@@ -196,62 +196,62 @@
         //Initialise context menu items
 
         //Context menu item to get URL
-        _this.contextMenu.addItem("Get URL for circle-pack key", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for circle-pack key", function () {
             getViewURL();
-        }, [_this.visName]);
+        }, false, [_this.visName]);
 
         //Add context menu item for abbreviation toggle
-        _this.contextMenu.addItem("Toggle name abbreviation", function () {
+        tbv.gui.main.contextMenu.addItem("Toggle name abbreviation", function () {
             _this.abbrvnames = !_this.abbrvnames;
             _this.refresh();
-        }, [_this.visName]);
+        }, false, [_this.visName]);
 
         if (taxonRanks.length > 1 && taxaRootCurrent == taxaRoot) {
 
-            _this.contextMenu.addItem("Ignore higher taxa", function () {
+            tbv.gui.main.contextMenu.addItem("Ignore higher taxa", function () {
                 taxaRootCurrent = taxaRootFlat;
                 displayTextForRank("Taxon");
                 _this.refresh();
-            }, [_this.visName]);
+            }, false, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.addItem("Show names for each " + tbv.d.oCharacters[rank].Label, function () {
+                tbv.gui.main.contextMenu.addItem("Show names for each " + tbv.d.oCharacters[rank].Label, function () {
                     displayTextForRank(rank);
                     _this.refresh();
-                }, [_this.visName]);
+                }, false, [_this.visName]);
             });
 
-            _this.contextMenu.removeItem("Show higher taxa");
+            tbv.gui.main.contextMenu.removeItem("Show higher taxa");
 
         } else if (taxonRanks.length > 1 && taxaRootCurrent == taxaRootFlat) {
-            _this.contextMenu.addItem("Show higher taxa", function () {
+            tbv.gui.main.contextMenu.addItem("Show higher taxa", function () {
                 taxaRootCurrent = taxaRoot;
                 displayTextForRank("Taxon");
                 _this.refresh();
-            }, [_this.visName]);
+            }, false, [_this.visName]);
 
             taxonRanks.forEach(function (rank) {
-                _this.contextMenu.removeItem("Show names for each " + tbv.d.oCharacters[rank].Label);
+                tbv.gui.main.contextMenu.removeItem("Show names for each " + tbv.d.oCharacters[rank].Label);
             });
 
-            _this.contextMenu.removeItem("Ignore higher taxa");
+            tbv.gui.main.contextMenu.removeItem("Ignore higher taxa");
         }
 
         //Add/remove context menu item to show taxon tooltip images
         if (this.displayToolTips) {
-            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Remove taxon image tooltips", function () {
                 _this.displayToolTips = false;
-                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Display taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
         } else {
-            this.contextMenu.addItem("Display taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Display taxon image tooltips", function () {
                 _this.displayToolTips = true;
-                _this.contextMenu.removeItem("Display taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Remove taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
         }
 
         //Prepare scales for the indicators

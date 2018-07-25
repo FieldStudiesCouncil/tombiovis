@@ -35,9 +35,9 @@
         ]
 
         //Context menu
-        this.contextMenu.addItem("Get URL for full details view", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for full details view", function () {
             getViewURL();
-        }, [this.visName]);
+        }, false, [this.visName]);
 
         //Controls div
         var visDiv = $("<div/>").css("display", "block").css("overflow", "hidden"); 

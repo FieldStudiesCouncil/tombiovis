@@ -422,40 +422,40 @@
             });
 
         //Add/remove context menu item to show taxon tooltip images
-        this.contextMenu.addItem("Get URL for two-column key", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for two-column key", function () {
             getViewURL();
-        }, [this.visName]);
+        }, false, [this.visName]);
         if (this.displayToolTips) {
-            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Remove taxon image tooltips", function () {
                 $(".ui-tootip").remove(); //This is a workaround to get rid of orphaned tooltips which sometimes occur
                 _this.displayToolTips = false;
-                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Display taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
         } else {
-            this.contextMenu.addItem("Display taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Display taxon image tooltips", function () {
                 _this.displayToolTips = true;
-                _this.contextMenu.removeItem("Display taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Remove taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
         }
 
         //Add/remove context menu item to contract all items
         if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height != taxheight) })) {
-            this.contextMenu.addItem("Contract all taxon items", function () {
+            tbv.gui.main.contextMenu.addItem("Contract all taxon items", function () {
                 tbv.d.taxa.forEach(function (taxon) { taxon.visState['vis1'].height = taxheight });
-                _this.contextMenu.removeItem("Contract all taxon items");
+                tbv.gui.main.contextMenu.removeItem("Contract all taxon items");
                 _this.refresh();
-            }, [this.visName]);
+            }, false, [this.visName]);
         } else {
-            this.contextMenu.removeItem("Contract all taxon items");
+            tbv.gui.main.contextMenu.removeItem("Contract all taxon items");
         }
 
         //Add/remove context menu item to expand all items
         if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && tbv.f.getTaxonImages(taxon.Taxon).length > 0) })) {
-            this.contextMenu.addItem("Expand all taxon items", function () {
+            tbv.gui.main.contextMenu.addItem("Expand all taxon items", function () {
                 tbv.d.taxa.forEach(function (taxon, i) {
                     var taxonImages = tbv.f.getTaxonImages(taxon.Taxon);
                     if (taxon.visState['vis1'].height == taxheight && taxonImages.length > 0) {
@@ -475,10 +475,10 @@
                         imgLoad.src = taxonImages[0].URI;
                     }
                 });
-                _this.contextMenu.removeItem("Expand all taxon items");
-            }, [this.visName]);
+                tbv.gui.main.contextMenu.removeItem("Expand all taxon items");
+            }, false, [this.visName]);
         } else {
-            this.contextMenu.removeItem("Expand all taxon items");
+            tbv.gui.main.contextMenu.removeItem("Expand all taxon items");
         }
     }
 

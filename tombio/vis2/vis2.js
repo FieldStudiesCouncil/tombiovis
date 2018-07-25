@@ -404,40 +404,40 @@
         //resizeControlsAndTaxa();
 
         //Context menu item to get URL
-        this.contextMenu.addItem("Get URL for single-column key", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for single-column key", function () {
             getViewURL();
-        }, [this.visName]);
+        }, false, [this.visName]);
 
         //Context menu for showing weighted/unweighted values
         if (this.showWeightedScores) {
-            this.contextMenu.removeItem("Show weighted scores");
-            this.contextMenu.addItem("Show unweighted scores", function () {
+            tbv.gui.main.contextMenu.removeItem("Show weighted scores");
+            tbv.gui.main.contextMenu.addItem("Show unweighted scores", function () {
                 _this.showWeightedScores = false;
                 _this.refresh();
-            }, [this.visName]);
+            }, false, [this.visName]);
         } else {
-            this.contextMenu.removeItem("Show unweighted scores");
-            this.contextMenu.addItem("Show weighted scores", function () {
+            tbv.gui.main.contextMenu.removeItem("Show unweighted scores");
+            tbv.gui.main.contextMenu.addItem("Show weighted scores", function () {
                 _this.showWeightedScores = true;
                 _this.refresh();
-            }, [this.visName]);
+            }, false, [this.visName]);
         }
 
         //Add/remove context menu item to show taxon tooltip images
         if (this.displayToolTips) {
-            this.contextMenu.addItem("Remove taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Remove taxon image tooltips", function () {
                 _this.displayToolTips = false;
-                _this.contextMenu.removeItem("Remove taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Display taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
         } else {
-            this.contextMenu.addItem("Display taxon image tooltips", function () {
+            tbv.gui.main.contextMenu.addItem("Display taxon image tooltips", function () {
                 _this.displayToolTips = true;
-                _this.contextMenu.removeItem("Display taxon image tooltips");
+                tbv.gui.main.contextMenu.removeItem("Display taxon image tooltips");
                 _this.refresh();
-            }, [this.visName], true);
-            this.contextMenu.removeItem("Remove taxon image tooltips");
+            }, true, [this.visName], ["guiLargeJqueryUi"]);
+            tbv.gui.main.contextMenu.removeItem("Remove taxon image tooltips");
         }
     }
 

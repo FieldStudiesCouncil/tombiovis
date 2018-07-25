@@ -276,7 +276,7 @@
         }
 
         //Refresh context menu
-        tbv.gui.main.contextMenu.contextChanged(selectedToolName);
+        contextChanged();
 
         //If this is the first time through - i.e. page just loaded - and
         //this is a visualisation too, then process any URL initialisation parameters.
@@ -512,16 +512,12 @@
 
     function createContextMenu() {
 
-        //Create the context menu object and store in the module state object.
-        tbv.gui.main.contextMenu = {};
-
-        //Add a property which is an object which links to each item
-        //in the menu. 
-        tbv.gui.main.contextMenu.items = {};
-
-        //Add a property which is an object which stores the
-        //contexts (visualisations) valid for each item.
-        tbv.gui.main.contextMenu.contexts = {};
+        //Create the context menu object
+        tbv.gui.main.contextMenu = {
+            items: {}, //Links to each item in the menu
+            visContexts: {}, //The visualisations contexts valid for each item
+            guiContexts: {} //The GUI contexts valid for each item
+        };
 
         //Initialise the ul element which will form basis of menu
         tbv.gui.main.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioGuiLargeJqueryUi')
@@ -529,7 +525,6 @@
             .css("position", "absolute")
             .css("display", "none")
             .css("z-index", 999999);
-        //.append($('<li>').text("menu test"))
 
         //Make it into a jQuery menu
         tbv.gui.main.contextMenu.menu.menu();
@@ -561,14 +556,15 @@
         });
 
         //Add method to add an item
-        tbv.gui.main.contextMenu.addItem = function (label, f, contexts, bReplace) {
+        tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
 
             //Replace item if already exists 
             //(workaround to let different visualisations have same items with different functions)
             if (bReplace && label in tbv.gui.main.contextMenu.items) {
                 tbv.gui.main.contextMenu.items[label].remove();
                 delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.contexts[label];
+                delete tbv.gui.main.contextMenu.visContexts[label];
+                delete tbv.gui.main.contextMenu.guiContexts[label];
             }
 
             //Add item if it does not already exist
@@ -578,8 +574,11 @@
                 tbv.gui.main.contextMenu.menu.append(item);
                 tbv.gui.main.contextMenu.menu.menu("refresh");
                 tbv.gui.main.contextMenu.items[label] = item;
-                tbv.gui.main.contextMenu.contexts[label] = contexts;
+                tbv.gui.main.contextMenu.visContexts[label] = visContexts;
+                tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
             }
+
+            contextChanged();
         }
 
         //Add method to remove an item
@@ -587,24 +586,36 @@
             if (label in tbv.gui.main.contextMenu.items) {
                 tbv.gui.main.contextMenu.items[label].remove();
                 delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.contexts[label];
+                delete tbv.gui.main.contextMenu.visContexts[label];
+                delete tbv.gui.main.contextMenu.guiContexts[label];
             }
-        }
+        } 
+    }
 
-        //Add method to signal that the context has changed
-        tbv.gui.main.contextMenu.contextChanged = function (context) {
+    function contextChanged() {
 
-            //Go through each item in context menu and hide it if 
-            //not valid for this context.
-            for (var label in tbv.gui.main.contextMenu.items) {
+        //Go through each item in context menu and hide it if 
+        //not valid for this context.
+        for (var label in tbv.gui.main.contextMenu.items) {
 
-                if (tbv.gui.main.contextMenu.contexts[label].indexOf(context) > -1) {
-                    tbv.gui.main.contextMenu.items[label].show();
-                    //console.log("show menu item")
-                } else {
-                    tbv.gui.main.contextMenu.items[label].hide();
-                    //console.log("hide menu item", label)
+            var show = true;
+            //For visualisation contexts, then the menu item will be show if the current visualisation
+            //appears in that items visContexts array.
+            if (tbv.gui.main.contextMenu.visContexts[label].indexOf(tbv.v.currentTool) == -1) {
+                show = false;
+            }
+            //For GUI contexts then if the guiContexts is empty array or undefined, then the menu item
+            //will be shown, otherwise it will only be shown if the current gui appears in the guiContexts array.
+            if (tbv.gui.main.contextMenu.guiContexts[label]) {
+                if (tbv.gui.main.contextMenu.guiContexts[label].indexOf(tbv.opts.gui) == -1) {
+                    show = false;
                 }
+            }
+
+            if (show) {
+                tbv.gui.main.contextMenu.items[label].show();
+            } else {
+                tbv.gui.main.contextMenu.items[label].hide();
             }
         }
     }

@@ -131,42 +131,42 @@
         }
 
         //Initialise context menu items
-        this.contextMenu.addItem("Get URL for side by side comparison view", function () {
+        tbv.gui.main.contextMenu.addItem("Get URL for side by side comparison view", function () {
             getViewURL();
-        }, [this.visName]);
-        this.contextMenu.addItem("Rank those shown against first", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Rank those shown against first", function () {
             matchFirst();
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show closest two to first", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show closest two to first", function () {
             matchFirst(2);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show closest five to first", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show closest five to first", function () {
             matchFirst(5);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show closest ten to first", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show closest ten to first", function () {
             matchFirst(10);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show top two from key", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show top two from key", function () {
             addTop(2);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show top five from key", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show top five from key", function () {
             addTop(5);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Show top ten from key", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Show top ten from key", function () {
             addTop(10);
             _this.refresh();
-        }, [this.visName]);
-        this.contextMenu.addItem("Remove all", function () {
+        }, false, [this.visName]);
+        tbv.gui.main.contextMenu.addItem("Remove all", function () {
             _this.vis3Taxa = [];
             _this.refresh();
             taxSel.deselectAllTaxa();
-        }, [this.visName]);
+        }, false, [this.visName]);
         
 
         //Initialise the list with the top two matching taxa
