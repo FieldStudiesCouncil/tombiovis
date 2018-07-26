@@ -2,10 +2,10 @@
 
     "use strict"; 
 
-    tbv.gui.main = {};
-
     var tools = {};
     var onsSplitterSideMediaQuery;
+
+    tbv.gui.main = {};
 
     //Required for standard gui interface
     tbv.gui.main.setSelectedTool = function (toolName) {
@@ -18,12 +18,16 @@
     }
 
     //Required for standard gui interface
-    tbv.gui.main.addTopPageElements = function() {
+    tbv.gui.main.init = function () {
+
         //Build top level interface elements
         $("#tombiod3vis").html(''); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
 
         $('<div>').attr('id', 'tombioOnsHiddenVisualisation').hide().appendTo('#tombiod3vis');
         $('<div>').attr('id', 'tombioOnsHiddenControls').hide().appendTo('#tombiod3vis');
+
+        tbv.gui.main.divVis = "#tombioOnsHiddenVisualisation";
+        tbv.gui.main.divInput = "#tombioOnsHiddenControls";
 
         $("<div>").attr("id", "tombioOns").appendTo($("#tombiod3vis"));
 
@@ -134,14 +138,6 @@
                 })
         }
 
-        tbv.gui.main.showDialog = function (title, html) {
-            document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsDialogTemplate')
-                .then(function () {
-                    $('#tombioOnsDialogTitle').text(title);
-                    $('#tombioOnsDialogContent').html(html);
-                })
-        }
-
         document.addEventListener('init', function (event) {
             var page = event.target;
             //console.log("init", page.id)
@@ -192,18 +188,14 @@
         ons.orientation.on('change', function () {
             splitterSideHideShow();
             resizeElements();
-        });
+        });    
 
-        //##Interface
-        tbv.gui.main.divVis = "#tombioOnsHiddenVisualisation";
-        tbv.gui.main.divInput = "#tombioOnsHiddenControls";
+        //Check interface
+        tbv.f.checkInterface("guiOnsenUi", tbv.templates.gui.main, tbv.gui.main);
     }
 
     //Required for standard gui interface
     tbv.gui.main.createUIControls = function () {
-
-        //dummy context menu
-        createContextMenu()
 
         //Drop-down menu options for the visualisations
         var toolOptions = [];
@@ -371,7 +363,11 @@
     //Required for standard gui interface
     tbv.gui.main.dialog = function (title, html) {
 
-        tbv.gui.main.showDialog(title, html);
+        document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsDialogTemplate')
+            .then(function () {
+                $('#tombioOnsDialogTitle').text(title);
+                $('#tombioOnsDialogContent').html(html);
+            })
     }
 
     //Required for standard gui interface
@@ -515,12 +511,49 @@
             //$('#tombioOnsFullDetailsTab1Content').html(tbv.f.getTaxonCharacterValues(tbv.d.oTaxa[taxon]));
             })
     }
+ 
+    tbv.gui.main.contextMenu = {
+        //Create the context menu object
+        items: {}, //Links to each item in the menu
+        functions: {}, //Stores the functions to be executed when items selection
+        visContexts: {}, //The visualisations contexts valid for each item
+        guiContexts: {} //The GUI contexts valid for each item
+    };
 
-    //##Interface
-    tbv.gui.main.showCharacterScore = function (taxon, character) {
+    tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
+        //Add method to add an item
+        //Replace item if already exists 
+        //(workaround to let different visualisations have same items with different functions)
+        if (bReplace && label in tbv.gui.main.contextMenu.items) {
+            tbv.gui.main.contextMenu.items[label].remove();
+            delete tbv.gui.main.contextMenu.items[label];
+            delete tbv.gui.main.contextMenu.functions[label];
+            delete tbv.gui.main.contextMenu.visContexts[label];
+            delete tbv.gui.main.contextMenu.guiContexts[label];
+        }
 
-        tbv.gui.main.dialog('Character score details', tbv.f.getCharacterScoreDetails(taxon, character));
+        //Add item if it does not already exist
+        if (!(label in tbv.gui.main.contextMenu.items)) {
+
+            var icon = '<div class="left"><ons-icon icon="md-dot-circle" class="list-item__icon"></ons-icon></div>'
+            var item = $('<ons-list-item>' + icon + label + '</ons-list-item>');
+
+            tbv.gui.main.contextMenu.items[label] = item;
+            tbv.gui.main.contextMenu.visContexts[label] = visContexts;
+            tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
+            tbv.gui.main.contextMenu.functions[label] = f;
+        }
     }
+
+    tbv.gui.main.contextMenu.removeItem = function (label) {
+        //Add method to remove an item
+        if (label in tbv.gui.main.contextMenu.items) {
+            delete tbv.gui.main.contextMenu.items[label];
+            delete tbv.gui.main.contextMenu.functions[label];
+            delete tbv.gui.main.contextMenu.visContexts[label];
+            delete tbv.gui.main.contextMenu.guiContexts[label];
+        }
+    } 
 
     function splitterSideHideShow() {
 
@@ -600,53 +633,6 @@
         return html;
     }
 
-    function createContextMenu() {
-
-        //Create the context menu object
-        tbv.gui.main.contextMenu = {
-            items: {}, //Links to each item in the menu
-            functions: {}, //Stores the functions to be executed when items selection
-            visContexts: {}, //The visualisations contexts valid for each item
-            guiContexts: {} //The GUI contexts valid for each item
-        };
-
-        //Add method to add an item
-        tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
-
-            //Replace item if already exists 
-            //(workaround to let different visualisations have same items with different functions)
-            if (bReplace && label in tbv.gui.main.contextMenu.items) {
-                tbv.gui.main.contextMenu.items[label].remove();
-                delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.functions[label];
-                delete tbv.gui.main.contextMenu.visContexts[label];
-                delete tbv.gui.main.contextMenu.guiContexts[label];
-            }
-
-            //Add item if it does not already exist
-            if (!(label in tbv.gui.main.contextMenu.items)) {
-
-                var icon = '<div class="left"><ons-icon icon="md-dot-circle" class="list-item__icon"></ons-icon></div>'
-                var item = $('<ons-list-item>' + icon + label + '</ons-list-item>');
-
-                tbv.gui.main.contextMenu.items[label] = item;
-                tbv.gui.main.contextMenu.visContexts[label] = visContexts;
-                tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
-                tbv.gui.main.contextMenu.functions[label] = f;
-            }
-        }
-
-        //Add method to remove an item
-        tbv.gui.main.contextMenu.removeItem = function (label) {
-            if (label in tbv.gui.main.contextMenu.items) {
-                delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.functions[label];
-                delete tbv.gui.main.contextMenu.visContexts[label];
-                delete tbv.gui.main.contextMenu.guiContexts[label];
-            }
-        } 
-    }
-
     function generateContextMenu() {
         //var html = "";
         var contextItems = [];
@@ -693,4 +679,4 @@
         }
     }
 
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));

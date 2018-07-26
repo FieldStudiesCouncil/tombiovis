@@ -10,20 +10,20 @@
 
     var visP = tbv.v.visP = {};
 
-    visP.initP = function (visName) {
+    visP.initP = function () {
 
-        this.visName = visName;
+        console.log('this.visName', this.visName)
         var parent = tbv.gui.main.divVis;
 
-        this.div = $("<div>").attr("id", visName).css("display", "none").appendTo($(parent));
-        this.cssSel = parent + " > #" + visName;
-
-        //Initialise the metadata structure for visualisations
         this.metadata = {};
 
+        $("<div>").attr("id", this.visName).css("display", "none").appendTo($(parent));
+        this.cssSel = parent + " > #" + this.visName;
+
         //Initialise visualisation-specific state object for each taxon
+        var _this = this;
         tbv.d.taxa.forEach(function (taxon) {
-            taxon.visState[visName] = {};
+            taxon.visState[_this.visName] = {};
         })
 
         //Fire the visualisations own initialisation function.

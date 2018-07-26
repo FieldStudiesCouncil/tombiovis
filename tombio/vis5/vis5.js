@@ -5,6 +5,7 @@
 
     var visName = "vis5";
     var vis5 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
+    vis5.visName = visName;
 
     var _this;
 
@@ -45,7 +46,7 @@
         this.metadata.year = "2016";
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Preston Montford, Shropshire";
-        this.metadata.contact = null;
+        this.metadata.contact = "richardb@field-studies-council.org";
         this.metadata.version = "1.0";
 
         //Initialisations
@@ -182,6 +183,12 @@
             tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.divInput));
         }
         vis5.inputControl = tbv.gui.sharedKeyInput[keyinput];
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     vis5.refresh = function () {
@@ -459,14 +466,14 @@
     vis5.show = function () {
         //Responsible for showing all gui elements of this tool
         $("#vis5").show();
-        vis5.inputControl.$div.show();
+        $(vis5.inputControl.divSel).show();
         vis5.inputControl.initFromCharacterState();
     }
 
     vis5.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#vis5").hide();
-        vis5.inputControl.$div.hide();
+        $(vis5.inputControl.divSel).hide();
     }
 
     function getViewURL() {

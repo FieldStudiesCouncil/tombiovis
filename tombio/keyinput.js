@@ -2,11 +2,10 @@
 
     "use strict";
 
-    //##Interface##
     tbv.gui.keyInput = {
-        //##Interface##
         //Variables that are part of the required interface...
         width: 360, //Default modified depending on whether or not tabs are present
+        otherState: { keys: [] },
         //Other variables 
         bullet: "", //"&#x26AB "
         inputCharGroups: [],
@@ -14,7 +13,6 @@
         verticalTabSpace: 33
     };
 
-    //##Interface##
     tbv.gui.keyInput.init = function ($parent) {
 
         //Dynamically create the character input widgets
@@ -26,7 +24,7 @@
 
         //##Interface##
         //Set the property which identifies the top-level div for this input
-        tbv.gui.keyInput.$div = $("#tombioKeyInputTabs");
+        tbv.gui.keyInput.divSel = "#tombioKeyInputTabs";
 
         var chargroup;
         var characters = { "All": [] };
@@ -195,7 +193,6 @@
                     makeSelect("clone-" + selectID);
                 }
             }
-            //}
         }
 
         //If characters are not grouped, hide the group tabs
@@ -281,9 +278,11 @@
             });
 
         tbv.gui.main.createCharacterTooltips(".characterhelp");
+
+        //Check interface
+        tbv.f.checkInterface("keyInput", tbv.templates.gui.keyInput, tbv.gui["keyInput"]);
     }
 
-    //##Interface##
     tbv.gui.keyInput.initFromCharacterState = function () {
         //Set the character state input controls
         tbv.d.characters.forEach(function (c, cIndex) {
@@ -310,7 +309,6 @@
         })
     }
 
-    //##Interface##
     tbv.gui.keyInput.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
@@ -329,7 +327,6 @@
         setCloneVisibility();
     }
 
-    //##Interface##
     tbv.gui.keyInput.setParamsFromState = function (params) {
 
         //Update params to indicate which, if any group tab was selected
@@ -339,11 +336,6 @@
         params.push("cvis=" + $("input[name=charvisibility]:checked").val());
 
         return params
-    }
-
-    //##Interface##
-    tbv.gui.keyInput.otherState = {
-        keys: []
     }
 
     //Implementation dependent elements below...
@@ -646,4 +638,4 @@
         tbv.gui.main.dialog('Character help & info', $divHelp.html())
     }
 
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));

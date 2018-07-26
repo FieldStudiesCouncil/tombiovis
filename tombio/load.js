@@ -284,6 +284,9 @@
     jsF.pqgrid.addCSS("dependencies/pqgrid-2.1.0/pqgrid.min.css");
     jsF.pqgrid.requiresFirst = ["jqueryui"];
 
+    //Keyinput template
+    jsF.add("keyinputTemplate", "keyinputTemplate.js?ver=" + tbv.opts.tombiover);
+
     //KeyInput
     jsF.add("keyInput", "keyinput.js?ver=" + tbv.opts.tombiover);
     jsF.keyInput.addCSS("css/keyinput.css");
@@ -312,6 +315,9 @@
     //jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
     jsF.visP.requires = ["mousewheel", "galleria", "zoomMaster"];
 
+    //Main GUI interface template
+    jsF.add("guiTemplate", "guiTemplate.js?ver=" + tbv.opts.tombiover);
+
     //Main GUI - Large format with jQuery UI
     jsF.add("guiLargeJqueryUi", "guiLargeJqueryUi.js?ver=" + tbv.opts.tombiover);
     jsF.guiLargeJqueryUi.addCSS("css/guiLargeJqueryUi.css");
@@ -321,7 +327,7 @@
     jsF.add("guiLarge", "guiLarge.js?ver=" + tbv.opts.tombiover);
     jsF.guiLarge.addCSS("css/guiLarge.css");
 
-    //Onsen mobile-first GUI
+    //Main GUI Onsen mobile-first GUI
     jsF.add("guiOnsenUi", "guiOnsenUi.js?ver=" + tbv.opts.tombiover);
     jsF.guiOnsenUi.addCSS("css/guiOnsenUi.css");
     jsF.guiOnsenUi.requiresFirst = ["onsenui"];
@@ -331,6 +337,10 @@
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui.css");
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsen-css-components.min.css");
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui-fonts.css");
+
+    //Visualisation interface template
+    jsF.add("visTemplate", "visTemplate/visTemplate.js?ver=" + tbv.opts.tombiover);
+    jsF.visTemplate.requiresFirst = ["visP"];
 
     //The visualisation modules
     jsF.add("vis1", "vis1/vis1.js?ver=" + tbv.opts.tombiover, "Two-column key");
@@ -384,14 +394,29 @@
             return loadKB();
         })
         .then(function () {
-            //Load tombiovis and the main gui
+            //Load the interface templates
+            tbv.templates = {
+                gui: { main: {}}
+            };
+            tbv.templates.loading = true;
+            return Promise.all([jsF.guiTemplate.loadJs(), jsF.visTemplate.loadJs(), jsF.keyinputTemplate.loadJs()]);
+        })
+        .then(function () {
+            tbv.templates.loading = false;
+        })
+        .then(function () {
+            //Load tombiovis
+            return Promise.all( [jsF.tombiovis.loadJs()]);
+        })
+        .then(function () {
+            //Load gui
             if (tbv.opts.gui) {
                 var gui = tbv.opts.gui;
             } else {
                 //For when gui not specified in opts
                 var gui = "guiLargeJqueryUi";
             }
-            var pLoad = [jsF.tombiovis.loadJs(), jsF[gui].loadJs()];
+            var pLoad = [jsF[gui].loadJs()];
             Promise.all(pLoad).then(function () {
                 tbv.f.hideDownloadSpinner();
                 //Call the application-wide loadComplete (supplied by tombiovis)

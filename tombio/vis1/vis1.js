@@ -2,15 +2,16 @@
 (function ($, tbv) {
 
     "use strict";
-
+    var _this;
     var visName = "vis1";
     var vis1 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
-
-    var _this;
+    vis1.visName = visName;
 
     vis1.initialise = function () {
 
         _this = this;
+
+        console.log("vis1 initialising")
 
         //Initialise the metadata
         this.metadata.title = "Two-column key";
@@ -72,6 +73,12 @@
 
         //Interface
         vis1.inputControl = tbv.gui.sharedKeyInput[keyinput];
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     vis1.refresh = function () {
@@ -511,14 +518,14 @@
     vis1.show = function () {
         //Responsible for showing all gui elements of this tool
         $("#vis1").show();
-        vis1.inputControl.$div.show();
+        $(vis1.inputControl.divSel).show();
         vis1.inputControl.initFromCharacterState();
     }
 
     vis1.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#vis1").hide();
-        vis1.inputControl.$div.hide();
+        $(vis1.inputControl.divSel).hide();
     }
 
     function getViewURL() {
@@ -605,4 +612,4 @@
         }
     }
 
-})(jQuery, this.tombiovis)
+})(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis)

@@ -4,8 +4,10 @@
     //Template visualisation that delegates via prototype to visP.
     "use strict";
 
-    var visName = "visT";
-    var visT = tbv[visName] = Object.create(tbv.visP);
+    var visName = "visTemplate";
+    var visT = tbv[visName] = Object.create(tombiovis.v.visP);
+    visT.visName = visName;
+
     var _this;
 
     visT.initialise = function () {
@@ -28,7 +30,13 @@
         ]
 
         //Replace the following
-        this.div.append("<h2>" + this.visName + " can work with character state input controls</h2>")
+        d3.select("#" + this.visName).html("Template vis");
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        //tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     visT.refresh = function () {
@@ -40,6 +48,9 @@
     }
 
     visT.urlParams = function (params) {
+        //Function to initialise state of visualisation from parameters
+
+        //params - array of parameters passed in URL
 
         var _this = this;
 
@@ -56,4 +67,4 @@
         //Responsible for hiding all gui elements of this tool
     }
 
-})(jQuery, this.tombiovis)
+})(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis)

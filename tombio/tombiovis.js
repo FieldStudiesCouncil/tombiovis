@@ -478,7 +478,7 @@
         }
 
         //Build top-level page elements.
-        tbv.gui.main.addTopPageElements();
+        tbv.gui.main.init();
 
         //Create main interface controls
         tbv.gui.main.createUIControls();
@@ -503,6 +503,9 @@
     tbv.f.visChanged = function (selectedToolName, lastVisualisation) {
 
         if (!selectedToolName) return;
+
+        //Initialise the visTemplate object for interface checking (if devel flag set)
+        if (tbv.opts.devel) tbv.templates.visTemplate.initP('visTemplate');
 
         tbv.v.selectedTool = selectedToolName;
 
@@ -594,7 +597,8 @@
 
         tbv.js.jsFiles[selectedToolName].loadJs().then(function () {
             tbv.f.hideDownloadSpinner();
-            if (!tbv.v.visualisations[selectedToolName].visName) {
+            //if (!tbv.v.visualisations[selectedToolName].visName) {
+            if (!tbv.v.visualisations[selectedToolName].initialised) {
                 var visObj = tbv.v.visualisations[selectedToolName];
                 visObj.initP(selectedToolName);
             }
@@ -1060,7 +1064,6 @@
         }
     }
 
-    //Testing
     tbv.f.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.d.media.filter(function (m) {
@@ -1071,7 +1074,6 @@
         return taxonImages;
     }
 
-    //Testing
     tbv.f.addNBNMapToContainer = function (tvk, $parent) {
 
         //TVK might be passed as a string or as a state value object
@@ -1131,7 +1133,6 @@
         $('<div>').append($img).appendTo($div);
     }
 
-    //Testing
     tbv.f.addTaxonHtmlToContainer = function (taxon, container, iFile) {
 
         var taxonHtmlFiles = tbv.f.getTaxonHtmlFiles(taxon);
@@ -1158,7 +1159,6 @@
         }
     }
 
-    //Testing
     tbv.f.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
         var taxonHtmlFiles = tbv.d.media.filter(function (m) {
@@ -1169,7 +1169,6 @@
         return taxonHtmlFiles;
     }
 
-    //Testing
     tbv.f.getCharacterScoreDetails = function (taxon, character) {
 
         //Character state specified
@@ -1309,6 +1308,45 @@
         tbv.f.copyTextToClipboard(url);
     }
 
+    tbv.f.selectElementText = function (el, win) {
+        win = win || window;
+        var doc = win.document, sel, range;
+        if (win.getSelection && doc.createRange) {
+            sel = win.getSelection();
+            range = doc.createRange();
+            range.selectNodeContents(el);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (doc.body.createTextRange) {
+            range = doc.body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+    }
+
+    tbv.f.checkInterface = function (name, template, implementation) {
+
+        if (!tbv.opts.devel) return;
+
+        //Interface checks
+        checkProperties("", template, implementation);
+
+        function checkProperties(propString, template, implementation) {
+            for (var prop in template) {
+                if (template.hasOwnProperty(prop)) {
+                    if (implementation[prop]) {
+                        console.log("%cInterface: " + name + propString + "." + prop + " found.", "color: grey");
+                        if (typeof template[prop] == "object") {
+                            checkProperties(propString + "." + prop, template[prop], implementation[prop])
+                        }
+                    } else {
+                        console.log("%cInterface warning: " + name + propString + "." + prop + " not found in " + name, "color: red");
+                    }
+                } 
+            }
+        }
+    }
+
     function addValuesToCharacters() {
 
         tbv.d.values.forEach(function (val) {
@@ -1369,22 +1407,6 @@
             return tbv.v.visualisations[tbv.v.selectedTool];
         } else {
             return null;
-        }
-    }
-
-    tbv.f.selectElementText = function (el, win) {
-        win = win || window;
-        var doc = win.document, sel, range;
-        if (win.getSelection && doc.createRange) {
-            sel = win.getSelection();
-            range = doc.createRange();
-            range.selectNodeContents(el);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        } else if (doc.body.createTextRange) {
-            range = doc.body.createTextRange();
-            range.moveToElementText(el);
-            range.select();
         }
     }
 

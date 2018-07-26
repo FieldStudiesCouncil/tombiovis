@@ -5,6 +5,7 @@
 
     var visName = "vis2";
     var vis2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
+    vis2.visName = visName;
 
     var _this;
 
@@ -43,6 +44,12 @@
             tbv.gui.sharedKeyInput[keyinput].init($(tbv.gui.main.divInput));
         }
         vis2.inputControl = tbv.gui.sharedKeyInput[keyinput];
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     vis2.refresh = function () {
@@ -283,7 +290,7 @@
                 .attr("class", "type2VisIndicators-" + taxonTag)
                 .style("cursor", "pointer") 
                 .on("click", function (d, i) {
-                    tbv.gui.main.showCharacterScore(taxon, d);
+                    tbv.gui.main.dialog('Character score details', tbv.f.getCharacterScoreDetails(taxon, d));
                 })
                 .each(function () {
 
@@ -460,14 +467,14 @@
     vis2.show = function () {
         //Responsible for showing all gui elements of this tool
         $("#vis2").show();
-        vis2.inputControl.$div.show();
+        $(vis2.inputControl.divSel).show();
         vis2.inputControl.initFromCharacterState();
     }
 
     vis2.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#vis2").hide();
-        vis2.inputControl.$div.hide();
+        $(vis2.inputControl.divSel).hide();
     }
 
     function getViewURL() {

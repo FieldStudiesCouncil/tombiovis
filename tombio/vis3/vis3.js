@@ -5,6 +5,7 @@
     
     var visName = "vis3";
     var vis3 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
+    vis3.visName = visName;
 
     var _this;
     var taxSel;
@@ -212,6 +213,12 @@
 
         //Interface
         this.taxonSelect = taxSel;
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     vis3.refresh = function () {

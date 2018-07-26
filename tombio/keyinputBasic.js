@@ -2,15 +2,14 @@
 
     "use strict";
 
-    //##Interface##
     tbv.gui.keyInputBasic = {
-        //##Interface##
+        width: 360, //Must have a default width
+        otherState: { keys: [] }
         //Variables that are part of the required interface...
         
         //Other variables 
     };
 
-    //##Interface##
     tbv.gui.keyInputBasic.init = function ($parent) {
 
         //Dynamically create the character input widgets
@@ -20,7 +19,7 @@
 
         //##Interface##
         //Set the property which identifies the top-level div for this input
-        tbv.gui.keyInputBasic.$div = $("#tombioKeyBasic");
+        tbv.gui.keyInputBasic.divSel = "#tombioKeyBasic";
 
         var chargroup;
         var characters = {};
@@ -122,9 +121,11 @@
                 }
             }
         }
+
+        //Check interface
+        tbv.f.checkInterface("keyInputBasic", tbv.templates.gui.keyInput, tbv.gui["keyInputBasic"]);
     }
 
-    //##Interface##
     tbv.gui.keyInputBasic.initFromCharacterState = function () {
         //Set the character state input controls
         tbv.d.characters.forEach(function (c) {
@@ -134,7 +135,6 @@
         })
     }
 
-    //##Interface##
     tbv.gui.keyInputBasic.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
@@ -144,7 +144,6 @@
         //Counterpart of setParamsFromState.
     }
 
-    //##Interface##
     tbv.gui.keyInputBasic.setParamsFromState = function (params) {
 
         //Here we can create parameters to describe other interface
@@ -153,11 +152,6 @@
         return params
     }
 
-    //##Interface##
-    tbv.gui.keyInputBasic.otherState = {
-        keys: []
-    }
-
     //Implementation dependent elements below...
 
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));

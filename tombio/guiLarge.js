@@ -4,14 +4,12 @@
 
     tbv.gui.main = {};
 
-    //Required for standard gui interface
     tbv.gui.main.setSelectedTool = function (toolName) {
         if ($('#tombioGuiLargeVisualisation').val() != toolName) {
             $('#tombioGuiLargeVisualisation').val(toolName);
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.resizeControlsAndTaxa = function () {
 
         if ($("#tombioGuiLargeControls").is(":visible")) {
@@ -30,8 +28,7 @@
         }
     }
 
-    //Required for standard gui interface
-    tbv.gui.main.addTopPageElements = function() {
+    tbv.gui.main.init = function() {
         //Build top level interface elements
         $("#tombiod3vis").html(""); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
 
@@ -84,19 +81,18 @@
             $("#tombioGuiLargeTaxa").css("border", "5px solid cyan") //.attr("title", "tombioGuiLargeTaxa")
         }
 
-        //##Interface
+        //Required for interface
         tbv.gui.main.divVis = "#tombioGuiLargeTaxa";
         tbv.gui.main.divInput = "#tombioGuiLargeControls";
+
+        //Check interface
+        tbv.f.checkInterface("guiLarge", tbv.templates.gui.main, tbv.gui.main);
     }
 
-    //Required for standard gui interface
     tbv.gui.main.createUIControls = function () {
 
         //tombioGuiLarge must be made visible before UI created otherwise size styling is not right
         $("#tombioGuiLarge").css("display", "");
-
-        //dummy context menu
-        createContextMenu()
 
         //Drop-down menu options for the visualisations
         var toolOptions = []; 
@@ -154,7 +150,6 @@
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.visShow = function (selectedToolName) {
 
         //Get the selected visualisation
@@ -256,7 +251,6 @@
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.showFullDetails = function (taxon) {
 
         //Taxon details
@@ -305,35 +299,30 @@
         displayInfo($html);
     }
 
-    //Required for standard gui interface
-    tbv.gui.main.showCharacterScore = function (taxon, character) {
-
-        var $html = tbv.f.getCharacterScoreDetails(taxon, character)
-        displayInfo($html);
-    }
-
-    //Required for standard gui interface
     tbv.gui.main.createCharacterTooltips = function (selector) {
         //No tooltips
     }
 
-    //Interface
     tbv.gui.main.createTaxonToolTips = function (selector, displayToolTips) {
         //No taxon tooltips
     }
 
-    //Required for standard gui interface
     tbv.gui.main.tooltip = function (selector) {
 
     }
 
-    //Required for standard gui interface
     tbv.gui.main.dialog = function (title, html) {
 
         $("#tombioGuiLargeDialogTitle").text(title);
         $("#tombioGuiLargeDialogContents").html(html);
         $("#tombioGuiLargeDialog").show();
     }
+
+    //Build a dummy context menu.
+    //The visualisations expect to find these objects.
+    tbv.gui.main.contextMenu = {};
+    tbv.gui.main.contextMenu.addItem = function () { };
+    tbv.gui.main.contextMenu.removeItem = function () { };
 
     function displayInfo($html) {
 
@@ -349,12 +338,4 @@
         $gui.show();
     }
 
-    function createContextMenu() {
-        //Build a dummy context menu.
-        //The visualisations expect to find these objects.
-        tbv.gui.main.contextMenu = {};
-        tbv.gui.main.contextMenu.addItem = function () { };
-        tbv.gui.main.contextMenu.removeItem = function () { };
-    }
-
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));

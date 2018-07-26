@@ -4,14 +4,55 @@
 
     tbv.gui.main = {};
 
-    //Required for standard gui interface
+    //Create the context menu object
+    tbv.gui.main.contextMenu = {
+        items: {}, //Links to each item in the menu
+        visContexts: {}, //The visualisations contexts valid for each item
+        guiContexts: {} //The GUI contexts valid for each item
+    };
+
+    tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
+        //Method to add a context menu item
+
+        //Replace item if already exists 
+        //(workaround to let different visualisations have same items with different functions)
+        if (bReplace && label in tbv.gui.main.contextMenu.items) {
+            tbv.gui.main.contextMenu.items[label].remove();
+            delete tbv.gui.main.contextMenu.items[label];
+            delete tbv.gui.main.contextMenu.visContexts[label];
+            delete tbv.gui.main.contextMenu.guiContexts[label];
+        }
+
+        //Add item if it does not already exist
+        if (!(label in tbv.gui.main.contextMenu.items)) {
+
+            var item = $("<li>").append($("<div>").text(label).click(f));
+            tbv.gui.main.contextMenu.menu.append(item);
+            tbv.gui.main.contextMenu.menu.menu("refresh");
+            tbv.gui.main.contextMenu.items[label] = item;
+            tbv.gui.main.contextMenu.visContexts[label] = visContexts;
+            tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
+        }
+
+        contextChanged();
+    }
+
+    tbv.gui.main.contextMenu.removeItem = function (label) {
+        //Method to remove a context menu item
+        if (label in tbv.gui.main.contextMenu.items) {
+            tbv.gui.main.contextMenu.items[label].remove();
+            delete tbv.gui.main.contextMenu.items[label];
+            delete tbv.gui.main.contextMenu.visContexts[label];
+            delete tbv.gui.main.contextMenu.guiContexts[label];
+        }
+    } 
+
     tbv.gui.main.setSelectedTool = function (toolName) {
         if ($('#tombioGuiLargeJqueryUiVisualisation').val() != toolName) {
             $('#tombioGuiLargeJqueryUiVisualisation').val(toolName);
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.resizeControlsAndTaxa = function () {
 
         if ($("#tombioGuiLargeJqueryUiControls").is(":visible")) {
@@ -30,8 +71,7 @@
         }
     }
 
-    //Required for standard gui interface
-    tbv.gui.main.addTopPageElements = function() {
+    tbv.gui.main.init = function() {
         //Build top level interface elements
         $("#tombiod3vis").html(""); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
 
@@ -66,10 +106,6 @@
         $("<div>").attr("id", "tombioGuiLargeJqueryUiControls").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
         $("<div>").attr("id", "tombioGuiLargeJqueryUiTaxa").appendTo("#tombioGuiLargeJqueryUiControlsAndTaxa");
 
-        //##Interface
-        tbv.gui.main.divVis = "#tombioGuiLargeJqueryUiTaxa";
-        tbv.gui.main.divInput = "#tombioGuiLargeJqueryUiControls";
-
         //Divs for information
         $("<div>").attr("id", "currentVisInfo").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
         $("<div>").attr("id", "kbInfo").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
@@ -86,9 +122,15 @@
             $("#tombioGuiLargeJqueryUiControls").css("border", "5px solid yellow") //.attr("title", "tombioGuiLargeJqueryUiControls")
             $("#tombioGuiLargeJqueryUiTaxa").css("border", "5px solid cyan") //.attr("title", "tombioGuiLargeJqueryUiTaxa")
         }
+
+        //Required interface
+        tbv.gui.main.divVis = "#tombioGuiLargeJqueryUiTaxa";
+        tbv.gui.main.divInput = "#tombioGuiLargeJqueryUiControls";
+
+        //Check interface
+        tbv.f.checkInterface("guiLargeJqueryUi", tbv.templates.gui.main, tbv.gui.main);
     }
 
-    //Required for standard gui interface
     tbv.gui.main.createUIControls = function () {
 
         //tombioGuiLargeJqueryUi must be made visible before UI created otherwise size styling is not right
@@ -193,7 +235,6 @@
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.visShow = function (selectedToolName) {
 
         //Get the selected visualisation
@@ -300,7 +341,6 @@
         }
     }
 
-    //Required for standard gui interface
     tbv.gui.main.dialog = function (title, html) {
 
         $("#tombioGuiDialog").remove();
@@ -329,7 +369,6 @@
         $("#tombioGuiDialog").dialog("open");
     }
 
-    //Required for standard gui interface
     tbv.gui.main.createCharacterTooltips = function(selector) {
         $(selector).tooltip({
             track: true,
@@ -340,7 +379,6 @@
         })
     }
 
-    //interface
     tbv.gui.main.createTaxonToolTips = function (selector, displayToolTips) {
         $(selector).tooltip({
             track: true,
@@ -364,12 +402,10 @@
         })
     }
 
-    //##Interface
     tbv.gui.main.tooltip = function (selector) {
         $(selector).tooltip();
     }
 
-    //##Interface
     tbv.gui.main.showFullDetails = function (taxon, selected, x, y) {
 
         var _this = this;
@@ -495,29 +531,7 @@
         }
     }
 
-    //##Interface
-    tbv.gui.main.showCharacterScore = function (taxon, character) {
-
-        var html = tbv.f.getCharacterScoreDetails(taxon, character)
-        var $dlg = $("<div>");
-        $dlg.dialog({
-            height: 300,
-            width: 600,
-            modal: true,
-            title: 'Character score details'
-        });
-        $dlg.html(html);
-        $dlg.dialog("open");
-    }
-
     function createContextMenu() {
-
-        //Create the context menu object
-        tbv.gui.main.contextMenu = {
-            items: {}, //Links to each item in the menu
-            visContexts: {}, //The visualisations contexts valid for each item
-            guiContexts: {} //The GUI contexts valid for each item
-        };
 
         //Initialise the ul element which will form basis of menu
         tbv.gui.main.contextMenu.menu = $("<ul>").css("white-space", "nowrap").appendTo('#tombioGuiLargeJqueryUi')
@@ -554,42 +568,6 @@
         $("#tombioGuiLargeJqueryUi").on("click", function () {
             tbv.gui.main.contextMenu.menu.hide();
         });
-
-        //Add method to add an item
-        tbv.gui.main.contextMenu.addItem = function (label, f, bReplace, visContexts, guiContexts) {
-
-            //Replace item if already exists 
-            //(workaround to let different visualisations have same items with different functions)
-            if (bReplace && label in tbv.gui.main.contextMenu.items) {
-                tbv.gui.main.contextMenu.items[label].remove();
-                delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.visContexts[label];
-                delete tbv.gui.main.contextMenu.guiContexts[label];
-            }
-
-            //Add item if it does not already exist
-            if (!(label in tbv.gui.main.contextMenu.items)) {
-
-                var item = $("<li>").append($("<div>").text(label).click(f));
-                tbv.gui.main.contextMenu.menu.append(item);
-                tbv.gui.main.contextMenu.menu.menu("refresh");
-                tbv.gui.main.contextMenu.items[label] = item;
-                tbv.gui.main.contextMenu.visContexts[label] = visContexts;
-                tbv.gui.main.contextMenu.guiContexts[label] = guiContexts;
-            }
-
-            contextChanged();
-        }
-
-        //Add method to remove an item
-        tbv.gui.main.contextMenu.removeItem = function (label) {
-            if (label in tbv.gui.main.contextMenu.items) {
-                tbv.gui.main.contextMenu.items[label].remove();
-                delete tbv.gui.main.contextMenu.items[label];
-                delete tbv.gui.main.contextMenu.visContexts[label];
-                delete tbv.gui.main.contextMenu.guiContexts[label];
-            }
-        } 
     }
 
     function contextChanged() {
@@ -768,4 +746,4 @@
         return ret
     }
 
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));

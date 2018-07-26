@@ -4,6 +4,7 @@
 
     var visName = "visEarthworm2";
     var visEarthworm2 = tbv.v.visualisations[visName] = Object.create(tbv.v.visP);
+    visEarthworm2.visName = visName;
 
     var _this;
 
@@ -291,6 +292,12 @@
         //Resize the SVG
         d3.select("#tombioEsbMultiaccess")
             .style("width", this.taxwidth * 2 + this.taxspace * 3)
+
+        //Mark as initialised
+        this.initialised = true;
+
+        //Check interface
+        tbv.f.checkInterface(visName, tbv.templates.visTemplate, tbv.v.visualisations[visName]);
     }
 
     visEarthworm2.refresh = function () {
@@ -707,14 +714,14 @@
     visEarthworm2.show = function () {
         //Responsible for showing all gui elements of this tool
         $("#visEarthworm2").show();
-        visEarthworm2.inputControl.$div.show();
+        $(visEarthworm2.inputControl.divSel).show();
         visEarthworm2.inputControl.initFromCharacterState();
     }
 
     visEarthworm2.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#visEarthworm2").hide();
-        visEarthworm2.inputControl.$div.hide();
+        $(visEarthworm2.inputControl.divSel).hide();
     }
 
     function sortTaxa(array, lastPosAttr) {
@@ -885,25 +892,26 @@
         //d3.select('#tombioMapDiv').style("width", "400px");
     }
 
-})(jQuery, this.tombiovis);
+})(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis);
 
 (function ($, tbv) {
 
     "use strict";
 
-    //##Interface##
     tbv.gui.keyInputEarthworm = {
-        //##Interface##
         //Variables that are part of the required interface...
         width: 280,
-
+        otherState: {
+            keys: ["colourby", "tolerance"],
+            colourby: null,
+            tolerance: null
+        },
         //Other variables 
         keyItemWidth: 130,
         keyItemHeight: 30,
         keyItemSpace: 5
     };
 
-    //##Interface##
     tbv.gui.keyInputEarthworm.init = function ($parent) {
 
         //Dynamically create the character input widgets
@@ -914,7 +922,7 @@
 
         //##Interface##
         //Set the property which identifies the top-level div for this input
-        this.$div = $mainDiv;
+        this.divSel = "#tombioEsbKeyInput";
 
         //Set the property which identifies the top-level div for this input
         //tbv.gui.keyInputEarthworm.$div = $("#tombioEsbKeyInput");
@@ -1201,9 +1209,11 @@
         //For some reason this needs to be done with a setTimeout otherwise the 
         //control hasn't resized properly.
         setTimeout(tbv.gui.main.resizeControlsAndTaxa, 100)
+
+        //Check interface
+        tbv.f.checkInterface("keyInputEarthworm", tbv.templates.gui.keyInput, tbv.gui["keyInputEarthworm"]);
     }
 
-    //Interface
     tbv.gui.keyInputEarthworm.initFromCharacterState = function () {
         //Set the character state input controls
         tbv.d.characters.forEach(function (c, cIndex) {
@@ -1232,7 +1242,6 @@
         })
     }
 
-    //##Interface##
     tbv.gui.keyInputEarthworm.initStateFromParams = function (params) {
 
         this.initFromCharacterState();
@@ -1244,7 +1253,6 @@
         colourUp();
     }
 
-    //##Interface##
     tbv.gui.keyInputEarthworm.setParamsFromState = function (params) {
 
         //Indicate which character was selected for colouring
@@ -1252,13 +1260,6 @@
         params.push("tolerance=" + this.otherState.tolerance);
 
         return params
-    }
-
-    //##Interface##
-    tbv.gui.keyInputEarthworm.otherState = {
-        keys: ["colourby", "tolerance"],
-        colourby: null,
-        tolerance: null
     }
 
     //Implementation dependent elements below...
@@ -1410,4 +1411,4 @@
         return gradientName;
     }
 
-}(jQuery, this.tombiovis));
+}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));
