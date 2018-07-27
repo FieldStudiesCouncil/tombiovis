@@ -302,6 +302,30 @@
 
     visEarthworm2.refresh = function () {
 
+        function makeGradient(val1, val2) {
+            var strVal1 = String(Math.round(val1, 2));
+            var strVal2 = String(Math.round(val2, 2));
+
+            var gradientName = colourby + "-" + strVal1 + "-" + strVal2;
+            gradientName = gradientName.replace(/ /g, "");
+
+            if (!document.getElementById(gradientName)) {
+                //console.log("creating ", gradientName)
+                var gradient = d3.select("#tombioEsbMultiaccess")
+                    .append("linearGradient")
+                    .attr("id", gradientName);
+                gradient
+                    .append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", colour(val1));
+                gradient
+                    .append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", colour(val2));
+            }
+            return gradientName;
+        }
+
         //Add/remove context menu item for getting the view URL
         tbv.gui.main.contextMenu.addItem("Get URL for earthworm key", function () {
             getViewURL();
@@ -478,29 +502,6 @@
                     } else {
                         t.visState.visEarthworm2.fill = colour(t[colourby].kbValue);
                     }
-                }
-                function makeGradient(val1, val2) {
-                    var strVal1 = String(Math.round(val1, 2));
-                    var strVal2 = String(Math.round(val2, 2));
-
-                    var gradientName = colourby + "-" + strVal1 + "-" + strVal2;
-                    gradientName = gradientName.replace(/ /g, "");
-
-                    if (!document.getElementById(gradientName)) {
-                        //console.log("creating ", gradientName)
-                        var gradient = d3.select("#tombioEsbMultiaccess")
-                            .append("linearGradient")
-                            .attr("id", gradientName);
-                        gradient
-                            .append("stop")
-                            .attr("offset", "0%")
-                            .attr("stop-color", colour(val1));
-                        gradient
-                            .append("stop")
-                            .attr("offset", "100%")
-                            .attr("stop-color", colour(val2));
-                    }
-                    return gradientName;
                 }
             } else {
                 t.visState.visEarthworm2.fill = "lightgrey";

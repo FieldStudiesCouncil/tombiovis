@@ -1,5 +1,4 @@
 ﻿(function (tbv) {
-
     "use strict";
 
     //The following fix is required to stop IE11 throwing its arms up if
@@ -90,9 +89,9 @@
     //Application-wide structure for holding all the necessary information for
     //dynamically loaded JS modules and associated CSS files
     var jsF = tbv.js.jsFiles = {
-        add: function (id, file, toolName) {
+        add: function (id, file, tombiover, toolName) {
             tbv.js.jsFiles[id] = Object.create(jsFile);
-            tbv.js.jsFiles[id].init(id, file, toolName);
+            tbv.js.jsFiles[id].init(id, file, tombiover, toolName);
         },
         asArray: function () {
             var ret = [];
@@ -110,9 +109,10 @@
     //For each module, an object is created using this as its
     //prototype and is added to the tbv.js.jsFiles collection
     var jsFile = {
-        init: function (id, file, toolName) {
+        init: function (id, file, tombiover, toolName) {
             this.id = id;
             this.file = minifyIfRequired(tbv.opts.tombiopath + file);
+            this.tombiover = tombiover;
             this.requires = [];
             this.requiresFirst = [];
             this.css = [];
@@ -139,6 +139,11 @@
                     pRequiresFirst.push(jsF[id].loadJs(thisId, true));
                 });
 
+                if (this.tombiover) {
+                    var js = this.file + "?ver=" + tbv.opts.tombiover;
+                } else {
+                    var js = this.file;
+                }
                 var js = this.file;
                 var css = this.css;
                 var initF = this.initF;
@@ -285,50 +290,50 @@
     jsF.pqgrid.requiresFirst = ["jqueryui"];
 
     //Keyinput template
-    jsF.add("keyinputTemplate", "keyinputTemplate.js?ver=" + tbv.opts.tombiover);
+    jsF.add("keyinputTemplate", "keyinputTemplate.js", true);
 
     //KeyInput
-    jsF.add("keyInput", "keyinput.js?ver=" + tbv.opts.tombiover);
+    jsF.add("keyInput", "keyinput.js", true);
     jsF.keyInput.addCSS("css/keyinput.css");
     jsF.keyInput.requires = ["pqselect", "jqueryui"];
 
     //KeyInputBasic
-    jsF.add("keyInputBasic", "keyinputBasic.js?ver=" + tbv.opts.tombiover);
+    jsF.add("keyInputBasic", "keyinputBasic.js", true);
     jsF.keyInputBasic.addCSS("css/keyinputbasic.css");
 
     //The main tombiovis module
-    jsF.add("tombiovis", "tombiovis.js?ver=" + tbv.opts.tombiover);
+    jsF.add("tombiovis", "tombiovis.js", true);
     jsF.tombiovis.addCSS("css/tombiovis.css");
     jsF.tombiovis.requires = ["kbchecks"];
 
     //Knowledge-base checks
-    jsF.add("kbchecks", "kbchecks.js?ver=" + tbv.opts.tombiover);
-    jsF.add("score", "score.js?ver=" + tbv.opts.tombiover);
+    jsF.add("kbchecks", "kbchecks.js", true);
+    jsF.add("score", "score.js", true);
 
     //Taxon selection control used by some visualisations
-    jsF.add("taxonselect", "taxonselect.js?ver=" + tbv.opts.tombiover);
+    jsF.add("taxonselect", "taxonselect.js", true);
     jsF.taxonselect.addCSS("css/taxonselect.css");
     jsF.taxonselect.requires = ["jqueryui"];
 
     //The base prototype visualisation module
-    jsF.add("visP", "visP.js?ver=" + tbv.opts.tombiover);
+    jsF.add("visP", "visP.js", true);
     //jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
     jsF.visP.requires = ["mousewheel", "galleria", "zoomMaster"];
 
     //Main GUI interface template
-    jsF.add("guiTemplate", "guiTemplate.js?ver=" + tbv.opts.tombiover);
+    jsF.add("guiTemplate", "guiTemplate.js", true);
 
     //Main GUI - Large format with jQuery UI
-    jsF.add("guiLargeJqueryUi", "guiLargeJqueryUi.js?ver=" + tbv.opts.tombiover);
+    jsF.add("guiLargeJqueryUi", "guiLargeJqueryUi.js", true);
     jsF.guiLargeJqueryUi.addCSS("css/guiLargeJqueryUi.css");
     jsF.guiLargeJqueryUi.requires = ["jqueryui"];
 
     //Main GUI - Large format test (no jQuery)
-    jsF.add("guiLarge", "guiLarge.js?ver=" + tbv.opts.tombiover);
+    jsF.add("guiLarge", "guiLarge.js", true);
     jsF.guiLarge.addCSS("css/guiLarge.css");
 
     //Main GUI Onsen mobile-first GUI
-    jsF.add("guiOnsenUi", "guiOnsenUi.js?ver=" + tbv.opts.tombiover);
+    jsF.add("guiOnsenUi", "guiOnsenUi.js", true);
     jsF.guiOnsenUi.addCSS("css/guiOnsenUi.css");
     jsF.guiOnsenUi.requiresFirst = ["onsenui"];
 
@@ -339,41 +344,41 @@
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui-fonts.css");
 
     //Visualisation interface template
-    jsF.add("visTemplate", "visTemplate/visTemplate.js?ver=" + tbv.opts.tombiover);
+    jsF.add("visTemplate", "visTemplate/visTemplate.js");
     jsF.visTemplate.requiresFirst = ["visP"];
 
     //The visualisation modules
-    jsF.add("vis1", "vis1/vis1.js?ver=" + tbv.opts.tombiover, "Two-column key");
+    jsF.add("vis1", "vis1/vis1.js", true, "Two-column key");
     jsF.vis1.addCSS("vis1/vis1.css");
     jsF.vis1.requiresFirst = ["visP"];
     jsF.vis1.requires = ["score"];
     setVisDependencies("vis1", true);
 
-    jsF.add("vis2", "vis2/vis2.js?ver=" + tbv.opts.tombiover, "Single-column key");
+    jsF.add("vis2", "vis2/vis2.js", true, "Single-column key");
     jsF.vis2.addCSS("vis2/vis2.css");
     jsF.vis2.requiresFirst = ["visP"];
     jsF.vis2.requires = ["score"];
     setVisDependencies("vis2", true);
 
-    jsF.add("vis3", "vis3/vis3.js?ver=" + tbv.opts.tombiover, "Side by side comparison");
+    jsF.add("vis3", "vis3/vis3.js", true, "Side by side comparison");
     jsF.vis3.addCSS("vis3/vis3.css");
     jsF.vis3.requiresFirst = ["visP"];
     jsF.vis3.requires = ["taxonselect", "pqgrid", "score"];
     setVisDependencies("vis3", false);
 
-    jsF.add("vis4", "vis4/vis4.js?ver=" + tbv.opts.tombiover, "Full taxon details");
+    jsF.add("vis4", "vis4/vis4.js", true, "Full taxon details");
     jsF.vis4.addCSS("vis4/vis4.css");
     jsF.vis4.requiresFirst = ["visP"];
     jsF.vis4.requires = ["taxonselect"];
     setVisDependencies("vis4", false);
 
-    jsF.add("vis5", "vis5/vis5.js?ver=" + tbv.opts.tombiover, "Circle-pack key");
+    jsF.add("vis5", "vis5/vis5.js", true, "Circle-pack key");
     jsF.vis5.addCSS("vis5/vis5.css");
     jsF.vis5.requiresFirst = ["visP"];
     jsF.vis5.requires = ["score"];
     setVisDependencies("vis5", true);
 
-    jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js?ver=" + tbv.opts.tombiover, "Bespoke earthworm key");
+    jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js", true, "Bespoke earthworm key");
     jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
     jsF.visEarthworm2.requiresFirst = ["visP"];
     jsF.visEarthworm2.requires = ["jqueryui", "score"];
@@ -590,17 +595,21 @@
     }
 
     function minifyIfRequired(file) {
-        if (!tbv.opts.devel) {
-            var i = file.lastIndexOf('.');
-            var fileExtension = file.substr(i + 1);
-            var fileName = file.substr(0, i);
 
-            //If file is already minified (fileName ends in .min) then
-            //no need to change name.
-            if (fileName.endsWith(".min")) {
+        if (!tbv.opts.devel) {
+
+            if (file.indexOf('dependencies') > -1) {
+                //JS and CSS of dependencies are normally specified as minified files anyway.
                 return file;
             } else {
-                return fileName + ".min." + fileExtension;
+                var i = file.lastIndexOf('.');
+                var fileExtension = file.substr(i + 1);
+                var pathName = file.substr(0, i);
+                var j = pathName.lastIndexOf('/');
+                var fileName = (j == -1) ? pathName : pathName.substr(j + 1);
+
+                //Expecting to find project minified files in the folders min/css and min/js.
+                return 'min/' + fileExtension + '/' + fileName + ".min." + fileExtension;
             }
         } else {
             return file;

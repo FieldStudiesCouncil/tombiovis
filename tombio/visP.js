@@ -1,5 +1,4 @@
 ﻿(function ($, tbv) {
-
     "use strict";
 
     //This is the base prototype for visualisations and should not contain any

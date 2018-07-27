@@ -1,0 +1,26 @@
+{
+  "name": "tombiovis",
+  "version": "1.0.0",
+  "description": "The FSC Identikit is a framework for creating online \r biological identification keys and related resources. \r The genesis of the project \r was the Field Studies Council's (FSC) Tomorrow's Biodiversity \r project (funded by Esm�e Fairbairn 2013-2017 inclusive). \r Esm�e Fairbairn funded a further year's development of the \r Identikit (covering 2018) to facilitate rolling the work forward\r into the HLF-funded FSC BioLinks project which runs from 2018 to 2022\r inclusive.\r The Field\r Studies Council is a UK-based environmental education\r charity. We are committed to moving FSC Identikit forward \r as an open-source collaborative venture.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burkmarr/tombiovis.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/burkmarr/tombiovis/issues"
+  },
+  "homepage": "https://github.com/burkmarr/tombiovis#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.9.4",
+    "gulp-rename": "^1.4.0",
+    "gulp-uglify": "^3.0.1",
+    "pump": "^3.0.0"
+  }
+}

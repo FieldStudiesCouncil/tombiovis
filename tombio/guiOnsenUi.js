@@ -1,5 +1,4 @@
 ﻿(function ($, tbv) {
-
     "use strict"; 
 
     var tools = {};
@@ -390,6 +389,35 @@
 
         var _this = this;
 
+        function getHTMLFileSelectionDiv(taxon, container) {
+
+            var htmlDiv = $('<div>').css("margin", "10px").appendTo(container);
+
+            var htmlFiles = tbv.f.getTaxonHtmlFiles(taxon);
+            if (htmlFiles.length == 0) {
+                //If there are no html files for this taxon, return a message to that effect.
+                htmlDiv.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
+            } else {
+                var htmlDiv2 = $("<div>");
+                if (htmlFiles.length > 1) {
+                    html = '<ons-select onchange="tombiovis.gui.main.textFileSelect(event)">'
+                    htmlFiles.forEach(function (file, iFile) {
+                        html += '<option value="' + iFile + '">';
+                        html += file.Caption;
+                        html += '</option>'
+                    });
+                    html += '</ons-select>'
+                    htmlDiv.html(html);
+                }
+                htmlDiv2.appendTo(htmlDiv);
+                tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, 0);
+
+                tbv.gui.main.textFileSelect = function (event) {
+                    tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, event.target.value);
+                }
+            }
+        }
+
         if ($("#tombioOnsFullDetailsTemplate").length == 0) {
 
             var html = '';
@@ -471,35 +499,6 @@
                 }
 
             }, false);
-
-            function getHTMLFileSelectionDiv(taxon, container) {
-
-                var htmlDiv = $('<div>').css("margin", "10px").appendTo(container);
-
-                var htmlFiles = tbv.f.getTaxonHtmlFiles(taxon);
-                if (htmlFiles.length == 0) {
-                    //If there are no html files for this taxon, return a message to that effect.
-                    htmlDiv.text("No text information files (HTML) are specified in the knowledge-base for this taxon.")
-                } else {
-                    var htmlDiv2 = $("<div>");
-                    if (htmlFiles.length > 1) {
-                        html = '<ons-select onchange="tombiovis.gui.main.textFileSelect(event)">'
-                        htmlFiles.forEach(function (file, iFile) {
-                            html += '<option value="' + iFile + '">';
-                            html += file.Caption;
-                            html += '</option>'
-                        });
-                        html += '</ons-select>'
-                        htmlDiv.html(html);
-                    }
-                    htmlDiv2.appendTo(htmlDiv);
-                    tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, 0);
-
-                    tbv.gui.main.textFileSelect = function (event) {
-                        tbv.f.addTaxonHtmlToContainer(taxon, htmlDiv2, event.target.value);
-                    }
-                }
-            }
         }
 
         document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsFullDetailsTemplate', {

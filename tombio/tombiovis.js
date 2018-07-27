@@ -1,6 +1,4 @@
 ﻿(function ($, tbv) {
-
-    //Define StateValue object 
     "use strict";
     
     tbv.d.stateValue = {
@@ -310,7 +308,6 @@
 }(jQuery, this.tombiovis));
 
 (function ($, tbv) {
-
     "use strict";
 
     tbv.f.loadcomplete = function (force) {

@@ -1,5 +1,4 @@
 ﻿(function ($, tbv) {
-
     "use strict";
 
     tbv.gui.keyInputBasic = {
