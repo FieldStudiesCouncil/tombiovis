@@ -11,8 +11,6 @@
 
         _this = this;
 
-        console.log("vis1 initialising")
-
         //Initialise the metadata
         this.metadata.title = "Two-column key";
         this.metadata.year = "2016";
@@ -82,8 +80,6 @@
     }
 
     vis1.refresh = function () {
-
-        console.log("refresh")
 
         //Constants for laying out graphics for vis
         var margin = this.margin;

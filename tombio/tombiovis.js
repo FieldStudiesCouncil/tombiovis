@@ -1332,7 +1332,7 @@
             for (var prop in template) {
                 if (template.hasOwnProperty(prop)) {
                     if (implementation[prop]) {
-                        console.log("%cInterface: " + name + propString + "." + prop + " found.", "color: grey");
+                        //console.log("%cInterface: " + name + propString + "." + prop + " found.", "color: grey");
                         if (typeof template[prop] == "object") {
                             checkProperties(propString + "." + prop, template[prop], implementation[prop])
                         }

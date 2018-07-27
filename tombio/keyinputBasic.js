@@ -16,7 +16,6 @@
 
         var $input = $("<div>").attr("id", "tombioKeyBasic").appendTo($parent);
 
-        //##Interface##
         //Set the property which identifies the top-level div for this input
         tbv.gui.keyInputBasic.divSel = "#tombioKeyBasic";
 

@@ -301,6 +301,11 @@
     jsF.add("keyInputBasic", "keyinputBasic.js", true);
     jsF.keyInputBasic.addCSS("css/keyinputbasic.css");
 
+    //keyInputOnsenUi
+    jsF.add("keyInputOnsenUi", "keyinputOnsenUi.js", true);
+    jsF.keyInputOnsenUi.addCSS("css/KeyinputOnsenUi.css");
+    jsF.keyInputOnsenUi.requiresFirst = ["onsenui"];
+
     //The main tombiovis module
     jsF.add("tombiovis", "tombiovis.js", true);
     jsF.tombiovis.addCSS("css/tombiovis.css");

@@ -311,8 +311,6 @@
                     tbv.f.setSelectedToolInfo($('#tombioOnsOtherInfoDiv'));
                 }
 
-                console.log("selectedToolName", selectedToolName)
-
                 //Change tool if necessary and associated input control
                 if (selectedToolName != tbv.v.currentTool) {
 
@@ -568,13 +566,13 @@
         var vis = tbv.v.visualisations[tbv.v.currentTool]; //Will be undefined if current tool not a visualisation
         var w;
         if (vis && vis.inputControl) {
-            console.log("setting width from input control")
+            //console.log("setting width from input control")
             w = vis.inputControl.width;
         } else if (vis && vis.taxonSelect) {
-            console.log("setting width from taxon select")
+            //console.log("setting width from taxon select")
             w = vis.taxonSelect.width;
         } else {
-            console.log("setting default width")
+            //console.log("setting default width")
             w = 230;
         }
         $('#tombioOnsMenu').css("width", w);

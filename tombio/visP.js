@@ -11,7 +11,6 @@
 
     visP.initP = function () {
 
-        console.log('this.visName', this.visName)
         var parent = tbv.gui.main.divVis;
 
         this.metadata = {};

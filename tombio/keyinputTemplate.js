@@ -1,6 +1,10 @@
 ﻿(function ($, tbv) {
     "use strict";
 
+    //#################################################
+    //Need to replace keyInput with name of new control
+    //#################################################
+
     tbv.gui.keyInput = {
         //Variables that are part of the required interface...
         width: 360, //Must have a default width
