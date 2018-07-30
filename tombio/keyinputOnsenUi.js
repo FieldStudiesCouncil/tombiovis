@@ -48,28 +48,30 @@
         html += '<ons-page id="tombioKeyinputOnseUi" style="margin-right: 10px">';
         html += '<ons-list>';
 
-        inputCharGroups.forEach(function (g) {
+        inputCharGroups.forEach(function (g, i) {
 
-            if (inputCharGroups.length > 1) {
-                //Expandable list item for group
-                html += '<ons-list-item expandable>';
-                html += '<div class="left">' + g + '</div>';
-                html += '<div class="expandable-content">';
-                html += '<ons-list>';
-            }
+            if (i < 2) {
+                if (inputCharGroups.length > 1) {
+                    //Expandable list item for group
+                    html += '<ons-list-item expandable>';
+                    html += '<div class="left">' + g + '</div>';
+                    html += '<div class="expandable-content">';
+                    html += '<ons-list>';
+                }
 
-            
-            characters[g].forEach(function (c) {
-                html += '<ons-list-item>';
-                html += '<div class="left">' + c.Label + '</div>';
-                html += '</ons-list-item>';
-            })
-            
 
-            if (inputCharGroups.length > 1) {
-                html += '</ons-list>';
-                html += '</div>';
-                html += '</ons-list-item>';
+                characters[g].forEach(function (c) {
+                    html += '<ons-list-item>';
+                    html += '<div class="left">' + c.Label + '</div>';
+                    html += '</ons-list-item>';
+                })
+
+
+                if (inputCharGroups.length > 1) {
+                    html += '</ons-list>';
+                    html += '</div>';
+                    html += '</ons-list-item>';
+                }
             }
         });
 
@@ -77,6 +79,8 @@
         html += '</ons-page>';
 
         $input.html(html);
+
+        console.log(html)
 
         //Set the property which identifies the top-level div for this input
         tbv.gui.keyInputOnsenUi.divSel = "#divtombioKeyinputOnsenUi";
