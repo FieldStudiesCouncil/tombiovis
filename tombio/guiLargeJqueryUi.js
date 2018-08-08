@@ -81,7 +81,7 @@
         $("<div>").attr("id", "tombioGuiLargeJqueryUi").addClass("needsclick").css("display", "none").appendTo("#tombiod3vis");
 
         //Format warning div
-        $("<div>").attr("id", "tombioGuiLargeJqueryUiDeviceWarning").appendTo("#tombioGuiLargeJqueryUi");
+        $("<div style='width: " + window.screen.width + "px'>").attr("id", "tombioGuiLargeJqueryUiDeviceWarning").appendTo("#tombioGuiLargeJqueryUi");
         $("<div>").attr("id", "tombioGuiLargeJqueryUiDeviceWarningInnerDiv").css("margin", "2em").appendTo($("#tombioGuiLargeJqueryUiDeviceWarning"));
         $("<p>").text("This Identikit tool is designed for large format devices. If you are working with a small screen or with a touch device, it might not appear or work as intended. We are working to produce a range of 'mobile-first' tools in the latter part of 2018.")
             .appendTo($("#tombioGuiLargeJqueryUiDeviceWarningInnerDiv"));
@@ -621,6 +621,10 @@
 
     function getCharacterToolTip(character) {
 
+        //###################################
+        //06/08/2018 needs rewriting to use functions from tombiovis as er keyinputOnsenUI
+        //###################################
+
         var ret = $('<div/>');
         var tipTextPresent = false;
 
@@ -724,9 +728,7 @@
         })
 
         //Is there any state value help text? Required to determine 'click for' text.
-        var valueHelp = tbv.d.values.filter(function (v) {
-            if (v.Character == character && v.StateHelp) return true;
-        });
+        var valueHelp = tbv.f.stateValueHelpPresent(tbv.d.oCharacters[character]);
 
         //Add 'click for' text for full help dialog. If tip text is present then there will be fuller help text.
         //then this message should make it clear that *further* help is available. Otherwise a general message

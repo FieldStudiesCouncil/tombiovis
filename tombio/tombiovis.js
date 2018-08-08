@@ -362,6 +362,19 @@
             })
         })
 
+        //Store character groups
+        tbv.d.groupedCharacters = {};
+        tbv.d.groupedCharacters.groups = [];
+        tbv.d.characters.forEach(function (character) {
+            if (character.Status == "key") {
+                if (!tbv.d.groupedCharacters[character.Group]) {
+                    tbv.d.groupedCharacters[character.Group] = [];
+                    tbv.d.groupedCharacters.groups.push(character.Group);
+                }
+                tbv.d.groupedCharacters[character.Group].push(character);
+            }
+        });
+
         //Map taxa to properties of an object for easy reference by name (Taxon property)
         tbv.d.oTaxa = {};
         var iTaxon = 0;
@@ -818,8 +831,14 @@
 
         //Refresh the relevant visualisation
         if (getVisualisation()) getVisualisation().refresh();
-        
         tbv.f.resizeControlsAndTaxa();
+
+        //Viewport diagnostics
+        //console.log("viewport width", window.innerWidth)
+        //console.log("viewport height", window.innerHeight)
+
+        //console.log("Device width", window.screen.width)
+        //console.log("Device height", window.screen.height)
     }
 
     tbv.f.resizeControlsAndTaxa = function () {
@@ -1071,6 +1090,22 @@
         return taxonImages;
     }
 
+    tbv.f.getCharacterImages = function (charName, state, useFor) {
+        //Return list of character images sorted by priority
+        var taxonImages = tbv.d.media.filter(function (m) {
+            if (m.Character == charName && (m.Type == "image-local" || m.Type == "image-web")) {
+                if (!state || m.State == state) {
+                    if (!useFor || !m.UseFor || m.UseFor.split(",").indexOf(useFor) > -1) {
+                        return true;
+                    }
+                }
+            }
+        }).sort(function (a, b) {
+            return Number(a.Priority) - Number(b.Priority)
+        });
+        return taxonImages;
+    }
+
     tbv.f.addNBNMapToContainer = function (tvk, $parent) {
 
         //TVK might be passed as a string or as a state value object
@@ -1172,18 +1207,17 @@
         var html;
         html = "<p>Specified state(s) for character <b>" + character.Label + "</b>: </p>"
 
-        var control = $("#" + character.Character);
         html += "<ul>";
-        if (character.ControlType == "spin" || character.ControlType == "single") {
-            html += "<li><b>";
-            html += control.val();
-            html += "</b></li>";
-        } else if (character.ControlType == "multi") {
-            control.val().forEach(function (state) {
+        if (character.ValueType == "text") {
+            tbv.d.oCharacters[character.Character].userInput.forEach(function (i) {
                 html += "<li><b>";
-                html += state;
+                html += tbv.d.oCharacters[character.Character].CharacterStateValues[i];
                 html += "</b></li>";
             });
+        } else {
+            html += "<li><b>";
+            html += tbv.d.oCharacters[character.Character].userInput;
+            html += "</b></li>";
         }
         html += "</ul>";
 
@@ -1344,6 +1378,108 @@
         }
     }
 
+    tbv.f.stateValueHelpPresent = function (charName) {
+        //Is there any state value help text?
+        for (var i = 0; i < tbv.d.values.length; i++) {
+            var v = tbv.d.values[i];
+            if (v.Character == charName && v.StateHelp) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    tbv.f.getFullCharacterHelp = function(charName) {
+
+        //Clear existing HTML
+        var $divHelp = $("<div>");
+
+        $('<p>').html(tbv.d.oCharacters[charName].Help).appendTo($divHelp);
+
+        //Help images for character (not necessarily illustrating particular states)
+        var charImages = tbv.d.media.filter(function (m) {
+            //Only return images for matching character if no state value is set
+            if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == charName && !m.State) {
+                //Check UseFor field - it id doesn't exist (backward compatibility for older KBs) 
+                //or exists and empty then allow image.
+                //Otherwise ensure that "full" is amongst comma separated list.
+                if (!m.UseFor) {
+                    return true;
+                } else {
+                    var use = false;
+                    m.UseFor.split(",").forEach(function (useForVal) {
+                        if (useForVal.toLowerCase().trim() == "full") {
+                            use = true;
+                        }
+                    })
+                    return use;
+                }
+            }
+        }).sort(function (a, b) {
+            return Number(a.Priority) - Number(b.Priority)
+        });
+
+        charImages.forEach(function (charState, i) {
+            var fig = $('<figure/>').appendTo($divHelp);
+            fig.addClass('helpFigure');
+            var img = $('<img/>', { src: charState.URI })
+            var cap = $('<figcaption/>', { html: charState.Caption });
+            fig.append(img).append(cap);
+            if (i > 0) {
+                img.css("margin-top", 10);
+            }
+            cap.appendTo($divHelp);
+
+            if (charState.ImageWidth) {
+                img.css("width", charState.ImageWidth);
+            }
+        });
+
+        //Help text character states
+        var charText = tbv.d.values.filter(function (v) {
+            if (v.Character == charName && v.StateHelp) return true;
+        });
+
+        charText.forEach(function (charState) {
+
+            if (charState.CharacterStateTranslation && charState.CharacterStateTranslation != "") {
+                var charStateText = charState.CharacterStateTranslation;
+            } else {
+                var charStateText = charState.CharacterState;
+            }
+            var para = $('<p/>').appendTo($divHelp);
+            var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
+            para.append(spanState);
+            var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
+            para.append(spanHelp);
+
+            //Help images for character states
+            var charImages = tbv.d.media.filter(function (m) {
+                //Only return images for matching character if no state value is set
+                if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == charName && m.State == charState.CharacterState) return true;
+            }).sort(function (a, b) {
+                return Number(a.Priority) - Number(b.Priority)
+            });
+
+            charImages.forEach(function (charState, i) {
+                //var fig = $('<figure/>').appendTo($divHelp);
+                var img = $('<img/>', { src: charState.URI })
+                var cap = $('<figcaption/>', { html: charState.Caption });
+                //fig.append(img).append(cap);
+                img.appendTo($divHelp)
+                if (i > 0) {
+                    img.css("margin-top", 10);
+                }
+                cap.appendTo($divHelp);
+                if (charState.ImageWidth) {
+                    img.css("width", charState.ImageWidth);
+                }
+            });
+        });
+
+        return $divHelp.html();
+    }
+
     function addValuesToCharacters() {
 
         tbv.d.values.forEach(function (val) {
@@ -1364,6 +1500,7 @@
                     {
                         CharacterState: charState,
                         StateHelp: val.StateHelp,
+                        StateHelpShort: val.StateHelpShort
                     }
                 )
                 character.CharacterStateValues.push(charState);

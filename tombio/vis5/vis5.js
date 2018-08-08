@@ -473,6 +473,8 @@
     vis5.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#vis5").hide();
+
+        console.log("hiding ", vis5.inputControl.divSel) 
         $(vis5.inputControl.divSel).hide();
     }
 

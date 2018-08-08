@@ -47,17 +47,20 @@
         html += '<template id="tombioOnsVisualisationTemplate">';
         html += '<ons-page id="tombioOnsVisualisation">';
         html += '<ons-splitter>';
+
         html += '<ons-splitter-side id="tombioOnsMenu" side="left" collapse="' + onsSplitterSideMediaQuery + '" swipeable>';
         html += '<ons-page id="tombioOnsVisInput">';
         html += '<ons-toolbar>';
         html += '<div class="left">';
         html += '<ons-back-button id="tombioUiSideMenuBackButton" ></ons-back-button>';
         html += '</div>';
-        html += '<div class="center">Input</div>';
+        //html += '<div class="center">Input</div>';
+        html += '<div class="center"><ons-icon icon="md-keyboard" size="30px" style="color: #1e88e5; margin-top: 7px"></ons-icon></div>';
         html += '</ons-toolbar>';
         html += '<div id="tombioOnsVisInputDiv"></div>';
         html += '</ons-page>';
         html += '</ons-splitter-side>';
+
         html += '<ons-splitter-content id="content" page="tombioOnsVisDisplayTemplate"></ons-splitter-content>';
         html += '</ons-splitter>';
         html += '</ons-page>';
@@ -130,10 +133,10 @@
         tbv.gui.main.popPage = function () {
             document.querySelector('#tombioOnsNavigator').popPage()
                 .then(function () {
-                    console.log("Page popped");
+                    //console.log("Page popped");
                 })
                 .catch(function () {
-                    console.log("Page pop error");
+                    //console.log("Page pop error");
                 })
         }
 
@@ -201,11 +204,8 @@
 
         //Add reload option
         var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
-
         toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload</ons-list-item>'));
-        toolOptions.push($('<ons-list-item value="reloadGuiOnsen" class="html" data-class="reload">' + icon + 'Reload with mobile-first interface</ons-list-item>'));
-        toolOptions.push($('<ons-list-item value="reloadGuiJQuery" class="html" data-class="reload">' + icon + 'Reload with large format interface</ons-list-item>'));
-
+        
         icon = '<div class="left"><ons-icon icon="md-lamp" class="list-item__icon"></ons-icon></div>'
         toolOptions.push($('<ons-list-header>Visualisations</ons-list-header>'));
         //Add the required visualisation tools
@@ -232,7 +232,9 @@
         toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
 
-        toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
+        if (tbv.opts.checkKB || tbv.opts.devel) {
+            toolOptions.push($('<ons-list-header>For developers</ons-list-header>'));
+        }
 
         //If the tbv.opts.devel option is set, add item to check media files.
         //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
@@ -242,6 +244,12 @@
             if (tbv.d.oCharacters.TVK) {
                 toolOptions.push($('<ons-list-item value="tvkCheck" class="html" data-class="wrench">' + icon + 'Check TVKs</ons-list-item>'));
             }
+        }
+
+        if (tbv.opts.devel) {
+            icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
+            toolOptions.push($('<ons-list-item value="reloadGuiOnsen" class="html" data-class="reload">' + icon + 'Reload with mobile-first interface</ons-list-item>'));
+            toolOptions.push($('<ons-list-item value="reloadGuiJQuery" class="html" data-class="reload">' + icon + 'Reload with large format interface</ons-list-item>'));
         }
 
         //Add click event to the menu items
@@ -354,6 +362,27 @@
                 }  
 
                 splitterSideHideShow();
+
+                //If this is the first time through - i.e. page just loaded - and
+                //this is a visualisation too, then process any URL initialisation parameters.
+                if (!tbv.v.initialised && tbv.v.visualisations[selectedToolName]) {
+                    //Get all the URL parameters
+                    var params = {};
+                    //(The global replace on plus characters is to overcome a problem with links put into facebook which
+                    //replace some space characters with plus characters).
+                    var sPageURL = decodeURI(window.location.search.substring(1)).replace(/\+/g, ' ');
+
+                    var splitParamAndValue = sPageURL.split('&');
+                    for (var i = 0; i < splitParamAndValue.length; i++) {
+                        var sParamAndValue = splitParamAndValue[i].split('=');
+                        params[sParamAndValue[0]] = sParamAndValue[1];
+                    }
+                    //Pass into selected tool
+                    tbv.v.visualisations[selectedToolName].urlParams(params);
+
+                    //Set initialised flag
+                    tbv.v.initialised = true;
+                }
             });
     }
 
@@ -473,8 +502,9 @@
                 var taxon = document.querySelector('#tombioOnsNavigator').topPage.data.taxon;
                 var tab = document.querySelector('#tombioOnsNavigator').topPage.data.tab;
 
-                if (event.target.matches('#tombioOnsFullDetailsTab1')) {
-                    $('#tombioOnsFullDetailsTitle').html("<i>" + taxon + "</i>");
+                $('#tombioOnsFullDetailsTitle').html("<i>" + taxon + "</i>");
+
+                if (event.target.matches('#tombioOnsFullDetailsTab1')) {  
                     $('#tombioOnsFullDetailsTab1Content').html(tbv.f.getTaxonCharacterValues(tbv.d.oTaxa[taxon]));
                 }
                 if (event.target.matches('#tombioOnsFullDetailsTab2')) {  
@@ -532,7 +562,7 @@
         //Add item if it does not already exist
         if (!(label in tbv.gui.main.contextMenu.items)) {
 
-            var icon = '<div class="left"><ons-icon icon="md-dot-circle" class="list-item__icon"></ons-icon></div>'
+            var icon = '<div class="left"><ons-icon icon="md-caret-right" class="list-item__icon"></ons-icon></div>'
             var item = $('<ons-list-item>' + icon + label + '</ons-list-item>');
 
             tbv.gui.main.contextMenu.items[label] = item;
@@ -557,7 +587,7 @@
         //This function has several purposes.
         //Firstly it is used to hide the ons-splitter-side if a tool other than a visualisation
         //is selected and therefore ons-splitter-side has no content.
-        //Secondly it is used to dynamically resize the onsend menu depending on the selected tool.
+        //Secondly it is used to dynamically resize the onsen menu depending on the selected tool.
         //Also it works around a bug in onsen. Media query is set on collapsible attribute of ons-splitter-side
         //but although it works and is not collapsible on screen sizes greater than max-width, the ons-splitter-content 
         //is not offset to the right to allow space and is therefore partially shown under ons-splitter-side. If page 

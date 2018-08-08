@@ -18397,11 +18397,17 @@ var SlideListItemAnimator = function (_ListItemAnimator) {
     key: 'showExpansion',
     value: function showExpansion(listItem, callback) {
       this._animateExpansion(listItem, true, callback);
+
+      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
+      document.dispatchEvent(new CustomEvent('listAnimated', { detail: {listItem: listItem, action: 'show' }}));
     }
   }, {
     key: 'hideExpansion',
     value: function hideExpansion(listItem, callback) {
       this._animateExpansion(listItem, false, callback);
+
+      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
+      document.dispatchEvent(new CustomEvent('listAnimated', { detail: { listItem: listItem, action: 'hide' } }));
     }
   }, {
     key: '_animateExpansion',
@@ -18413,6 +18419,7 @@ var SlideListItemAnimator = function (_ListItemAnimator) {
       // height and padding. Once this is done, we set the height back to its original value.
       var oldHeight = listItem.expandableContent.style.height;
       var oldDisplay = listItem.expandableContent.style.display;
+
       listItem.expandableContent.style.height = 'auto';
       listItem.expandableContent.style.display = 'block';
       var computedStyle = window.getComputedStyle(listItem.expandableContent);

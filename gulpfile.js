@@ -28,4 +28,18 @@ gulp.task('mincss', function (cb) {
     ], cb);
 });
 
-gulp.task('default', ['minify', 'mincss']);
+gulp.task('onsen', function (cb) {
+    //This is required because a change has been made to onsenui to generate an event
+    //when expandable list item is expanded.
+    pump([
+        gulp.src(['tombio/dependencies/onsenui-2.10.3/js/onsenui.js']),
+        uglify(),
+        rename(function (path) {
+            path.dirname = "";
+            path.extname = ".min.js";
+        }),
+        gulp.dest('tombio/dependencies/onsenui-2.10.3/js')
+    ], cb);
+});
+
+gulp.task('default', ['minify', 'mincss', 'onsen']);

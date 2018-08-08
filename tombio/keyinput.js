@@ -334,7 +334,7 @@
         //Update params to indicate unused controls visibility (clones)
         params.push("cvis=" + $("input[name=charvisibility]:checked").val());
 
-        return params
+        return params;
     }
 
     //Implementation dependent elements below...
@@ -550,88 +550,8 @@
 
         //Header for character
         $('<h3/>', { text: tbv.d.oCharacters[character].Label }).appendTo($divHelp);
-        $('<p/>', { html: tbv.d.oCharacters[character].Help }).appendTo($divHelp);
 
-        //Help images for character (not necessarily illustrating particular states)
-        var charImages = tbv.d.media.filter(function (m) {
-            //Only return images for matching character if no state value is set
-            if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character && !m.State) {
-                //Check UseFor field - it id doesn't exist (backward compatibility for older KBs) 
-                //or exists and empty then allow image.
-                //Otherwise ensure that "full" is amongst comma separated list.
-                if (!m.UseFor) {
-                    return true;
-                } else {
-                    var use = false;
-                    m.UseFor.split(",").forEach(function (useForVal) {
-                        if (useForVal.toLowerCase().trim() == "full") {
-                            use = true;
-                        }
-                    })
-                    return use;
-                }
-            }
-        }).sort(function (a, b) {
-            return Number(a.Priority) - Number(b.Priority)
-        });
-
-        charImages.forEach(function (charState, i) {
-            var fig = $('<figure/>').appendTo($divHelp);
-            fig.addClass('helpFigure');
-            var img = $('<img/>', { src: charState.URI })
-            var cap = $('<figcaption/>', { html: charState.Caption });
-            fig.append(img).append(cap);
-            if (i > 0) {
-                img.css("margin-top", 10);
-            }
-            cap.appendTo($divHelp);
-
-            if (charState.ImageWidth) {
-                img.css("width", charState.ImageWidth);
-            }
-        });
-
-        //Help text character states
-        var charText = tbv.d.values.filter(function (v) {
-            if (v.Character == character && v.StateHelp) return true;
-        });
-
-        charText.forEach(function (charState) {
-
-            if (charState.CharacterStateTranslation && charState.CharacterStateTranslation != "") {
-                var charStateText = charState.CharacterStateTranslation;
-            } else {
-                var charStateText = charState.CharacterState;
-            }
-            var para = $('<p/>').appendTo($divHelp);
-            var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
-            para.append(spanState);
-            var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
-            para.append(spanHelp);
-
-            //Help images for character states
-            var charImages = tbv.d.media.filter(function (m) {
-                //Only return images for matching character if no state value is set
-                if ((m.Type == "image-local" || m.Type == "image-web") && m.Character == character && m.State == charState.CharacterState) return true;
-            }).sort(function (a, b) {
-                return Number(a.Priority) - Number(b.Priority)
-            });
-
-            charImages.forEach(function (charState, i) {
-                //var fig = $('<figure/>').appendTo($divHelp);
-                var img = $('<img/>', { src: charState.URI })
-                var cap = $('<figcaption/>', { html: charState.Caption });
-                //fig.append(img).append(cap);
-                img.appendTo($divHelp)
-                if (i > 0) {
-                    img.css("margin-top", 10);
-                }
-                cap.appendTo($divHelp);
-                if (charState.ImageWidth) {
-                    img.css("width", charState.ImageWidth);
-                }
-            });
-        });
+        $divHelp.append($(tbv.f.getFullCharacterHelp(character)));
 
         //Display the help dialog
         tbv.gui.main.dialog('Character help & info', $divHelp.html())

@@ -1,2 +1,14 @@
-﻿body {
+﻿
+.tombioKiOuiCharcterListItemText.deselected {
+    font-weight: 100;
+    color: darkgrey;
+}
+
+.tombioKiOuiCharcterListItemText.selected {
+    font-weight: 400;
+    color: #1e88e5;
+}
+
+.tombioOnsKiGroupSummaryValue {
+    color: #1e88e5;
 }

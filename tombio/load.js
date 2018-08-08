@@ -165,7 +165,8 @@
                                         msgDep = " (req by " + requiredBy + ")";
                                     }
                                 }
-                                console.log("%cLoaded JS file for " + thisId + msgDep, "color: blue");
+                                //console.log("%cLoaded JS file for " + thisId + msgDep, "color: blue");
+                                console.log("%cLoaded JS file " + nameFromPath(js)  + " "  + msgDep, "color: blue");
 
                                 //Execute any required initialisations
                                 if (initF) initF();
@@ -183,7 +184,7 @@
 
                                 resolve();
                             } else {
-                                console.log("%cFiled to load JS file for " + thisId, "color: red");
+                                console.log("%cFailed to load JS file for " + thisId, "color: red");
                                 reject();
                             }
                         };
@@ -303,7 +304,7 @@
 
     //keyInputOnsenUi
     jsF.add("keyInputOnsenUi", "keyinputOnsenUi.js", true);
-    jsF.keyInputOnsenUi.addCSS("css/KeyinputOnsenUi.css");
+    jsF.keyInputOnsenUi.addCSS("css/keyinputOnsenUi.css");
     jsF.keyInputOnsenUi.requiresFirst = ["onsenui"];
 
     //The main tombiovis module
@@ -343,8 +344,8 @@
     jsF.guiOnsenUi.requiresFirst = ["onsenui"];
 
     //Onsenui
-    jsF.add("onsenui", "dependencies/onsenui-2.10.3/js/onsenui.js");
-    jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui.css");
+    jsF.add("onsenui", "dependencies/onsenui-2.10.3/js/onsenui.min.js");
+    jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui.min.css");
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsen-css-components.min.css");
     jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui-fonts.css");
 
