@@ -45,10 +45,10 @@
 
             if (tbv.d.groupedCharacters.groups.length > 1) {
                 //Expandable list item for group
-                html += '<ons-list-item tappable onclick="tombiovis.gui.keyInputOnsenUi.fn.displayGroupControls(\'' + g + '\')">'
+                html += '<ons-list-item expandable tappable onclick="tombiovis.gui.keyInputOnsenUi.fn.displayGroupControls(\'' + g + '\')">'
                 html += '<div class="center">'
                 html += '<span class="list-item__title">' + g + '</span>'
-                html += '<span class="tombioOnsKiGroupSummary list-item__subtitle" data-group="' + g + '"></span>'
+                html += '<span class="tombioOnsKiGroupSummary tombioOnsKiShortHelp" data-group="' + g + '"></span>'
                 html += '</div>';
                 html += '</ons-list-item>';
             }
@@ -97,7 +97,7 @@
 
             var character = getCharacterFromID($(event.detail.listItem).attr('id'));
             tbv.gui.keyInputOnsenUi.fn.displaySelect(character, event.detail.action);
-        }, false);
+        });
 
         document.addEventListener('init', function (event) {
             //When pages initialised
@@ -373,7 +373,7 @@
 
         html += '<ons-list-item tappable class="tombioKiOuiCharcterListItem" id="tombioKiOui-' + c.Character + '" data-shown="false" expandable>';
         html += '<div class="tombioKiOuiCharcterListItemText deselected middle">' + c.Label + '</div>';
-        html += '<div class="expandable-content list-item__subtitle"  onclick="tombiovis.gui.keyInputOnsenUi.fn.toggleExpansion(event, \'' + c.Character + '\')">' + getHelp(c) + '</div>';
+        html += '<div class="expandable-content tombioOnsKiShortHelp"  onclick="tombiovis.gui.keyInputOnsenUi.fn.toggleExpansion(event, \'' + c.Character + '\')">' + getHelp(c) + '</div>';
         html += '</ons-list-item>';
 
         html += '<div id="tombioKiOui-' + c.Character + '-stateItems">';
@@ -390,7 +390,7 @@
             html += '<ons-checkbox onclick="tombiovis.gui.keyInputOnsenUi.fn.checkboxClicked(event, \'' + c.Character + '\', \'' + i + '\')"></ons-checkbox>';
             html += '</div>';
             if (charHelp) {
-                html += '<div class="expandable-content list-item__subtitle">';
+                html += '<div class="expandable-content tombioOnsKiShortHelp">';
                 html += charHelp;
                 html += '</div>';
             }
@@ -410,7 +410,7 @@
 
         html += '<ons-list-item class="tombioKiOuiCharcterListItem" id="tombioKiOui-' + c.Character + '" expandable data-shown="false">';
         html += '<div class="tombioKiOuiCharcterListItemText deselected middle">' + c.Label + '</div>';
-        html += '<div class="expandable-content list-item__subtitle">' + getHelp(c) + '</div>';
+        html += '<div class="expandable-content tombioOnsKiShortHelp">' + getHelp(c) + '</div>';
         html += '</ons-list-item>';
 
         

@@ -4,7 +4,9 @@
     var tools = {};
     var onsSplitterSideMediaQuery;
 
-    tbv.gui.main = {};
+    tbv.gui.main = {
+        fn: {}
+    };
 
     //Required for standard gui interface
     tbv.gui.main.setSelectedTool = function (toolName) {
@@ -75,6 +77,15 @@
         html += '</ons-toolbar-button>';
         html += '</div>';
         html += '<div class="right">';
+
+        html += '<ons-toolbar-button id="tombioUiFullscreenMenuButton" onclick="tombiovis.gui.main.fn.requestFullscreen()">';
+        html += '<ons-icon icon="md-fullscreen"></ons-icon>';
+        html += '</ons-toolbar-button>';
+
+        html += '<ons-toolbar-button id="tombioUiExitFullscreenMenuButton" onclick="tombiovis.gui.main.fn.exitFullscreen()" style="display: none">';
+        html += '<ons-icon icon="md-fullscreen-exit"></ons-icon>';
+        html += '</ons-toolbar-button>';
+
         html += '<ons-toolbar-button id="tombioUiContextMenuButton" onclick="tombiovis.gui.main.openContext()">';
         html += '<ons-icon icon="md-more-vert"></ons-icon>';
         html += '</ons-toolbar-button>';
@@ -581,6 +592,40 @@
             delete tbv.gui.main.contextMenu.guiContexts[label];
         }
     } 
+
+    tbv.gui.main.fn.requestFullscreen = function () {
+
+        var elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+            elem.msRequestFullscreen();
+        }
+
+        $('#tombioUiFullscreenMenuButton').hide();
+        $('#tombioUiExitFullscreenMenuButton').show();
+    }
+
+    tbv.gui.main.fn.exitFullscreen = function () {
+
+        console.log("exit fullscreen")
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+
+        $('#tombioUiFullscreenMenuButton').show();
+        $('#tombioUiExitFullscreenMenuButton').hide();
+    }
 
     function splitterSideHideShow() {
 

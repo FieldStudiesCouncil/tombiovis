@@ -660,6 +660,8 @@
             jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].keyinput);
         }
     }
+
+    //function log()
 })(
     //Pass the tombiovis object into this IIFE if it exists (e.g. defined in HTML page)
     //otherwise, initialise it to empty object.
