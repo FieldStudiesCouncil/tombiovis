@@ -557,4 +557,4 @@
         tbv.gui.main.dialog('Character help & info', $divHelp.html())
     }
 
-}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));
+}(jQuery, this.tombiovis));

@@ -5,7 +5,11 @@
     "use strict";
 
     var visName = "visTemplate";
-    var visT = tbv[visName] = Object.create(tombiovis.v.visP);
+    
+    var visT = tbv.templates[visName] = Object.create(tombiovis.v.visP);
+    //For actual visualisation, comment out above and replace with below
+    //var visT = tbv.v.visualisations[visName] = Object.create(tombiovis.v.visP);
+
     visT.visName = visName;
 
     var _this;
@@ -44,7 +48,7 @@
         var _this = this;
 
         //Replace the following
-        this.div.append("<p>Refresh fired " + Date() + "</p>")
+        d3.select("#" + this.visName).html("Vis - refreshed");
     }
 
     visT.urlParams = function (params) {
@@ -67,4 +71,4 @@
         //Responsible for hiding all gui elements of this tool
     }
 
-})(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis)
+})(jQuery, this.tombiovis)

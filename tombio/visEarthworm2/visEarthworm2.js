@@ -893,7 +893,7 @@
         //d3.select('#tombioMapDiv').style("width", "400px");
     }
 
-})(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis);
+})(jQuery, this.tombiovis);
 
 (function ($, tbv) {
 

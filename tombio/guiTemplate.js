@@ -90,4 +90,4 @@
         //x & y - pixel location for floating gui elements
     }
 
-}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));
+}(jQuery, this.tombiovis.templates));

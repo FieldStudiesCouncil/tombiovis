@@ -35,4 +35,4 @@
         //Function to derive parameters for use with URL from state of control
         //params - array of parameters passed in URL
     }
-}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));
+}(jQuery, this.tombiovis.templates));

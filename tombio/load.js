@@ -178,9 +178,8 @@
                                     l.type = 'text/css';
                                     l.href = cssFile;
                                     document.querySelector('head').appendChild(l);
-                                    console.log("%cLoaded CSS file " + nameFromPath(cssFile), "color: green");
+                                    console.log("%CSS link added for " + nameFromPath(cssFile), "color: green");
                                 })
-
 
                                 resolve();
                             } else {
@@ -384,9 +383,15 @@
     jsF.vis5.requires = ["score"];
     setVisDependencies("vis5", true);
 
+    jsF.add("vis6", "vis6/vis6.js", true, "Mobile key");
+    jsF.vis6.addCSS("vis6/vis6.css");
+    jsF.vis6.requiresFirst = ["visP"];
+    jsF.vis6.requires = ["score"];
+    setVisDependencies("vis6", true);
+
     jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js", true, "Bespoke earthworm key");
     jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
-    jsF.visEarthworm2.requiresFirst = ["visP"];
+    jsF.vis2.requiresFirst = ["visP", "visTemplate"];
     jsF.visEarthworm2.requires = ["jqueryui", "score"];
 
     tbv.f.startLoad = function () {
@@ -409,11 +414,7 @@
             tbv.templates = {
                 gui: { main: {}}
             };
-            tbv.templates.loading = true;
             return Promise.all([jsF.guiTemplate.loadJs(), jsF.visTemplate.loadJs(), jsF.keyinputTemplate.loadJs()]);
-        })
-        .then(function () {
-            tbv.templates.loading = false;
         })
         .then(function () {
             //Load tombiovis

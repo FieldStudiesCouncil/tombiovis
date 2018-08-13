@@ -338,4 +338,4 @@
         $gui.show();
     }
 
-}(jQuery, this.tombiovis.templates.loading ? this.tombiovis.templates : this.tombiovis));
+}(jQuery, this.tombiovis));

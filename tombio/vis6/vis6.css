@@ -1,0 +1,23 @@
+﻿#vis6 .taxon {
+    font-family: Arial;
+    font-style: italic;
+    fill: black;
+    background-color: rgb( 200,200,200);
+    border-radius: 5px;
+    position: absolute;
+}
+
+
+#vis6 .vis6TaxonLeft {
+    width: 99%;
+}
+#vis6 .vis6TaxonRight {
+    vertical-align: top;
+}
+
+#vis6 .vis6ScoreInd {
+    border-radius: 5px;
+    padding: 0.2em;
+    margin: 0.1em;
+    background-color: antiquewhite;
+}
