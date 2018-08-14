@@ -81,6 +81,7 @@
         //Create taxon grouping objects
         var mtM = mtE.append("div")
             .attr("class", "taxon")
+            .style("overflow", "hidden")
             .attr("id", function (d) {
                 return "vis6 " + d.Taxon;
             })   
@@ -110,14 +111,14 @@
         var yCursor = 0;
         for (var i = 0; i < sortedTaxa.length; i++) {
             sortedTaxa[i].visState['vis6'].y = yCursor + taxonSpace;
-            yCursor = sortedTaxa[i].visState['vis6'].y + document.getElementById("vis6 " + sortedTaxa[i].Taxon.kbValue).offsetHeight;
+            sortedTaxa[i].visState['vis6'].height = document.getElementById("vis6 " + sortedTaxa[i].Taxon.kbValue).offsetHeight;
+            yCursor = sortedTaxa[i].visState['vis6'].y + sortedTaxa[i].visState['vis6'].height;
         }
 
         mtM.transition()
             .duration(1000)
             .style("top", function (d, i) {
                 return d.visState['vis6'].y + "px";
-                //return (i * (taxonHeight + taxonSpace + (2 * taxonPad)) + taxonSpace) + "px"
             })
 
         //Indicator rectangles

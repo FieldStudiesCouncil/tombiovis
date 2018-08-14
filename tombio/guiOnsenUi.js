@@ -4,6 +4,8 @@
     var tools = {};
     var onsSplitterSideMediaQuery;
 
+    var pinMenu;
+
     tbv.gui.main = {
         fn: {}
     };
@@ -20,6 +22,13 @@
 
     //Required for standard gui interface
     tbv.gui.main.init = function () {
+
+        onsSplitterSideMediaQuery = "(max-width: 979px)"; //Break should match equivalent media queries in CSS file 
+        if (!window.matchMedia(onsSplitterSideMediaQuery).matches) {
+            pinMenu = true;
+        } else {
+            pinMenu = false;
+        }
 
         //Build top level interface elements
         $("#tombiod3vis").html(''); //This point can be reached a second time if checking is enabled and 'continue' button uses, so clear out the div.
@@ -44,20 +53,24 @@
         html += '</ons-page>';
         html += '</template>';
 
-        onsSplitterSideMediaQuery = "(max-width: 979px)"; //Break should match equivalent media queries in CSS file 
-
+       
         html += '<template id="tombioOnsVisualisationTemplate">';
         html += '<ons-page id="tombioOnsVisualisation">';
         html += '<ons-splitter>';
 
-        html += '<ons-splitter-side id="tombioOnsMenu" side="left" collapse="' + onsSplitterSideMediaQuery + '" swipeable>';
+        //html += '<ons-splitter-side id="tombioOnsMenu" side="left" collapse="' + onsSplitterSideMediaQuery + '" swipeable>';
+        html += '<ons-splitter-side id="tombioOnsMenu" side="left" collapse swipeable>';
         html += '<ons-page id="tombioOnsVisInput">';
         html += '<ons-toolbar>';
         html += '<div class="left">';
-        html += '<ons-back-button id="tombioUiSideMenuBackButton" ></ons-back-button>';
+        html += '<ons-back-button id="tombioUiSideMenuBackButton"></ons-back-button>';
         html += '</div>';
-        //html += '<div class="center">Input</div>';
-        html += '<div class="center"><ons-icon icon="md-keyboard" size="30px" style="color: #1e88e5; margin-top: 7px"></ons-icon></div>';
+        html += '<div class="right">';
+        html += '<ons-toolbar-button id="tombioUiSideMenuPin" onclick="tombiovis.gui.main.fn.toggleMenuPin()">';
+        html += '<ons-icon  id="tombioUiSideMenuPinIcon" icon=""></ons-icon>';
+        html += '</ons-toolbar-button>';
+        html += '</div>';
+        //html += '<div class="center"><ons-icon icon="md-keyboard" size="30px" style="color: #1e88e5; margin-top: 7px"></ons-icon></div>';
         html += '</ons-toolbar>';
         html += '<div id="tombioOnsVisInputDiv"></div>';
         html += '</ons-page>';
@@ -93,7 +106,7 @@
         html += '<ons-icon icon="md-menu"></ons-icon>';
         html += '</ons-toolbar-button>';
         html += '</div>';
-        html += '<div id="tombioOnsVisName" class="center"></div>';
+        //html += '<div id="tombioOnsVisName" class="center"></div>';
         html += '</ons-toolbar>';
         html += '<div id="tombioOnsVisDisplayDiv"></div>';
         html += '<div id="tombioOnsOtherInfoDiv"></div>';
@@ -284,117 +297,126 @@
     //Required for standard gui interface
     tbv.gui.main.visShow = function (selectedToolName) {
 
+        var templateMenu = document.querySelector('#tombioOnsVisualisationTemplate').content.querySelector('#tombioOnsMenu');
+        if (pinMenu) {
+            templateMenu.removeAttribute("collapse")
+        } else {
+            templateMenu.setAttribute("collapse", "")
+        }
         document.querySelector('#tombioOnsNavigator').pushPage('tombioOnsVisualisationTemplate')
-            .then(function () {
+            .then(updatePage);
 
-                //Replace gui item with visname
-                $('#tombioOnsVisName').text(tools[selectedToolName]);
+        function updatePage() {
 
-                //Needs to be done after the promise to display the interface is fulfilled otherwise
-                //the visualisations don't initialise properly.
+            console.log("updating page")
+            //Replace gui item with visname
+            //$('#tombioOnsVisName').text(tools[selectedToolName]);
 
-                $('#tombioOnsOtherInfoDiv').html(null);
+            //Needs to be done after the promise to display the interface is fulfilled otherwise
+            //the visualisations don't initialise properly.
 
-                //Get the selected visualisation
-                var selectedTool = tbv.v.visualisations[selectedToolName];
+            $('#tombioOnsOtherInfoDiv').html(null);
 
-                //If the user has selected to show citation then generate
-                if (selectedToolName == "tombioCitation") {
-                    $('#tombioOnsOtherInfoDiv').html(createCitationPage());
-                }
+            //Get the selected visualisation
+            var selectedTool = tbv.v.visualisations[selectedToolName];
 
-                //If the user has selected to check media files
-                if (selectedToolName == "mediaFilesCheck") {
-                    $('#tombioOnsOtherInfoDiv').html(tbv.f.createMediaCheckPage());
-                }
+            //If the user has selected to show citation then generate
+            if (selectedToolName == "tombioCitation") {
+                $('#tombioOnsOtherInfoDiv').html(createCitationPage());
+            }
 
-                //If the user has selected to check media files
-                if (selectedToolName == "tvkCheck") {
-                    $('#tombioOnsOtherInfoDiv').html(tbv.f.createTvkCheckPage());
-                }
+            //If the user has selected to check media files
+            if (selectedToolName == "mediaFilesCheck") {
+                $('#tombioOnsOtherInfoDiv').html(tbv.f.createMediaCheckPage());
+            }
 
-                //If the user has selected to show kb info
-                if (selectedToolName == "kbInfo") {
-                    tbv.f.setKbInfo($('#tombioOnsOtherInfoDiv'));
-                }
+            //If the user has selected to check media files
+            if (selectedToolName == "tvkCheck") {
+                $('#tombioOnsOtherInfoDiv').html(tbv.f.createTvkCheckPage());
+            }
 
-                //If the user has selected to show general tombio vis info
-                if (selectedToolName == "visInfo") {
-                    tbv.f.setVisInfo($('#tombioOnsOtherInfoDiv'));
-                }
+            //If the user has selected to show kb info
+            if (selectedToolName == "kbInfo") {
+                tbv.f.setKbInfo($('#tombioOnsOtherInfoDiv'));
+            }
 
-                //If the user has selected to show info for current visualisation then load.
-                //(This is done every time because info can changed depending on last selected tool.)
-                if (selectedToolName == "currentVisInfo") {
-                    $('#tombioOnsOtherInfoDiv').html('');
-                    tbv.f.setSelectedToolInfo($('#tombioOnsOtherInfoDiv'));
-                }
+            //If the user has selected to show general tombio vis info
+            if (selectedToolName == "visInfo") {
+                tbv.f.setVisInfo($('#tombioOnsOtherInfoDiv'));
+            }
 
-                //Change tool if necessary and associated input control
-                if (selectedToolName != tbv.v.currentTool) {
+            //If the user has selected to show info for current visualisation then load.
+            //(This is done every time because info can changed depending on last selected tool.)
+            if (selectedToolName == "currentVisInfo") {
+                $('#tombioOnsOtherInfoDiv').html('');
+                tbv.f.setSelectedToolInfo($('#tombioOnsOtherInfoDiv'));
+            }
 
-                    //Hide previous tool and input control
-                    if (tbv.v.currentTool) {
-                        if (tbv.v.visualisations[tbv.v.currentTool]) {
-                            tbv.v.visualisations[tbv.v.currentTool].hide();
-                        } else {
-                            $('#' + tbv.v.currentTool).hide();
-                        }
-                    }
-                    //Show new control
-                    if (tbv.v.visualisations[selectedToolName]) {
-                        tbv.v.visualisations[selectedToolName].show();
+            //Change tool if necessary and associated input control
+            if (selectedToolName != tbv.v.currentTool) {
+
+                //Hide previous tool and input control
+                if (tbv.v.currentTool) {
+                    if (tbv.v.visualisations[tbv.v.currentTool]) {
+                        tbv.v.visualisations[tbv.v.currentTool].hide();
                     } else {
-                        $('#' + selectedToolName).show();
+                        $('#' + tbv.v.currentTool).hide();
                     }
                 }
-
-                //Refresh the selected tool
-                tbv.f.refreshVisualisation();
-
-                //Store current tool
-                tbv.v.currentTool = selectedToolName;
-
-                //Store the last used visualisation and change the name of the menu
-                //item for getting info about it.
-                if (Object.keys(tbv.v.visualisations).indexOf(selectedToolName) > -1) {
-
-                    tbv.v.lastVis = selectedToolName;
-                    $("#optCurrentVisInfo>div.center").text("Using the " + tbv.v.visualisations[tbv.v.lastVis].metadata.title);
-                }
-
-                //Show/hide the correct div
-                if (tbv.v.includedVisualisations.indexOf(selectedToolName) > -1) {
-                    $('#tombioOnsVisDisplayDiv').show();
-                    $('#tombioOnsOtherInfoDiv').hide();
+                //Show new control
+                if (tbv.v.visualisations[selectedToolName]) {
+                    tbv.v.visualisations[selectedToolName].show();
                 } else {
-                    $('#tombioOnsVisDisplayDiv').hide();
-                    $('#tombioOnsOtherInfoDiv').show();
-                }  
-
-                splitterSideHideShow();
-
-                //If this is the first time through - i.e. page just loaded - and
-                //this is a visualisation too, then process any URL initialisation parameters.
-                if (!tbv.v.initialised && tbv.v.visualisations[selectedToolName]) {
-                    //Get all the URL parameters
-                    var params = {};
-                    //(The global replace on plus characters is to overcome a problem with links put into facebook which
-                    //replace some space characters with plus characters).
-                    var sPageURL = decodeURI(window.location.search.substring(1)).replace(/\+/g, ' ');
-
-                    var splitParamAndValue = sPageURL.split('&');
-                    for (var i = 0; i < splitParamAndValue.length; i++) {
-                        var sParamAndValue = splitParamAndValue[i].split('=');
-                        params[sParamAndValue[0]] = sParamAndValue[1];
-                    }
-                    //Pass into selected tool
-                    tbv.v.visualisations[selectedToolName].urlParams(params);
-
-                    //Set initialised flag
-                    tbv.v.initialised = true;
+                    $('#' + selectedToolName).show();
                 }
-            });
+            }
+
+            //Refresh the selected tool
+            tbv.f.refreshVisualisation();
+
+            //Store current tool
+            tbv.v.currentTool = selectedToolName;
+
+            //Store the last used visualisation and change the name of the menu
+            //item for getting info about it.
+            if (Object.keys(tbv.v.visualisations).indexOf(selectedToolName) > -1) {
+
+                tbv.v.lastVis = selectedToolName;
+                $("#optCurrentVisInfo>div.center").text("Using the " + tbv.v.visualisations[tbv.v.lastVis].metadata.title);
+            }
+
+            //Show/hide the correct div
+            if (tbv.v.includedVisualisations.indexOf(selectedToolName) > -1) {
+                $('#tombioOnsVisDisplayDiv').show();
+                $('#tombioOnsOtherInfoDiv').hide();
+            } else {
+                $('#tombioOnsVisDisplayDiv').hide();
+                $('#tombioOnsOtherInfoDiv').show();
+            }
+
+            splitterSideHideShow();
+
+            //If this is the first time through - i.e. page just loaded - and
+            //this is a visualisation too, then process any URL initialisation parameters.
+            if (!tbv.v.initialised && tbv.v.visualisations[selectedToolName]) {
+                //Get all the URL parameters
+                var params = {};
+                //(The global replace on plus characters is to overcome a problem with links put into facebook which
+                //replace some space characters with plus characters).
+                var sPageURL = decodeURI(window.location.search.substring(1)).replace(/\+/g, ' ');
+
+                var splitParamAndValue = sPageURL.split('&');
+                for (var i = 0; i < splitParamAndValue.length; i++) {
+                    var sParamAndValue = splitParamAndValue[i].split('=');
+                    params[sParamAndValue[0]] = sParamAndValue[1];
+                }
+                //Pass into selected tool
+                tbv.v.visualisations[selectedToolName].urlParams(params);
+
+                //Set initialised flag
+                tbv.v.initialised = true;
+            }
+        }
     }
 
     //Required for standard gui interface
@@ -549,6 +571,16 @@
             //$('#tombioOnsFullDetailsTab1Content').html(tbv.f.getTaxonCharacterValues(tbv.d.oTaxa[taxon]));
             })
     }
+
+    tbv.gui.main.fn.toggleMenuPin = function () {
+        pinMenu = !pinMenu;
+        if (pinMenu) {
+            $('#tombioOnsMenu').removeAttr('collapse');
+        } else {
+            $('#tombioOnsMenu').attr('collapse', '');
+        }
+        splitterSideHideShow();
+    }
  
     tbv.gui.main.contextMenu = {
         //Create the context menu object
@@ -652,7 +684,8 @@
         }
         $('#tombioOnsMenu').css("width", w);
 
-        if (!window.matchMedia(onsSplitterSideMediaQuery).matches) {
+        //if (!window.matchMedia(onsSplitterSideMediaQuery).matches) {
+        if (pinMenu) {
             //Move the splitter content to the right and resize the splitter-side, but only if a visualisation is
             //shown (and therefore there is content in splitter-side),
             if (tbv.v.includedVisualisations.indexOf(tbv.v.currentTool) > -1) {
@@ -663,11 +696,18 @@
                 $('ons-splitter-content').css("left", "0px");
                 $('ons-splitter-side').hide();
             }
+
+            $('#tombioUiSideMenuBackButton').hide();
+            $('#tombioUiSideMenuPinIcon').attr('icon', 'md-pin');
+        } else {
+            $('#tombioUiSideMenuBackButton').show();
+            $('#tombioUiSideMenuPinIcon').attr('icon', 'md-pin-off');
         }
 
         //Also take care of display of input button - i.e. button that invokes side menu
         if (tbv.v.includedVisualisations.indexOf(tbv.v.currentTool) > -1) {
-            if (window.matchMedia(onsSplitterSideMediaQuery).matches) {
+            //if (window.matchMedia(onsSplitterSideMediaQuery).matches) {
+            if (!pinMenu) {
                 $('#tombioUiInputToolbarButton').show();
             } else {
                 $('#tombioUiInputToolbarButton').hide();

@@ -26,11 +26,11 @@
     width: 100%;
 }
 
-@media screen and (min-width: 980px) {
+/*@media screen and (min-width: 980px) {
     #tombioUiSideMenuBackButton {
         display: none !important;
     }
-}
+}*/
 
 
 

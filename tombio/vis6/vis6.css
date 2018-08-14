@@ -7,6 +7,9 @@
     position: absolute;
 }
 
+#vis6 {
+    position: relative;
+}
 
 #vis6 .vis6TaxonLeft {
     width: 99%;
