@@ -84,30 +84,34 @@
         html += '<template id="tombioOnsVisDisplayTemplate">';
         html += '<ons-page id="tombioOnsVisDisplay">';
         html += '<ons-toolbar>';
+
+        var tb = "";
+        tb += '<ons-toolbar-button id="tombioUiFullscreenMenuButton" onclick="tombiovis.gui.main.fn.requestFullscreen()">';
+        tb += '<ons-icon icon="md-fullscreen"></ons-icon>';
+        tb += '</ons-toolbar-button>';
+        tb += '<ons-toolbar-button id="tombioUiExitFullscreenMenuButton" onclick="tombiovis.gui.main.fn.exitFullscreen()" style="display: none">';
+        tb += '<ons-icon icon="md-fullscreen-exit"></ons-icon>';
+        tb += '</ons-toolbar-button>';
+        tb += '<ons-toolbar-button id="tombioUiContextMenuButton" onclick="tombiovis.gui.main.openContext()">';
+        tb += '<ons-icon icon="md-more-vert"></ons-icon>';
+        tb += '</ons-toolbar-button>';
+        tb += '<ons-toolbar-button onclick="tombiovis.gui.main.popPage()">';
+        tb += '<ons-icon icon="md-menu"></ons-icon>';
+        tb += '</ons-toolbar-button>';
+
         html += '<div class="left">';
         html += '<ons-toolbar-button id="tombioUiInputToolbarButton" onclick="tombiovis.gui.main.openMenu()">';
         html += '<ons-icon icon="md-keyboard"></ons-icon>';
         html += '</ons-toolbar-button>';
+        html += '<div id="tombioOnsToolsLeft" style="display:none">';
+        html += tb;
         html += '</div>';
-        html += '<div class="right">';
-
-        html += '<ons-toolbar-button id="tombioUiFullscreenMenuButton" onclick="tombiovis.gui.main.fn.requestFullscreen()">';
-        html += '<ons-icon icon="md-fullscreen"></ons-icon>';
-        html += '</ons-toolbar-button>';
-
-        html += '<ons-toolbar-button id="tombioUiExitFullscreenMenuButton" onclick="tombiovis.gui.main.fn.exitFullscreen()" style="display: none">';
-        html += '<ons-icon icon="md-fullscreen-exit"></ons-icon>';
-        html += '</ons-toolbar-button>';
-
-        html += '<ons-toolbar-button id="tombioUiContextMenuButton" onclick="tombiovis.gui.main.openContext()">';
-        html += '<ons-icon icon="md-more-vert"></ons-icon>';
-        html += '</ons-toolbar-button>';
-        html += '<ons-toolbar-button onclick="tombiovis.gui.main.popPage()">';
-        html += '<ons-icon icon="md-menu"></ons-icon>';
-        html += '</ons-toolbar-button>';
         html += '</div>';
-        //html += '<div id="tombioOnsVisName" class="center"></div>';
+        html += '<div id="tombioOnsToolsRight" class="right">';
+        html += tb;
+        html += '</div>';
         html += '</ons-toolbar>';
+
         html += '<div id="tombioOnsVisDisplayDiv"></div>';
         html += '<div id="tombioOnsOtherInfoDiv"></div>';
         html += '</ons-page>';
@@ -214,6 +218,8 @@
         ons.orientation.on('change', function () {
             splitterSideHideShow();
             resizeElements();
+            //Refresh the selected tool
+            tbv.f.refreshVisualisation();
         });    
 
         //Check interface
@@ -308,7 +314,6 @@
 
         function updatePage() {
 
-            console.log("updating page")
             //Replace gui item with visname
             //$('#tombioOnsVisName').text(tools[selectedToolName]);
 
@@ -579,7 +584,20 @@
         } else {
             $('#tombioOnsMenu').attr('collapse', '');
         }
+
+        //
+        console.log("vis width", $('#tombioOnsVisDisplay').width());
+        if ($('#tombioOnsVisDisplay').width() < 208) {
+            $('#tombioOnsToolsRight').hide();
+            $('#tombioOnsToolsLeft').show();
+        } else {
+            $('#tombioOnsToolsRight').show();
+            $('#tombioOnsToolsLeft').hide();
+        }  
+
         splitterSideHideShow();
+
+        tbv.f.refreshVisualisation();
     }
  
     tbv.gui.main.contextMenu = {

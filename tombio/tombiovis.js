@@ -1245,12 +1245,23 @@
         return html
     }
 
-    tbv.f.sortTaxa = function (array) {
+    tbv.f.sortTaxa = function (array, type) {
         //tbv.f.sortTaxa = function (array, vis, lastPosAttr) {
         //lastPosAttr removed for version 1.7.0 because it resulted in unpredictable sorting
         //e.g. when initialising from URL.
+
+        if (!type) {
+            type = "all";
+        }
+
         return array.sort(function (a, b) {
 
+            if (type == "matched") {
+                if (a.visState.score.charFor > b.visState.score.charFor) return -1;
+                if (b.visState.score.charFor > a.visState.score.charFor) return 1;
+            }
+
+            //If we get here, then either type is 'all' or a and b are equal for charFor
             if (a.visState.score.overall > b.visState.score.overall) return -1;
             if (b.visState.score.overall > a.visState.score.overall) return 1;
             if (b.visState.score.overall == a.visState.score.overall) {
@@ -1558,6 +1569,10 @@
             taxon.visState.score.for = 0;
             taxon.visState.score.against = 0;
             taxon.visState.score.overall = 0;
+            taxon.visState.score.charFor = 0;
+            taxon.visState.score.charAgainst = 0;
+            taxon.visState.score.charNeutral = 0;
+            taxon.visState.score.charUsed = 0;
 
             //Loop through all characters and update score
             tbv.d.characters.filter(function (c) {
@@ -1667,6 +1682,16 @@
                 taxon.visState.score.against += scoreagainst * weight;
                 taxon.visState.score.against += scorena * weight;
                 taxon.visState.score.overall += (scorefor - scoreagainst - scorena) * weight;
+
+                if (charused == 1) {
+                    if (scorefor - scoreagainst - scorena > 0) {
+                        taxon.visState.score.charFor += 1;
+                    } else {
+                        taxon.visState.score.charAgainst += 1;
+                    }
+                }
+
+                taxon.visState.score.charUsed += charused;
             });
         });
     }

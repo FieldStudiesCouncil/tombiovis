@@ -8,7 +8,7 @@
 }
 
 #vis6 {
-    position: relative;
+    /*position: relative;*/
 }
 
 #vis6 .vis6TaxonLeft {
@@ -18,9 +18,14 @@
     vertical-align: top;
 }
 
-#vis6 .vis6ScoreInd {
+#vis6 .vis6ScoreInd, #vis6 .vis6CharInd {
     border-radius: 5px;
     padding: 0.2em;
     margin: 0.1em;
     background-color: antiquewhite;
+}
+
+#vis6 .vis6ellipsis {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }

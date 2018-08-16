@@ -358,10 +358,10 @@
 
         //Show/hide reset button
         if (stateSet) {
-            console.log("show")
+            //console.log("show")
             $('#tombioOnsKiReset').show();
         } else {
-            console.log("hide")
+            //console.log("hide")
             $('#tombioOnsKiReset').hide();
         }     
     }
