@@ -323,7 +323,8 @@
     //The base prototype visualisation module
     jsF.add("visP", "visP.js", true);
     //jsF.visP.requires = ["mousewheel", "hammer", "galleria", "zoomMaster"];
-    jsF.visP.requires = ["mousewheel", "galleria", "zoomMaster"];
+    //jsF.visP.requires = ["mousewheel", "galleria", "zoomMaster"];
+    jsF.visP.requires = ["galleria", "zoomMaster"];
 
     //Main GUI interface template
     jsF.add("guiTemplate", "guiTemplate.js", true);
@@ -616,7 +617,7 @@
                 var fileName = (j == -1) ? pathName : pathName.substr(j + 1);
 
                 //Expecting to find project minified files in the folders min/css and min/js.
-                return 'min/' + fileExtension + '/' + fileName + ".min." + fileExtension;
+                return tbv.opts.tombiopath + 'min/' + fileExtension + '/' + fileName + ".min." + fileExtension;
             }
         } else {
             return file;

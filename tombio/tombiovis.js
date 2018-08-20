@@ -253,7 +253,15 @@
         }
     }
 
-    tbv.d.stateValue.toHtml2 = function () {
+    tbv.d.stateValue.toHtml2 = function (supressList) {
+
+        var liS = "<li>"
+        var liE = "</li>"
+        if (supressList) {
+            liS = "";
+            liE = "";
+        }
+
         //Used, for example, to show character score details for single-column key.
         if (this.kbValue == "n/a") {
             return "<li><i>not applicable</i></li>";
@@ -280,21 +288,21 @@
                 charVal = charVal.replace(/\]\s*<\/b>/g, "</b>");
 
                 if (i < splitKbValues.length - 1)
-                    charVal += " or";
+                    charVal += " <i>or</i> ";
 
-                html += "<li>";
+                html += liS;
                 html += charVal;
-                html += "</li>";
+                html += liE;
             }
             return html;
         } else if (this.valueType == "numeric") {
             var rng = this.getRange();
             if (rng.hasValue == false) {
-                return "<li><i>no value in knowledge-base</i></li>";
+                return liS + "<i>no value in knowledge-base</i>" + liE;
             } else if (rng.min == rng.max) {
-                return "<li><b>" + rng.min + "</b></li>";
+                return liS + "<b>" + rng.min + "</b>" + liE;
             } else {
-                return "<li><b>" + rng.min + " - " + rng.max + "</b> (range)</li>";
+                return liS + "<b>" + rng.min + " - " + rng.max + "</b> (range)" + liE;
             }
         } else {
             return this.kbValue;
@@ -1208,7 +1216,7 @@
         html = "<p>Specified state(s) for character <b>" + character.Label + "</b>: </p>"
 
         html += "<ul>";
-        if (character.ValueType == "text") {
+        if (character.ValueType != "numeric") {
             tbv.d.oCharacters[character.Character].userInput.forEach(function (i) {
                 html += "<li><b>";
                 html += tbv.d.oCharacters[character.Character].CharacterStateValues[i];

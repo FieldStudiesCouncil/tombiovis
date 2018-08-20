@@ -12,7 +12,7 @@ gulp.task('minify', function (cb) {
             path.dirname = "";
             path.extname = ".min.js";
         }),
-        gulp.dest('min/js')
+        gulp.dest('tombio/min/js')
     ],cb);
 });
 
@@ -24,7 +24,7 @@ gulp.task('mincss', function (cb) {
             path.dirname = "";
             path.extname = ".min.css";
         }),
-        gulp.dest('min/css')
+        gulp.dest('tombio/min/css')
     ], cb);
 });
 

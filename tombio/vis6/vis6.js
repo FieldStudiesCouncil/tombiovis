@@ -121,36 +121,37 @@
             .html(function (d) {
 
                 var html = "";
-                html += '<table class="vis6TaxonInfo"><row>';
-                html += '<row>';
+                html += '<table class="vis6TaxonInfo">';
+                html += '<tr>';
                 html += '<td class="vis6TaxonLeft">';
                 html += "<div class='vis6ellipsis' onclick='tombiovis.gui.main.showFullDetails(\"" + d.Taxon + "\", 1)'>" + d.Taxon + "</div>";
                 html += '</td>';
-                html += '<td class="vis6TaxonRight"  onclick="tombiovis.v.visualisations.vis6.fn.showScoreDetails(\'' + d.Taxon + '\')\">';
-                html += '<span class="vis6CharInd" data-taxon="' + d.Taxon + '">0</span>&nbsp;<span class="vis6ScoreInd" data-taxon="' + d.Taxon + '">0</span>';
+                html += '<td class="vis6TaxonRight">';
+                html += '<span class="vis6CharInd" data-taxon="' + d.Taxon + '">0</span>&nbsp;<span class="vis6ScoreInd" data-taxon="' + d.Taxon + '"></span>';
+                html += '<ons-icon style="margin-left: 5px" icon="md-help" onclick="tombiovis.v.visualisations.vis6.fn.showScoreDetails(\'' + d.Taxon + '\')\"></ons-icon>'
                 html += '</td>';
-                html += '</row>';
+                html += '</tr>';
                 html += '</table>';
-                html += '<div class="vis6ScoreRow" data-taxon="' + d.Taxon + '" style="display: none; opacity: 0"></div>';
+                //html += '<div class="vis6ScoreRow" data-taxon="' + d.Taxon + '" style="display: none; opacity: 0"></div>';
                 return html
             })
             .merge(mtU);
 
-        mtM.selectAll('.vis6ScoreRow')
-            .style("display", function () {
-                var t = tbv.d.oTaxa[$(this).attr("data-taxon")];
-                //Update scores
-                var html = '';
-                html += "Number of matching characters: " + t.visState.score.charFor + " (from " + t.visState.score.charUsed + ")" + "<br/>"
-                html += "Overall matching score: " + round(t.visState.score.overall, 1) + "<br/>"
+        //mtM.selectAll('.vis6ScoreRow')
+        //    .style("display", function () {
+        //        var t = tbv.d.oTaxa[$(this).attr("data-taxon")];
+        //        //Update scores
+        //        var html = '';
+        //        html += "Matching characters: <b>" + t.visState.score.charFor + " from " + t.visState.score.charUsed + "</b><br/>"
+        //        html += "Overall matching score: <b>" + round(t.visState.score.overall, 1) + "</b><br/>"
 
-                $(this).html(html)
-                if (t.visState.vis6.showScore) {
-                    return
-                } else {
-                    return "none"
-                }
-            })
+        //        $(this).html(html)
+        //        if (t.visState.vis6.showScore) {
+        //            return
+        //        } else {
+        //            return "none"
+        //        }
+        //    })
           
         var yCursor = 0;
         for (var i = 0; i < sortedTaxa.length; i++) {
@@ -159,17 +160,17 @@
             yCursor = sortedTaxa[i].visState['vis6'].y + sortedTaxa[i].visState['vis6'].height;    
         }
 
-        mtM.selectAll('.vis6ScoreRow')
-            .transition()
-            .duration(1000)
-            .style("opacity", function () {
-                var t = tbv.d.oTaxa[$(this).attr("data-taxon")];
-                if (t.visState.vis6.showScore) {
-                    return 1
-                } else {
-                    return 0
-                }
-            })
+        //mtM.selectAll('.vis6ScoreRow')
+        //    .transition()
+        //    .duration(1000)
+        //    .style("opacity", function () {
+        //        var t = tbv.d.oTaxa[$(this).attr("data-taxon")];
+        //        if (t.visState.vis6.showScore) {
+        //            return 1
+        //        } else {
+        //            return 0
+        //        }
+        //    })
 
         mtM.transition()
             .duration(1000)
@@ -202,7 +203,8 @@
         
         mtM.selectAll(".vis6ScoreInd")
             .text(function () {
-                return round(tbv.d.oTaxa[this.getAttribute("data-taxon")].visState.score.overall, 1);
+                return formatScore(round(tbv.d.oTaxa[this.getAttribute("data-taxon")].visState.score.overall, 1));
+                //return round(tbv.d.oTaxa[this.getAttribute("data-taxon")].visState.score.overall, 1);
             })
             .transition()
             .duration(1000)
@@ -259,13 +261,103 @@
     }
 
     vis6.fn.showScoreDetails = function (taxon) {
-        tbv.d.oTaxa[taxon].visState.vis6.showScore = !tbv.d.oTaxa[taxon].visState.vis6.showScore;
-        vis6.refresh();
+        //tbv.d.oTaxa[taxon].visState.vis6.showScore = !tbv.d.oTaxa[taxon].visState.vis6.showScore;
+        //vis6.refresh();
+
+        var t = tbv.d.oTaxa[taxon];
+        var html = '';
+        html += '<div style="font-style: italic; font-size: 1.2em">' + taxon + '</div>'
+        html += '<div style="margin: 1em 0">'
+        html += "Matching characters: <b>" + t.visState.score.charFor + " from " + t.visState.score.charUsed + "</b><br/>"
+        html += "Overall matching score: <b>" + round(t.visState.score.overall, 1) + "</b><br/>"
+        html += '</div>'
+        html += '<ons-list>';
+        tbv.d.characters.forEach(function (c) {
+            
+            if (c.userInput) {
+
+                var max = d3.max(tbv.d.taxa, function (d) { return d[c.Character].score.overall; });
+                var min = d3.min(tbv.d.taxa, function (d) { return d[c.Character].score.overall; });
+                var scale = d3.scaleLinear()
+                    .domain([min, 0, max])
+                    .range(tbv.d.scoreColours);
+
+                html += '<ons-list-item expandable tappable>'
+                html += '<div class="middle">' + c.Label + '</div>'
+                html += '<div class="left" ><span class="vis6CharWeightedScore" style="background-color: ' + scale(getScore(t, c, true)) + '">' + formatScore(getScore(t, c, true)) + '</span></div>'
+                html += '<div class="expandable-content">'
+
+                html += '<table>';
+                html += '<tr>';
+                html += '<td style="white-space: nowrap">Input states:</td>';
+                html += '<td>' + getInput(c) + '</td>';
+                html += '</tr>';
+                html += '<tr>';
+                html += '<td style="white-space: nowrap">Taxon states:</td>';
+                html += '<td>' + t[c.Character].toHtml2(true) + '</td>';
+                html += '</tr>';
+                html += '<tr>';
+                html += '<td>Match:</td>';
+                html += '<td><b>' + (getScore(t, c, true) > 0 ? "yes" : "no") + '</b></td>';
+                html += '</tr>';
+                html += '<tr>';
+                html += '<td>Weighted:</td>';
+                html += '<td><b>' + formatScore(getScore(t, c, true)) + '</b></td>';
+                html += '</tr>';
+                html += '<td>Unweighted:</td>';
+                html += '<td><b>' + formatScore(getScore(t, c, false)) + '</b></td>';
+                html += '</tr>';
+                html += '</table>';
+
+                html += '</div>'
+                html += '</ons-list-item>'
+            }
+        })
+        html += '</ons-list>'
+
+        tbv.gui.main.dialog("Taxon score breakdown", html);  
     }
 
     function round(value, precision) {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
+    }
+
+    function getInput(c) {
+        if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+            var val = "";
+            c.userInput.forEach(function (i) {
+                if (val) val += " <i>or</i> ";
+                val += '<span style="font-weight: bold">' + c.CharacterStateValues[i] + '</span>';
+            });
+        } else if (c.ValueType == "numeric") {
+            var val = '<span style="font-weight: bold">' + c.userInput + '</span>';
+        }
+
+        return val;
+    }
+
+    function getScore(t, c, weighted) {
+        var score = t[c.Character].score.overall;
+        if (weighted) {
+            score = score * c.Weight / 10;
+        }
+        return round(score, 1);
+    }
+
+    function formatScore(score) {
+
+        score = (Math.round(score * 10) / 10).toFixed(1);
+
+        if (score < 0) {
+            var padding = "";
+
+        } else if (score > 0) {
+            var padding = "+";
+        } else {
+            var padding = " ";
+        }
+        return padding + score;
     }
 
 })(jQuery, this.tombiovis)

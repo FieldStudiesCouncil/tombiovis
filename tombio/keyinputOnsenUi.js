@@ -95,8 +95,12 @@
             //Event raised by modified onsenui.js file when expandable list item
             //is shown or hidden.
 
-            var character = getCharacterFromID($(event.detail.listItem).attr('id'));
-            tbv.gui.keyInputOnsenUi.fn.displaySelect(character, event.detail.action);
+            var id = $(event.detail.listItem).attr('id')
+
+            if (id) {
+                var character = getCharacterFromID(id);
+                tbv.gui.keyInputOnsenUi.fn.displaySelect(character, event.detail.action);
+            }
         });
 
         document.addEventListener('init', function (event) {
