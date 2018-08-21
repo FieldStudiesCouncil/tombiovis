@@ -17,3 +17,7 @@
     opacity: .75;
     font-size: 14px;
 }
+
+.page__content {
+    overflow-y: scroll !important;
+}

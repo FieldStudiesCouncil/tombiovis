@@ -28,7 +28,7 @@ gulp.task('mincss', function (cb) {
     ], cb);
 });
 
-gulp.task('onsen', function (cb) {
+gulp.task('onsenjs', function (cb) {
     //This is required because a change has been made to onsenui to generate an event
     //when expandable list item is expanded.
     pump([
@@ -42,4 +42,17 @@ gulp.task('onsen', function (cb) {
     ], cb);
 });
 
-gulp.task('default', ['minify', 'mincss', 'onsen']);
+gulp.task('onsencss', function (cb) {
+    //This is required because a change has been made to onsenui CSS to fix scrolling issues.
+    pump([
+        gulp.src(['tombio/dependencies/onsenui-2.10.3/css/onsenui.css']),
+        cleanCSS(),
+        rename(function (path) {
+            path.dirname = "";
+            path.extname = ".min.css";
+        }),
+        gulp.dest('tombio/dependencies/onsenui-2.10.3/css')
+    ], cb);
+});
+
+gulp.task('default', ['minify', 'mincss', 'onsenjs', 'onsencss']);
