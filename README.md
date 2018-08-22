@@ -3,8 +3,8 @@ The FSC Identikit is a framework for creating online
 biological identification keys and related resources. 
 The genesis of the project 
 was the Field Studies Council's (FSC) Tomorrow's Biodiversity 
-project (funded by Esmée Fairbairn 2013-2017 inclusive). 
-Esmée Fairbairn funded a further year's development of the 
+project (funded by EsmÃ©e Fairbairn 2013-2017 inclusive). 
+EsmÃ©e Fairbairn funded a further year's development of the 
 Identikit (covering 2018) to facilitate rolling the work forward
 into the HLF-funded FSC BioLinks project which runs from 2018 to 2022
 inclusive.
