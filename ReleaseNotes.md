@@ -1,4 +1,4 @@
-# Release notes for existing knoweldge-base developers
+# Release notes for existing knoweldge-base developers 
 These notes are intended to help existing knowledge-base developers move from one version of the FSC Identikit to another. These notes were first released with version 1.7.0 of the Identikit and will be updated on each succeeding release.
 ## Release 1.7.1
 This was a minor update to address a couple of small bugs with 1.7.0. Knowledge-base developers moving to version 1.7.1 from earlier versions should consult the notes below for version 1.7.0.
