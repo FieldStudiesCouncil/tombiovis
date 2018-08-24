@@ -141,10 +141,22 @@
         //Drop-down menu options for the visualisations
         var toolOptions = []; 
 
-        //Add reload option
-        toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload</option>'));
-        toolOptions.push($('<option value="reloadGuiOnsen" class="html" data-class="reload">Reload with mobile-first interface</option>'));
-        toolOptions.push($('<option value="reloadGuiJQuery" class="html" data-class="reload">Reload with large format interface</option>'));
+        //Add reload KB option for developers
+        if (tbv.opts.devel) {
+            toolOptions.push($('<option value="reloadkb" class="html" data-class="wrench">Reload KB</option>'));
+        }
+
+        //If the tbv.opts.devel option is set, add item to check media files.
+        //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
+        if (tbv.opts.checkKB) {
+            toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
+            if (tbv.d.oCharacters.TVK) {
+                toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
+            }
+        }
+
+        //toolOptions.push($('<option value="reloadGuiOnsen" class="html" data-class="reload">Reload with mobile-first interface</option>'));
+        //toolOptions.push($('<option value="reloadGuiJQuery" class="html" data-class="reload">Reload with large format interface</option>'));
 
         //Add the required visualisation tools
         tbv.v.includedVisualisations.forEach(function (toolName, iTool) {
@@ -165,21 +177,15 @@
         toolOptions.push($('<option value="visInfo" class="html" data-class="info">About FSC Identikit</option>'));
         toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
 
-        //If the tbv.opts.devel option is set, add item to check media files.
-        //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
-        if (tbv.opts.checkKB) {
-            toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
-            if (tbv.d.oCharacters.TVK) {
-                toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
-            }
-        }
-
         //Loop through options marked default as selected
         toolOptions.forEach(function (opt) {
             if (opt.attr("value") == tbv.v.selectedTool) {
                 opt.attr("selected", "selected");
             }
         });
+
+        //Add reload app option
+        toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload app</option>'));
 
         //Append options to select control
         $("#tombioGuiLargeJqueryUiVisualisation").append(toolOptions);

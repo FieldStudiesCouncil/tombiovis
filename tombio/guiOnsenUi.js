@@ -231,11 +231,27 @@
 
         //Drop-down menu options for the visualisations
         var toolOptions = [];
-
-        //Add reload option
-        var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
-        toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload</ons-list-item>'));
         
+        //Developer's header
+        if (tbv.opts.checkKB || tbv.opts.devel) {
+            toolOptions.push($('<ons-list-header>For developers</ons-list-header>'));
+        }
+
+        //If the tbv.opts.devel option is set, add item to check media files.
+        //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
+        icon = '<div class="left"><ons-icon icon="md-wrench" class="list-item__icon"></ons-icon></div>'
+        if (tbv.opts.checkKB) {
+            toolOptions.push($('<ons-list-item value="reloadkb" class="html" data-class="wrench">' + icon + 'Reload KB</ons-list-item>'));
+            toolOptions.push($('<ons-list-item value="mediaFilesCheck" class="html" data-class="wrench">' + icon + 'Check media files</ons-list-item>'));
+            if (tbv.d.oCharacters.TVK) {
+                toolOptions.push($('<ons-list-item value="tvkCheck" class="html" data-class="wrench">' + icon + 'Check TVKs</ons-list-item>'));
+            }
+        }
+        //if (tbv.opts.devel) {
+        //    toolOptions.push($('<ons-list-item value="reloadGuiOnsen" class="html" data-class="wrench">' + icon + 'Reload with mobile-first interface</ons-list-item>'));
+        //    toolOptions.push($('<ons-list-item value="reloadGuiJQuery" class="html" data-class="wrench">' + icon + 'Reload with large format interface</ons-list-item>'));
+        //}
+
         icon = '<div class="left"><ons-icon icon="md-lamp" class="list-item__icon"></ons-icon></div>'
         toolOptions.push($('<ons-list-header>Visualisations</ons-list-header>'));
         //Add the required visualisation tools
@@ -262,25 +278,12 @@
         toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
 
-        if (tbv.opts.checkKB || tbv.opts.devel) {
-            toolOptions.push($('<ons-list-header>For developers</ons-list-header>'));
-        }
+        //If developer's section added above, then add a header for standard reload
+        toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
 
-        //If the tbv.opts.devel option is set, add item to check media files.
-        //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
-        if (tbv.opts.checkKB) {
-            icon = '<div class="left"><ons-icon icon="md-wrench" class="list-item__icon"></ons-icon></div>'
-            toolOptions.push($('<ons-list-item value="mediaFilesCheck" class="html" data-class="wrench">' + icon + 'Check media files</ons-list-item>'));
-            if (tbv.d.oCharacters.TVK) {
-                toolOptions.push($('<ons-list-item value="tvkCheck" class="html" data-class="wrench">' + icon + 'Check TVKs</ons-list-item>'));
-            }
-        }
-
-        if (tbv.opts.devel) {
-            icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
-            toolOptions.push($('<ons-list-item value="reloadGuiOnsen" class="html" data-class="reload">' + icon + 'Reload with mobile-first interface</ons-list-item>'));
-            toolOptions.push($('<ons-list-item value="reloadGuiJQuery" class="html" data-class="reload">' + icon + 'Reload with large format interface</ons-list-item>'));
-        }
+        //Add reload option
+        var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
+        toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload app</ons-list-item>'));
 
         //Add click event to the menu items
         toolOptions.forEach(function (i) {

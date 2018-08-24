@@ -30,21 +30,19 @@
         tbv.opts.tombiokbpath = tombiokbpath;
     }
 
+    //Start the service worker
+    //const swUrl = tbv.opts.tombiopath +'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath);
+    if (tbv.opts.pwa == true) {
+        var swUrl = '/sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath);
+        navigator.serviceWorker.register(swUrl);
+    }
+   
     //If main gui is set as a parameter, override that already set
     var urlParams = new URLSearchParams(window.location.search);
     var gui = urlParams.get('gui');
     if (gui) {
         tbv.opts.gui = gui;
     }
-    
-    //The reload option (tombiovis.js) uses window.location.reload(true)
-    //to reload the page without cache. While this seems to reload all javascript files
-    //on laptop browsers, it doesn't seem to work on Android Chrome or iOS Safari (03/07/2017)
-    //so in that case we have to specify (and change) the tombiover variable in the calling
-    //HTML page.
-    //if (!tbv.opts.tombiover) {
-    //    tbv.opts.tombiover = "none";
-    //}
 
     //Object for storing general functions
     tbv.f = {};
@@ -449,11 +447,12 @@
     //Load the KB - returns a promise which fulfills when all loaded
     function loadKB() {
         //Read in the data
-        var antiCache = "none"; //Allow caching because of new reload function
+        var antiCache = "" //"?none"; //Allow caching because of new reload function
+        var start = startTiming();
 
         var pAll = [], p;
         p = new Promise(function (resolve) {
-            d3.csv(tbv.opts.tombiokbpath + "taxa.csv?" + antiCache,
+            d3.csv(tbv.opts.tombiokbpath + "taxa.csv" + antiCache,
                 function (row) {
                     return filterAndClean(row);
                 },
@@ -466,7 +465,7 @@
         pAll.push(p);
 
         p = new Promise(function (resolve) {
-            d3.csv(tbv.opts.tombiokbpath + "characters.csv?" + antiCache,
+            d3.csv(tbv.opts.tombiokbpath + "characters.csv" + antiCache,
                 function (row) {
                     return filterAndClean(row);
                 },
@@ -479,7 +478,7 @@
         pAll.push(p);
 
         p = new Promise(function (resolve) {
-            d3.csv(tbv.opts.tombiokbpath + "values.csv?" + antiCache,
+            d3.csv(tbv.opts.tombiokbpath + "values.csv" + antiCache,
                 function (row) {
                     return filterAndClean(row);
                 },
@@ -492,7 +491,7 @@
         pAll.push(p);
 
         p = new Promise(function (resolve) {
-            d3.csv(tbv.opts.tombiokbpath + "media.csv?" + antiCache,
+            d3.csv(tbv.opts.tombiokbpath + "media.csv" + antiCache,
                 function (row) {
                     return filterAndClean(row);
                 },
@@ -505,7 +504,7 @@
         pAll.push(p);
 
         p = new Promise(function (resolve) {
-            d3.csv(tbv.opts.tombiokbpath + "config.csv?" + antiCache,
+            d3.csv(tbv.opts.tombiokbpath + "config.csv" + antiCache,
                 function (row) {
                     return filterAndClean(row);
                 },
@@ -571,7 +570,7 @@
 
         //This function returns a promise which fulfills when all KB files are loaded
         return Promise.all(pAll).then(function () {
-            console.log("%cKB is loaded!", "color: blue");
+            console.log("%cKB loaded in " + endTiming(start), "color: blue");
         })
 
         function filterAndClean(row) {
@@ -663,7 +662,20 @@
         }
     }
 
-    //function log()
+    function startTiming() {
+        return new Date();
+    };
+
+    function endTiming(startTime) {
+        var endTime = new Date();
+        var timeDiff = endTime - startTime; //in ms
+        // strip the ms
+        timeDiff /= 1000;
+
+        // get seconds 
+        var seconds = Math.round(timeDiff * 100)/ 100;
+        return seconds;
+    }
 })(
     //Pass the tombiovis object into this IIFE if it exists (e.g. defined in HTML page)
     //otherwise, initialise it to empty object.

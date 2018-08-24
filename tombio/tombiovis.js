@@ -530,19 +530,27 @@
         //This can be called from hosting sites
         //If reload selected, then reload the entire application.
         if (selectedToolName == "reload") {
-            //Force reload of entire page - ignoring cache.
-            //window.location.reload(true);
-            //https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
-            $.ajax({
-                url: window.location.href,
-                headers: {
-                    "Pragma": "no-cache",
-                    "Expires": -1,
-                    "Cache-Control": "no-cache"
-                }
-            }).done(function () {
-                window.location.reload(true);
-            });
+            //Force reload of app - ignoring cache.
+            window.location.reload(true);
+            ////https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
+            //$.ajax({
+            //    url: window.location.href,
+            //    headers: {
+            //        "Pragma": "no-cache",
+            //        "Expires": -1,
+            //        "Cache-Control": "no-cache"
+            //    }
+            //}).done(function () {
+            //    window.location.reload(true);
+            //});
+            return;
+        }
+
+        //If reloadkb selected, reload (without ignoring cache), but first clear
+        //cached knowledge-base files. 
+        if (selectedToolName == "reloadkb") {
+            ///?????????????? stuff to do ???????????????????????????
+            window.location.reload();
             return;
         }
 
