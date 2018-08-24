@@ -33,7 +33,7 @@
     //Start the service worker
     //const swUrl = tbv.opts.tombiopath +'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath);
     if (tbv.opts.pwa == true) {
-        var swUrl = '/sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath);
+        var swUrl = 'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath);
         navigator.serviceWorker.register(swUrl);
     }
    
