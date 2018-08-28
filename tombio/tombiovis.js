@@ -465,13 +465,16 @@
 
         //Update relative URIs of local resources to reflect the full path of knowledge-base
         tbv.d.media.forEach(function (m) {
-            if (m.Type == "image-local" || m.Type == "html-local") {
-                m.URI = tbv.opts.tombiokbpath + m.URI;
+
+            if (m.Type == "html-local") {
+                m.URI = tbv.opts.tombiokbpath + m.URI + "?t=kbtxt";
+            } else if (m.Type == "image-local") {
+                m.URI = tbv.opts.tombiokbpath + m.URI + "?t=kbimgstd";
                 if (m.SmallURI) {
-                    m.SmallURI = tbv.opts.tombiokbpath + m.SmallURI;
+                    m.SmallURI = tbv.opts.tombiokbpath + m.SmallURI + "?t=kbimgsml";
                 }
                 if (m.LargeURI) {
-                    m.LargeURI = tbv.opts.tombiokbpath + m.LargeURI;
+                    m.LargeURI = tbv.opts.tombiokbpath + m.LargeURI + "?t=kbimglrg";
                 }
             }
         });
@@ -530,6 +533,7 @@
         //This can be called from hosting sites
         //If reload selected, then reload the entire application.
         if (selectedToolName == "reload") {
+            //This is called from the reload button that users see.
             //Force reload of app - ignoring cache.
             window.location.reload(true);
             ////https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
@@ -547,10 +551,46 @@
         }
 
         //If reloadkb selected, reload (without ignoring cache), but first clear
-        //cached knowledge-base files. 
+        //cached knowledge-base files and any kb resources which can be identified
+        //from caches that start with tombio-kb-.
+        //Reload the kb cache since this happens in sw install which won't get
+        //called again until the service worker changes.
         if (selectedToolName == "reloadkb") {
-            ///?????????????? stuff to do ???????????????????????????
-            window.location.reload();
+
+            //var kbCacheFiles = [
+            //    tbv.opts.tombiokbpath + 'taxa.csv',
+            //    tbv.opts.tombiokbpath + 'characters.csv',
+            //    tbv.opts.tombiokbpath + 'values.csv',
+            //    tbv.opts.tombiokbpath + 'media.csv',
+            //    tbv.opts.tombiokbpath + 'config.csv'
+            //];
+
+            var kbCache;
+            //Delete the knowledge-base cache
+            if (caches) {
+                caches.keys()
+                    .then(function (keyList) {
+                        return Promise.all(keyList.map(function (key) {
+                            if (key.startsWith('tombio-kb-cache-')) {
+                                kbCache = key;
+                            }
+                            if (key.startsWith('tombio-kb-')) {
+                                console.log('[ServiceWorker] Removing cache', key);
+                                return caches.delete(key);
+                            } 
+                        }));
+                    })
+                    //.then(function () {
+                    //    console.log("Reload", kbCache)
+                    //    return caches.open(kbCache).then(function (cache) {
+                    //        console.log('[ServiceWorker] Caching knowledge-base');
+                    //        return cache.addAll(kbCacheFiles);
+                    //    })    
+                    //})
+                    .then(function () {
+                        window.location.reload();
+                    });
+            }
             return;
         }
 
@@ -1186,7 +1226,8 @@
         var taxonHtmlFiles = tbv.f.getTaxonHtmlFiles(taxon);
 
         if (iFile <= taxonHtmlFiles.length - 1) {
-            $.get(taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
+            //$.get(taxonHtmlFiles[iFile].URI + "?ver=" + tbv.opts.tombiover, function (data) {
+            $.get(taxonHtmlFiles[iFile].URI, function (data) {
 
                 //We need to extract the html in the body tag and ignore everything
                 //else. Trouble is when using jQuery to insert the full HTML into 

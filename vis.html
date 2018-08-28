@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FSC Identikit</title>
-
+    <link rel="manifest" href="/manifest.json">
     <script>
         //Legacy method (still supported)
         //var tombiopath = "tombio/" //deprecated from 1.6.0
@@ -44,7 +44,7 @@
                 },
                 //tombiover: "refresh-1",
                 checkKB: true,
-                devel: false,
+                devel: true,
                 tombiopath: "tombio/",
                 tombiokbpath: "kb/biscuits/"
             },
@@ -58,26 +58,31 @@
         body {
             font-family: Arial, sans-serif;
         }
+
         @media screen and (min-width: 1442px) /* Extra large screens */ {
             body {
                 margin: 0 250px 0 250px;
             }
         }
+
         @media screen and (max-width: 1441px) /* Extra large screens */ {
             body {
                 margin: 0 200px 0 200px;
             }
         }
+
         @media screen and (max-width: 1025px) /* Large screens */ {
             body {
                 margin: 0 100px 0 100px;
             }
         }
+
         @media screen and (max-width: 979px) /* Tablet */ {
             body {
                 margin: 0 20px 0 20px;
             }
         }
+
         @media screen and (max-width: 500px) /* Mobile */ {
             body {
                 margin: 0 5px 0 5px;

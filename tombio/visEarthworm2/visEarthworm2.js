@@ -54,7 +54,8 @@
         $("#tombioEsbExcludedTaxa").css("left", this.taxspace * 2 + this.taxwidth);
 
         //Create dialog for confidence
-        $.get(tbv.opts.tombiopath + "/visEarthworm2/confidence.html?ver=" + tbv.opts.tombiover, function (data) {
+        //$.get(tbv.opts.tombiopath + "/visEarthworm2/confidence.html?ver=" + tbv.opts.tombiover, function (data) {
+        $.get(tbv.opts.tombiopath + "/visEarthworm2/confidence.html", function (data) {
 
             var $div = $('<div>').appendTo($("#" + _this.visName));
             $div.html(data.replace(/##tombiopath##/g, tbv.opts.tombiopath))
@@ -1184,7 +1185,8 @@
         this.otherState.tolerance = 2;
 
         //Create dialog for input controls
-        $.get(tbv.opts.tombiopath + "/visEarthworm2/characterHelp.html?ver=" + tbv.opts.tombiover, function (data) {
+        //$.get(tbv.opts.tombiopath + "/visEarthworm2/characterHelp.html?ver=" + tbv.opts.tombiover, function (data) {
+        $.get(tbv.opts.tombiopath + "/visEarthworm2/characterHelp.html", function (data) {
 
             $("#tombioEsbKeyInput").append(data.replace(/##tombiopath##/g, tbv.opts.tombiopath));
 
