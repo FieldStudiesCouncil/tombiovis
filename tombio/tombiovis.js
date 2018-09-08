@@ -535,18 +535,36 @@
         if (selectedToolName == "reload") {
             //This is called from the reload button that users see.
             //Force reload of app - ignoring cache.
-            window.location.reload(true);
-            ////https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
-            //$.ajax({
-            //    url: window.location.href,
-            //    headers: {
-            //        "Pragma": "no-cache",
-            //        "Expires": -1,
-            //        "Cache-Control": "no-cache"
-            //    }
-            //}).done(function () {
-            //    window.location.reload(true);
-            //});
+
+            //Delete caches
+            if (caches) {
+                caches.keys()
+                    .then(function (keyList) {
+                        return Promise.all(keyList.map(function (key) {
+                            if (key.startsWith('tombio-')) {
+                                console.log('[ServiceWorker] Removing cache', key);
+                                return caches.delete(key);
+                            }
+                        }));
+                    })
+                    .then(function () {
+                        window.location.reload();
+                    });
+            } else {
+                window.location.reload(true);
+                ////https://stackoverflow.com/questions/10719505/force-a-reload-of-page-in-chrome-using-javascript-no-cache
+                //$.ajax({
+                //    url: window.location.href,
+                //    headers: {
+                //        "Pragma": "no-cache",
+                //        "Expires": -1,
+                //        "Cache-Control": "no-cache"
+                //    }
+                //}).done(function () {
+                //    window.location.reload(true);
+                //});
+                return;
+            }
             return;
         }
 
@@ -557,39 +575,22 @@
         //called again until the service worker changes.
         if (selectedToolName == "reloadkb") {
 
-            //var kbCacheFiles = [
-            //    tbv.opts.tombiokbpath + 'taxa.csv',
-            //    tbv.opts.tombiokbpath + 'characters.csv',
-            //    tbv.opts.tombiokbpath + 'values.csv',
-            //    tbv.opts.tombiokbpath + 'media.csv',
-            //    tbv.opts.tombiokbpath + 'config.csv'
-            //];
-
-            var kbCache;
             //Delete the knowledge-base cache
             if (caches) {
                 caches.keys()
                     .then(function (keyList) {
                         return Promise.all(keyList.map(function (key) {
-                            if (key.startsWith('tombio-kb-cache-')) {
-                                kbCache = key;
-                            }
                             if (key.startsWith('tombio-kb-')) {
                                 console.log('[ServiceWorker] Removing cache', key);
                                 return caches.delete(key);
-                            } 
+                            }
                         }));
                     })
-                    //.then(function () {
-                    //    console.log("Reload", kbCache)
-                    //    return caches.open(kbCache).then(function (cache) {
-                    //        console.log('[ServiceWorker] Caching knowledge-base');
-                    //        return cache.addAll(kbCacheFiles);
-                    //    })    
-                    //})
                     .then(function () {
                         window.location.reload();
                     });
+            } else {
+                window.location.reload(true);
             }
             return;
         }

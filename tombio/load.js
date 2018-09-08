@@ -22,7 +22,7 @@
     //    navigator.serviceWorker.register(swUrl)
     //}
 
-    if (tbv.opts.pwa == true && 'serviceWorker' in navigator) {
+    if (!tbv.opts.pwaSupress && 'serviceWorker' in navigator) {
         //Start the service worker and then call mainLoad
         //Call mainLoad even if service worker fails
         var swUrl = 'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath) + "&tombiopath=" + encodeURIComponent(tbv.opts.tombiopath);
@@ -30,7 +30,20 @@
             .then(() => mainLoad("Service worker started successfully"))
             .catch(() => mainLoad("Service worker failed"))
     } else {
-        //Call mainLoad without starting mainLoad
+        //if ('serviceWorker' in navigator) {
+        //    //Unregister service worker - page will need to be refreshed again after (and tab removed?)
+        //    //https://love2dev.com/blog/how-to-uninstall-a-service-worker/
+
+        //    navigator.serviceWorker.getRegistrations().then(
+        //        function (registrations) {
+        //            for (let registration of registrations) {
+        //                registration.unregister();
+        //            }
+        //        }
+        //    );
+        //}
+
+        //Call mainLoad without starting service worker
         mainLoad("Service worker not called");
     }
 
