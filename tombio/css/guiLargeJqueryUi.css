@@ -71,12 +71,12 @@
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.wrench {
-    background: url("/tombio//resources/wrench.png") 0 0 no-repeat;
+    background: url("/tombio/resources/wrench.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.vis {
-    background: url("/tombio//resources/lightbulb.png") 0 0 no-repeat;
+    background: url("/tombio/resources/lightbulb.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 

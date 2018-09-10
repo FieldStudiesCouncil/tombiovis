@@ -13,9 +13,32 @@ var tombiokbpath = url.searchParams.get('tombiokbpath');
 var tombiopath = url.searchParams.get('tombiopath');
 
 var shellCacheFiles = [
-    tombiopath + 'resources/kbTextUnavailable.html',
-    tombiopath + 'resources/no-wifi.png',
+    tombiopath + 'resources/chevron-down.png',
+    tombiopath + 'resources/chevron-up.png',
+    tombiopath + 'resources/data-driven-documents.png',
     tombiopath + 'resources/enlarge.png',
+    tombiopath + 'resources/forward.png',
+    tombiopath + 'resources/fsc-logo.jpg',
+    tombiopath + 'resources/github-logo.png',
+    tombiopath + 'resources/icon-128x128.png',
+    tombiopath + 'resources/icon-144x144.png',
+    tombiopath + 'resources/icon-152x152.png',
+    tombiopath + 'resources/icon-192x192.png',
+    tombiopath + 'resources/icon-256x256.png',
+    tombiopath + 'resources/info20.png',
+    tombiopath + 'resources/kb.png',
+    tombiopath + 'resources/lightbulb.png',
+    tombiopath + 'resources/minus.png',
+    tombiopath + 'resources/nbn-logo-centred.png',
+    tombiopath + 'resources/nbn-logo-colour-centred.png',
+    tombiopath + 'resources/no-wifi.png',
+    tombiopath + 'resources/options.png',
+    tombiopath + 'resources/plus.png',
+    tombiopath + 'resources/remove.png',
+    tombiopath + 'resources/reset.png',
+    tombiopath + 'resources/tombio.png',
+    tombiopath + 'resources/wrench.png',
+    tombiopath + 'resources/kbTextUnavailable.html'
 ];
 
 var galleriaPath = tombiopath + 'dependencies/galleria-1.5.7/galleria/themes/';
@@ -76,6 +99,8 @@ self.addEventListener('activate', function (e) {
 
 self.addEventListener('fetch', function (e) {
 
+    console.log("Request", e.request.url)
+
     //Identify the main page of the app since we will use a different caching strategy
     //for it (server first). Identifying it isn't straightforward since there's no requirement to
     //give it a certain name or for it to be in root folder of domain. So instead
@@ -85,91 +110,67 @@ self.addEventListener('fetch', function (e) {
         //console.log(e.request)
         var htmlPage = e.request.url.replace(/https?:\/\/[^\/]+\//i, "");
         if (!htmlPage.startsWith(tombiopath) && !htmlPage.startsWith(tombiokbpath)) {
-            mainPage = true
+            mainPage = true;
         }  
     }
 
-    if (mainPage) {
-        console.log('[Service Worker] FETCH MAIN HTML', htmlPage)
-        //Network falling back to cache
-        //https://jakearchibald.com/2014/offline-cookbook
-        e.respondWith(
-            fetch(e.request)
-                .then(function (response) {
-                    //Network query successful - cache results
-                    return caches.open(genCacheName).then(function (cache) {
+    //On network response caching pattern
+    //https://jakearchibald.com/2014/offline-cookbook
+    e.respondWith(
+        caches.match(e.request).then(function (response) {
+
+            if (response) {
+                //if (e.request.url.endsWith('csv')) console.log('[Service Worker] Fetched from cache', e.request.url);
+                console.log("In cache", e.request.url)
+                return response;
+            } else {
+                //console.log("SW fetching", e.request.url)
+                console.log("Not in cache", e.request.url)
+
+                var url = new URL(e.request.url);
+                var t = url.searchParams.get('t');
+                if (t == "kbcsv" || mainPage) { //Main page is cached in KB cache so when KB developer refreshes KB, it is updated too.
+                    var cache = kbCacheName;
+                } else if (t == "kbimgstd") {
+                    var cache = kbImgStdCacheName;
+                } else if (t == "kbimgsml") {
+                    var cache = kbImgSmlCacheName;
+                } else if (t == "kbimglrg") {
+                    var cache = kbImgLrgCacheName;
+                } else if (t == "kbtxt") {
+                    var cache = kbTxtCacheName;
+                } else {
+                    var cache = genCacheName;
+                }
+
+                return caches.open(cache).then(function (cache) {
+                    return fetch(e.request).then(function (response) {
+                        console.log("SW caching", e.request.url)
                         cache.put(e.request, response.clone());
                         return response;
-                    })              
-                }).catch(function () {
-                    //Network request failed, get cached version
-                    return caches.match(e.request);
-                })
-        );
-    } else {
-        //On network response caching pattern
-        //https://jakearchibald.com/2014/offline-cookbook
-        e.respondWith(
-            caches.match(e.request).then(function (response) {
-
-                if (response) {
-                    //if (e.request.url.endsWith('csv')) console.log('[Service Worker] Fetched from cache', e.request.url);
-                    return response;
-                } else {
-                    //console.log("SW fetching", e.request.url)
-
-                    var url = new URL(e.request.url);
-                    var t = url.searchParams.get('t');
-                    if (t == "kbcsv") {
-                        var cache = kbCacheName;
-                    } else if (t == "kbimgstd") {
-                        var cache = kbImgStdCacheName;
-                    } else if (t == "kbimgsml") {
-                        var cache = kbImgSmlCacheName;
-                    } else if (t == "kbimglrg") {
-                        var cache = kbImgLrgCacheName;
-                    } else if (t == "kbtxt") {
-                        var cache = kbTxtCacheName;
-                    } else {
-                        var cache = genCacheName;
-                    }
-
-                    return caches.open(cache).then(function (cache) {
-                        return fetch(e.request).then(function (response) {
-                            console.log("SW caching", e.request.url)
-                            cache.put(e.request, response.clone());
-                            return response;
-                        }).catch(function (response) {
-                            console.log("FAILED TO FIND IMG", e.request.url)
-                            if (t == "kbimgstd" || t == "kbimgsml" || t == "kbimglrg") {
-                                //https://hackernoon.com/service-worker-one-fallback-offline-image-for-any-aspect-ratio-b427c0f897fb
-                                return new Response('<svg role="img" aria-labelledby="offline-title" viewBox="0 0 400 225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><title id="offline-title">Offline</title><path fill="rgba(200,200,200,0.8)" d="M0 0h400v225H0z" /><text fill="rgba(0,0,0,0.33)" font-family="Helvetica Neue,Arial,sans-serif" font-size="27" text-anchor="middle" x="200" y="113" dominant-baseline="central">working offline</text></svg>', { headers: { 'Content-Type': 'image/svg+xml' } });
-                            } else if (t == "kbtxt") {
-                                return caches.match(tombiopath + 'resources/kbTextUnavailable.html');
+                    }).catch(function (response) {
+                        console.log("FAILED TO FIND RESOURCE", e.request.url)
+                        if (t == "kbimgstd" || t == "kbimgsml" || t == "kbimglrg") {
+                            //https://hackernoon.com/service-worker-one-fallback-offline-image-for-any-aspect-ratio-b427c0f897fb
+                            return new Response('<svg role="img" aria-labelledby="offline-title" viewBox="0 0 400 225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><title id="offline-title">Offline</title><path fill="rgba(200,200,200,0.8)" d="M0 0h400v225H0z" /><text fill="rgba(0,0,0,0.33)" font-family="Helvetica Neue,Arial,sans-serif" font-size="27" text-anchor="middle" x="200" y="113" dominant-baseline="central">working offline</text></svg>', { headers: { 'Content-Type': 'image/svg+xml' } });
+                        } else if (t == "kbtxt") {
+                            return caches.match(tombiopath + 'resources/kbTextUnavailable.html');
                             //Method below doesn't work very well because some things expect a very small image and don't resize the one we return.
                             //} else if (e.request.url.endsWith(".png") || e.request.url.endsWith(".gif") || e.request.url.endsWith(".jpg") || e.request.url.endsWith(".jpeg")) {
                             //    return caches.match(tombiopath + 'resources/no-wifi.png');
-                            } else {
-                                return response;
-                            }
-                        })
+                        //} else if () {
+                        //    //And
+                        //}
+                        } else {
+                            console.log("context", e.request.context)
+                            //Returning an empty response prevents Identikit from falling over when resouces such
+                            //as javascript files for tools cannot be loaded. Tombiovis can then catch and return
+                            //an appropriate message.
+                            return new Response();
+                        }
                     })
-                }
-            })
-        );
-    }
-
-    /*
-     * Since the main page, e.g. vis.html, may be updated frequently by knowledge-based developers,
-     * it should have the cache-control header set to a value of no-cache. With no service worker
-     * in operation this means that the server would be queried by the browser to see if there is
-     * a different version to any in the HTML cache and, if so, it would be loaded, otherwise
-     * the cached version would be used. This service worker treats the main page, e.g. vis.html,
-     * as a special case. When it is requested, instead of fetching from the cache if present there
-     * (as it does for all other resources), it will attempt to fetch from the network first. This
-     * results in the usual interaction between the server and the browsers HTML cache as described
-     * above. If the network call fails, then it is fetched from the SWs cache. All this is to
-     * ensure that the latest changes to the main page are always picked up without any special
-     * refreshing by the user.
-     */
+                })
+            }
+        })
+    );
 });

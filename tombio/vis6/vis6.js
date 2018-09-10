@@ -222,13 +222,16 @@
                 return scaleChars(tbv.d.oTaxa[this.getAttribute("data-taxon")].visState.score.charFor);
             })
 
-        //It is necessary to manually resize the vis6 containing div because the onsen page element
-        //is not contained within it. If we don't do this, there is a danger that stuff on the hosting
-        //page might not properly contain vis6.
-        d3.select("#vis6")
-            .transition()
-            .duration(1000)
-            .style("height", (yCursor + 2 * taxonSpace) + "px")
+        //For GUI other than onsenui we should to manually resize the vis6 containing div because the onsen page element
+        //is not contained within it. If we don't do this, the hosting page might not properly contain vis6.
+        //Wherever possible we want to avoid using gui-specific code within visualisations like this,
+        //but it's unavoidable here.
+        if (tbv.opts.gui != "guiOnsenUi") {
+            d3.select("#vis6")
+                .transition()
+                .duration(1000)
+                .style("height", (yCursor + 2 * taxonSpace) + "px");
+        }
 
         //Hack to overcome a problem on initial display where heights of divs aren't consistent
         if (firstTime) {

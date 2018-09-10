@@ -671,6 +671,11 @@
             }
             console.log("Starting", selectedToolName);
             tbv.gui.main.visShow(selectedToolName);
+        }).catch(function () {
+            var html = "";
+            html += "<p>You are working offline but the tool you tried to load was not previously loaded into memory.</p>";
+            html += "<p>Load the tool when you next have an internet connection. Then you will be able to use it offline.</p>";
+            tbv.gui.main.dialog("Currently unavailable", html)
         })
 
         //Because this routine can be called outside of the immediate interface, we need

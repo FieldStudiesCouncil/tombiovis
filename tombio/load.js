@@ -27,8 +27,8 @@
         //Call mainLoad even if service worker fails
         var swUrl = 'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath) + "&tombiopath=" + encodeURIComponent(tbv.opts.tombiopath);
         navigator.serviceWorker.register(swUrl)
-            .then(() => mainLoad("Service worker started successfully"))
-            .catch(() => mainLoad("Service worker failed"))
+            .then(function () { mainLoad("Service worker started successfully") })
+            .catch(function () { mainLoad("Service worker failed") })
     } else {
         //if ('serviceWorker' in navigator) {
         //    //Unregister service worker - page will need to be refreshed again after (and tab removed?)
@@ -172,7 +172,9 @@
                     //} else {
                     //    var js = this.file;
                     //}
+
                     var js = this.file;
+                    //var js = this.toolName ? this.file + "?tool=" + thisId : this.file;
                     var css = this.css;
                     var initF = this.initF;
 
@@ -181,7 +183,7 @@
                         //Create a promise for this JS file, but only after all other JS required before this JS resolved
                         var p = new Promise(function (resolve, reject) {
                             var s = document.createElement('script');
-                            s.src = js
+                            s.src = js;
                             s.onreadystatechange = s.onload = function () {
                                 //Cross-browser test of when element loaded correctly (from jQuery)
                                 if (!s.readyState || /loaded|complete/.test(s.readyState)) {
@@ -194,7 +196,7 @@
                                         }
                                     }
                                     //console.log("%cLoaded JS file for " + thisId + msgDep, "color: blue");
-                                    console.log("%cLoaded JS file " + nameFromPath(js)  + " "  + msgDep, "color: blue");
+                                    console.log("%cLoaded JS file " + nameFromPath(js) + " " + msgDep, "color: blue");
 
                                     //Execute any required initialisations
                                     if (initF) initF();
@@ -217,6 +219,7 @@
                             };
                             document.querySelector('head').appendChild(s);
                         });
+
                         //Add this promise to the pRequires array
                         pRequires.push(p);
                         //Return a promise for load of this JS file and all dependecies
@@ -237,35 +240,40 @@
 
             waitDiv.id = 'downloadspin';
 
-            //waitDiv.style = "position: absolute";
-            //document.getElementById('tombiod3').appendChild(waitDiv);
+            var html= ""
+            html += '<div class="loader">';
+            html += '<svg viewBox="0 0 32 32" width="32" height="32">';
+            html += '<circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>';
+            html += '</svg>';
+            html += '</div>';
+            waitDiv.innerHTML = html;
+
             var tombiod3 = document.getElementById('tombiod3');
             tombiod3.insertBefore(waitDiv, tombiod3.firstChild);
 
-            var opts = {
-                lines: 13 // The number of lines to draw
-                , length: 28 // The length of each line
-                , width: 14 // The line thickness
-                , radius: 42 // The radius of the inner circle
-                , scale: 0.8 // Scales overall size of the spinner
-                , corners: 1 // Corner roundness (0..1)
-                , color: '#000' // #rgb or #rrggbb or array of colors
-                , opacity: 0.15 // Opacity of the lines
-                , rotate: 0 // The rotation offset
-                , direction: 1 // 1: clockwise, -1: counterclockwise
-                , speed: 1 // Rounds per second
-                , trail: 60 // Afterglow percentage
-                , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
-                , zIndex: 2e9 // The z-index (defaults to 2000000000)
-                , className: 'spinner' // The CSS class to assign to the spinner
-                , top: '49%' // Top position relative to parent
-                , left: '50%' // Left position relative to parent
-                , shadow: false // Whether to render a shadow
-                , hwaccel: false // Whether to use hardware acceleration
-                , position: 'absolute' // Element positioning
-            }
-            //var target = document.getElementById('downloadspin');
-            var spinner = new Spinner(opts).spin(waitDiv);
+            //var opts = {
+            //    lines: 13 // The number of lines to draw
+            //    , length: 28 // The length of each line
+            //    , width: 14 // The line thickness
+            //    , radius: 42 // The radius of the inner circle
+            //    , scale: 0.8 // Scales overall size of the spinner
+            //    , corners: 1 // Corner roundness (0..1)
+            //    , color: '#000' // #rgb or #rrggbb or array of colors
+            //    , opacity: 0.15 // Opacity of the lines
+            //    , rotate: 0 // The rotation offset
+            //    , direction: 1 // 1: clockwise, -1: counterclockwise
+            //    , speed: 1 // Rounds per second
+            //    , trail: 60 // Afterglow percentage
+            //    , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+            //    , zIndex: 2e9 // The z-index (defaults to 2000000000)
+            //    , className: 'spinner' // The CSS class to assign to the spinner
+            //    , top: '49%' // Top position relative to parent
+            //    , left: '50%' // Left position relative to parent
+            //    , shadow: false // Whether to render a shadow
+            //    , hwaccel: false // Whether to use hardware acceleration
+            //    , position: 'absolute' // Element positioning
+            //}
+            //var spinner = new Spinner(opts).spin(waitDiv);
         }
 
         //Application-wide download spinner hide
@@ -278,7 +286,7 @@
         //Populate the tbv.js.jsFiles (jsF) with modules and their associated CSS files
         //The following are always required and loaded first therefore don't need to be
         //specified as being required by other JS files.
-        jsF.add("spinner", "dependencies/spin.min.js");
+        //jsF.add("spinner", "dependencies/spin.min.js");
         jsF.add("jquery", "dependencies/jquery-3.1.1/jquery-3.1.1.min.js");
         jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
 
@@ -425,12 +433,14 @@
 
         tbv.f.startLoad = function () {
 
-            jsF.spinner.loadJs()
-            .then(function () {
-                tbv.f.showDownloadSpinner();
-                //D3 and jQuery always loaded up front
-                return Promise.all([jsF.d3.loadJs(), jsF.jquery.loadJs()]);
-            })
+            //jsF.spinner.loadJs()
+            //.then(function () {
+            //    tbv.f.showDownloadSpinner();
+            //    //D3 and jQuery always loaded up front
+            //    return Promise.all([jsF.d3.loadJs(), jsF.jquery.loadJs()]);
+            //})
+            tbv.f.showDownloadSpinner();
+            Promise.all([jsF.d3.loadJs(), jsF.jquery.loadJs()])
             .then(function () {
                 //Use jQuery to create div for visualisations
                 jQuery(document).ready(function () {
