@@ -14,7 +14,6 @@
         tbv.opts.tombiokbpath = tombiokbpath;
     }
 
-
     //if (tbv.opts.pwa == true && 'serviceWorker' in navigator) {
     //    //Start the service worker and then call mainLoad
     //    //Call mainLoad even if service worker fails
@@ -26,8 +25,11 @@
         //Start the service worker and then call mainLoad
         //Call mainLoad even if service worker fails
         var swUrl = 'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath) + "&tombiopath=" + encodeURIComponent(tbv.opts.tombiopath);
+        tbv.opts.pwa = true;
         navigator.serviceWorker.register(swUrl)
-            .then(function () { mainLoad("Service worker started successfully") })
+            .then(function () {
+                mainLoad("Service worker started successfully");
+            })
             .catch(function () { mainLoad("Service worker failed") })
     } else {
         //if ('serviceWorker' in navigator) {

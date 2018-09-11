@@ -23,6 +23,14 @@
         //label - identifying element in 'context menu'
     }
 
+    tbv.gui.main.offlineOptions = function () {
+        //Instructs the GUI to present offline management options to user
+    }
+
+    tbv.gui.main.offerRefresh = function () {
+        //Instructs the GUI to offer refresh to user
+    }
+
     tbv.gui.main.setSelectedTool = function (toolName) {
         //Allows the selected tool to be set programatically. This called by
         //tombiovis e.g. when tool set from outside Identikit (e.g. by

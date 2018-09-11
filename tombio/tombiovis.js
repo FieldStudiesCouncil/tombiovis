@@ -521,6 +521,83 @@
         }
     }
 
+    tbv.f.cacheAll = function () {
+        console.log("caching all")
+
+        //THESE MUST MATCH THE CACHENAMES IN SERVICE WORKER
+        var kbCacheName = "tombio-kb-cache-1";
+        var kbImgStdCacheName = "tombio-kb-img-std-cache-1";
+        var kbImgSmlCacheName = "tombio-kb-img-sml-cache-1";
+        var kbImgLrgCacheName = "tombio-kb-img-lrg-cache-1";
+        var kbTxtCacheName = "tombio-kb-txt-cache-1";
+        var genCacheName = "tombio-gen-cache-1";
+        var shellCacheName = "tombio-shell-cache-1";
+        ///////////////////////////////////////////////////
+
+        ////Core knowledgebase files and homepage
+        //var kbFiles = [];
+        //kbFiles.push(tbv.opts.tombiokbpath + 'taxa.csv');
+        //kbFiles.push(tbv.opts.tombiokbpath + 'characters.csv');
+        //kbFiles.push(tbv.opts.tombiokbpath + 'values.csv');
+        //kbFiles.push(tbv.opts.tombiokbpath + 'media.csv');
+        //kbFiles.push(tbv.opts.tombiokbpath + 'config.csv');
+        //kbFiles.push(tbv.opts.tombiokbpath + 'info.html');
+        //kbFiles.push(location.pathname);
+
+        //Media resources
+        var kbImagesSmall = tbv.d.media.filter(function (m) { return (m.SmallURI && m.Type == "image-local") }).map(function (m) { return m.SmallURI });
+        var kbImagesStandard = tbv.d.media.filter(function (m) { return (m.URI && m.Type == "image-local") }).map(function (m) { return m.URI });
+        var kbImagesLarge = tbv.d.media.filter(function (m) { return (m.LargeURI && m.Type == "image-local") }).map(function (m) { return m.LargeURI });
+        var kbTextFiles = tbv.d.media.filter(function (m) { return (m.URI && m.Type == "html-local") }).map(function (m) { return m.URI });
+
+        
+
+        var pAllCaches = [];
+        pAllCaches.push(loadCache(kbImagesSmall, kbImgSmlCacheName, "small images from knowledge-base"));
+        pAllCaches.push(loadCache(kbImagesStandard, kbImgStdCacheName, "standard images from knowledge-base"));
+        pAllCaches.push(loadCache(kbImagesLarge, kbImgLrgCacheName, "large images from knowledge-base"));
+        pAllCaches.push(loadCache(kbTextFiles, kbTxtCacheName, "text files from knowledge-base"));
+        //pAllCaches.push(loadCache(kbFiles, kbCacheName, "core knowledge-base"));
+
+        Promise.all(pAllCaches).then(function() {
+            console.log("All caches completed");
+            tbv.gui.main.offerRefresh();
+        }).catch(function () {
+            console.log("Not all caches completed successfully")
+        })
+
+        function loadCache(files, cache, desc) {
+
+            //return caches.open(cache).then(function (cache) {
+            //    console.log("Caching " + desc);
+            //    return cache.addAll(files).then(function () {
+            //        console.log("Sucessfully cached " + desc);
+            //    }).catch(function () {
+            //        console.log("Failed to cache " + desc);
+            //    })
+            //})
+
+            //The method below, using cache.add, is used in preference to
+            //the method above, using cache.addAll, because if one of the
+            //files is not found, then whole addAll fails, adding none of the
+            //files to the cache.
+
+            return caches.open(cache).then(function (cache) {
+                console.log("Caching " + desc);
+
+                var pFiles = [];
+                files.forEach(function (file) {
+                    pFiles.push(cache.add(file))
+                })
+                return Promise.all(pFiles).then(function () {
+                    console.log("Sucessfully cached " + desc);
+                }).catch(function () {
+                    console.log("One or more files failed to cache " + desc);
+                })
+            })
+        }
+    }
+
     tbv.f.visChanged = function (selectedToolName, lastVisualisation) {
 
         if (!selectedToolName) return;
@@ -608,6 +685,11 @@
 
             var initialPage = location.pathname;
             window.location.replace(location.pathname + "?gui=guiLargeJqueryUi");
+            return;
+        }
+
+        if (selectedToolName == "offline") {
+            tbv.gui.main.offlineOptions();
             return;
         }
 

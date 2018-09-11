@@ -1,11 +1,13 @@
 ﻿(function ($, tbv) {
     "use strict"; 
 
+    //Get rid of test harness tombiod3-header and tombiod3-footer - not suitable for onsen UI
+    $('#tombiod3-header').remove();
+    $('#tombiod3-footer').remove();
+
     var tools = {};
     var onsSplitterSideMediaQuery;
-
     var pinMenu;
-
     tbv.gui.main = {
         fn: {}
     };
@@ -13,6 +15,27 @@
     //Required for standard gui interface
     tbv.gui.main.setSelectedTool = function (toolName) {
 
+    }
+
+    tbv.gui.main.offlineOptions = function () {
+        //Instructs the GUI to present offline management options to user.
+        var html = ""
+        html += '<ons-button onclick="tombiovis.f.cacheAll()">Download</ons-button>';
+        tbv.gui.main.dialog("Offline options", html)
+    }
+
+    tbv.gui.main.offerRefresh = function () {
+        //Instructs the GUI to offer refresh to user.
+        var dialog = document.getElementById('refreshPrompt');
+
+        if (dialog) {
+            dialog.show();
+        } else {
+            ons.createElement('refreshPromptTemplate', { append: true })
+                .then(function (dialog) {
+                    dialog.show();
+                });
+        }
     }
 
     //Required for standard gui interface
@@ -144,7 +167,30 @@
         html += '</ons-page>';
         html += '</template>';
 
+        //Refresh dialog template
+        html += '<template id="refreshPromptTemplate">';
+        html += '<ons-alert-dialog id="refreshPrompt" modifier="rowfooter">';
+        html += '<div class="alert-dialog-title">Refresh required</div>';
+        html += '<div class="alert-dialog-content">';
+        html += 'To complete preparation for using offline, a refresh is required.';
+        html += '</div>';
+        html += '<div class="alert-dialog-footer">';
+        html += '<ons-alert-dialog-button onclick="tombiovis.gui.main.fn.refreshDialogDismissed()">Not now</ons-alert-dialog-button>';
+        html += '<ons-alert-dialog-button onclick="tombiovis.gui.main.fn.refreshDialogDismissed(true)">Refresh</ons-alert-dialog-button>';
+        html += '</div>';
+        html += '</ons-alert-dialog>';
+        html += '</template>';
+
         $("#tombioOns").append($(html));
+
+        tbv.gui.main.fn.refreshDialogDismissed = function (refresh) {
+            document.getElementById('refreshPrompt')
+                .hide();
+            if (refresh) {
+                console.log("Refresh", refresh);
+                window.location.reload();
+            }
+        }
 
         tbv.gui.main.openMenu = function () {
             var menu = document.getElementById('tombioOnsMenu');
@@ -281,9 +327,16 @@
         //If developer's section added above, then add a header for standard reload
         toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
 
+        //Add button for offline options
+        if (tbv.opts.pwa) {
+            var icon = '<div class="left"><ons-icon icon="md-download" class="list-item__icon"></ons-icon></div>'
+            toolOptions.push($('<ons-list-item value="offline" class="html" data-class="?">' + icon + 'Offline options</ons-list-item>'));
+        }
+        
         //Add reload option
         var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
         toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload app</ons-list-item>'));
+
 
         //Add click event to the menu items
         toolOptions.forEach(function (i) {
