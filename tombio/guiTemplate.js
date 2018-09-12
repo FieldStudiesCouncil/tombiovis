@@ -23,6 +23,12 @@
         //label - identifying element in 'context menu'
     }
 
+    tbv.gui.main.updateProgress = function (value) {
+        //Increments offline download progress (value is in percent of resources)
+
+        //value is in percent of resources
+    }
+
     tbv.gui.main.offlineOptions = function () {
         //Instructs the GUI to present offline management options to user
     }

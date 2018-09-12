@@ -46,6 +46,68 @@
         }
     } 
 
+    tbv.gui.main.updateProgress = function (value) {
+        //Increments offline download progress (value is in percent of resources)
+        //value is in percent of resources
+        if (value == 100) {
+            $('#tombioGuiLargeDownloadProgressHeader').text("Resource download complete")
+        }
+        $("#tombioGuiLargeDownloadProgress").progressbar("value", value);
+    }
+
+    tbv.gui.main.offlineOptions = function () {
+        //Instructs the GUI to present offline management options to user
+
+        var html = ""
+        html += '<button id="tombioGuiLargeOfflineButton">Download for offline use</button>';
+        html += '<p id="tombioGuiLargeDownloadProgressHeader" style="display: none">Downloading resources...</p>';
+        html += '<div id="tombioGuiLargeDownloadProgress" style="display: none;"></div>';
+        html += '<p></p>';
+
+        //tbv.gui.main.dialog("Offline options", html);
+
+        $('#offlineOptions').html(html);
+        $('#tombioGuiLargeOfflineButton').button()
+            .click(function () {
+                $('#tombioGuiLargeDownloadProgressHeader').show();
+                $('#tombioGuiLargeDownloadProgress').show();
+                tbv.f.cacheAll();
+            })
+        $("#tombioGuiLargeDownloadProgress").progressbar({
+            min: 0,
+            max: 100,
+            value: 0
+        });
+        tbv.gui.main.visShow("offlineOptions");
+    }
+
+    tbv.gui.main.offerRefresh = function () {
+
+        //Instructs the GUI to offer refresh to user
+        $("#tombioGuiDialog").remove();
+
+        //Create dialog for input control help and information
+        $("<div>").attr("id", "tombioGuiDialog").css("display", "none").appendTo($("#tombioGuiLargeJqueryUi"));
+
+        $("#tombioGuiDialog").dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: true,
+            buttons: {
+                "Refresh": function () {
+                    window.location.reload();
+                },
+                "Not now": function () {
+                    $(this).dialog("close");
+                }
+            }
+        })
+        $("#tombioGuiDialog").dialog('option', 'title', "Refresh required");
+        $("#tombioGuiDialog").html('<p>To complete preparation for using offline, a refresh is required.</p>');
+        $("#tombioGuiDialog").dialog("open");
+    }
+
     tbv.gui.main.setSelectedTool = function (toolName) {
         if ($('#tombioGuiLargeJqueryUiVisualisation').val() != toolName) {
             $('#tombioGuiLargeJqueryUiVisualisation').val(toolName);
@@ -112,6 +174,7 @@
         $("<div>").attr("id", "tombioCitation").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
         $("<div>").attr("id", "mediaFilesCheck").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
         $("<div>").attr("id", "tvkCheck").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
+        $("<div>").attr("id", "offlineOptions").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
 
         //outlineTopDivs();
         function outlineTopDivs() {
@@ -184,6 +247,11 @@
             }
         });
 
+        //Add option for offline options
+        if (tbv.opts.pwa) {
+            toolOptions.push($('<option value="offline" class="html" data-class="download">Offline options</option>'));
+        }
+
         //Add reload app option
         toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload app</option>'));
 
@@ -242,9 +310,6 @@
 
     tbv.gui.main.visShow = function (selectedToolName) {
 
-        //Get the selected visualisation
-        var selectedTool = tbv.v.visualisations[selectedToolName];
-
         //If the user has selected to show citation then generate
         if (selectedToolName == "tombioCitation") {
             $('#tombioCitation').html(tbv.f.createCitationPage());
@@ -300,6 +365,8 @@
 
         //If no visualisation is selected then hide the entire tombioGuiLargeJqueryUiControlsAndTaxa element
         //(otherwise it takes up space at top of info pages).
+        //Get the selected visualisation
+        var selectedTool = tbv.v.visualisations[selectedToolName];
         if (selectedTool) {
             $("#tombioGuiLargeJqueryUiControlsAndTaxa").show();
         } else {

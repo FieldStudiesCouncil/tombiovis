@@ -661,9 +661,11 @@
                         url: m[uriField],
                         type: 'HEAD',
                         success: function () {
+                            //console.log("Found", m[uriField] )
                             resolve(m[uriField]);
                         },
                         error: function () {
+                            //console.log("NOT Found", m[uriField])
                             reject(m[uriField]);
                         }
                     });

@@ -85,6 +85,11 @@
     background-size: 16px 16px;
 }
 
+#tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.download {
+    background: url("/tombio/resources/download.png") 0 0 no-repeat;
+    background-size: 16px 16px;
+}
+
 #tombioGuiLargeJqueryUiDeviceWarning {
     left: 0px;
     top: 0px;

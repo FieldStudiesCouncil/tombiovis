@@ -6,16 +6,17 @@ var kbImgSmlCacheName = "tombio-kb-img-sml-cache-1";
 var kbImgLrgCacheName = "tombio-kb-img-lrg-cache-1";
 var kbTxtCacheName = "tombio-kb-txt-cache-1";
 var genCacheName = "tombio-gen-cache-1";
-var shellCacheName = "tombio-shell-cache-1";
-var allCacheNames = [shellCacheName, genCacheName, kbCacheName, kbImgStdCacheName, kbImgSmlCacheName, kbImgLrgCacheName, kbTxtCacheName]
+var allCacheNames = [genCacheName, kbCacheName, kbImgStdCacheName, kbImgSmlCacheName, kbImgLrgCacheName, kbTxtCacheName]
 var url = new URL(location);
 var tombiokbpath = url.searchParams.get('tombiokbpath');
 var tombiopath = url.searchParams.get('tombiopath');
 
 var shellCacheFiles = [
+    tombiopath + 'resources/camera.png',
     tombiopath + 'resources/chevron-down.png',
     tombiopath + 'resources/chevron-up.png',
     tombiopath + 'resources/data-driven-documents.png',
+    tombiopath + 'resources/download.png',
     tombiopath + 'resources/enlarge.png',
     tombiopath + 'resources/forward.png',
     tombiopath + 'resources/fsc-logo.jpg',
@@ -64,42 +65,43 @@ var galleriaCacheFiles = [
 ];
 
 self.addEventListener('install', function (e) {
-    console.log('[ServiceWorker] Installing');
+    log('[ServiceWorker] Installing');
     e.waitUntil(
         Promise.all([
-            //caches.open(kbCacheName).then(function (cache) {
-            //    console.log('[ServiceWorker] Caching knowledge-base');
-            //    return cache.addAll(kbCacheFiles);
-            //}),
-            caches.open(shellCacheName).then(function (cache) {
-                console.log('[ServiceWorker] Caching shell files');
+            caches.open(genCacheName).then(function (cache) {
+                log('[ServiceWorker] Caching shell files');
                 return cache.addAll([...shellCacheFiles, ...galleriaCacheFiles]);
             })
         ])
     );
-    console.log('[ServiceWorker] Installed');
+    log('[ServiceWorker] Installed');
 });
 
 self.addEventListener('activate', function (e) {
-    console.log('[ServiceWorker] Activate');
+    log('[ServiceWorker] Activate');
     e.waitUntil(
         caches.keys().then(function (keyList) {
             return Promise.all(keyList.map(function (key) {
                 if (allCacheNames.indexOf(key) == -1) {
-                    console.log('[ServiceWorker] Removing old cache', key);
+                    log('[ServiceWorker] Removing old cache', key);
                     return caches.delete(key);
                 }
             }));
         })
     );
-    //Uncommenting the line below doesn't cause all resources to be cached on first
-    //load, e.g. the top level page, so the value of doing it is questionable for this app.
-    //return self.clients.claim();
+    //self.clients.claim() causes the service worker to start servicing all resource
+    //requests within it's scope even though, at this stage, the main page will no
+    //have been serviced. (The default behaviour is only to service requests from pages
+    //that have themselves been service through the service worker.) We implement this
+    //behaviour because it makes it possible for the user to cache resources for tools
+    //for use in the field without having to *first* refresh to get the main page
+    //served through the service worker.
+    return self.clients.claim();
 });
 
 self.addEventListener('fetch', function (e) {
 
-    console.log("Request", e.request.url)
+    log("Request", e.request.url)
 
     //Identify the main page of the app since we will use a different caching strategy
     //for it (server first). Identifying it isn't straightforward since there's no requirement to
@@ -107,7 +109,7 @@ self.addEventListener('fetch', function (e) {
     //we look for any html file that is not in either the tombiopath or tombiokbpath.
     var mainPage = false;
     if (e.request.url.endsWith('html')) {
-        //console.log(e.request)
+        //log(e.request)
         var htmlPage = e.request.url.replace(/https?:\/\/[^\/]+\//i, "");
         if (!htmlPage.startsWith(tombiopath) && !htmlPage.startsWith(tombiokbpath)) {
             mainPage = true;
@@ -120,36 +122,39 @@ self.addEventListener('fetch', function (e) {
         caches.match(e.request).then(function (response) {
 
             if (response) {
-                //if (e.request.url.endsWith('csv')) console.log('[Service Worker] Fetched from cache', e.request.url);
-                console.log("In cache", e.request.url)
+                //if (e.request.url.endsWith('csv')) log('[Service Worker] Fetched from cache', e.request.url);
+                log("In cache", e.request.url)
                 return response;
             } else {
-                //console.log("SW fetching", e.request.url)
-                console.log("Not in cache", e.request.url)
+                //log("SW fetching", e.request.url)
+                log("Not in cache", e.request.url)
 
                 var url = new URL(e.request.url);
                 var t = url.searchParams.get('t');
                 if (t == "kbcsv" || mainPage) { //Main page is cached in KB cache so when KB developer refreshes KB, it is updated too.
-                    var cache = kbCacheName;
+                    var cacheName = kbCacheName;
                 } else if (t == "kbimgstd") {
-                    var cache = kbImgStdCacheName;
+                    var cacheName = kbImgStdCacheName;
                 } else if (t == "kbimgsml") {
-                    var cache = kbImgSmlCacheName;
+                    var cacheName = kbImgSmlCacheName;
                 } else if (t == "kbimglrg") {
-                    var cache = kbImgLrgCacheName;
+                    var cacheName = kbImgLrgCacheName;
                 } else if (t == "kbtxt") {
-                    var cache = kbTxtCacheName;
+                    var cacheName = kbTxtCacheName;
                 } else {
-                    var cache = genCacheName;
+                    var cacheName = genCacheName;
                 }
 
-                return caches.open(cache).then(function (cache) {
+                return caches.open(cacheName).then(function (cache) {
                     return fetch(e.request).then(function (response) {
-                        console.log("SW caching", e.request.url)
-                        cache.put(e.request, response.clone());
+                        log("SW caching", e.request.url, "in", cacheName)
+                        //An error is generated from catch.put if request method is HEAD as used for KB resource checking
+                        var p = cache.put(e.request, response.clone())
+                            .then(log("SW cached", e.request.url, "in", cacheName))
+                            .catch(log("SW error caught", e.request.url));  
                         return response;
                     }).catch(function (response) {
-                        console.log("FAILED TO FIND RESOURCE", e.request.url)
+                        log("FAILED TO FIND RESOURCE", e.request.url)
                         if (t == "kbimgstd" || t == "kbimgsml" || t == "kbimglrg") {
                             //https://hackernoon.com/service-worker-one-fallback-offline-image-for-any-aspect-ratio-b427c0f897fb
                             return new Response('<svg role="img" aria-labelledby="offline-title" viewBox="0 0 400 225" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><title id="offline-title">Offline</title><path fill="rgba(200,200,200,0.8)" d="M0 0h400v225H0z" /><text fill="rgba(0,0,0,0.33)" font-family="Helvetica Neue,Arial,sans-serif" font-size="27" text-anchor="middle" x="200" y="113" dominant-baseline="central">working offline</text></svg>', { headers: { 'Content-Type': 'image/svg+xml' } });
@@ -162,7 +167,7 @@ self.addEventListener('fetch', function (e) {
                         //    //And
                         //}
                         } else {
-                            console.log("context", e.request.context)
+                            log("context", e.request.context)
                             //Returning an empty response prevents Identikit from falling over when resouces such
                             //as javascript files for tools cannot be loaded. Tombiovis can then catch and return
                             //an appropriate message.
@@ -174,3 +179,8 @@ self.addEventListener('fetch', function (e) {
         })
     );
 });
+
+
+function log() {
+    //console.log(...arguments);
+}

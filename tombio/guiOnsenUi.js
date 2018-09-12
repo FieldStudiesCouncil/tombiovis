@@ -17,10 +17,22 @@
 
     }
 
+    tbv.gui.main.updateProgress = function (value) {
+        //Increments offline download progress (value is in percent of resources)
+        if (value == 100) {
+            $('#tombioOnsDownloadProgressHeader').text("Resource download complete")
+        }
+        $('#tombioOnsDownloadProgressHeader').show();
+        $('#tombioOnsDownloadProgress').attr("value", value);
+    }
+
     tbv.gui.main.offlineOptions = function () {
         //Instructs the GUI to present offline management options to user.
         var html = ""
-        html += '<ons-button onclick="tombiovis.f.cacheAll()">Download</ons-button>';
+        html += '<ons-button  modifier="outline" onclick="tombiovis.f.cacheAll()">Download for offline use</ons-button>';
+        html += '<p id="tombioOnsDownloadProgressHeader" style="display: none">Downloading resources...</p>';
+        html += '<ons-progress-bar id="tombioOnsDownloadProgress" value="0"></ons-progress-bar>';
+
         tbv.gui.main.dialog("Offline options", html)
     }
 
@@ -324,10 +336,10 @@
         toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
 
-        //If developer's section added above, then add a header for standard reload
+        //If developer's section added above, then add a header for standard reload and download
         toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
 
-        //Add button for offline options
+        //Add option for offline options
         if (tbv.opts.pwa) {
             var icon = '<div class="left"><ons-icon icon="md-download" class="list-item__icon"></ons-icon></div>'
             toolOptions.push($('<ons-list-item value="offline" class="html" data-class="?">' + icon + 'Offline options</ons-list-item>'));

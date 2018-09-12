@@ -524,6 +524,25 @@
     tbv.f.cacheAll = function () {
         console.log("caching all")
 
+        var ticks = 0;
+        var ticksMax = 0;
+
+        var pAllCaches = [];
+        //Load tools which will automatically cache all their resources via
+        //the service worker (since self.clients.claim() is set).
+        tbv.opts.tools.forEach(function (t) {
+            console.log("Caching tool " + t);
+            var pTool = tbv.js.jsFiles[t].loadJs().then(function () {
+                console.log("Tool " + t + " successfully cached.");
+            }).catch(function () {
+                console.log("Tool " + t + " unsuccessfully cached.");
+                })
+
+            ticksMax += 1;
+            addTick(pTool);
+            pAllCaches.push(pTool);
+        })
+
         //THESE MUST MATCH THE CACHENAMES IN SERVICE WORKER
         var kbCacheName = "tombio-kb-cache-1";
         var kbImgStdCacheName = "tombio-kb-img-std-cache-1";
@@ -531,18 +550,31 @@
         var kbImgLrgCacheName = "tombio-kb-img-lrg-cache-1";
         var kbTxtCacheName = "tombio-kb-txt-cache-1";
         var genCacheName = "tombio-gen-cache-1";
-        var shellCacheName = "tombio-shell-cache-1";
         ///////////////////////////////////////////////////
 
-        ////Core knowledgebase files and homepage
-        //var kbFiles = [];
+        //Core knowledgebase files and homepage
+        var kbFiles = [];
         //kbFiles.push(tbv.opts.tombiokbpath + 'taxa.csv');
         //kbFiles.push(tbv.opts.tombiokbpath + 'characters.csv');
         //kbFiles.push(tbv.opts.tombiokbpath + 'values.csv');
         //kbFiles.push(tbv.opts.tombiokbpath + 'media.csv');
         //kbFiles.push(tbv.opts.tombiokbpath + 'config.csv');
-        //kbFiles.push(tbv.opts.tombiokbpath + 'info.html');
+        kbFiles.push(tbv.opts.tombiokbpath + 'info.html');
         //kbFiles.push(location.pathname);
+
+        //tombio/common 
+        var commonFolder = tbv.opts.tombiopath + 'common/'
+        var commonFiles = [];
+        commonFiles.push(commonFolder + 'character-help.png');
+        commonFiles.push(commonFolder + 'character-input.png');
+        commonFiles.push(commonFolder + 'full-details.html');
+        commonFiles.push(commonFolder + 'nbn-map.jpg');
+        commonFiles.push(commonFolder + 'stateInputHelp.html');
+        commonFiles.push(commonFolder + 'taxon-details-2.png');
+        commonFiles.push(commonFolder + 'taxon-select-help.html');
+        commonFiles.push(commonFolder + 'taxon-select.png');
+        commonFiles.push(commonFolder + 'taxonDetailsHelp.html');
+        commonFiles.push(commonFolder + 'text-selection-input.png');
 
         //Media resources
         var kbImagesSmall = tbv.d.media.filter(function (m) { return (m.SmallURI && m.Type == "image-local") }).map(function (m) { return m.SmallURI });
@@ -550,21 +582,28 @@
         var kbImagesLarge = tbv.d.media.filter(function (m) { return (m.LargeURI && m.Type == "image-local") }).map(function (m) { return m.LargeURI });
         var kbTextFiles = tbv.d.media.filter(function (m) { return (m.URI && m.Type == "html-local") }).map(function (m) { return m.URI });
 
-        
-
-        var pAllCaches = [];
         pAllCaches.push(loadCache(kbImagesSmall, kbImgSmlCacheName, "small images from knowledge-base"));
         pAllCaches.push(loadCache(kbImagesStandard, kbImgStdCacheName, "standard images from knowledge-base"));
         pAllCaches.push(loadCache(kbImagesLarge, kbImgLrgCacheName, "large images from knowledge-base"));
         pAllCaches.push(loadCache(kbTextFiles, kbTxtCacheName, "text files from knowledge-base"));
-        //pAllCaches.push(loadCache(kbFiles, kbCacheName, "core knowledge-base"));
+        pAllCaches.push(loadCache(kbFiles, kbCacheName, "core knowledge-base"));
+        pAllCaches.push(loadCache(commonFiles, genCacheName, "common help resources"));
 
-        Promise.all(pAllCaches).then(function() {
+
+        Promise.all(pAllCaches).then(function () {
             console.log("All caches completed");
             tbv.gui.main.offerRefresh();
         }).catch(function () {
             console.log("Not all caches completed successfully")
-        })
+        });
+
+        function addTick(p) {
+            p.then(function () {
+                ticks += 1;
+                //console.log("tick", ticks);
+                tbv.gui.main.updateProgress(ticks * 100 / ticksMax);
+            }) 
+        }
 
         function loadCache(files, cache, desc) {
 
@@ -582,12 +621,15 @@
             //files is not found, then whole addAll fails, adding none of the
             //files to the cache.
 
+            ticksMax += files.length;
             return caches.open(cache).then(function (cache) {
                 console.log("Caching " + desc);
 
                 var pFiles = [];
                 files.forEach(function (file) {
-                    pFiles.push(cache.add(file))
+                    var pAdd = cache.add(file);
+                    addTick(pAdd);
+                    pFiles.push(pAdd);
                 })
                 return Promise.all(pFiles).then(function () {
                     console.log("Sucessfully cached " + desc);
