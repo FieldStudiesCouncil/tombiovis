@@ -121,12 +121,12 @@
         html += '<ons-toolbar>';
 
         var tb = "";
-        tb += '<ons-toolbar-button id="tombioUiFullscreenMenuButton" onclick="tombiovis.gui.main.fn.requestFullscreen()">';
-        tb += '<ons-icon icon="md-fullscreen"></ons-icon>';
-        tb += '</ons-toolbar-button>';
-        tb += '<ons-toolbar-button id="tombioUiExitFullscreenMenuButton" onclick="tombiovis.gui.main.fn.exitFullscreen()" style="display: none">';
-        tb += '<ons-icon icon="md-fullscreen-exit"></ons-icon>';
-        tb += '</ons-toolbar-button>';
+        //tb += '<ons-toolbar-button id="tombioUiFullscreenMenuButton" onclick="tombiovis.gui.main.fn.requestFullscreen()">';
+        //tb += '<ons-icon icon="md-fullscreen"></ons-icon>';
+        //tb += '</ons-toolbar-button>';
+        //tb += '<ons-toolbar-button id="tombioUiExitFullscreenMenuButton" onclick="tombiovis.gui.main.fn.exitFullscreen()" style="display: none">';
+        //tb += '<ons-icon icon="md-fullscreen-exit"></ons-icon>';
+        //tb += '</ons-toolbar-button>';
         tb += '<ons-toolbar-button id="tombioUiContextMenuButton" onclick="tombiovis.gui.main.openContext()">';
         tb += '<ons-icon icon="md-more-vert"></ons-icon>';
         tb += '</ons-toolbar-button>';
@@ -274,10 +274,15 @@
 
         //Add handler for orientation change
         ons.orientation.on('change', function () {
+            console.log("Orientation changed")
             splitterSideHideShow();
             resizeElements();
             //Refresh the selected tool
-            tbv.f.refreshVisualisation();
+            //The timeout delay seems to be required otherwise the refresh method fires before divs have resized
+            setTimeout(function () {
+                tbv.f.refreshVisualisation();
+                mainMenuPos();
+            }, 1000);
         });    
 
         //Check interface
@@ -331,10 +336,22 @@
 
         //The option *values* currentVisInfo, kbInfo, visInfo & tombioCitation have software-wide meaning, not just this gui
         icon = '<div class="left"><ons-icon icon="md-info" class="list-item__icon"></ons-icon></div>'
+
         toolOptions.push($('<ons-list-item id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info">' + icon + 'Using the...</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="kbInfo" class="html" data-class="info">' + icon + 'About the Knowledge-base</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
         toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
+        toolOptions.push($('<ons-list-item id="optPdfInfo" style="display: none">' + icon + '<a href="' + tbv.opts.tombiokbpath + "info.pdf" + '">About this resource PDF</a></ons-list-item>'));
+
+        //Show the PDF Info option if info.pdf file is found
+        $.ajax({
+            //https://forums.asp.net/t/1640966.aspx?Check+file+exist+on+server+using+Javascript
+            type: "HEAD",
+            url: tbv.opts.tombiokbpath + "info.pdf",
+            success: function (data) {
+                $('#optPdfInfo').show();
+            }
+        });
 
         //If developer's section added above, then add a header for standard reload and download
         toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
@@ -488,6 +505,21 @@
 
                 //Set initialised flag
                 tbv.v.initialised = true;
+            }
+
+            //Show/hide context menu button
+            var contextMenuNeeded;
+            console.log(selectedToolName);
+            Object.keys(tbv.gui.main.contextMenu.items).forEach(function (contextItem) {
+                console.log(tbv.gui.main.contextMenu.visContexts[contextItem])
+                if (tbv.gui.main.contextMenu.visContexts[contextItem].indexOf(selectedToolName) != -1) {
+                    contextMenuNeeded = true;
+                }
+            })
+            if (contextMenuNeeded) {
+                $('ons-toolbar-button#tombioUiContextMenuButton.toolbar-button').show();
+            } else {
+                $('ons-toolbar-button#tombioUiContextMenuButton.toolbar-button').hide();
             }
         }
     }
@@ -653,21 +685,13 @@
             $('#tombioOnsMenu').attr('collapse', '');
         }
 
-        //
-        console.log("vis width", $('#tombioOnsVisDisplay').width());
-        if ($('#tombioOnsVisDisplay').width() < 208) {
-            $('#tombioOnsToolsRight').hide();
-            $('#tombioOnsToolsLeft').show();
-        } else {
-            $('#tombioOnsToolsRight').show();
-            $('#tombioOnsToolsLeft').hide();
-        }  
+        mainMenuPos();
 
         splitterSideHideShow();
 
         tbv.f.refreshVisualisation();
     }
- 
+
     tbv.gui.main.contextMenu = {
         //Create the context menu object
         items: {}, //Links to each item in the menu
@@ -745,6 +769,16 @@
         $('#tombioUiExitFullscreenMenuButton').hide();
     }
 
+    function mainMenuPos() {
+        if ($('#tombioOnsVisDisplay').width() < 208) {
+            $('#tombioOnsToolsRight').hide();
+            $('#tombioOnsToolsLeft').show();
+        } else {
+            $('#tombioOnsToolsRight').show();
+            $('#tombioOnsToolsLeft').hide();
+        }  
+    }
+
     function splitterSideHideShow() {
 
         //This function has several purposes.
@@ -813,13 +847,13 @@
         html.append($("<p>").html(t));
         html.append($("<b>").html(tbv.f.getCitation(tbv.d.softwareMetadata, "Software")));
 
-        //Generate the citation for the current tool
-        html.append($("<h3>").text("Citation for last selected visualisation tool"))
-        t = "This is the reference you can use for the last selected visualisation tool.";
-        t += " The tool version number is updated whenever there is a new release of the tool.";
-        t += " If you cite a tool, there's no need to cite the core software separately since it is implicit.";
-        html.append($("<p>").html(t));
-        html.append($("<b>").html(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title)));
+        ////Generate the citation for the current tool
+        //html.append($("<h3>").text("Citation for last selected visualisation tool"))
+        //t = "This is the reference you can use for the last selected visualisation tool.";
+        //t += " The tool version number is updated whenever there is a new release of the tool.";
+        //t += " If you cite a tool, there's no need to cite the core software separately since it is implicit.";
+        //html.append($("<p>").html(t));
+        //html.append($("<b>").html(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title)));
 
         //Generate the citation for the knowledge-base
         html.append($("<h3>").text("Citation for knowledge-base"))

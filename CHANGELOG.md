@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.8.0] - 2018-10-24
+### Added
+ - Added PWA capability including app manifest ('manifest.json') and service worker ('sw.js') to enable depolyment of Identikit resources as mobile apps capable of being used away from the internet.
+ - Added a new visualisation ('vis6') which is a mobile-first multi-access key capable of using the PWA features to download resources for offline use.
+ - Updated documentation, especially 'Deploying your visualisations' and 'Getting started', to explain how to deploy PWA Identikit apps with vis6.
+ - Added a configuration option (tbv.opts.ignoreNegativeScoring) to instruct Identikit to ignore negative scores (issue 26). Documented in 'Deploying your visualisations'.
+ - Added a facility for knowledge-base developers to provide a downloadable PDF to describe their resource. If a file called 'info.pdf' is found in the knowledge-base folder, a download link is added to the main tool interface (issue #21).
+ - Added a mechanism for checking APIs of objects against template interfaces.
+### Fixed
+ - Addressed typo is KB checking (issue #22).
+ - Addressed issue whereby clearing value in spin control (character input) with keyboard, but software treated value as zero rather than null (issue #24).
+### Changed
+ - Implemented architectural changes to separate three levels of interface: overarching GUI, visualisations and user-input GUIs.
+ - Moved visualisation-specific CSS out of general CSS file (tombio.css) and into separate CSS files for individual tools.
+ - Multiple spaces in kb values (or translated values) caused problem. These are now removed as the KB is loaded (issue #25).
+ - Improved layout of images and their captions on help dialogs (issue #31).
+ - Updated D3 to version 5 (issue #32).
+ - Changed and added a number of top-level configuration options (documented in 'Deploying your visualisations').
+### Removed
+ - Citation of individual tools removed (issue #29).
+
 ## [1.7.1] - 2018-06-11
 ### Fixed
  - Addressed problem with 'close' and 'full-size' image controls not working in the side-by-side comparison tool when galleria image small.
@@ -84,7 +105,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
  - Vertical orientation of character names in the two-column visualisation updated to make it work with Safari and IE.
  - Added better handling of the image control in mobile devices - especially iPad - by adding pinch zoom and explicit display/hiding of image controls with a press gesture.
- ### Changed
+### Changed
  - Individual character scores on the single-column key visualisation are now rounded *down* to the nearest 0.1 to avoid confusion of non-perfect matches apparently scoring a perfect match.
  - (Developers note) Moved definition of matching score colour ramp out of individual visualisations and into prototype visualisation module (visP). 
  - (Developers note) Moved knowledge-base integrity checks to a separate javascript module to promote code clarity.

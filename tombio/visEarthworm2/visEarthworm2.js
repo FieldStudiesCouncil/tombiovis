@@ -449,7 +449,8 @@
                     if (tbv.d.oCharacters[colourby].CharacterStateValues.length <= 10) {
                         colours = d3.schemeCategory10;
                     } else {
-                        colours = d3.schemeCategory20;
+                        //colours = d3.schemeCategory20; //Discontinued with d3 v5
+                        colours = d3.schemeCategory10;
                     }
                 } else { //colourType == "specified"
                     stateValues = [];

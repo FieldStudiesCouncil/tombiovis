@@ -14,12 +14,6 @@
         tbv.opts.tombiokbpath = tombiokbpath;
     }
 
-    //if (tbv.opts.pwa == true && 'serviceWorker' in navigator) {
-    //    //Start the service worker and then call mainLoad
-    //    //Call mainLoad even if service worker fails
-    //    var swUrl = 'sw.js?tombiokbpath=' + encodeURIComponent(tbv.opts.tombiokbpath) + "&tombiopath=" + encodeURIComponent(tbv.opts.tombiopath);
-    //    navigator.serviceWorker.register(swUrl)
-    //}
 
     if (!tbv.opts.pwaSupress && 'serviceWorker' in navigator) {
         //Start the service worker and then call mainLoad
@@ -109,7 +103,7 @@
             publisher: "Field Studies Council",
             location: "Shrewsbury, England",
             contact: "r.burkmar@field-studies-council.org",
-            version: "1.7.1"
+            version: "1.8.0"
         }
 
         //Variables for the tools to be included
@@ -154,6 +148,11 @@
             loadJs: function (requiredBy, before) {
 
                 if (!this.p) {
+
+                    //console.log("Loading", this.id);
+                    //console.log("requires", this.requires);
+                    //console.log("requires first", this.requiresFirst);
+
                     var thisId = this.id;
 
                     //Get promises for other JS required with this JS
@@ -210,7 +209,7 @@
                                         l.type = 'text/css';
                                         l.href = cssFile;
                                         document.querySelector('head').appendChild(l);
-                                        console.log("%CSS link added for " + nameFromPath(cssFile), "color: green");
+                                        console.log("%cCSS link added for " + nameFromPath(cssFile), "color: green");
                                     })
 
                                     resolve();
@@ -290,7 +289,8 @@
         //specified as being required by other JS files.
         //jsF.add("spinner", "dependencies/spin.min.js");
         jsF.add("jquery", "dependencies/jquery-3.1.1/jquery-3.1.1.min.js");
-        jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
+        //jsF.add("d3", "dependencies/d3-4.10.0/d3.v4.min.js");
+        jsF.add("d3", "dependencies/d3-5.7.0/d3.min.js");
 
         //JQuery UI
         jsF.add("jqueryui", "dependencies/jquery-ui-1.12.1/jquery-ui.min.js");
@@ -430,7 +430,7 @@
 
         jsF.add("visEarthworm2", "visEarthworm2/visEarthworm2.js", true, "Bespoke earthworm key");
         jsF.visEarthworm2.addCSS("visEarthworm2/visEarthworm2.css");
-        jsF.vis2.requiresFirst = ["visP", "visTemplate"];
+        jsF.visEarthworm2.requiresFirst = ["visP"];
         jsF.visEarthworm2.requires = ["jqueryui", "score"];
 
         tbv.f.startLoad = function () {
@@ -451,11 +451,15 @@
                 return loadKB();
             })
             .then(function () {
-                //Load the interface templates
                 tbv.templates = {
-                    gui: { main: {}}
+                    gui: { main: {} }
                 };
-                return Promise.all([jsF.guiTemplate.loadJs(), jsF.visTemplate.loadJs(), jsF.keyinputTemplate.loadJs()]);
+                if (tbv.opts.devel) {
+                    //Load the interface templates
+                    return Promise.all([jsF.guiTemplate.loadJs(), jsF.visTemplate.loadJs(), jsF.keyinputTemplate.loadJs()]);
+                } else {
+                    return Promise.resolve();
+                }    
             })
             .then(function () {
                 //Load tombiovis
@@ -493,121 +497,102 @@
             var start = startTiming();
 
             var pAll = [], p;
-            p = new Promise(function (resolve) {
-                d3.csv(tbv.opts.tombiokbpath + "taxa.csv?t=kbcsv" + antiCache,
-                    function (row) {
-                        return filterAndClean(row);
-                    },
-                    function (data) {
-                        tbv.d.taxa = data;
-                        console.log("%cLoading - kb taxa loaded", "color: blue");
-                        resolve();
-                    });
-            })
+
+            p = d3.csv(tbv.opts.tombiokbpath + "taxa.csv?t=kbcsv" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                }).then(function (data) {
+                    tbv.d.taxa = data;
+                    console.log("%cLoading - kb taxa loaded", "color: blue");
+                });
             pAll.push(p);
 
-            p = new Promise(function (resolve) {
-                d3.csv(tbv.opts.tombiokbpath + "characters.csv?t=kbcsv" + antiCache,
-                    function (row) {
-                        return filterAndClean(row);
-                    },
-                    function (data) {
-                        tbv.d.characters = data;
-                        console.log("%cLoading - kb characters loaded", "color: blue");
-                        resolve();
-                    });
-            })
+            p = d3.csv(tbv.opts.tombiokbpath + "characters.csv?t=kbcsv" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                }).then(function (data) {
+                    tbv.d.characters = data;
+                    console.log("%cLoading - kb characters loaded", "color: blue");
+                });
             pAll.push(p);
 
-            p = new Promise(function (resolve) {
-                d3.csv(tbv.opts.tombiokbpath + "values.csv?t=kbcsv" + antiCache,
-                    function (row) {
-                        return filterAndClean(row);
-                    },
-                    function (data) {
-                        tbv.d.values = data;
-                        console.log("%cLoading - kb values loaded", "color: blue");
-                        resolve();
-                    });
-            })
+            p = d3.csv(tbv.opts.tombiokbpath + "values.csv?t=kbcsv" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                }).then(function (data) {
+                    tbv.d.values = data;
+                    console.log("%cLoading - kb values loaded", "color: blue");
+                });
             pAll.push(p);
 
-            p = new Promise(function (resolve) {
-                d3.csv(tbv.opts.tombiokbpath + "media.csv?t=kbcsv" + antiCache,
-                    function (row) {
-                        return filterAndClean(row);
-                    },
-                    function (data) {
-                        tbv.d.media = data;
-                        console.log("%cLoading - kb media loaded", "color: blue");
-                        resolve();
-                    });
-            })
+            p = d3.csv(tbv.opts.tombiokbpath + "media.csv?t=kbcsv" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                }).then(function (data) {
+                    tbv.d.media = data;
+                    console.log("%cLoading - kb media loaded", "color: blue");
+                });
             pAll.push(p);
 
-            p = new Promise(function (resolve) {
-                d3.csv(tbv.opts.tombiokbpath + "config.csv?t=kbcsv" + antiCache,
-                    function (row) {
-                        return filterAndClean(row);
-                    },
-                    function (data) {
-                        tbv.d.config = data;
-                        tbv.d.kbconfig = {};
-                        tbv.d.kbmetadata = {};
-                        tbv.d.kbreleaseHistory = [];
-                        var excludedTools = [];
-                        data.forEach(function (d) {
-                            //Set config values
-                            if (d.Type == "config") {
-                                tbv.d.kbconfig[d.Key] = d.Value;
-                            }
-                            //tbv.opts.selectedTool (specified in HTML) trumps kb selectedTool setting
-                            if (tbv.opts.selectedTool) {
-
-                            }
-                            //Populate array of excluded default tools from metadata
-                            if (d.Key == "excludedDefaultTools") {
-                                if (d.Value.trim() != "") {
-                                    var excluded = d.Value.split(",");
-                                    excluded.forEach(function (tool) {
-                                        excludedTools.push(tool.trim());
-                                    });
-                                }
-                            }
-                            //Add other tools from metadata to list of included tools
-                            if (d.Key == "otherIncludedTools") {
-                                if (d.Value.trim() != "") {
-                                    var excluded = d.Value.split(",");
-                                    excluded.forEach(function (tool) {
-                                        tbv.v.includedVisualisations.push(tool.trim());
-                                    });
-                                }
-                            }
-                            //Set metadata values
-                            if (d.Type == "metadata") {
-                                tbv.d.kbmetadata[d.Key] = d.Value;
-                            }
-                            //Set metadata values
-                            if (d.Key == "release") {
-                                tbv.d.kbreleaseHistory.push(d);
-                            }
-                        });
-                        //Update list of included tools from default tools not
-                        //explicitly excluded.
-                        defaultTools.forEach(function (tool) {
-                            if (excludedTools.indexOf(tool) == -1) {
-                                tbv.v.includedVisualisations.push(tool);
-                            }
-                        })
-                        //tbv.opts.tools (specified in HTML) trumps kb settings
-                        if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
-                            tbv.v.includedVisualisations = tbv.opts.tools;
+            p = d3.csv(tbv.opts.tombiokbpath + "config.csv?t=kbcsv" + antiCache,
+                function (row) {
+                    return filterAndClean(row);
+                }).then(function(data) {
+                    tbv.d.config = data;
+                    tbv.d.kbconfig = {};
+                    tbv.d.kbmetadata = {};
+                    tbv.d.kbreleaseHistory = [];
+                    var excludedTools = [];
+                    data.forEach(function (d) {
+                        //Set config values
+                        if (d.Type == "config") {
+                            tbv.d.kbconfig[d.Key] = d.Value;
                         }
+                        //tbv.opts.selectedTool (specified in HTML) trumps kb selectedTool setting
+                        if (tbv.opts.selectedTool) {
 
-                        console.log("%cLoading - kb config loaded", "color: blue");
-                        resolve();
+                        }
+                        //Populate array of excluded default tools from metadata
+                        if (d.Key == "excludedDefaultTools") {
+                            if (d.Value.trim() != "") {
+                                var excluded = d.Value.split(",");
+                                excluded.forEach(function (tool) {
+                                    excludedTools.push(tool.trim());
+                                });
+                            }
+                        }
+                        //Add other tools from metadata to list of included tools
+                        if (d.Key == "otherIncludedTools") {
+                            if (d.Value.trim() != "") {
+                                var excluded = d.Value.split(",");
+                                excluded.forEach(function (tool) {
+                                    tbv.v.includedVisualisations.push(tool.trim());
+                                });
+                            }
+                        }
+                        //Set metadata values
+                        if (d.Type == "metadata") {
+                            tbv.d.kbmetadata[d.Key] = d.Value;
+                        }
+                        //Set metadata values
+                        if (d.Key == "release") {
+                            tbv.d.kbreleaseHistory.push(d);
+                        }
                     });
-            })
+                    //Update list of included tools from default tools not
+                    //explicitly excluded.
+                    defaultTools.forEach(function (tool) {
+                        if (excludedTools.indexOf(tool) == -1) {
+                            tbv.v.includedVisualisations.push(tool);
+                        }
+                    })
+                    //tbv.opts.tools (specified in HTML) trumps kb settings
+                    if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
+                        tbv.v.includedVisualisations = tbv.opts.tools;
+                    }
+
+                    console.log("%cLoading - kb config loaded", "color: blue");
+                });
             pAll.push(p);
 
             //This function returns a promise which fulfills when all KB files are loaded
@@ -675,32 +660,19 @@
             if (!tbv.opts.toolconfig[vis]) tbv.opts.toolconfig[vis] = {};
             if (!jsF[vis].requiresFirst) jsF[vis].requiresFirst = [];
 
-            ////Set prototype option
-            //if (!tbv.opts.toolconfig[vis].prototype) {
-            //    //Prototype for tool is not specified in opts
-            //    if (tbv.opts.toolconfig.defaultPrototype) {
-            //        //General prototype specified in opts so set to this
-            //        tbv.opts.toolconfig[vis].prototype = tbv.opts.toolconfig.defaultPrototype;
-            //    } else {
-            //        //No general prototype specified either, so set default
-            //        tbv.opts.toolconfig[vis].prototype = "visPjQueryUILargeFormat";
-            //    }
-            //}
-            //jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].prototype);
-
             if (hasKeyInput) {
-                var keyinput;
                 if (!tbv.opts.toolconfig[vis].keyinput) {
                     //keyinput for tool is not specified in opts
-                    if (tbv.opts.toolconfig.defaultKeyinput) {
-                        //General keyinput specified in opts so set to this
-                        tbv.opts.toolconfig[vis].keyinput = tbv.opts.toolconfig.defaultKeyinput;
+                    if (tbv.opts.toolconfig.genKeyinput && tbv.opts.toolconfig.genKeyinput.default) {
+                        //General keyinput default gui specified in opts so set to this
+                        tbv.opts.toolconfig[vis].keyinput = tbv.opts.toolconfig.genKeyinput.default;
                     } else {
                         //No general keyinput specified either, so set to default
                         tbv.opts.toolconfig[vis].keyinput = "keyInput";
                     }
                 }
                 jsF[vis].requiresFirst.push(tbv.opts.toolconfig[vis].keyinput);
+                console.log("Requires first", vis, jsF[vis].requiresFirst)
             }
         }
 

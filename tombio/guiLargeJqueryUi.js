@@ -159,8 +159,29 @@
         //An area for tools to add info
         $("<div>").attr("id", "tombioGuiLargeJqueryUiFlashDisplay").css("display", "none").appendTo("#tombioGuiLargeJqueryUi");
 
-        //Tool drop-down
-        $("<select>").attr("id", "tombioGuiLargeJqueryUiVisualisation").appendTo("#tombioGuiLargeJqueryUi");
+        //Tool drop-down and PDF info button
+        var table = $("<table>").appendTo("#tombioGuiLargeJqueryUi");
+        var tr = $("<tr>").appendTo(table);
+        var td1 = $("<td>").appendTo(tr);
+        var td2 = $("<td>").appendTo(tr);
+        $("<select>").attr("id", "tombioGuiLargeJqueryUiVisualisation").appendTo(td1);
+
+        //Add Info PDF button if info.pdf file is found
+        $.ajax({
+            //https://forums.asp.net/t/1640966.aspx?Check+file+exist+on+server+using+Javascript
+            type: "HEAD",
+            url: tbv.opts.tombiokbpath + "info.pdf",
+            success: function (data) {
+                var img = $("<img>").attr("src", tbv.opts.tombiopath + "resources/pdf.png");
+                img.css("height", "25px");
+                img.css("position", "relative");
+                img.css("top", "-3px");
+                var a = $("<a>").attr("href", tbv.opts.tombiokbpath + "info.pdf");
+                a.append(img);
+                td2.append(a);
+            }
+        });
+
 
         //Divs for taxa and controls
         $("<div>").addClass("tombioNoSelect").attr("id", "tombioGuiLargeJqueryUiControlsAndTaxa").appendTo("#tombioGuiLargeJqueryUi");

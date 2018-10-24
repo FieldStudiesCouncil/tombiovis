@@ -24,17 +24,16 @@
 
         //Initialise the meta data
         this.metadata.title = "Mobile key";
-        this.metadata.authors = "Rich Burkmar";
         this.metadata.year = "2018";
+        this.metadata.authors = "Burkmar, R";
         this.metadata.publisher = "Field Studies Council";
-        this.metadata.location = "Preston Montford, Shropshire";
+        this.metadata.location = "Shrewsbury, England";
         this.metadata.contact = "r.burkmar@field-studies-council.org";
-        this.metadata.version = "1.0";
+        this.metadata.version = '1.8.0';
 
         //Help files
         this.helpFiles = [
-            //tbv.opts.tombiopath + "vis6/vis6Help.html",
-            //tbv.opts.tombiopath + "common/imageGroupHelp.html"
+            tbv.opts.tombiopath + "vis6/vis6Help.html"
         ]
 
         //Shares key input with several other multi-access keys
@@ -155,8 +154,18 @@
           
         var yCursor = 0;
         for (var i = 0; i < sortedTaxa.length; i++) {
+
+            var element = document.getElementById("vis6 " + sortedTaxa[i].Taxon.kbValue)
+
+            //If content of taxa div overflows, then make indicators invisible
+            var indicators = $(element).find(".vis6TaxonRight");
+            indicators.show();
+            if (element.scrollWidth > $(element).innerWidth()) {
+                indicators.hide();
+            }
+
             sortedTaxa[i].visState['vis6'].y = yCursor + taxonSpace;
-            sortedTaxa[i].visState['vis6'].height = document.getElementById("vis6 " + sortedTaxa[i].Taxon.kbValue).offsetHeight;
+            sortedTaxa[i].visState['vis6'].height = element.offsetHeight;
             yCursor = sortedTaxa[i].visState['vis6'].y + sortedTaxa[i].visState['vis6'].height;    
         } 
 
@@ -195,7 +204,6 @@
             .domain([minOverall, 0, maxOverall])
             .range(tbv.d.scoreColours);
 
-       
         var charUsed = tbv.d.characters.map(function (c) { return c.stateSet ? 1 : 0 }).reduce(function (t, n) { return t + n });
         var scaleChars = d3.scaleLinear()
             .domain([0, charUsed/2, charUsed])
@@ -249,7 +257,7 @@
 
         //Replace the following to initialise visualisation
         //from parameters.
-        console.log("URL parameters:", params);
+        //console.log("URL parameters:", params);
     }
 
     vis6.show = function () {

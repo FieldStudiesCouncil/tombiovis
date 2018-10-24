@@ -101,10 +101,6 @@
             } else {
                 var translatedState = state;
             }
-            //Replace any multiple spaces with single spaces. I think that this needs to be done for where double spaces
-            //have been inserted into text state values or translated values because the pqselect control does the same.
-            //Fixes https://github.com/burkmarr/tombiovis/issues/8
-            translatedState = translatedState.replace(/ +(?= )/g, '');
 
             return translatedState;
         }
@@ -335,6 +331,17 @@
             if (!tbv.f.checkKnowledgeBase()) return;
         }
 
+        //To avoid some nasty bugs, we need to replace any multiple spaces with single spaces in translated
+        //values from the values tab. I think that this needs to be done for where double spaces
+        //have been inserted into text state values or translated values because the pqselect control does the same.
+        //Fixes https://github.com/burkmarr/tombiovis/issues/8
+        //Fixes https://github.com/burkmarr/tombiovis/issues/25
+        tbv.d.values.forEach(function (v) {
+            if (v.CharacterStateTranslation) {
+                v.CharacterStateTranslation = v.CharacterStateTranslation.replace(/ +(?= )/g, '');
+            }
+        })
+
         //Map characters to properties of an object for easy reference by name (Character property)
         //and enrich the character objects with some additional values.
         //Here we add values that can (or must) be added before the taxon state values
@@ -382,6 +389,7 @@
                 tbv.d.groupedCharacters[character.Group].push(character);
             }
         });
+
 
         //Map taxa to properties of an object for easy reference by name (Taxon property)
         tbv.d.oTaxa = {};
@@ -795,9 +803,12 @@
             }
             console.log("Starting", selectedToolName);
             tbv.gui.main.visShow(selectedToolName);
-        }).catch(function () {
+        }).catch(function (error) {
+
+            console.log("Error", error);
+
             var html = "";
-            html += "<p>You are working offline but the tool you tried to load was not previously loaded into memory.</p>";
+            html += "<p>You are working offline but the tool you tried to load( " + selectedToolName + ") was not previously loaded into memory.</p>";
             html += "<p>Load the tool when you next have an internet connection. Then you will be able to use it offline.</p>";
             tbv.gui.main.dialog("Currently unavailable", html)
         })
@@ -965,15 +976,15 @@
         html.append($("<span>").text("Copy citation"));
         html.append($("<b>").html(tbv.f.getCitation(tbv.d.softwareMetadata, "Software")));
 
-        //Generate the citation for the current tool
-        html.append($("<h3>").text("Citation for last selected visualisation tool"))
-        t = "This is the reference you can use for the last selected visualisation tool.";
-        t += " The tool version number is updated whenever there is a new release of the tool.";
-        t += " If you cite a tool, there's no need to cite the core software separately since it is implicit.";
-        html.append($("<p>").html(t));
-        html.append($("<input style='position: relative; top: 0.2em' type='checkbox' name='tbCitationVis' id='tbCitationVis'>"));
-        html.append($("<span>").text("Copy citation"));
-        html.append($("<b>").html(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title)));
+        ////Generate the citation for the current tool
+        //html.append($("<h3>").text("Citation for last selected visualisation tool"))
+        //t = "This is the reference you can use for the last selected visualisation tool.";
+        //t += " The tool version number is updated whenever there is a new release of the tool.";
+        //t += " If you cite a tool, there's no need to cite the core software separately since it is implicit.";
+        //html.append($("<p>").html(t));
+        //html.append($("<input style='position: relative; top: 0.2em' type='checkbox' name='tbCitationVis' id='tbCitationVis'>"));
+        //html.append($("<span>").text("Copy citation"));
+        //html.append($("<b>").html(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title)));
 
         //Generate the citation for the knowledge-base
         html.append($("<h3>").text("Citation for knowledge-base"))
@@ -993,9 +1004,9 @@
             if (document.getElementById('tbCitationCore').checked) {
                 $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.d.softwareMetadata, "Software"));
             }
-            if (document.getElementById('tbCitationVis').checked) {
-                $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title));
-            }
+            //if (document.getElementById('tbCitationVis').checked) {
+            //    $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.v.visualisations[tbv.v.lastVis].metadata, "Software", tbv.d.softwareMetadata.title));
+            //}
             if (document.getElementById('tbCitationKb').checked) {
                 $("#tbSelectedCitations").append(tbv.f.getCitation(tbv.d.kbmetadata, "Knowledge-base", tbv.d.softwareMetadata.title));
             }
@@ -1660,15 +1671,22 @@
             });
 
             charImages.forEach(function (charState, i) {
+
+                var $statDiv = $('<div>').appendTo($divHelp);
+                $statDiv.css("background-color", "rgb(220,220,220)")
+                $statDiv.css("border-radius", "5px")
+                $statDiv.css("padding", "5px")
+                $statDiv.css("margin-bottom", "10px")
+
                 //var fig = $('<figure/>').appendTo($divHelp);
                 var img = $('<img/>', { src: charState.URI })
                 var cap = $('<figcaption/>', { html: charState.Caption });
                 //fig.append(img).append(cap);
-                img.appendTo($divHelp)
+                img.appendTo($statDiv)
                 if (i > 0) {
-                    img.css("margin-top", 10);
+                    //img.css("margin-top", 10);
                 }
-                cap.appendTo($divHelp);
+                cap.appendTo($statDiv);
                 if (charState.ImageWidth) {
                     img.css("width", charState.ImageWidth);
                 }
@@ -1689,10 +1707,17 @@
             if (character) {
                 //If the character state is translated, use the translated value, otherwise
                 //use the state value itself.
+
+                
                 if (val.CharacterStateTranslation && val.CharacterStateTranslation != "") {
                     var charState = val.CharacterStateTranslation;
                 } else {
                     var charState = val.CharacterState;
+                }
+
+                if (val.Character == "Mass3" && val.CharacterState == "IIa") {
+                    console.log("val.CharacterStateTranslation", val.CharacterStateTranslation)
+                    console.log("translated character state is", charState)
                 }
                 character.CharacterStates.push(
                     {

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv='cache-control' content='no-cache'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>FSC Identikit</title>
     <script>
         //Legacy method (still supported)
@@ -13,33 +14,23 @@
         //Set options to tailor page configuration (from 1.6.0 onwards)
         var tombiovis = {
             opts: {
-                pwa: true,
-                //gui: "guiLargeJqueryUi",
-                //gui: "guiLarge",
-                //gui: "guiOnsenUi",
                 //hideVisDropdown: false,
+                //tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
+                //selectedTool: "vis2",
+                //lastVisualisation: "vis2",
+                //gui: "guiOnsenUi",
                 //ignoreNegativeScoring: false,
-                tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
-                selectedTool: "vis6", //visInfo, kbInfo, currentVisInfo, tombioCitation
-                //lastVisualisation: "vis1",
+                pwaSupress: true,
                 toolconfig: {
-                    keyinput: {
+                    genKeyinput: {
                         selectedGroup: "Structure",
+                        //default: "keyInputOnsenUi",
                     },
-                    //defaultKeyinput: "keyInputOnsenUi",
-                    //defaultKeyinput: "keyInput",
-                    //defaultKeyinput: "keyInputBasic",
-                    //vis1: {
-                    //    keyinput: "keyInput"
-                    //},
-                    //vis2: {
-                    //    keyinput: "keyInputOnsenUi"
-                    //},
-                    //vis5: {
-                    //    keyinput: "keyInputOnsenUi"
-                    //}
                     //vis4: {
                     //    subTitleChar: "CommonName"
+                    //},
+                    //vis6: {
+                    //    keyinput: "keyInputOnsenUi"
                     //}
                 },
                 //tombiover: "refresh-1",
@@ -50,16 +41,18 @@
             },
         }
     </script>
-    <link rel="manifest" href="/manifest.json">
+    <!--<link rel="manifest" href="/manifest.json">-->
     <!--ES6 polyfill - new for 1.7.0-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
     <!--Change the path to load.js and load.css to match the installation environment-->
     <link rel="stylesheet" type="text/css" href="tombio/min/css/load.min.css">
-    <script type="text/javascript" src="tombio/load.js"></script>
+   
 </head>
 <body>
     <h1 id="tombiod3-header">FSC Identikit test</h1>
     <div id="tombiod3"></div>
     <div id="tombiod3-footer" style="width: 100%">footers</div>
+
+    <script type="text/javascript" src="tombio/load.js"></script>
 </body>
 </html>

@@ -1,11 +1,12 @@
 ﻿//See comments at the end of description of caching strategy
 
-var kbCacheName = "tombio-kb-cache-1";
-var kbImgStdCacheName = "tombio-kb-img-std-cache-1";
-var kbImgSmlCacheName = "tombio-kb-img-sml-cache-1";
-var kbImgLrgCacheName = "tombio-kb-img-lrg-cache-1";
-var kbTxtCacheName = "tombio-kb-txt-cache-1";
-var genCacheName = "tombio-gen-cache-1";
+var cacheno = 8;
+var kbCacheName = "tombio-kb-cache-" + cacheno;
+var kbImgStdCacheName = "tombio-kb-img-std-cache-" + cacheno;
+var kbImgSmlCacheName = "tombio-kb-img-sml-cache-" + cacheno;
+var kbImgLrgCacheName = "tombio-kb-img-lrg-cache-" + cacheno;
+var kbTxtCacheName = "tombio-kb-txt-cache-" + cacheno;
+var genCacheName = "tombio-gen-cache-" + cacheno;
 var allCacheNames = [genCacheName, kbCacheName, kbImgStdCacheName, kbImgSmlCacheName, kbImgLrgCacheName, kbTxtCacheName]
 var url = new URL(location);
 var tombiokbpath = url.searchParams.get('tombiokbpath');

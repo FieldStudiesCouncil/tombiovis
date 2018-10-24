@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>FSC Identikit</title>
+    <script>
+        var tombiovis = {
+            opts: {
+                tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
+                selectedTool: "vis6",
+                gui: "guiOnsenUi",
+                pwaSupress: false,
+                toolconfig: {
+                    vis6: {
+                        keyinput: "keyInputOnsenUi"
+                    }
+                },
+                //tombiover: "refresh-1",
+                checkKB: true,
+                devel: true,
+                tombiopath: "tombio/",
+                tombiokbpath: "kb/biscuits/"
+            },
+        }
+    </script>
+    <link rel="manifest" href="/manifest.json">
+    <!--ES6 polyfill - new for 1.7.0-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
+    <!--Change the path to load.js & load.css to match the installation environment-->
+    <link rel="stylesheet" type="text/css" href="tombio/min/css/load.min.css">
+</head>
+<body>
+    <div id="tombiod3"></div>
+    <script type="text/javascript" src="tombio/load.js"></script>
+</body>
+</html>

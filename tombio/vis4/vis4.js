@@ -18,12 +18,12 @@
 
         //Initialise the meta data
         this.metadata.title = "Full taxon details";
-        this.metadata.authors = "Burkmar, R.";
-        this.metadata.year = "2016";
+        this.metadata.year = "2018";
+        this.metadata.authors = "Burkmar, R";
         this.metadata.publisher = "Field Studies Council";
         this.metadata.location = "Shrewsbury, England";
-        this.metadata.contact = "richardb@field-studies-council.org";
-        this.metadata.version = '1.1';
+        this.metadata.contact = "r.burkmar@field-studies-council.org";
+        this.metadata.version = '1.8.0';
 
         //Other initialisations
         var taxonName;

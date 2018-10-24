@@ -7,7 +7,6 @@
         otherState: { keys: [] },
         //Other variables 
         bullet: "", //"&#x26AB "
-        inputCharGroups: [],
         //lastGroup: null,
         verticalTabSpace: 33
     };
@@ -25,25 +24,13 @@
         //Set the property which identifies the top-level div for this input
         tbv.gui.keyInput.divSel = "#tombioKeyInputTabs";
 
-        var chargroup;
         var characters = { "All": [] };
-        var states = {};
-
-        tbv.d.characters.forEach(function (character) {
-            if (character.Status == "key") {
-
-                if (!characters[character.Group]) {
-                    characters[character.Group] = [];
-                    _this.inputCharGroups.push(character.Group);
-                    //_this.lastGroup = character.Group;
-
-                }
-                characters[character.Group].push(character);
-            }
-        });
+        tbv.d.groupedCharacters.groups.forEach(function (group) {
+            characters[group] = tbv.d.groupedCharacters[group];
+        })
 
         //Set minimum  height of tombio controls otherwise overlaps input control tabs
-        $(tbv.gui.main.divInput).css("min-height", this.verticalTabSpace * (this.inputCharGroups.length + 2));
+        $(tbv.gui.main.divInput).css("min-height", this.verticalTabSpace * (tbv.d.groupedCharacters.groups.length + 2));
 
         for (var chargroup in characters) {
 
@@ -226,35 +213,38 @@
         });
 
         //Select default tab
-        //As of v1.6.0 tbv.d.kbconfig.defaultControlGroup deprecated in favour of tbv.opts.selectedGroup
-        //As of v1.7.0, tbv.opts.selectedGroup deprecated in favour of tbv.opts.toolconfig.keyinput.selectedGroup
-        if (!tbv.opts.toolconfig.keyinput) tbv.opts.toolconfig.keyinput = {};
+        if (!tbv.opts.toolconfig.genKeyinput) tbv.opts.toolconfig.genKeyinput = {};
 
-        if (typeof tbv.opts.toolconfig.keyinput.selectedGroup === "undefined") {
-            if (typeof tbv.opts.selectedGroup === "undefined") {
-                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.d.kbconfig.defaultControlGroup ? tbv.d.kbconfig.defaultControlGroup : null;
-            } else {
-                tbv.opts.toolconfig.keyinput.selectedGroup = tbv.opts.selectedGroup ? tbv.opts.selectedGroup : null;
-            }
+        var selectedGroup;
+        try {//From 1.8.0
+            selectedGroup = tbv.opts.toolconfig.genKeyinput.selectedGroup;
+        } catch(e) { };
+
+        if (!selectedGroup) {
+            try {//From 1.7.0 - deprecated 1.8.0
+                selectedGroup = tbv.opts.toolconfig.keyinput.selectedGroup;
+            } catch(e) { };
         }
-        if (tbv.opts.toolconfig.keyinput.selectedGroup) {
-            var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.toolconfig.keyinput.selectedGroup);
+        if (!selectedGroup) {
+            try {
+                //From 1.6.0 - deprecated 1.7.0
+                selectedGroup = tbv.opts.selectedGroup;
+            } catch(e) { };
+        }
+        if (!selectedGroup) {
+            try {
+                //Prior to 1.6.0 - deprecated 1.6.0
+                selectedGroup = tbv.d.kbconfig.defaultControlGroup;
+            } catch(e) { };
+        }
+        tbv.opts.toolconfig.genKeyinput.selectedGroup = selectedGroup;
+
+        if (tbv.opts.toolconfig.genKeyinput.selectedGroup) {
+            var tabIndex = tbv.d.groupedCharacters.groups.indexOf(tbv.opts.toolconfig.genKeyinput.selectedGroup);
             if (tabIndex > -1) {
                 tabs.tabs("option", "active", tabIndex + 1)
             }
         }
-
-
-        //if (typeof tbv.opts.selectedGroup === "undefined") {
-        //    tbv.opts.selectedGroup = tbv.d.kbconfig.defaultControlGroup ? tbv.d.kbconfig.defaultControlGroup : null;
-        //}
-        //if (tbv.opts.selectedGroup) {
-        //    var tabIndex = _this.inputCharGroups.indexOf(tbv.opts.selectedGroup);
-        //    if (tabIndex > -1) {
-        //        tabs.tabs("option", "active", tabIndex + 1)
-        //    }
-        //}
-
 
         //Help handling
         $(".characterhelp") 
@@ -475,10 +465,21 @@
         spinner.addClass("statespinner");
 
         spinner.on("spinstop", function (event, ui) {
+            spinnerValueUpdated();
+        });
+       
+        var button = $("#" + id + "-clear").button({
+            icon: "ui-icon-close",
+            showLabel: false
+        });
+        button.on("click", function () {
+            spinner.spinner("value", "");
+            spinnerValueUpdated();
+        });
 
+        function spinnerValueUpdated(val) {
             var val = spinner.spinner("value");
-            //var val = $("#" + id).spinner("value");
-
+            
             //select and it's clone must match
             if (id.substring(0, 6) == "clone-") {
                 var isClone = true;
@@ -495,52 +496,19 @@
             } else {
                 var character = id;
             }
-            tbv.d.oCharacters[character].stateSet = true;
-            tbv.d.oCharacters[character].userInput = val;
 
-            //if (!isClone) {
+            if (val == "" || val === null) {
+                tbv.d.oCharacters[character].stateSet = false;
+                tbv.d.oCharacters[character].userInput = null;
+            } else {
+                tbv.d.oCharacters[character].stateSet = true;
+                tbv.d.oCharacters[character].userInput = val;
+            }
+            
             //Update the taxon representation.
             tbv.f.refreshVisualisation();
             setCloneVisibility();
-            //}
-        });
-
-        //spinner.on("spin", function (event, ui) {
-        //    if (ui.value == spinner.spinner('option', 'min')) {
-        //        //When spinner goes to min value, blank it.
-        //        spinner.spinner("value", "");
-        //        return false;
-        //    }
-        //});
-
-        var button = $("#" + id + "-clear").button({
-            icon: "ui-icon-close",
-            showLabel: false
-        });
-        button.on("click", function () {
-            spinner.spinner("value", "");
-
-            //select and it's clone must match
-            if (id.substring(0, 6) == "clone-") {
-                var isClone = true;
-                var counterpartID = id.substring(6);
-            } else {
-                var isClone = false;
-                var counterpartID = "clone-" + id;
-            };
-            $("#" + counterpartID).spinner("value", spinner.spinner("value"));
-
-            //Reset state set flag
-            if (id.substring(0, 6) == "clone-") {
-                var character = id.substring(6);
-            } else {
-                var character = id;
-            }
-            tbv.d.oCharacters[character].stateSet = false;
-            tbv.d.oCharacters[character].userInput = null;
-
-            tbv.f.refreshVisualisation();
-        });
+        }
     }
 
     function showCharacterHelp (character) {

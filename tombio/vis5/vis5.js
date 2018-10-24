@@ -42,12 +42,12 @@
 
         //Initialise the meta data
         this.metadata.title = "Circle-pack key";
-        this.metadata.authors = "Rich Burkmar";
-        this.metadata.year = "2016";
+        this.metadata.year = "2018";
+        this.metadata.authors = "Burkmar, R";
         this.metadata.publisher = "Field Studies Council";
-        this.metadata.location = "Preston Montford, Shropshire";
-        this.metadata.contact = "richardb@field-studies-council.org";
-        this.metadata.version = "1.0";
+        this.metadata.location = "Shrewsbury, England";
+        this.metadata.contact = "r.burkmar@field-studies-council.org";
+        this.metadata.version = '1.8.0';
 
         //Initialisations
         this.abbrvnames = true;

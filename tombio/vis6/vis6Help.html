@@ -1,0 +1,124 @@
+﻿<h2>The <i>Mobile Key</i> visualisation (vis6)</h2>
+<p>
+    This visualisation is a multi-access key with a 'mobile-first' design. Taxa,
+    represented by rectangles, are ranked
+    in according to how well they match any characters states you specify,
+    with the best overall matches appearing at the top.
+</p>
+<p>
+    Each taxon is represented by a rectangle with two numbers in
+    the top-right. The first number indicates how many of the currently specified characters
+    'match' the values in the knowledge-base for the taxon. (In this case 'match' means any positive score.)
+    The second number shows the overall matching score (overall 'for' score minus the overall
+    'against' score). These are also coloured to give a quick visual reference: blue indicates
+    the best overall matching score and vermilion the worst, whilst an overall matching score of zero is
+    coloured pale yellow. Intermediate scores are shown with intermediate colours. Taxa are ranked
+    in each list according to their scores with the best matches appearing at the top.
+</p>
+<p>
+    If you click the question mark icon to the right of the scores, a page is shown that gives
+    more detail on how each score was calculated.
+</p>
+<p>
+    Three filters above the rectangles representing the taxa allow you to filter the taxa. The
+    first of these - <i>All</i> - displays all taxa. The second - <i>Matched</i> - limits the dsplay to only those taxa
+    where the number of matching characters is the same as the number of characters specified by
+    the user. The final one - <i>Discounted</i> - limits the display to only those taxa where the number
+    of matching characters is less than the number specified by the user.
+</p>
+<p>
+    As you specify character states, those taxa appearing at the top of the 'evidence balance
+    positive' column (on the left) are those which are the most likely matches.
+    The more states you specify, and the
+    higher this score, the more reliable the match is.
+</p>
+<h2>Character input</h2>
+<p>
+    <img src="##tombiopath##vis6/resources/icons1.jpg" style="float: right" />
+    Specifying values for character input is intutive. If the character input panel is not visible, either tap the
+    keyboard icon, or swipe right from the left-hand side of the display. The input panel can be 'pinned'
+    by tapping the pin icon, or removed by either swiping left or tapping the back arrow.
+</p>
+<h2>Species accounts</h2>
+<p>
+    <img src="##tombiopath##vis6/resources/taxon-info-tabs.jpg" />
+    Tapping on a taxon name invokes a tabbed species accounts page that can include the
+    following tabs:
+    <ul>
+        <li>
+            Knowledge-base values - details of the knowledge, e.g. character state values,
+            for that taxon in the knowledge-base underlying the key.
+        </li>
+        <li>
+            Images - any images provided for the taxa are available here.
+        </li>
+        <li>
+            NBN Atlas - distribution maps downloaded from the NBN Atlas via a web
+            service. (This tab is not shown if the knowledge-base developer has
+            not provided links to the NBN Atlas.)
+        </li>
+        <li>
+            Info - supplementary textual information about the taxa, e.g. species descriptions.
+        </li>
+    </ul>
+</p>
+<h2>Using as an offline app</h2>
+<p>
+    This key is a 'Progressive Web App' (PWA) which brings two advantages:
+    <ol>
+        <li>
+            It can be installed and used like a app on a mobile phone, for example
+            being invoked from an app icon on the homescreen.
+        </li>
+        <li>It can be used offline - i.e. where there is no internet connection.</li>
+    </ol>
+</p>
+<h3>Installing as an app</h3>
+<p>
+    This app can be run from any mobile device that supports a modern internet browser,
+    such as Chrome, by navigating to the web address in the browser in the usual way.
+    On platforms with full support for PWA's you will be offered the option of adding
+    an icon for the app to the homescreen.
+</p>
+<p>
+    The image below shows the prompt that appears on and Android phone (at
+    the bottom of the screen) when you navigate to the app in the Chrome
+    web browser. 
+</p>
+<p>
+    <img src="##tombiopath##vis6/resources/addapp1.jpg" style="width: 250px" />
+</p>
+<p>
+    The image below shows the confirmation prompt that appears on and Android phone
+    running Chrome when you indicate that you want to add the app to the homescreen.
+    
+</p>
+<p>
+    <img src="##tombiopath##vis6/resources/addapp2.jpg" style="width: 250px" />
+</p>
+<p>
+    Once installed on Android, the icon will be visible in your apps, just as if you had installed
+    from the Play Store. As when installing from the app store, you may then
+    have to move the icon to your homescreen.
+</p>
+<p>
+    Support for PWAs on iOS normally lags a little behind Android and the experience
+    on iPhone will depend on your iOS version, but should be similar.
+</p>
+<h3>Using offline</h3>
+<p>
+    <img src="##tombiopath##vis6/resources/menu.jpg" style="float: right" />
+    To use the app offline, you need to first download the apps resources before
+    going into the field whilst you still have an internet connection. Invoke the
+    main menu by tapping the menu icon and then select the 'Offline options' item
+    towards the bottom of the menu.
+</p>
+<p>
+    <img src="##tombiopath##vis6/resources/download-button.jpg" style="float: right" />
+    Tap the 'Download for offline use' button to download all images and text
+    files associated with the app. Note that NBN distribution maps, if they
+    are included with the app, cannot be bulk-downloaded in this way, but any
+    that you load individually whilst in range of wifi will remain available
+    to you when offline.
+</p>
+

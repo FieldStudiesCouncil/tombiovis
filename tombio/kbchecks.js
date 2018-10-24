@@ -306,7 +306,7 @@
         //Check that all characters (column headers) on the taxa tab have corresponding values in the characters tab.
         charactersFromTaxaTab.forEach(function (character, iCol) {
             if (charactersFromCharactersTab.indexOf(character) == -1) {
-                errors.append($('<li class="tombioValid3">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Names are case sensitive. Note that rows will not be seen unless the <b>Group</b> column has a value."));
+                errors.append($('<li class="tombioValid3">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Names are case sensitive. Note that rows will not be seen unless the <b>Status</b> column has a value."));
                 characters = false;
             }
         })

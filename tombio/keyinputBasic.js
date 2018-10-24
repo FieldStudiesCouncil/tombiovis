@@ -19,19 +19,10 @@
         //Set the property which identifies the top-level div for this input
         tbv.gui.keyInputBasic.divSel = "#tombioKeyBasic";
 
-        var chargroup;
         var characters = {};
-        var inputCharGroups = [];
-
-        tbv.d.characters.forEach(function (character) {
-            if (character.Status == "key") {
-                if (!characters[character.Group]) {
-                    characters[character.Group] = [];
-                    inputCharGroups.push(character.Group);
-                }
-                characters[character.Group].push(character);
-            }
-        });
+        tbv.d.groupedCharacters.groups.forEach(function (group) {
+            characters[group] = tbv.d.groupedCharacters[group];
+        })
 
         //Button to clear all input controls
         $("<button>").appendTo($input).text("Clear input").click(function () {
