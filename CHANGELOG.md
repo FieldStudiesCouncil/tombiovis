@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.8.1] - 2018-10-25
+### Changed
+ - Removed uneeded file (test.zip) from release package.
+ - Updated changelog and release notes to reflect missing 1.7.2 notes.
 ## [1.8.0] - 2018-10-24
 ### Added
  - Added PWA capability including app manifest ('manifest.json') and service worker ('sw.js') to enable depolyment of Identikit resources as mobile apps capable of being used away from the internet.
@@ -24,6 +28,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Changed and added a number of top-level configuration options (documented in 'Deploying your visualisations').
 ### Removed
  - Citation of individual tools removed (issue #29).
+
+## [1.7.2] - 2018-07-05
+### Fixed
+ - Bugfix for issue #19.
 
 ## [1.7.1] - 2018-06-11
 ### Fixed

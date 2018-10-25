@@ -103,7 +103,7 @@
             publisher: "Field Studies Council",
             location: "Shrewsbury, England",
             contact: "r.burkmar@field-studies-council.org",
-            version: "1.8.0"
+            version: "1.8.1"
         }
 
         //Variables for the tools to be included

@@ -1,6 +1,9 @@
 # Release notes for existing knoweldge-base developers
 These notes are intended to help existing knowledge-base developers move from one version of the FSC Identikit to another. These notes were first released with version 1.7.0 of the Identikit and will be updated on each succeeding release.
 
+## Release 1.8.1
+Minor release to fix a packaging problem. Knowledge-base developers moving to version 1.8.1 from earlier versions should consult the notes below for version 1.8.0.
+
 ## Release 1.8.0
 The main feature of release 1.8.0 is a new visualisation ('vis6') which is a 'mobile-first' multi-access key that is suitable for using on small-format devices such as smartphones. Using this visualisation and the new Progressive Web App (PWA) features of Identikit 1.8.0, you can build mobile-first multi-access keys which can be deployed as apps on smartphones and even used away from an internet connection.
 
@@ -12,6 +15,9 @@ Once again, we've made a number of changes to the way Identikit initialisation o
 
 ### Addition of *vism.html*
 This new template high-level page is a version of *vis.html* which is configured specifically  to demonstrate the new mobile-first multi-access key on the provided *biscuits* knowledge-base. You can use this template to make a mobile-first multi-access key based on your own knowledge-base.
+
+## Release 1.7.2
+Minor release to implement a bug fix. Knowledge-base developers moving to version 1.7.2 from earlier versions should consult the notes below for version 1.7.0.
 
 ## Release 1.7.1
 This was a minor update to address a couple of small bugs with 1.7.0. Knowledge-base developers moving to version 1.7.1 from earlier versions should consult the notes below for version 1.7.0.
