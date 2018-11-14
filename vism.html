@@ -12,7 +12,7 @@
                 tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
                 selectedTool: "vis6",
                 gui: "guiOnsenUi",
-                pwaSupress: false,
+                pwaSupress: true,
                 toolconfig: {
                     vis6: {
                         keyinput: "keyInputOnsenUi"
@@ -29,6 +29,8 @@
     <link rel="manifest" href="/manifest.json">
     <!--ES6 polyfill - new for 1.7.0-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
+    <!--Local site CSS-->
+    <link rel="stylesheet" type="text/css" href="site.css">
     <!--Change the path to load.js & load.css to match the installation environment-->
     <link rel="stylesheet" type="text/css" href="tombio/min/css/load.min.css">
 </head>

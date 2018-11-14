@@ -7,33 +7,26 @@
 
     <title>FSC Identikit</title>
     <script>
-        //Legacy method (still supported)
-        //var tombiopath = "tombio/" //deprecated from 1.6.0
-        //var tombiokbpath = "kb/biscuits/" //deprecated from 1.6.0
-
-        //Set options to tailor page configuration (from 1.6.0 onwards)
         var tombiovis = {
             opts: {
-                //hideVisDropdown: false,
-                //tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
-                //selectedTool: "vis2",
-                //lastVisualisation: "vis2",
+                hideVisDropdown: false,
+                tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
+                //selectedTool: "vis1", 
+                //lastVisualisation: "vis1",
                 //gui: "guiOnsenUi",
                 //ignoreNegativeScoring: false,
                 pwaSupress: true,
                 toolconfig: {
                     genKeyinput: {
                         selectedGroup: "Structure",
-                        //default: "keyInputOnsenUi",
                     },
                     //vis4: {
                     //    subTitleChar: "CommonName"
-                    //},
+                    //},                    
                     //vis6: {
                     //    keyinput: "keyInputOnsenUi"
                     //}
                 },
-                //tombiover: "refresh-1",
                 checkKB: true,
                 devel: true,
                 tombiopath: "tombio/",
@@ -41,12 +34,12 @@
             },
         }
     </script>
-    <!--<link rel="manifest" href="/manifest.json">-->
     <!--ES6 polyfill - new for 1.7.0-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
+    <!--Local site CSS-->
+    <link rel="stylesheet" type="text/css" href="site.css">
     <!--Change the path to load.js and load.css to match the installation environment-->
     <link rel="stylesheet" type="text/css" href="tombio/min/css/load.min.css">
-   
 </head>
 <body>
     <h1 id="tombiod3-header">FSC Identikit test</h1>

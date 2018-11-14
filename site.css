@@ -1,0 +1,33 @@
+﻿body {
+    font-family: Arial, sans-serif;
+}
+
+@media screen and (min-width: 1442px) /* Extra large screens */ {
+    body {
+        margin: 0 250px 0 250px;
+    }
+}
+
+@media screen and (max-width: 1441px) /* Extra large screens */ {
+    body {
+        margin: 0 200px 0 200px;
+    }
+}
+
+@media screen and (max-width: 1025px) /* Large screens */ {
+    body {
+        margin: 0 100px 0 100px;
+    }
+}
+
+@media screen and (max-width: 979px) /* Tablet */ {
+    body {
+        margin: 0 20px 0 20px;
+    }
+}
+
+@media screen and (max-width: 500px) /* Mobile */ {
+    body {
+        margin: 0 5px 0 5px;
+    }
+}

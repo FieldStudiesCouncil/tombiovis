@@ -1,0 +1,229 @@
+﻿<h2>The Earthworm multi-access key</h2>
+<p>
+    This visualisation was originally created before the general Tom.bio visualisation framework was constructed.
+    It is somewhat similar to the general two-column key visualisation, but with some key differences which
+    make this particularly suitable for working with earthworms. It has been ported into the general Tom.bio
+    visualisation framework so that it can be used alongside the general framework visualisations, enabling
+    people to use all to their best advantage.
+</p>
+<h3>Overview</h3>
+<div>
+    <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+        <img src="##tombiopath##visEarthworm2/resources/sherlock.png" style="float: right; width: 120px; padding: 0 0 10px 10px" />
+    </a>
+    <p>
+        This is a visualisation of a morphological knowledge-base for British earthworms. The knowledge
+        base is drawn from Emma Sherlock's FSC AIDGAP publication,
+        <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+            <span class="booklink">Key to the earthworms of UK and Ireland</span>
+        </a>. The visualisation
+        is designed to function effectively as a multi-access key, as well as being a useful
+        way to explore the knowledge base and assimilate knowledge from it.
+    </p>
+    <p>
+        This visualisation does not reproduce all the information found within Emma Sherlock's key.
+        With more information on ecology,
+        collecting, sampling, curation and further information on identification not reproduced here, the
+        <a href="http://www.field-studies-council.org/publications/pubs/earthworms.aspx" target="_blank">
+            <span class="booklink">Key to the earthworms of UK and Ireland</span>
+        </a> is an indispensable book for anyone seriously interested in earthworm recording
+        in the UK.
+    </p>
+    <p>
+        The FSC Tomorrow's Biodiversity project (Tom.bio) is working with the Earthworm Society of Britain (ESB) to
+        promote earthworm recording in the UK, e.g. by supporting the ESB training programme. Tom.bio is
+        also exploring ways of visualising and using taxonomic knowledge-bases. Producing this
+        visualisation was a natural step in keeping with both projects.
+    </p>
+    <p>
+        The morphological illustrations in help pages were produced by Charlie Bell.
+    </p>
+</div>
+<h3>Using this visualisation and multi-access key</h3>
+<div>
+    <p>
+        The best way to find out how this visualisation works is to play with it! But it's worth
+        having a quick read here in case you miss something that it is capable of.
+    </p>
+    <h4>Info button</h4>
+    <img src="##tombiopath##visEarthworm2/resources/info-button.png" style="float: right; padding: 0 0 10px 10px" />
+    <p>
+        You've already clicked the Info button if you're reading this! The dialog invoked by this
+        button gives a general overview of this visualisation: its purpose, implementation
+        and goals.
+    </p>
+    <h4>Morphological character input</h4>
+    <p>
+        These controls allow you to specify combinations of morphological character states.
+        Some of the character inputs are drop-down lists that you can click on and select from. Most are
+        'spinners' that allow you to specify a numerical character by clicking on the up and down arrows.
+        You can also type values directly into these boxes.
+    </p>
+    <img src="##tombiopath##visEarthworm2/resources/character-input.png" style="width: 500px; padding: 0px 0 0px 0" />
+    <p>
+        In the example shown above, only one character - head shape - has been specified. The state specified
+        is 'Tanylobic'. To the immediate right of these controls are listed all the species which are still
+        potential 'matches' for the characters specified - the 'possible species'.
+        To the immediate right of these are all the species
+        which are considered unlikely matches based on the specified characters - the 'unlikely species'.
+    </p>
+    <p>
+        Species are moved from the 'possible species' to the 'unlikely species' based on a couple of criteria.
+        Firstly if either the head shape or setae spacing characters are specified and do not match
+        the species. Secondly if any 'segment characters' are
+        specified (these are the characters from male pore to TP end) and the 'segment difference' for any one
+        of these exceeds the specified tolerance. (For more details, see the <a href="#segdiff">section below</a>.)
+        Note that species are never moved to the 'unlikely species' based on size characters (diameter or length)
+        since these are so variable, but specified values will affect the order in which species are ranked in
+        both lists.
+    </p>
+    <p>
+        Within each of the lists - 'possible species' and 'unlikely species' - species are ranked based on how
+        well they match the specified characters, with the closest matches nearest the top. Species are ranked based
+        on the following criteria, in order of priority.
+        <ol>
+            <li>Matches for the head type and setae spacing characters</li>
+            <li>The sum of all the segment difference values (lower values reflect better matches)</li>
+            <li>
+                For size characters, the sum of the percentage difference between the specified size
+                and the minimum or maximum values in the specified range for each species
+                (lower values reflect better matches)
+            </li>
+        </ol>
+        Colours of indicator circles are visual cues to how well a character for any species matches the
+        specified value. Matches are shown as blue and non-matches are shown as vermillion. For numeric characters
+        intermediate shades reflect how far away from the specified value each species is.
+    </p>
+    <p>
+        Immediately to the right of the text 'Possible species' is an icon which serves as a visual
+        cue to the confidence that can be placed in a determination based on the number of
+        characters specified. Click this symbol for a more in-depth explanation.
+    </p>
+    <h4><a name="segdiff">Segment difference scores and tolerance</a></h4>
+    <p>
+        <img src="##tombiopath##visEarthworm2/resources/segdiff.png" style="float: right; padding: 0 0 10px 10px" />
+        For each 'segment character' specified (e.g. male pore or clitellum start), a 'difference value'
+        is calculated for each species representing how far the specified value is outside the allowable
+        range for that species. (Where the value is within the allowed range, the difference value will be zero.)
+        Hold the mouse over an indicator circle to see the difference value for any segment character
+        as shown above. The sum of all segment different values is shown to the right of the species name in
+        bold type - the lower the value, the closer the species is to the specified segment character values.
+    </p>
+    <p>
+        Use the Options button to invoke a dialog where a 'tolerance' value can be specified. When the
+        tolerance value is exceeded by the difference value for any segment character, the species is moved
+        from the 'possible species' column to the 'unlikely species' column of the display. (A species
+        will be moved to the 'unlikely species' column if it does not match the specified head shape
+        or setae spacing - regardless of any segment difference values.)
+    </p>
+    <p>
+        By default, the tolerance value is set to 2.
+    </p>
+    <h4>Help on morphological characters</h4>
+    <img src="##tombiopath##visEarthworm2/resources/character-help.png" style="float: right; padding: 0 0 10px 10px" />
+    <p>
+        Move your mouse over the text labels associated with any of the morphological character input
+        controls and you will see the label turn vermilion (red) and the mouse cursor change to an arrow with
+        a question mark. By clicking your mouse over the label you will invoke a help dialog that
+        explains and illustrates the morphological character.
+    </p>
+    <img src="##tombiopath##visEarthworm2/resources/help-dialog.png" style="width: 500px; padding: 0px 0 0px 0" />
+    <p>
+        The help dialog is always shown with the tab corresponding to the morphological character you clicked
+        pre-selected, but you can view the help associated with any character by selecting the
+        appropriate tab.
+    </p>
+    <h4>Colouring taxa by knowledge-base character</h4>
+    <img src="##tombiopath##visEarthworm2/resources/colour-by-dropdown.png" style="width: 150px; float: right; padding: 0 0 10px 10px" />
+    <p>
+        Another way of visualising characters in the knowledge base is by colouring the species based on their
+        character states. The drop-down 'Colour by' list (right) shows what characters
+        be used in this way. Some of them, e.g. family and ecological group, are not morphological
+        characters available as part of the multi-access key. Others are characters which can also be
+        used/visualised as part of the multi-access key.
+    </p>
+    <p>
+        When species are coloured, a key appears below the 'Colour by' drop-down list explaining what
+        each colour means. Categorical character states, e.g. those for ecological group or head type, are each
+        denoted by a unique colour. For species that have two possible states against a single character,
+        each is coloured using a blend of the two corresponding colours.
+    </p>
+    <p>
+        Numerical character
+        states are depicted by a colour on a scale that grades between two colours - the two colours
+        represent the extremes - min and max - of the possible values for the character state across all species.
+        Taxa that record a numerical state as a single value are represented by a single colour
+        in this range. Species that record a numerical state as a range of possible values are
+        coloured using a blend of the two colours representing the extremes of that range.
+    </p>
+    <p>
+        The colours are generally arbitrary except for the earthworm 'Colour' character for which
+        colours have been chosen to (very roughly) reflect the character states.
+    </p>
+    <h4>Interacting with species</h4>
+    <img src="##tombiopath##visEarthworm2/resources/interactive-taxa.png" style="width: 150px; float: right; padding: 0 0 10px 10px" />
+    <p>
+        Species are represented by rectangles. In their default - unexpanded - state, each rectangle
+        contains the name of the species and a series of circles each corresponding to a character
+        that can be used in the multi-access key. When multi-access key characters are set, then
+        the circle corresponding to that character turns either blue (for taxa that match that
+        character state value) or vermilion (for taxa that don't match) or something in between
+        for numeric characters. Circles for which a character
+        state has not been specified in the multi-access key are white.
+    </p>
+    <p>
+        From left to right, the character state circles correspond to the list of characters that
+        can be used in the multi-access key, from top to bottom. This relationship is more
+        explicit for expanded taxa. To expand a species, simply click on it. The height of the
+        rectangle expands to show the state of each character recorded in the knowledge-base
+        for that species. If you click on the species again, the rectangle contracts. (If the
+        'wrong' rectangle expands/contracts when you click your mouse, just move the
+        mouse cursor a bit before clicking.)
+    </p>
+    <img src="##tombiopath##visEarthworm2/resources/info.png" style="width: 20px; float: left; padding: 5px 10px 10px 0" />
+    <p>
+        When expanded, a small 'info' icon appears at the top-right of the species. If you click this
+        a dialog appears showing further information for the selected species (see below), or if the
+        dialog is already opened for another species, it is updated to reflect the current species.
+    </p>
+    <h4>Species information dialog</h4>
+    <p>
+        The species information dialog has two tabs; the first shows distribution maps and the second
+        points to where you can get more information on the selected species (including relevant page
+        numbers from Emma Sherlock's FSC AIDGAP key).
+    </p>
+    <p>
+        The maps on the first tab are delivered via an NBN Gateway web service - so they show
+        the latest data that are publicly available on the Gateway. The map can be tailored via
+        two drop-down lists. The first allows a choice of map backgrounds: no background, 100 km squares
+        or Vice County boundaries (the last for Britain only).
+    </p>
+    <img src="##tombiopath##visEarthworm2/resources/details-dialog.png" style="width: 150px; float: right; padding: 0 0 10px 10px" />
+    <p>
+        The second drop-down list allows you
+        to restrict the data used to generate the map. The current default is to use all publicly available
+        datasets.
+        You can also restrict datasets to those administered by the Earthworm Society of Britain.
+        <!--Optionally you can also restrict data to one of two specific datasets:-->
+        <ul>
+            <!--<li style="padding-bottom: 20px">
+                OPAL: this is the NBN dataset <a href="https://data.nbn.org.uk/Datasets/GA000910" target="_blank">
+                    'Earthworm Records for
+                    England collected by Citizen Scientists in the OPAL Soil and Earthworm Survey (March 2009 to November 2012)'
+                </a>
+            </li>-->
+            <!--<li>
+                ESB: these are the datasets administered by the British Earthworm Society. The records comprise two
+                datasets.
+                <ul>-->
+            <li><a href="https://data.nbn.org.uk/Datasets/GA001471">National Earthworm Recording Scheme Records (Great Britain)</a></li>
+            <li><a href="https://data.nbn.org.uk/Datasets/GA001466">Soil Biodiversity Group (NHM) Earthworm Records (Great Britain)</a></li>
+            <!--</ul>
+            </li>-->
+        </ul>
+    </p>
+    <p>
+        Earthworms are very under-recorded in the UK. One of the aims of the Earthworm Society of
+        Britain is to address this shortfall.
+    </p>
+</div>
