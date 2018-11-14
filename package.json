@@ -18,7 +18,7 @@
   "homepage": "https://github.com/burkmarr/tombiovis#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^3.9.4",
+    "gulp-clean-css": "^3.10.0",
     "gulp-rename": "^1.4.0",
     "gulp-uglify": "^3.0.1",
     "pump": "^3.0.0"
