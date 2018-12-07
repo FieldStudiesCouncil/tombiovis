@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+ - Updated .gitignore and .gitattributes to prevent unecessary files from gulp minifying workflow being deployed to Git or included in the releases.
+## [1.8.2] - 2018-11-14
+### Changed
+ - Set the pwaSupress flag to true in vism.html to prevent service worker kicking in during KB development (and causing confusing caching issues).
+ - Removed CSS from vis.html and vism.html and put into site.css. This file can then be used by people deploying using a page based on vis.html to add CSS to their sites. The CSS in site.css to alter margins is not appropriate for some CMS deployments.
 ## [1.8.1] - 2018-10-25
 ### Changed
  - Removed uneeded file (test.zip) from release package.

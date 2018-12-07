@@ -1,6 +1,9 @@
 # Release notes for existing knoweldge-base developers
 These notes are intended to help existing knowledge-base developers move from one version of the FSC Identikit to another. These notes were first released with version 1.7.0 of the Identikit and will be updated on each succeeding release.
 
+## Release 1.8.2
+Release 1.8.2 addresses some minor issues evident when people deploy resources, particularly to CMS and also set the pwaSupress flag to true so that, by default, service worker does not kick in during knowledge-base development (which causes confusing caching issues). No implications for knowledge-base deveopers.
+
 ## Release 1.8.1
 Minor release to fix a packaging problem. Knowledge-base developers moving to version 1.8.1 from earlier versions should consult the notes below for version 1.8.0.
 
