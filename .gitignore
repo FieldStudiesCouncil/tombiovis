@@ -1,7 +1,6 @@
 kb2/
 other/
 node_modules/
-package-lock.json
 documentation/videos/
 vis-*.html
 test-*.js
@@ -9,3 +8,4 @@ test-*.html
 test-*.css
 .vs/
 kb/biscuits/*.csv
+package-lock.json
