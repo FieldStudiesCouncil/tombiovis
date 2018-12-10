@@ -9,3 +9,4 @@ test-*.css
 .vs/
 kb/biscuits/*.csv
 package-lock.json
+*/package.json
