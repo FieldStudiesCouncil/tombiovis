@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Insert this line above script imports  -->
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+    <script type='text/javascript' src="./tombio/dependencies/jquery-3.1.1/jquery-3.1.1.min.js"></script>
+
+    <title>FSC Identikit knowledge-base development</title>
+</head>
+<body style="font-family: Arial, sans-serif">
+
+    <h1>FSC Identikit knowledge-base development</h1>
+    <p>
+        Select the folder that contains the knowledge-base that you want
+        to use with Identikit. 
+    </p>
+    <p>
+        New folders will appear here when
+        you add them to the folder <i><span id="kbfolder"></span></i>. 
+        If you don't see your knowledge-base folder, quit the Electron
+        window (this window) and restart by typing <code>npm start</code> in the command window.
+    </p>
+    <p>
+        
+    </p>
+    <div id="identikit-kbs"></div>
+
+    <script>
+        $('#kbfolder').text(__dirname + "\\kb")
+
+        const { lstatSync, readdirSync } = require('fs')
+        const { join } = require('path')
+    
+        const isDirectory = source => lstatSync(source).isDirectory()
+        const getDirectories = source =>
+            readdirSync(source).map(name => join(source, name)).filter(isDirectory)
+
+        var $divList = $("#identikit-kbs");
+
+        getDirectories('./kb').forEach((f) => {
+
+            var fMod = f.replace(/\\/g, "/") + "/"
+
+            var $d = $("<p>");
+            var $a = $("<a>").attr("href", "vis.html?kb=" + fMod).text(fMod);
+            $d.append($a);
+            $d.append(" with the <b>standard</b> interface");
+            $divList.append($d); 
+
+            $d = $("<p>");
+            $a = $("<a>").attr("href", "vism.html?kb=" + fMod).text(fMod);
+            $d.append($a);
+            $d.append(" with the <b>mobile</b> interface");
+            $divList.append($d); 
+        })
+
+
+
+    </script>
+</body>
+</html>

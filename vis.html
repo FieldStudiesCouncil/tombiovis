@@ -7,6 +7,9 @@
 
     <title>FSC Identikit</title>
     <script>
+        var url = new URL(window.location.href);
+        var kb = url.searchParams.get("kb");
+
         var tombiovis = {
             opts: {
                 hideVisDropdown: false,
@@ -30,7 +33,7 @@
                 checkKB: true,
                 devel: true,
                 tombiopath: "tombio/",
-                tombiokbpath: "kb/biscuits/"
+                tombiokbpath: kb ? kb : "kb/biscuits/"
             },
         }
     </script>

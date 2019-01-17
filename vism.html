@@ -7,6 +7,9 @@
 
     <title>FSC Identikit</title>
     <script>
+        var url = new URL(window.location.href);
+        var kb = url.searchParams.get("kb");
+
         var tombiovis = {
             opts: {
                 tools: ["vis1", "vis2", "vis5", "vis3", "vis4", "vis6"],
@@ -22,10 +25,13 @@
                 checkKB: true,
                 devel: true,
                 tombiopath: "tombio/",
-                tombiokbpath: "kb/biscuits/"
+                tombiokbpath: kb ? kb : "kb/biscuits/"
             },
         }
     </script>
+    <!-- Insert this line above script imports  -->
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+
     <link rel="manifest" href="manifest.json">
     <!--ES6 polyfill - new for 1.7.0-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
