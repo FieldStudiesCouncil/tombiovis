@@ -262,6 +262,17 @@
         }
 
         //Characters
+
+        //Fix for https://github.com/burkmarr/tombiovis/issues/43
+        tbv.d.characters.forEach(function (char) {
+            console.log(">>" + char.Group + "<<")
+            if (char.Group == "") {
+                char.Group = "None";
+            }
+        });
+
+        //If Group value is missing, replace with 'None'
+
         errors = $('<ul>');
 
         //Check that required columns are present on the characters tab  

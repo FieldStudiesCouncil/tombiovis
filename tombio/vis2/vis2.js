@@ -103,12 +103,13 @@
                 .text(t.Taxon);
         });
 
-        d3.selectAll(".tmpTaxonText").each(function () {
+        d3.selectAll(".tmpTaxonText").each(function (i) {
             var bbox = this.getBBox();
             if (bbox.width > taxonWidth) taxonWidth = bbox.width;
         });
         taxonWidth += gap * 7 + 2 * indRad + camImgSize;
-        d3.selectAll(".tmpTaxonText").remove();
+
+        //d3.selectAll(".tmpTaxonText").remove();
 
         //To work out the maximum height of the bounding box for Character labels,
         //add temporary (invisible) text objects to SVG - one for each included character

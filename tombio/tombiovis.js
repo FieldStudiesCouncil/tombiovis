@@ -796,13 +796,19 @@
 
         tbv.js.jsFiles[selectedToolName].loadJs().then(function () {
             tbv.f.hideDownloadSpinner();
-            //if (!tbv.v.visualisations[selectedToolName].visName) {
+
             if (!tbv.v.visualisations[selectedToolName].initialised) {
+
                 var visObj = tbv.v.visualisations[selectedToolName];
                 visObj.initP(selectedToolName);
             }
             console.log("Starting", selectedToolName);
             tbv.gui.main.visShow(selectedToolName);
+
+            //Following is a workaround for visualisation that need to be displayed before they
+            //can initialise properly, e.g. vis2. Addresses https://github.com/burkmarr/tombiovis/issues/49
+            setTimeout(function () { tbv.v.visualisations[selectedToolName].refresh() }, 100);
+
         }).catch(function (error) {
 
             console.log("Error", error);

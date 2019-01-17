@@ -601,9 +601,10 @@
             })
 
             function filterAndClean(row) {
-                //Filter out rows with first cells that are either blank or contain a value starting with #
-                if (row[Object.keys(row)[0]] != "" && row[Object.keys(row)[0]].substr(0, 1) != "#") {
-                    //Trim all values
+                //Filter out rows with first cells that contain a value starting with #
+                if (row[Object.keys(row)[0]].substr(0, 1) != "#") {
+                    //Trim all values. There has to be at least one cell with a value to count
+                    var blankRow = true;
                     for (var key in row) {
                         if (row.hasOwnProperty(key)) {
                             //This is to cope with a problem which occurred in some 'empty' cells
@@ -619,9 +620,17 @@
                             if (row[key] == "?") {
                                 row[key] = "";
                             }
+                            if (row[key] != "") {
+                                blankRow = false;
+                            }
                         }
                     }
-                    return row;
+                    if (!blankRow) {
+                        return row;
+                    } else {
+                        //Filter out any row where no cell has a value
+                        return null;
+                    }
                 } else {
                     return null;
                 }

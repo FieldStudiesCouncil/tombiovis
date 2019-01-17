@@ -123,7 +123,7 @@
                 html += '<table class="vis6TaxonInfo">';
                 html += '<tr>';
                 html += '<td class="vis6TaxonLeft">';
-                html += "<div class='vis6ellipsis' onclick='tombiovis.gui.main.showFullDetails(\"" + d.Taxon + "\", 1)'>" + d.Taxon + "</div>";
+                html += "<div class='vis6ellipsis' onclick='tombiovis.gui.main.showFullDetails(\"" + d.Taxon + "\", 0)'>" + d.Taxon + "</div>";
                 html += '</td>';
                 html += '<td class="vis6TaxonRight">';
                 html += '<span class="vis6CharInd" data-taxon="' + d.Taxon + '">0</span>&nbsp;<span class="vis6ScoreInd" data-taxon="' + d.Taxon + '"></span>';

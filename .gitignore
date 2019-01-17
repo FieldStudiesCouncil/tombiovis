@@ -3,10 +3,9 @@ other/
 node_modules/
 documentation/videos/
 vis-*.html
+vism-*.html
 test-*.js
 test-*.html
 test-*.css
 .vs/
 kb/biscuits/*.csv
-package-lock.json
-**/package.json

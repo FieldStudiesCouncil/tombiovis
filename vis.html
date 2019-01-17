@@ -11,7 +11,7 @@
             opts: {
                 hideVisDropdown: false,
                 tools: ["vis1", "vis2", "vis3", "vis4", "vis5"],
-                //selectedTool: "vis1", 
+                //selectedTool: "vis1",
                 //lastVisualisation: "vis1",
                 //gui: "guiOnsenUi",
                 //ignoreNegativeScoring: false,
@@ -22,7 +22,7 @@
                     },
                     //vis4: {
                     //    subTitleChar: "CommonName"
-                    //},                    
+                    //},
                     //vis6: {
                     //    keyinput: "keyInputOnsenUi"
                     //}
@@ -34,6 +34,9 @@
             },
         }
     </script>
+    <!-- This line required above script imports for electron environment -->
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+
     <!--ES6 polyfill - new for 1.7.0-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.6/core.min.js"></script>
     <!--Local site CSS-->
