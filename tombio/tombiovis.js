@@ -395,7 +395,7 @@
         tbv.d.oTaxa = {};
         var iTaxon = 0;
         tbv.d.taxa.forEach(function (taxon) {
-            tbv.d.oTaxa[taxon.Taxon] = taxon;
+            tbv.d.oTaxa[taxon.taxon] = taxon;
             //Replace each cell value with a StateValue object.
             for (var property in taxon) {
                 if (taxon.hasOwnProperty(property)) {
@@ -1152,7 +1152,7 @@
                 $('#tombioTvkFound').append($('<p>').html("TVK '" + t.TVK + "' found."));
             },
             function (t) {
-                $('#tombioTvkNotFound').append($('<p>').html("TVK '" + t.TVK + "' for '" + t.Taxon + "' cannot be found."));
+                $('#tombioTvkNotFound').append($('<p>').html("TVK '" + t.TVK + "' for '" + t.taxon + "' cannot be found."));
             },
             function () {
                 divProgress.text("Completed checking TVKs");
@@ -1286,7 +1286,7 @@
     tbv.f.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.d.media.filter(function (m) {
-            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
+            if (m.taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
@@ -1398,7 +1398,7 @@
     tbv.f.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
         var taxonHtmlFiles = tbv.d.media.filter(function (m) {
-            if (m.Taxon == taxon && m.Type == "html-local") return true;
+            if (m.taxon == taxon && m.Type == "html-local") return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
@@ -1427,7 +1427,7 @@
 
         //Knowledge-base state for this character and taxon
         html += "<p>Valid state(s) for <b>" + character.Label + "</b> recorded against "
-        html += "<b><i>" + taxon.Taxon + "</i></b> in the knowledge base: "
+        html += "<b><i>" + taxon.taxon + "</i></b> in the knowledge base: "
         html += "<ul>";
         html += taxon[character.Character].toHtml2();
         html += "</ul>";
@@ -1489,7 +1489,7 @@
     tbv.f.getTaxonTipImage = function (taxon, parentObject) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.d.media.filter(function (m) {
-            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
+            if (m.taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
                 //Check UseFor field - it id doesn't exist or exists and empty then allow image
                 //Otherwise ensure that "tip" is amongst comma separated list
                 if (!m.UseFor) {
@@ -1809,7 +1809,7 @@
 
                 } else if (c.ValueType == "numeric") {
 
-                    //if (taxon.Taxon == "Dicymbium brevisetosum") console.log("Dicymbium brevisetosum >>" + taxon[character] + "<<")
+                    //if (taxon.taxon == "Dicymbium brevisetosum") console.log("Dicymbium brevisetosum >>" + taxon[character] + "<<")
 
                     if (taxon[character] == "") {
                         //No knowledge base value for a numeric character is taken to represent

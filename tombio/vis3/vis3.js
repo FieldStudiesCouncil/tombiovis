@@ -46,7 +46,7 @@
             } else {
                 var slicedTaxa = sortedTaxa;
             }
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.kbValue });
+            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
 
             //Match taxon selection control to selection
             taxSel.deselectAllTaxa();
@@ -80,7 +80,7 @@
             //Reorder those currently displayed matching each against the first.
             orderedTaxa.forEach(function (taxon) {
 
-                if (taxon.Taxon == taxon0.Taxon) {
+                if (taxon.taxon == taxon0.taxon) {
                     taxon.vis3CompScore = 999999; //Top score!
                 } else {
                     taxon.vis3CompScore = 0;
@@ -106,7 +106,7 @@
                 var slicedTaxa = orderedTaxa;
             }
 
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.Taxon.kbValue });
+            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
 
             //Match taxon selection control to selection
             taxSel.deselectAllTaxa();
@@ -208,7 +208,7 @@
         //Create taxon state object array
         //this.stateTaxa = {};
         //tbv.d.taxa.forEach(function (taxon) {
-        //    _this.stateTaxa[taxon.Taxon.kbValue] = {}
+        //    _this.stateTaxa[taxon.taxon.kbValue] = {}
         //})
 
         //Interface
@@ -250,7 +250,7 @@
                 .attr("taxon", name)
                 .css("position", "relative")
                 .attr("class", "vis3ImageDiv");
-            imgRow[taxon.Taxon] = imgIcon[0].outerHTML;
+            imgRow[taxon.taxon] = imgIcon[0].outerHTML;
         });
         descriptions.push(imgRow);
 
@@ -261,7 +261,7 @@
                 _this.vis3Taxa.forEach(function (name) {
 
                     var taxon = tbv.d.oTaxa[name];
-                    char[taxon.Taxon] = taxon[character.Character].toHtml1();
+                    char[taxon.taxon] = taxon[character.Character].toHtml1();
                 });
                 descriptions.push(char);
             }
@@ -609,11 +609,11 @@
             vis3ImageDiv.closest("td").css("background-color", "");
             loadImgIcon.fadeIn();
 
-            //_this.stateTaxa[taxon.Taxon.kbValue].imgDiv = null;
-            tbv.d.oTaxa[taxon.Taxon.kbValue].visState[visName].imgDiv = null;
+            //_this.stateTaxa[taxon.taxon.kbValue].imgDiv = null;
+            tbv.d.oTaxa[taxon.taxon.kbValue].visState[visName].imgDiv = null;
             if (taxonImgDiv.is(".userRemoved")) {
-                //_this.stateTaxa[taxon.Taxon.kbValue].displayImages = false;
-                tbv.d.oTaxa[taxon.Taxon.kbValue].visState[visName].displayImages = false;
+                //_this.stateTaxa[taxon.taxon.kbValue].displayImages = false;
+                tbv.d.oTaxa[taxon.taxon.kbValue].visState[visName].displayImages = false;
             }
         });
     }
@@ -694,7 +694,7 @@
                 //Match all possible states for TaxonI against taxon0 and take the average.
                 var iCount = 0, scoreTotal = 0, score;
                 ["male", "female", ""].forEach(function (sex) {
-                    //console.log(character, taxon0.Taxon.toString(), "vs", taxonI.Taxon.toString(), "sex: ", sex);
+                    //console.log(character, taxon0.taxon.toString(), "vs", taxonI.taxon.toString(), "sex: ", sex);
                     taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
                         score = tbv.f.score.ordinal(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Latitude, (oCharacter.ValueType == "ordinalCircular"));
                         //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));

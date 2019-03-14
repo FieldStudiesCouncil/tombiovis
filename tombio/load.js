@@ -14,7 +14,6 @@
         tbv.opts.tombiokbpath = tombiokbpath;
     }
 
-
     if (!tbv.opts.pwaSupress && 'serviceWorker' in navigator) {
         //Start the service worker and then call mainLoad
         //Call mainLoad even if service worker fails
@@ -500,7 +499,15 @@
 
             p = d3.csv(tbv.opts.tombiokbpath + "taxa.csv?t=kbcsv" + antiCache,
                 function (row) {
-                    return filterAndClean(row);
+                    var cleanRow = filterAndClean(row);
+                    //Convert all column names to lowercase, except Taxon
+                    //which must remain with an uppercase T.
+                    if (cleanRow) {
+                        var lcRow = Object.keys(cleanRow).reduce((c, k) => (c[k.toLowerCase()] = cleanRow[k], c), {});
+                    } else {
+                        var lcRow = null;
+                    }
+                    return lcRow;
                 }).then(function (data) {
                     tbv.d.taxa = data;
                     console.log("%cLoading - kb taxa loaded", "color: blue");
@@ -509,7 +516,12 @@
 
             p = d3.csv(tbv.opts.tombiokbpath + "characters.csv?t=kbcsv" + antiCache,
                 function (row) {
-                    return filterAndClean(row);
+                    var cleanRow = filterAndClean(row);
+                    //Convert all values of Character column to lowercase
+                    if (cleanRow && cleanRow.Character) {
+                        cleanRow.Character = cleanRow.Character.toLowerCase();
+                    }
+                    return cleanRow;
                 }).then(function (data) {
                     tbv.d.characters = data;
                     console.log("%cLoading - kb characters loaded", "color: blue");
@@ -518,7 +530,12 @@
 
             p = d3.csv(tbv.opts.tombiokbpath + "values.csv?t=kbcsv" + antiCache,
                 function (row) {
-                    return filterAndClean(row);
+                    var cleanRow = filterAndClean(row);
+                    //Convert all values of Character column to lowercase
+                    if (cleanRow && cleanRow.Character) {
+                        cleanRow.Character = cleanRow.Character.toLowerCase();
+                    }
+                    return cleanRow;
                 }).then(function (data) {
                     tbv.d.values = data;
                     console.log("%cLoading - kb values loaded", "color: blue");
@@ -527,7 +544,15 @@
 
             p = d3.csv(tbv.opts.tombiokbpath + "media.csv?t=kbcsv" + antiCache,
                 function (row) {
-                    return filterAndClean(row);
+                    var cleanRow = filterAndClean(row);
+                    //Convert all values of Character, Type, UseFor and TipStyle columns to lowercase
+                    if (cleanRow) {
+                        if (cleanRow.Character) cleanRow.Character = cleanRow.Character.toLowerCase();
+                        if (cleanRow.Type) cleanRow.Type = cleanRow.Type.toLowerCase();
+                        if (cleanRow.UseFor) cleanRow.UseFor = cleanRow.UseFor.toLowerCase();
+                        if (cleanRow.TipStyle) cleanRow.TipStyle = cleanRow.TipStyle.toLowerCase();
+                    }
+                    return cleanRow;
                 }).then(function (data) {
                     tbv.d.media = data;
                     console.log("%cLoading - kb media loaded", "color: blue");

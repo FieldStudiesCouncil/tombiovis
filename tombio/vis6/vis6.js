@@ -101,7 +101,7 @@
         }
 
         var mtU = d3.select("#tombioVis6Main").selectAll(".taxon")
-            .data(sortedTaxa, function (d) { return d.Taxon; });
+            .data(sortedTaxa, function (d) { return d.taxon; });
         var mtE = mtU.enter();
         var mtX = mtU.exit();
 
@@ -111,7 +111,7 @@
             .attr("class", "taxon")
             .style("overflow", "hidden")
             .attr("id", function (d) {
-                return "vis6 " + d.Taxon;
+                return "vis6 " + d.taxon;
             })
             .style("padding", taxonPad + "px")
             .style("left", taxonHorizontalMargin + "px")
@@ -123,15 +123,15 @@
                 html += '<table class="vis6TaxonInfo">';
                 html += '<tr>';
                 html += '<td class="vis6TaxonLeft">';
-                html += "<div class='vis6ellipsis' onclick='tombiovis.gui.main.showFullDetails(\"" + d.Taxon + "\", 0)'>" + d.Taxon + "</div>";
+                html += "<div class='vis6ellipsis' onclick='tombiovis.gui.main.showFullDetails(\"" + d.taxon + "\", 0)'>" + d.taxon + "</div>";
                 html += '</td>';
                 html += '<td class="vis6TaxonRight">';
-                html += '<span class="vis6CharInd" data-taxon="' + d.Taxon + '">0</span>&nbsp;<span class="vis6ScoreInd" data-taxon="' + d.Taxon + '"></span>';
-                html += '<ons-icon style="margin-left: 5px" icon="md-help" onclick="tombiovis.v.visualisations.vis6.fn.showScoreDetails(\'' + d.Taxon + '\')\"></ons-icon>'
+                html += '<span class="vis6CharInd" data-taxon="' + d.taxon + '">0</span>&nbsp;<span class="vis6ScoreInd" data-taxon="' + d.taxon + '"></span>';
+                html += '<ons-icon style="margin-left: 5px" icon="md-help" onclick="tombiovis.v.visualisations.vis6.fn.showScoreDetails(\'' + d.taxon + '\')\"></ons-icon>'
                 html += '</td>';
                 html += '</tr>';
                 html += '</table>';
-                //html += '<div class="vis6ScoreRow" data-taxon="' + d.Taxon + '" style="display: none; opacity: 0"></div>';
+                //html += '<div class="vis6ScoreRow" data-taxon="' + d.taxon + '" style="display: none; opacity: 0"></div>';
                 return html
             })
             .merge(mtU);
@@ -155,7 +155,7 @@
         var yCursor = 0;
         for (var i = 0; i < sortedTaxa.length; i++) {
 
-            var element = document.getElementById("vis6 " + sortedTaxa[i].Taxon.kbValue)
+            var element = document.getElementById("vis6 " + sortedTaxa[i].taxon.kbValue)
 
             //If content of taxa div overflows, then make indicators invisible
             var indicators = $(element).find(".vis6TaxonRight");

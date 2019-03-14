@@ -34,7 +34,7 @@
         var taxonomy = true;
         var metadata = true;
         var errors, errors2;
-        var field, fields, requiredFields, optionalFields;
+        var field, requiredFields, optionalFields;
 
         //Derive some variables for use later
         var charactersFromCharactersTab = tbv.d.characters.map(function (character) {
@@ -111,14 +111,8 @@
 
         //Check that required columns are present on the config tab
         requiredFields = ["Key", "Type", "Mandatory", "Value", "Date", "Notes"];
-        fields = [];
-        for (field in tbv.d.config[0]) {
-            if (tbv.d.config[0].hasOwnProperty(field)) {
-                fields.push(field);
-            }
-        }
         requiredFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.config.columns) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
                 metadata = false;
             }
@@ -140,8 +134,8 @@
         //Taxa
         errors = $('<ul>');
         //Taxon column must be present
-        if (!tbv.d.taxa[0]["Taxon"]) {
-            errors.append($('<li class="tombioValid3">').html("There must be a column called <i>Taxon</i> (case sensitive) which stores the names of the taxa you are working with."));
+        if (!tbv.d.taxa[0]["taxon"]) {
+            errors.append($('<li class="tombioValid3">').html("There must be a column called <i>taxon</i> which stores the names of the taxa you are working with."));
             taxa = false;
         }
         //Check that character names are alphanumeric without any space
@@ -166,7 +160,7 @@
                 //not a function' error - presumably because value is undefined. Can't work out why, but put an error trap
                 //in here to put out some diagnostics.
                 if (!value && value != "") {
-                    console.log(taxon.Taxon, character, value)
+                    console.log(taxon.taxon, character, value)
                 }
                 
                 if (!(value == "" ||
@@ -176,7 +170,7 @@
                     value.substr(0, 1) == "#" || //ignores comment out character state values
                     regexNumericValue.test(value) ||
                     regexNumericRange.test(value))) {
-                    errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a', 'novalue' and no specified value.)"));
+                    errors.append($('<li class="tombioValid3">').html("The value <b>'" + value + "'</b> is not a valid for the numeric character <b>'" + character + "'</b> and taxon <b>'" + taxon.taxon + "'</b>. Values must be a number or a range in the form '[x-y]'. (Other permitted values are '?', 'n/a', 'novalue' and no specified value.)"));
                     taxa = false;
                 }
             });
@@ -234,7 +228,7 @@
                             if (matchingValues.length == 0) {
                                 //No match found in ordinal values, but now check if theres a match for state group.
                                 if (stateGroups.indexOf(rValue) == -1) {
-                                    errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not represented in the values worksheet either as a state value or a state group. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
+                                    errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.taxon + "'</b> is not represented in the values worksheet either as a state value or a state group. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
                                     taxa = false;
                                     continueChecking = false;
                                 } 
@@ -247,7 +241,7 @@
                             var fullOrdinalRangeValues = fullOrdinalRange.map(function (v) { return v.CharacterState });
 
                             if (fullOrdinalRangeValues.indexOf(rangeValues[0]) > fullOrdinalRangeValues.indexOf(rangeValues[1])) {
-                                errors.append($('<li class="tombioValid2">').html("The ordinal range <b>'" + orValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.Taxon + "'</b> is not valid since the start of the range appears after the end in the ordinal values expressed on the values worksheet for this character."));
+                                errors.append($('<li class="tombioValid2">').html("The ordinal range <b>'" + orValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.taxon + "'</b> is not valid since the start of the range appears after the end in the ordinal values expressed on the values worksheet for this character."));
                                 taxa = false;
                             }
                         }
@@ -276,34 +270,28 @@
         errors = $('<ul>');
 
         //Check that required columns are present on the characters tab  
-        fields = [];
-        for (field in tbv.d.characters[0]) {
-            if (tbv.d.characters[0].hasOwnProperty(field)) {
-                fields.push(field);
-            }
-        }
         requiredFields = ["Group", "Character", "Label", "Help", "Status", "ValueType", "ControlType", "Params", "Weight"];
         requiredFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.characters.columns) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f +"'</b> is missing."));
                 characters = false;
             }
         })
         optionalFields = ["HelpShort"];
         optionalFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.characters.columns) == -1) {
                 errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                 characters = false;
             }
         })
         //Check that either 'Strictness' or 'Latitdue' is present. Warn if strictness is used.
-        if ($.inArray("Strictness", fields) == -1 && $.inArray("Latitude", fields) == -1) {
+        if ($.inArray("Strictness", tbv.d.characters.columns) == -1 && $.inArray("Latitude", tbv.d.characters.columns) == -1) {
             errors.append($('<li class="tombioValid3">').html("The column <b>'Latitude'</b> is missing."));
             characters = false;
-        } else if ($.inArray("Strictness", fields) > -1 && $.inArray("Latitude", fields) > -1) {
+        } else if ($.inArray("Strictness", tbv.d.characters.columns) > -1 && $.inArray("Latitude", tbv.d.characters.columns) > -1) {
             errors.append($('<li class="tombioValid1">').html("Columns <b>'Strictness'</b> and  <b>'Latitude'</b> are both specified. 'Strictness' has been deprecated and will be ignored in favour of 'Latitude'."));
             characters = false;
-        } else if ($.inArray("Strictness", fields) > -1) {
+        } else if ($.inArray("Strictness", tbv.d.characters.columns) > -1) {
             errors.append($('<li class="tombioValid1">').html("You are using <b>'Strictness'</b> which has been deprecated (since version 1.7.0) in favour of <b>'Latitude'</b>. Strictness will still work, but you are advised to change to Latitude (see documentation)."));
             characters = false;
         }
@@ -413,23 +401,16 @@
         errors2 = $('<ul>');
 
         //Check that required columns are present on the values tab
-        
-        fields = [];
-        for (field in tbv.d.values[0]) {
-            if (tbv.d.values[0].hasOwnProperty(field)) {
-                fields.push(field);
-            }
-        }
         requiredFields = ["Character", "CharacterState", "CharacterStateTranslation", "StateHelp"];
         requiredFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.values.columns) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
                 values = false;
             }
         })
         optionalFields = ["StateHelpShort"];
         optionalFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.values.columns) == -1) {
                 errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                 values = false;
             }
@@ -531,22 +512,16 @@
         errors = $('<ul>');
 
         //Check that required columns are present on the media tab
-        fields = [];
-        for (field in tbv.d.media[0]) {
-            if (tbv.d.media[0].hasOwnProperty(field)) {
-                fields.push(field);
-            }
-        }
         requiredFields = ["URI", "ImageWidth", "Type", "Priority", "Caption", "Taxon", "Character", "State"];
         requiredFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.media.columns) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
                 media = false;
             }
         })
         optionalFields = ["UseFor", "TipStyle", "SmallURI", "LargeURI"];
         optionalFields.forEach(function (f) {
-            if ($.inArray(f, fields) == -1) {
+            if ($.inArray(f, tbv.d.media.columns) == -1) {
                 errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                 media = false;
             }

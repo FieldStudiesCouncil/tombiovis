@@ -361,7 +361,7 @@
             .on("click", function (d) {
                 if (!d.data.data.taxon) return
                 d3.event.stopPropagation();
-                tbv.gui.main.showFullDetails(d.data.data.taxon.Taxon, 0);
+                tbv.gui.main.showFullDetails(d.data.data.taxon.taxon, 0);
             })
             
         textM = textE.merge(textU)

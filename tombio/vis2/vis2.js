@@ -100,7 +100,7 @@
             d3.select("#vis2Svg").append("text")
                 .attr("class", "scientificnames tmpTaxonText")
                 .style("opacity", 0)
-                .text(t.Taxon);
+                .text(t.taxon);
         });
 
         d3.selectAll(".tmpTaxonText").each(function (i) {
@@ -137,7 +137,7 @@
 
         //Rebind taxa and data
         var mtU = d3.select("#vis2Svg").selectAll(".type2VisTaxon")
-            .data(sortedTaxa, function (d, i) { return d.Taxon; });
+            .data(sortedTaxa, function (d, i) { return d.taxon; });
         var mtE = mtU.enter();
         var mtX = mtU.exit();
 
@@ -155,11 +155,11 @@
                     //Create taxon texts
                     .attr("class", "scientificnames")
                     .text(function () {
-                        return d.Taxon;
+                        return d.taxon;
                     })
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        tbv.gui.main.showFullDetails(d.Taxon, 0);
+                        tbv.gui.main.showFullDetails(d.taxon, 0);
                     });
 
                 d3.select(this).append("rect")
@@ -191,7 +191,7 @@
                         //Check if there are any images for this taxon
                         var charImages = tbv.d.media.filter(function (m) {
                             //Return images for matching taxon
-                            if (m.Taxon == d.Taxon.kbValue) return true;
+                            if (m.taxon == d.taxon.kbValue) return true;
                         });
                         if (charImages.length > 0) {
                             return null;
@@ -200,7 +200,7 @@
                         }
                     })
                     .on("click", function () {
-                        tbv.gui.main.showFullDetails(d.Taxon, 1);
+                        tbv.gui.main.showFullDetails(d.taxon, 1);
                     })
             })
             .merge(mtU);
@@ -282,7 +282,7 @@
 
             var iTaxon = i;
             var taxon = d;
-            var taxonTag = tbv.f.taxonTag(d.Taxon.kbValue);                     
+            var taxonTag = tbv.f.taxonTag(d.taxon.kbValue);                     
 
             var mi = d3.select(this).selectAll(".type2VisIndicators-" + taxonTag)
                 .data(usedCharacters, function (d, i) { return d.Character + "-" + taxonTag; });

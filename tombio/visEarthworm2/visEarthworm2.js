@@ -219,7 +219,7 @@
             .attr("class", "tombioEsbScientificnames")
             .style("opacity", 0)
             .text(function (d) {
-                return d.Taxon.kbValue;
+                return d.taxon.kbValue;
             });
 
         //Add text that specifies the knowledgebase values for each taxon
@@ -254,12 +254,12 @@
 
                     $("#tombioEsbPopup").dialog("open");
 
-                    $('#tombioEsbPopupTitleText').html(d.Taxon.kbValue);
-                    $('#tombioEsbInfoSpName').html(d.Taxon.kbValue);
+                    $('#tombioEsbPopupTitleText').html(d.taxon.kbValue);
+                    $('#tombioEsbInfoSpName').html(d.taxon.kbValue);
                     $('#tombioEsbInfoSpAccount').html(d.AccountPage.kbValue);
                     $('#tombioEsbInfoSpTable').html(d.TablePage.kbValue);
 
-                    $("#tombioEsbPopup").dialog('option', 'title', d.Taxon.kbValue);
+                    $("#tombioEsbPopup").dialog('option', 'title', d.taxon.kbValue);
 
                     injectMap(d.TVK.kbValue);
                 }
@@ -547,7 +547,7 @@
             });
         this.worms.select("text")
             .text(function (d) {
-                return d.Taxon.kbValue + " - ";
+                return d.taxon.kbValue + " - ";
             })
             .append("tspan")
             .style("font-style", "normal")

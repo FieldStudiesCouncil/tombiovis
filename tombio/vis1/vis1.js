@@ -102,7 +102,7 @@
 
         //Initialise graphics on the enter selection
         var enterSelection = d3.select("#vis1Svg").selectAll(".taxon")
-            .data(tbv.d.taxa, function (d, i) { return d.Taxon; }) //Key is needed because other visualisation may sort taxa
+            .data(tbv.d.taxa, function (d, i) { return d.taxon; }) //Key is needed because other visualisation may sort taxa
             .enter()
             .append("g")
             .attr("class", "taxon")
@@ -135,11 +135,11 @@
             .style("opacity", 0)
             .style("cursor", "pointer")
             .text(function (d) {
-                return d.Taxon;
+                return d.taxon;
             })
             .on("click", function (d) {
                 d3.event.stopPropagation();
-                tbv.gui.main.showFullDetails(d.Taxon, 0);
+                tbv.gui.main.showFullDetails(d.taxon, 0);
             });
 
         tbv.gui.main.createTaxonToolTips(".scientificnames", this.displayToolTips);
@@ -359,7 +359,7 @@
                     //Check if there are any images for this taxon
                     var charImages = tbv.d.media.filter(function (m) {
                         //Return images for matching taxon
-                        if (m.Taxon == d.Taxon) return true;
+                        if (m.taxon == d.taxon) return true;
                     });
                     if (charImages.length > 0) {
                         return 1;
@@ -457,10 +457,10 @@
         }
 
         //Add/remove context menu item to expand all items
-        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && tbv.f.getTaxonImages(taxon.Taxon).length > 0) })) {
+        if (tbv.d.taxa.some(function (taxon) { return (taxon.visState['vis1'].height == taxheight && tbv.f.getTaxonImages(taxon.taxon).length > 0) })) {
             tbv.gui.main.contextMenu.addItem("Expand all taxon items", function () {
                 tbv.d.taxa.forEach(function (taxon, i) {
-                    var taxonImages = tbv.f.getTaxonImages(taxon.Taxon);
+                    var taxonImages = tbv.f.getTaxonImages(taxon.taxon);
                     if (taxon.visState['vis1'].height == taxheight && taxonImages.length > 0) {
                         var imgLoad = new Image;
                         imgLoad.onload = function () {
@@ -547,7 +547,7 @@
             
             if (taxon.visState['vis1'].height > _this.taxheight) {
                 
-                //console.log("Expanded!", i, taxon.Taxon.kbValue)
+                //console.log("Expanded!", i, taxon.taxon.kbValue)
                 //console.log("rangeStart", rangeStart, "rangeCounter", rangeCounter)
 
                 if (rangeStart === null) {
@@ -587,7 +587,7 @@
 
     function expandTaxon(d, i) {
 
-        var taxonImages = tbv.f.getTaxonImages(d.Taxon);
+        var taxonImages = tbv.f.getTaxonImages(d.taxon);
         if (taxonImages.length > 0) {
 
             var imgLoad = new Image;

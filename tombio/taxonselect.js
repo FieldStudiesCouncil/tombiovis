@@ -49,7 +49,7 @@
         this.taxa = [];
         tbv.d.taxa.forEach(function (t, i) {
             this.taxa.push({
-                name: t.Taxon.kbValue,
+                name: t.taxon.kbValue,
                 abbrv: "",
                 order: i
             })
