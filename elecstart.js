@@ -1,8 +1,15 @@
 ﻿const { app, BrowserWindow, Menu } = require('electron')
+const PDFWindow = require('electron-pdf-window')
+var win;
 
 function createWindow() {
     // Create the browser window.
-    win = new BrowserWindow({ width: 1000, height: 800 })
+    win = new BrowserWindow({ 
+        width: 1000, 
+        height: 800,
+        backgroundColor: '#2e2c29',
+        icon: __dirname + '/tombio/resources/electron-icon.png'
+    })
 
     // and load the index.html of the app.
     win.loadFile('electron.html')
@@ -10,101 +17,99 @@ function createWindow() {
 
 app.on('ready', createWindow)
 
-// const template = [
-//     {
-//       label: 'Identikit',
-//       submenu: [
-//         { 
-//             label: 'test',
-//             click() {
-//                 alert("Whats up doc?");
-//             }
-//         }
-//       ]
-//     },
-//     {
-//       label: 'Edit',
-//       submenu: [
-//         { role: 'undo' },
-//         { role: 'redo' },
-//         { type: 'separator' },
-//         { role: 'cut' },
-//         { role: 'copy' },
-//         { role: 'paste' },
-//         { role: 'pasteandmatchstyle' },
-//         { role: 'delete' },
-//         { role: 'selectall' }
-//       ]
-//     },
-//     {
-//       label: 'View',
-//       submenu: [
-//         { role: 'reload' },
-//         { role: 'forcereload' },
-//         { role: 'toggledevtools' },
-//         { type: 'separator' },
-//         { role: 'resetzoom' },
-//         { role: 'zoomin' },
-//         { role: 'zoomout' },
-//         { type: 'separator' },
-//         { role: 'togglefullscreen' }
-//       ]
-//     },
-//     {
-//       role: 'window',
-//       submenu: [
-//         { role: 'minimize' },
-//         { role: 'close' }
-//       ]
-//     },
-//     {
-//       role: 'help',
-//       submenu: [
-//         {
-//           label: 'Learn More',
-//           click () { require('electron').shell.openExternal('https://electronjs.org') }
-//         }
-//       ]
-//     }
-//   ]
+
+const template = [
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     { role: 'undo' },
+    //     { role: 'redo' },
+    //     { type: 'separator' },
+    //     { role: 'cut' },
+    //     { role: 'copy' },
+    //     { role: 'paste' },
+    //     { role: 'pasteandmatchstyle' },
+    //     { role: 'delete' },
+    //     { role: 'selectall' }
+    //   ]
+    // },
+    {
+      label: 'View',
+      submenu: [
+        { 
+            label: 'Select knowledge-base',
+            click() {win.loadFile('electron.html')}
+        },
+        { type: 'separator' },
+        { role: 'reload' },
+        { role: 'forcereload' },
+        { role: 'toggledevtools' },
+        { type: 'separator' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'close' }
+      ]
+    },
+    {
+        label: 'Identikit KB Help',
+        submenu: [
+          { 
+              label: 'Building a knowledge-base',
+              click() {openPDF('Building a knowledge-base.pdf')}
+          },
+          { 
+            label: 'Deploying Identikit ID resources',
+            click() {openPDF('Deploying your visualisations.pdf')}
+          },
+          { type: 'separator' },
+          { 
+            label: 'Getting started',
+            click() {openPDF('Getting started.pdf')}
+          },
+          { 
+            label: 'Quick-start guide',
+            click() {openPDF('Quick-start guide.pdf')}
+          },
+          { type: 'separator' },
+          { 
+            label: 'Character scoring',
+            click() {openPDF('Character scoring.pdf')}
+          },
+          { 
+            label: 'Notes for coders',
+            click() {openPDF('Notes for coders.pdf')}
+          }
+        ]
+      }
+    // {
+    //   role: 'help',
+    //   submenu: [
+    //     {
+    //       label: 'Learn More',
+    //       click () { require('electron').shell.openExternal('https://electronjs.org') }
+    //     }
+    //   ]
+    // }
+  ]
+
+  function openPDF(file) {
+    let pdf = new PDFWindow({
+        width: 800,
+        height: 600,
+        icon: __dirname + '/tombio/resources/electron-icon.png',
+        autoHideMenuBar: true
+    })
+    pdf.loadURL(__dirname + '/documentation/' + file)
+  }
   
-//   if (process.platform === 'darwin') {
-//     template.unshift({
-//       label: app.getName(),
-//       submenu: [
-//         { role: 'about' },
-//         { type: 'separator' },
-//         { role: 'services' },
-//         { type: 'separator' },
-//         { role: 'hide' },
-//         { role: 'hideothers' },
-//         { role: 'unhide' },
-//         { type: 'separator' },
-//         { role: 'quit' }
-//       ]
-//     })
-  
-//     // Edit menu
-//     template[1].submenu.push(
-//       { type: 'separator' },
-//       {
-//         label: 'Speech',
-//         submenu: [
-//           { role: 'startspeaking' },
-//           { role: 'stopspeaking' }
-//         ]
-//       }
-//     )
-  
-//     // Window menu
-//     template[3].submenu = [
-//       { role: 'close' },
-//       { role: 'minimize' },
-//       { role: 'zoom' },
-//       { type: 'separator' },
-//       { role: 'front' }
-//     ]
-//   }
-  
-//   const menu = Menu.buildFromTemplate(template)
-//   Menu.setApplicationMenu(menu)
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)

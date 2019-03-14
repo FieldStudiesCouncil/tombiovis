@@ -1,8 +1,10 @@
 {
-    "name": "identikit",
+    "name": "fsc-identikit",
     "version": "2.0.0",
     "main": "elecstart.js",
-    "dependencies": {},
+    "dependencies": {
+        "electron-pdf-window": "^1.0.12"
+    },
     "devDependencies": {
         "electron": "^3.0.11",
         "gulp": "^3.9.1",

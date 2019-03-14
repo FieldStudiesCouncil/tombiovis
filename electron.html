@@ -4,25 +4,29 @@
     <meta charset="utf-8">
     <meta http-equiv='cache-control' content='no-cache'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FSC Identikit knowledge-base development</title>
 
     <!-- Insert this line above script imports  -->
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
     <script type='text/javascript' src="./tombio/dependencies/jquery-3.1.1/jquery-3.1.1.min.js"></script>
-
-    <title>FSC Identikit knowledge-base development</title>
 </head>
 <body style="font-family: Arial, sans-serif">
 
     <h1>FSC Identikit knowledge-base development</h1>
     <p>
-        Select the folder that contains the knowledge-base that you want
-        to use with Identikit. 
+        For access to the knowledge-base developer's help files (PDFs)
+        use the <i>Identikit KB Help</i> menu.
+    </p>
+    <p>
+        From the links below, select the folder that contains the knowledge-base that you want
+        to use with Identikit. You can also choose whether you want to use it through
+        the standard or mobile interfaces.
     </p>
     <p>
         New knowledge-base folders will appear here when
         you add them to the folder <i><span id="kbfolder"></span></i>. 
-        If you don't see your knowledge-base folder, quit the Electron
-        window (this window) and restart by typing <code>npm start</code> in the command window.
+        If you don't see your knowledge-base folder, close this Identikit window
+        and restart by typing <code>npm start</code> in the command window.
     </p>
     <p>
         
@@ -57,9 +61,6 @@
             $d.append(" with the <b>mobile</b> interface");
             $divList.append($d); 
         })
-
-
-
     </script>
 </body>
 </html>

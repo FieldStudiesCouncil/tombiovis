@@ -8,4 +8,6 @@ test-*.js
 test-*.html
 test-*.css
 .vs/
+kb/*
+!kb/biscuits
 kb/biscuits/*.csv
