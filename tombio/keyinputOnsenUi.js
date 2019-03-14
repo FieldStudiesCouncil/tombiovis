@@ -73,7 +73,7 @@
                     html += '<div class="center">' + 'back to overview' + '</div>';
                     html += '</ons-toolbar>';
                 }
-                if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+                if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") {
                     html += createTextInputControl(c);
                 } else if (c.ValueType == "numeric") {
                     html += createNumericInputControl(c);
@@ -115,7 +115,7 @@
                     if (tbv.d.oCharacters[character].stateSet) {
                         console.log(character, tbv.d.oCharacters[character].ValueType)
 
-                        if (tbv.d.oCharacters[character].ValueType == "text" || tbv.d.oCharacters[character].ValueType == "ordinal" || tbv.d.oCharacters[character].ValueType == "ordinalCircular") {
+                        if (tbv.d.oCharacters[character].ValueType == "text" || tbv.d.oCharacters[character].ValueType == "ordinal" || tbv.d.oCharacters[character].ValueType == "ordinalcircular") {
                             tbv.d.oCharacters[character].userInput.forEach(function (index) {
                                 $('#tombioKiOui-' + character + '-' + index + ' ons-checkbox')[0].checked = true;
                             })
@@ -342,7 +342,7 @@
 
                     html += c.Label + ": ";
 
-                    if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+                    if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") {
                         var val = "";
                         c.userInput.forEach(function (i) {
                             if (val) val += " <i>or</i> ";
@@ -621,7 +621,7 @@
 
         //Set flag indicating if control has value
         var c = tbv.d.oCharacters[character];
-        if (((c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && listItem.querySelector('ons-checkbox').checked)
+        if (((c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") && listItem.querySelector('ons-checkbox').checked)
             || (c.ValueType == "numeric" && listItem.querySelector('ons-input').value != "")) {
             var valueSet = true;
         } else {

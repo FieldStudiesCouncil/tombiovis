@@ -342,7 +342,7 @@
     }
 
     function getInput(c) {
-        if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+        if (c.ValueType == "text" || c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") {
             var val = "";
             c.userInput.forEach(function (i) {
                 if (val) val += " <i>or</i> ";

@@ -517,9 +517,12 @@
             p = d3.csv(tbv.opts.tombiokbpath + "characters.csv?t=kbcsv" + antiCache,
                 function (row) {
                     var cleanRow = filterAndClean(row);
-                    //Convert all values of Character column to lowercase
-                    if (cleanRow && cleanRow.Character) {
-                        cleanRow.Character = cleanRow.Character.toLowerCase();
+                    //Convert all values of Character, Status, ValueType and ControlType columnd to lowercase
+                    if (cleanRow) {
+                        if (cleanRow.Character) cleanRow.Character = cleanRow.Character.toLowerCase();
+                        if (cleanRow.Status) cleanRow.Status = cleanRow.Status.toLowerCase();
+                        if (cleanRow.ValueType) cleanRow.ValueType = cleanRow.ValueType.toLowerCase();
+                        if (cleanRow.ControlType) cleanRow.ControlType = cleanRow.ControlType.toLowerCase();
                     }
                     return cleanRow;
                 }).then(function (data) {

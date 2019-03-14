@@ -689,14 +689,14 @@
                 var scoreMax = tbv.f.score.numberVsRange(taxonI[character].getRange().max, taxon0[character].getRange(), oCharacter.Latitude);
                 charScore = (scoreMin[0] - scoreMin[1] + scoreMax[0] - scoreMax[1]) / 2;
 
-            } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalCircular") {
+            } else if (oCharacter.ValueType == "ordinal" || oCharacter.ValueType == "ordinalcircular") {
 
                 //Match all possible states for TaxonI against taxon0 and take the average.
                 var iCount = 0, scoreTotal = 0, score;
                 ["male", "female", ""].forEach(function (sex) {
                     //console.log(character, taxon0.taxon.toString(), "vs", taxonI.taxon.toString(), "sex: ", sex);
                     taxonI[character].getOrdinalRanges(sex).forEach(function (state) {
-                        score = tbv.f.score.ordinal(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Latitude, (oCharacter.ValueType == "ordinalCircular"));
+                        score = tbv.f.score.ordinal(state, taxon0[character].getOrdinalRanges(sex), oCharacter.CharacterStateValues, oCharacter.Latitude, (oCharacter.ValueType == "ordinalcircular"));
                         //console.log("for", score[0].toFixed(2), "against", score[1].toFixed(2));
                         scoreTotal += score[0];
                         scoreTotal -= score[1];

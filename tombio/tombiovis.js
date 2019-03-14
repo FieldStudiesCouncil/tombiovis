@@ -171,7 +171,7 @@
     tbv.d.stateValue.getOrdinalRanges = function (sex) {
         var _this = this;
         var retVal = [];
-        if (this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+        if (this.valueType == "ordinal" || this.valueType == "ordinalcircular") {
             this.getStates(sex).forEach(function (state) {
                 var ordinalRange = [];
                 if (state.indexOf('[') == 0) {
@@ -214,7 +214,7 @@
             return "<i>not manifest</i>";
         } else if (this.kbValue == "" || this.kbValue == "?") {
             return "<i>no value specified</i>"
-        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalcircular") {
             //Put bold around each token (separated by |)
             html = this.kbValue.replace(/([^|]+)/g, "<b>$1</b>");
             //Shift bold end tag to before (m) and (f) and replace with (male) and (female)
@@ -263,7 +263,7 @@
             return "<li><i>not applicable</i></li>";
         } else if (this.kbValue == "novalue") {
             return "<li><i>not manifest</i></li>";
-        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalCircular") {
+        } else if (this.valueType == "text" || this.valueType == "ordinal" || this.valueType == "ordinalcircular") {
             var html = "";
             var splitKbValues = this.kbValue.split("|");
 
@@ -445,10 +445,10 @@
             //latitude is zero. For minimum strictness value (0) latitude is equal to the whole range.
             //The score of a specified number is equal to its distance outside the range, divided by its
             //latitude.
-            if (character.ValueType == "numeric" || character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+            if (character.ValueType == "numeric" || character.ValueType == "ordinal" || character.ValueType == "ordinalcircular") {
                 if (typeof (character.Latitude) != "undefined") {
                     character.Latitude = Number(character.Latitude); //If latitude unspecified, default will be 0.
-                    //if (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                    //if (character.ValueType == "ordinal" || character.ValueType == "ordinalcircular") {
                     //    //The specified latitude for ordinal is the the number of ranks that should score,
                     //    //but the software will treat it as the rank that first doesn't score, so add one.
                     //    character.Latitude += 1; (No - do this in socring.)
@@ -463,7 +463,7 @@
                             return v.Character == character.Character;
                         }).length;
                         character.Latitude = (1 - strictness / 10) * stateNumber;
-                        if (character.ValueType == "ordinalCircular") {
+                        if (character.ValueType == "ordinalcircular") {
                             character.Latitude = character.Latitude / 2;
                         }
                     }
@@ -1841,7 +1841,7 @@
                         scorena = 0;
                     }
 
-                } else if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular" || c.ValueType == "text") {
+                } else if (c.ValueType == "ordinal" || c.ValueType == "ordinalcircular" || c.ValueType == "text") {
 
                     if (taxon[character] == "n/a") {
                         //States selected but not applicable for taxon
@@ -1862,12 +1862,12 @@
                             return c.CharacterStateValues[i];
                         });
 
-                        if (c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") {
+                        if (c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") {
                             //The KB states for this character and taxon.
                             //States that are specific to male or female are represented by suffixes of (m) and (f).
                             var kbTaxonStates = taxon[character].getOrdinalRanges(sex);
                             var posStates = c.CharacterStateValues;
-                            var isCircular = c.ValueType == "ordinalCircular";
+                            var isCircular = c.ValueType == "ordinalcircular";
 
                             var score = tbv.f.score.ordinal(selectedStates, kbTaxonStates, posStates, c.Latitude, isCircular);
 

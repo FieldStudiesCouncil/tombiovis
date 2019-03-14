@@ -152,7 +152,7 @@
                     selectcontrol.attr("id", selectID);
                     tab.append(selectcontrol);
 
-                    //if (character.ControlType == "single" || character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") {
+                    //if (character.ControlType == "single" || character.ValueType == "ordinal" || character.ValueType == "ordinalcircular") {
                     if (character.ControlType == "single") {
                         var option = $("<option/>").text("");
                         selectcontrol.append(option);

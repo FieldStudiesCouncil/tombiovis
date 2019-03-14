@@ -58,13 +58,13 @@
         });
 
         var allOrdinalCharactersInTaxaTab = tbv.d.characters.filter(function (character) {
-            return (character.ValueType == "ordinal" || character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
+            return (character.ValueType == "ordinal" || character.ValueType == "ordinalcircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
 
         var circularOrdinalCharactersInTaxaTab = tbv.d.characters.filter(function (character) {
-            return (character.ValueType == "ordinalCircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
+            return (character.ValueType == "ordinalcircular") && charactersFromTaxaTab.indexOf(character.Character) > -1;
         }).map(function (character) {
             return character.Character;
         });
@@ -228,14 +228,14 @@
                             if (matchingValues.length == 0) {
                                 //No match found in ordinal values, but now check if theres a match for state group.
                                 if (stateGroups.indexOf(rValue) == -1) {
-                                    errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.taxon + "'</b> is not represented in the values worksheet either as a state value or a state group. All character state values for ordinal and ordinalCircular characters must be represented on the values worksheet."));
+                                    errors.append($('<li class="tombioValid2">').html("The value <b>'" + rValue + "'</b> for character <b>'" + character + "'</b> and taxon <b>'" + taxon.taxon + "'</b> is not represented in the values worksheet either as a state value or a state group. All character state values for ordinal and ordinalcircular characters must be represented on the values worksheet."));
                                     taxa = false;
                                     continueChecking = false;
                                 } 
                             }
                         })
 
-                        //For ordinal ranges, unless an ordinalCircular, then start value must come before end value
+                        //For ordinal ranges, unless an ordinalcircular, then start value must come before end value
                         if (continueChecking && rangeValues.length == 2 && circularOrdinalCharactersInTaxaTab.indexOf(character) == -1) {
                             
                             var fullOrdinalRangeValues = fullOrdinalRange.map(function (v) { return v.CharacterState });
@@ -318,13 +318,13 @@
         });
         //Check other character parameters.
         tbv.d.characters.filter(function (c) { return (c.Status == "key") }).forEach(function (c) {
-            var validValueType = ["numeric", "ordinal", "ordinalCircular", "text"];
+            var validValueType = ["numeric", "ordinal", "ordinalcircular", "text"];
             var validControlType = ["single", "multi", "spin"];
             var validControlsForValues = {
                 numeric: ["spin"],
                 text: ["single", "multi"],
                 ordinal: ["single", "multi"],
-                ordinalCircular: ["single", "multi"]
+                ordinalcircular: ["single", "multi"]
             }
             var ValueTypeOK = true;
             var ControlTypeOK = true;
@@ -339,8 +339,8 @@
             if (typeof (c.Strictness) != "undefined") {
                 if (c.Strictness != "") {
                     var regexStrictness = /^([0-9]|10)$/;
-                    if ((c.ValueType == "numeric" || c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexStrictness.test(c.Strictness)) {
-                        errors.append($('<li class="tombioValid2">').html("For numeric, ordinal and ordinalCircular characters, 'Strictness', if specified, must be between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
+                    if ((c.ValueType == "numeric" || c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") && !regexStrictness.test(c.Strictness)) {
+                        errors.append($('<li class="tombioValid2">').html("For numeric, ordinal and ordinalcircular characters, 'Strictness', if specified, must be between 0 and 10. There is an invalid 'Strictness' value for <b>'" + c.Character + "'</b>."));
                         characters = false;
                     }
                 }
@@ -354,8 +354,8 @@
                         characters = false;
                     }
                     var regexLatitudeI = /^(?:[0-9]|0[1-9]|10)$/;
-                    if ((c.ValueType == "ordinal" || c.ValueType == "ordinalCircular") && !regexLatitudeI.test(c.Latitude)) {
-                        errors.append($('<li class="tombioValid2">').html("For ordinal and ordinalCircular characters, 'Latitude', if specified, must be a whole number. There is an invalid 'Latitude' value for <b>'" + c.Character + "'</b>."));
+                    if ((c.ValueType == "ordinal" || c.ValueType == "ordinalcircular") && !regexLatitudeI.test(c.Latitude)) {
+                        errors.append($('<li class="tombioValid2">').html("For ordinal and ordinalcircular characters, 'Latitude', if specified, must be a whole number. There is an invalid 'Latitude' value for <b>'" + c.Character + "'</b>."));
                         characters = false;
                     }
                 }
