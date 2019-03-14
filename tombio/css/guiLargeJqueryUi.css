@@ -61,32 +61,32 @@
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.options {
-    background: url("tombio/resources/options.png") 0 0 no-repeat;
+    background: url("resources/options.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.info {
-    background: url("tombio/resources/info20.png") 0 0 no-repeat;
+    background: url("resources/info20.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.wrench {
-    background: url("tombio/resources/wrench.png") 0 0 no-repeat;
+    background: url("resources/wrench.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.vis {
-    background: url("tombio/resources/lightbulb.png") 0 0 no-repeat;
+    background: url("resources/lightbulb.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.reload {
-    background: url("tombio/resources/reset.png") 0 0 no-repeat;
+    background: url("resources/reset.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 
 #tombioGuiLargeJqueryUiVisualisation-menu .ui-icon.download {
-    background: url("tombio/resources/download.png") 0 0 no-repeat;
+    background: url("resources/download.png") 0 0 no-repeat;
     background-size: 16px 16px;
 }
 

@@ -7,7 +7,6 @@ function createWindow() {
     win = new BrowserWindow({ 
         width: 1000, 
         height: 800,
-        backgroundColor: '#2e2c29',
         icon: __dirname + '/tombio/resources/electron-icon.png'
     })
 
