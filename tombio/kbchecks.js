@@ -259,7 +259,6 @@
 
         //Fix for https://github.com/burkmarr/tombiovis/issues/43
         tbv.d.characters.forEach(function (char) {
-            console.log(">>" + char.Group + "<<")
             if (char.Group == "") {
                 char.Group = "None";
             }

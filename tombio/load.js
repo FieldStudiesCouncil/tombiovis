@@ -1,6 +1,9 @@
 ﻿(function (tbv) {
     "use strict";
 
+    //To address issue #48 https://github.com/FieldStudiesCouncil/tombiovis/issues/48
+    if (!window.caches) window.caches = null;
+
     //For backward compatibility (prior to 1.6.0) allow for direct
     //use of tombiover, tombiopath and tombiokbpath. If they are
     //there, use them to set properties of tombiovis (tbv)
@@ -564,7 +567,14 @@
 
             p = d3.csv(tbv.opts.tombiokbpath + "config.csv?t=kbcsv" + antiCache,
                 function (row) {
-                    return filterAndClean(row);
+                    var cleanRow = filterAndClean(row);
+                    //Convert all values of Key, Type and Mandatory columns to lowercase
+                    if (cleanRow) {
+                        if (cleanRow.Key) cleanRow.Key = cleanRow.Key.toLowerCase();
+                        if (cleanRow.Type) cleanRow.Type = cleanRow.Type.toLowerCase();
+                        if (cleanRow.Mandatory) cleanRow.Mandatory = cleanRow.Mandatory.toLowerCase();
+                    }
+                    return cleanRow;
                 }).then(function(data) {
                     tbv.d.config = data;
                     tbv.d.kbconfig = {};

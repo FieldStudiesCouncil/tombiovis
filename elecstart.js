@@ -59,7 +59,7 @@ const template = [
       ]
     },
     {
-        label: 'Identikit KB Help',
+        label: 'Identikit Help',
         submenu: [
           { 
               label: 'Building a knowledge-base',

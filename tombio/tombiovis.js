@@ -774,7 +774,7 @@
                 tbv.f.hideDownloadSpinner();
                 //Initialise visualisation object if it isn't already
                 //(may happen if option not selected from built-in drop-down list)
-                if (!tbv.v.visualisations[lastVis].visName) {
+                if (!tbv.v.visualisations[lastVis].initialised) {
                     var visObj = tbv.v.visualisations[lastVis];
                     visObj.initP(lastVis);
                     visObj.hide();
@@ -944,6 +944,7 @@
     }
 
     tbv.f.setSelectedToolInfo = function ($currentVisInfo) {
+        
         //Dimension and empty array to accommodate all the help files referenced by this object. 
         //We do this  be sure that html files are in their correct position in array which if 
         //we relied on load order might not be right since they load asynchronously.
@@ -1714,25 +1715,24 @@
                 //If the character state is translated, use the translated value, otherwise
                 //use the state value itself.
 
-                
                 if (val.CharacterStateTranslation && val.CharacterStateTranslation != "") {
                     var charState = val.CharacterStateTranslation;
                 } else {
                     var charState = val.CharacterState;
                 }
 
-                if (val.Character == "Mass3" && val.CharacterState == "IIa") {
-                    console.log("val.CharacterStateTranslation", val.CharacterStateTranslation)
-                    console.log("translated character state is", charState)
-                }
-                character.CharacterStates.push(
-                    {
-                        CharacterState: charState,
-                        StateHelp: val.StateHelp,
-                        StateHelpShort: val.StateHelpShort
-                    }
-                )
-                character.CharacterStateValues.push(charState);
+                //Check if character is already in the array because they can appear more
+                //than once in the values tab if in more than one stateGroup
+                if (character.CharacterStateValues.indexOf(charState) == -1) {
+                    character.CharacterStates.push(
+                        {
+                            CharacterState: charState,
+                            StateHelp: val.StateHelp,
+                            StateHelpShort: val.StateHelpShort
+                        }
+                    )
+                    character.CharacterStateValues.push(charState);
+                } 
             }
         });
 
