@@ -1287,7 +1287,7 @@
     tbv.f.getTaxonImages = function (taxon) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.d.media.filter(function (m) {
-            if (m.taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
+            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
@@ -1399,7 +1399,7 @@
     tbv.f.getTaxonHtmlFiles = function (taxon) {
         //Return list of all media html files for taxon, sorted by priority
         var taxonHtmlFiles = tbv.d.media.filter(function (m) {
-            if (m.taxon == taxon && m.Type == "html-local") return true;
+            if (m.Taxon == taxon && m.Type == "html-local") return true;
         }).sort(function (a, b) {
             return Number(a.Priority) - Number(b.Priority)
         });
@@ -1490,7 +1490,7 @@
     tbv.f.getTaxonTipImage = function (taxon, parentObject) {
         //Return list of all media images for taxon, sorted by priority
         var taxonImages = tbv.d.media.filter(function (m) {
-            if (m.taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
+            if (m.Taxon == taxon && (m.Type == "image-local" || m.Type == "image-web")) {
                 //Check UseFor field - it id doesn't exist or exists and empty then allow image
                 //Otherwise ensure that "tip" is amongst comma separated list
                 if (!m.UseFor) {

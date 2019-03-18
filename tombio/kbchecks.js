@@ -1,6 +1,10 @@
 ﻿(function ($, tbv) {
     "use strict";
 
+    tbv.f.defaultsForMissing = function () {
+
+    }
+
     tbv.f.checkKnowledgeBase = function() {
 
         /*
@@ -35,6 +39,7 @@
         var metadata = true;
         var errors, errors2;
         var field, requiredFields, optionalFields;
+        var defaultValue, defaultValues;
 
         //Derive some variables for use later
         var charactersFromCharactersTab = tbv.d.characters.map(function (character) {
@@ -46,7 +51,7 @@
         });
         var charactersFromValuesTab = [];
         tbv.d.values.forEach(function (row) {
-            if (charactersFromValuesTab.indexOf(row.Character) == -1) {
+            if (row.Character && charactersFromValuesTab.indexOf(row.Character) == -1) {
                 charactersFromValuesTab.push(row.Character);
             }
         });
@@ -68,16 +73,6 @@
         }).map(function (character) {
             return character.Character;
         });
-
-        function metadataValue(key, error) {
-            if (!tbv.d.kbmetadata[key] || String(tbv.d.kbmetadata[key]).trim() == "") {
-                metadata = false;
-                errors.append($('<li class="tombioValid3">').text(error));
-                return false;
-            } else {
-                return true;
-            }
-        }
 
         //Reload button to avoid cache when KB problems are fixed.
         $('#tombioReload')
@@ -111,24 +106,63 @@
 
         //Check that required columns are present on the config tab
         requiredFields = ["Key", "Type", "Mandatory", "Value", "Date", "Notes"];
-        requiredFields.forEach(function (f) {
-            if ($.inArray(f, tbv.d.config.columns) == -1) {
-                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
-                metadata = false;
-            }
-        })
+
+        if (tbv.d.config.columns) {
+            requiredFields.forEach(function (f) {
+                if ($.inArray(f, tbv.d.config.columns) == -1) {
+                    errors.append($('<li class="tombioValid2">').html("The column <b>'" + f + "'</b> is missing, invalidating the whole config. Identikit can function without it by providing some dummy values."));
+                    metadata = false;
+                    generateDefaultConfigValues();
+                }
+            })
+        } else {
+            //No value for tbv.d.media.columns indicates that it is likely that the CSV was missing
+            errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it by providing some dummy values."));
+            metadata = false;
+            generateDefaultConfigValues();
+        }
+
+        function generateDefaultConfigValues() {
+            tbv.d.config.columns = requiredFields;
+            var now = new Date();
+            var year = now.getYear();
+            tbv.d.kbmetadata["title"] = "Indentikit - no title provided";
+            tbv.d.kbmetadata["year"] = String(1900 + year);
+            tbv.d.kbmetadata["authors"] = "Anon";
+            tbv.d.kbmetadata["version"] = "0.1";
+        }
 
         //Metadata title
-        if (!metadataValue('title', "You must specify a title for the KB (Key - title). This is used to generate a citation.")) metadata = false;
+        if (!metadataValue('title', "You should specify a title for the KB (Key - title). This is used to generate a citation. A default will be used.")) {
+            tbv.d.kbmetadata["title"] = "Indentikit - no title provided";
+        }
         //Metadata year
-        if (!metadataValue('year', "You must specify a year for the KB (Key - year). This is used to generate a citation.")) metadata = false;
+        if (!metadataValue('year', "You should specify a year for the KB (Key - year). This is used to generate a citation. Curent year will be used.")) {
+            var now = new Date();
+            var year = now.getYear();
+            tbv.d.kbmetadata["year"] = String(1900 + year);
+        }
         //Metadata version 
-        if (!metadataValue('authors', "You must specify one or more authors for the KB (Key - authors). This is used to generate a citation. Authors will appear in the citation exactly as you specify them.")) metadata = false;
+        if (!metadataValue('authors', "You should specify one or more authors for the KB (Key - authors). This is used to generate a citation. Authors will appear in the citation exactly as you specify them.")) {
+            tbv.d.kbmetadata["authors"] = "Anon";
+        }
         //Metadata version 
-        if (!metadataValue('version', "You must specify a version for the KB (Key - version). This is used to generate a citation.")) metadata = false;
+        if (!metadataValue('version', "You should specify a version for the KB (Key - version). This is used to generate a citation. The value 0.1 will be used.")) {
+            tbv.d.kbmetadata["version"] = "0.1";
+        } 
         if (!metadata) {
             $('#tombioKBReport').append($('<h4>').text('On the config worksheet...'));
             $('#tombioKBReport').append(errors);
+        }
+
+        function metadataValue(key, error) {
+            if (!tbv.d.kbmetadata[key] || String(tbv.d.kbmetadata[key]).trim() == "") {
+                metadata = false;
+                errors.append($('<li class="tombioValid2">').text(error));
+                return false;
+            } else {
+                return true;
+            }
         }
 
         //Taxa
@@ -256,15 +290,13 @@
         }
 
         //Characters
-
+        //If Group value is missing, replace with 'None'
         //Fix for https://github.com/burkmarr/tombiovis/issues/43
         tbv.d.characters.forEach(function (char) {
             if (char.Group == "") {
                 char.Group = "None";
             }
         });
-
-        //If Group value is missing, replace with 'None'
 
         errors = $('<ul>');
 
@@ -399,164 +431,117 @@
         errors = $('<ul>');
         errors2 = $('<ul>');
 
-        //Check that required columns are present on the values tab
         requiredFields = ["Character", "CharacterState", "CharacterStateTranslation", "StateHelp"];
-        requiredFields.forEach(function (f) {
-            if ($.inArray(f, tbv.d.values.columns) == -1) {
-                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
-                values = false;
-            }
-        })
-        optionalFields = ["StateHelpShort"];
-        optionalFields.forEach(function (f) {
-            if ($.inArray(f, tbv.d.values.columns) == -1) {
-                errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
-                values = false;
-            }
-        })
+        optionalFields = ["StateHelpShort", "StateGroup"];
+        if (tbv.d.values.columns) {
+            //Check that required columns are present on the values tab
+            
+            requiredFields.forEach(function (f) {
+                if ($.inArray(f, tbv.d.values.columns) == -1) {
+                    errors.append($('<li class="tombioValid2">').html("The madatory column <b>'" + f + "'</b> is missing. Identikit will add it, with empty values."));
+                    values = false;
+                    tbv.d.values.columns.push(f); //Add the column and empty values
+                    tbv.d.values.forEach(function(v) {
+                        v[f] = "";
+                    })
+                }
+            })
+            
+            optionalFields.forEach(function (f) {
+                if ($.inArray(f, tbv.d.values.columns) == -1) {
+                    errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
+                    values = false;
+                }
+            })
 
-        //Check that all characters in the values tab have corresponding entry in the characters tab.
-        charactersFromValuesTab.forEach(function (character) {
-            if (charactersFromCharactersTab.indexOf(character) == -1) {
-                errors.append($('<li class="tombioValid2">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented in the <i>values</i> worksheet."));
-                values = false;
-            }
-        });
+            //Check that all characters in the values tab have corresponding entry in the characters tab.
+            charactersFromValuesTab.forEach(function (character) {
+                if (charactersFromCharactersTab.indexOf(character) == -1) {
+                    errors.append($('<li class="tombioValid2">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented in the <i>values</i> worksheet."));
+                    values = false;
+                }
+            });
 
-        tbv.d.values.forEach(function (v) {
-            //Check that any character with StateHelpShort set also has StateHelp set.
-            if (v.StateHelpShort && !v.StateHelp) {
-                errors.append($('<li class="tombioValid2">').html("A value for 'StateHelpShort' is set but there is no value for 'StateHelp' for <b>'" + v.Character + " - " + v.CharacterState + "'</b>. You can set 'StateHelp' without setting 'StateHelpShort', but not the other way around."));
-                values = false;
-            }
-        })
-
-        //******************************************************************************************
-        //RJB The following checks were removed 26-05-2017 because I consider them to be overkill.
-        //In the case of ordinal characters, values on the value tab may not always be represented
-        //on the taxa tab - especially in the early stages of KB building. Separate checks have
-        //now been implemented to ensure that any ordinal value on the taxa tab is represented on
-        //the values tab.
-        //If reinstated at any point they will need updating to account for changes to the specification
-        //of ordinal characters (ordinal ranges) and the fact that some checking to see that all ordinal
-        //characters represented on taxa tab are also represented on values tab have been introduced
-        //before this point.
-        //******************************************************************************************
-        ////Check that values for a character on the values tab are also represented on the taxa tab
-        ////Conversely, where a character is represented at all on the values tab, report on values
-        ////in taxa tab that are not represented on values tab. For text characters, that is 
-        ////for info only, but for ordinal characters this is a serious error.
-        //var taxaCharacterValues, valueCharacterValues;
-        //charactersFromValuesTab.forEach(function (character) {
-
-        //    valueCharacterValues = [];
-        //    tbv.d.values.forEach(function (row) {
-        //        if (row.Character == character) {
-        //            valueCharacterValues.push(row.CharacterState);
-        //        }
-        //    });
-
-        //    if (charactersFromTaxaTab.indexOf(character) > -1) {
-        //        taxaCharacterValues = [];
-        //        tbv.d.taxa.forEach(function (taxon) {
-
-        //            var splitvalues = taxon[character].split("|");
-        //            splitvalues.forEach(function (charValue) {
-        //                charValue = charValue.trim();
-        //                if (endsWith(charValue, "(m)") || endsWith(charValue, "(f)")) {
-        //                    var stateValue = charValue.substr(0, charValue.length - 4).trim();
-        //                } else {
-        //                    var stateValue = charValue;
-        //                }
-
-        //                if (taxaCharacterValues.indexOf(stateValue) == -1) {
-        //                    taxaCharacterValues.push(stateValue);
-        //                }
-        //            });
-        //        });
-
-        //        //Are there values in values tab that are not in taxa tab?
-        //        valueCharacterValues.forEach(function (value) {
-        //            if (taxaCharacterValues.indexOf(value) == -1) {
-        //                errors.append($('<li class="tombioValid2">').html("The value <b>'" + value + "'</b> listed on the <i>values</i> worksheet for the character <b>'" + character + "'</b> is not specified for any taxa on the <i>taxa</i> worksheet."));
-        //                values = false;
-        //            }
-        //        });
-
-        //        //For characters represented on the values tab, are there values on the
-        //        //taxa tab which aren't represented on the values tab?
-        //        if (charactersFromValuesTab.indexOf(character) > -1) {
-        //            taxaCharacterValues.forEach(function (value) {
-        //                if (value != "" && value != "novalue" && value != "n/a" && value != "?") {
-        //                    if (valueCharacterValues.indexOf(value) == -1) {
-        //                        errors2.append($('<li class="tombioValid1">').html("The value <b>'" + value + "'</b> listed on the <i>taxa</i> worksheet for the character <b>'" + character + "'</b> is not specified on the <i>values</i> worksheet."));
-        //                        taxavalues = false;
-        //                    }
-        //                }
-        //            });
-        //        }
-        //    }
-        //});
+            tbv.d.values.forEach(function (v) {
+                //Check that any character with StateHelpShort set also has StateHelp set.
+                if (v.StateHelpShort && !v.StateHelp) {
+                    errors.append($('<li class="tombioValid2">').html("A value for 'StateHelpShort' is set but there is no value for 'StateHelp' for <b>'" + v.Character + " - " + v.CharacterState + "'</b>. You can set 'StateHelp' without setting 'StateHelpShort', but not the other way around."));
+                    values = false;
+                }
+            })
+        } else {
+            //No value for tbv.d.values.columns indicates that it is likely that the CSV was missing
+            errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it, but you need it to take advantage of some features."));
+            values = false;
+            //tbv.d.values.columns = [...requiredFields, ...optionalFields];
+        }
 
         if (!values) {
             $('#tombioKBReport').append($('<h4>').text('On the values worksheet...'));
             $('#tombioKBReport').append(errors);
         }
-        //if (!taxavalues) {
-        //    $('#tombioKBReport').append($('<h4>').text('Values on the taxa worksheet...'));
-        //    $('#tombioKBReport').append(errors2);
-        //}
 
         //Image media files
         errors = $('<ul>');
 
         //Check that required columns are present on the media tab
         requiredFields = ["URI", "ImageWidth", "Type", "Priority", "Caption", "Taxon", "Character", "State"];
-        requiredFields.forEach(function (f) {
-            if ($.inArray(f, tbv.d.media.columns) == -1) {
-                errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
-                media = false;
-            }
-        })
         optionalFields = ["UseFor", "TipStyle", "SmallURI", "LargeURI"];
-        optionalFields.forEach(function (f) {
-            if ($.inArray(f, tbv.d.media.columns) == -1) {
-                errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
-                media = false;
-            }
-        })
+        defaultValues = {
+            ImageWidth: "100%",
+            Type: "image-local"
+        }
 
-        tbv.d.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "image-web") }).forEach(function (m) {
+        if (tbv.d.media.columns) {
 
-            if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
-                //A character on the media tab does not appear on the characters tab
-                errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but that character is not on the characters worksheet."));
-                media = false;
-            } else if (m.Character != "") {
-                //If a character is specified on media tab, no help text specified on characters tab
-                //var character = tbv.d.characters.filter(function (c) { return (c.Character == m.Character) })[0];
-                //if (character.Help == "") {
-                //    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but no help text is provided for that character on the characters worksheet, so it won't be displayed."));
-                //    media = false;
-                //}
-            }
-
-            if (m.State != "" && m.Character == "") {
-                //Value specified without character on media tab
-                errors.append($('<li class="tombioValid2">').html("An image is specified for the state value <b>'" + m.State + "'</b> on the media worksheet, but no character is specified."));
-                media = false;
-            }
-            if (m.State != "" && m.Character != "") {
-                //If a character/value pair is not present on values tab or does not have an associated help value
-                var values = tbv.d.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
-
-                if (values.length == 0 || values[0].StateHelp == "") {
-                    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
+            requiredFields.forEach(function (f) {
+                if ($.inArray(f, tbv.d.media.columns) == -1) {
+                    defaultValue = defaultValues[f] ? defaultValues[f]  : ""; 
+                    errors.append($('<li class="tombioValid2">').html("The madatory column <b>'" + f + "'</b> is missing. Identikit will add it, with default value (\"" + defaultValue + "\")."));
+                    media = false;
+                    tbv.d.media.columns.push(f); //Add the column and empty values
+                    tbv.d.media.forEach(function(m) {
+                        m[f] = defaultValue;
+                    })
+                }
+            })
+            
+            optionalFields.forEach(function (f) {
+                if ($.inArray(f, tbv.d.media.columns) == -1) {
+                    errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));
                     media = false;
                 }
-            }
-        })
-
+            })
+    
+            tbv.d.media.filter(function (m) { return (m.Type == "image-local" || m.Type == "image-web") }).forEach(function (m) {
+    
+                if (m.Character != "" && charactersFromCharactersTab.indexOf(m.Character) == -1) {
+                    //A character on the media tab does not appear on the characters tab
+                    errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> on the media worksheet, but that character is not on the characters worksheet."));
+                    media = false;
+                }
+    
+                if (m.State != "" && m.Character == "") {
+                    //Value specified without character on media tab
+                    errors.append($('<li class="tombioValid2">').html("An image is specified for the state value <b>'" + m.State + "'</b> on the media worksheet, but no character is specified."));
+                    media = false;
+                }
+                if (m.State != "" && m.Character != "") {
+                    //If a character/value pair is not present on values tab or does not have an associated help value
+                    var values = tbv.d.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
+    
+                    if (values.length == 0 || values[0].StateHelp == "") {
+                        errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
+                        media = false;
+                    }
+                }
+            })
+        } else {
+            //No value for tbv.d.media.columns indicates that it is likely that the CSV was missing
+            errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it, but you need it to take advantage of some features."));
+            media = false;
+        }
+        
         if (!media) {
             $('#tombioKBReport').append($('<h4>').text('On the media worksheet...'));
             $('#tombioKBReport').append(errors);

@@ -545,6 +545,9 @@
                 }).then(function (data) {
                     tbv.d.values = data;
                     console.log("%cLoading - kb values loaded", "color: blue");
+                }).catch (function(){
+                    //Error reading CSV file, create empty array
+                    tbv.d.values = [];
                 });
             pAll.push(p);
 
@@ -562,9 +565,17 @@
                 }).then(function (data) {
                     tbv.d.media = data;
                     console.log("%cLoading - kb media loaded", "color: blue");
+                }).catch (function(){
+                    //Error reading CSV file, create empty array
+                    tbv.d.media = [];
                 });
             pAll.push(p);
 
+            tbv.d.kbconfig = {};
+            tbv.d.kbmetadata = {};
+            tbv.d.kbreleaseHistory = [];
+            var excludedTools = [];
+            
             p = d3.csv(tbv.opts.tombiokbpath + "config.csv?t=kbcsv" + antiCache,
                 function (row) {
                     var cleanRow = filterAndClean(row);
@@ -577,10 +588,6 @@
                     return cleanRow;
                 }).then(function(data) {
                     tbv.d.config = data;
-                    tbv.d.kbconfig = {};
-                    tbv.d.kbmetadata = {};
-                    tbv.d.kbreleaseHistory = [];
-                    var excludedTools = [];
                     data.forEach(function (d) {
                         //Set config values
                         if (d.Type == "config") {
@@ -617,6 +624,12 @@
                             tbv.d.kbreleaseHistory.push(d);
                         }
                     });
+                
+                    console.log("%cLoading - kb config loaded", "color: blue");
+                }).catch (function(){
+                    //Error reading CSV file, create empty array
+                    tbv.d.config = [];
+                }).finally (function() {
                     //Update list of included tools from default tools not
                     //explicitly excluded.
                     defaultTools.forEach(function (tool) {
@@ -628,9 +641,7 @@
                     if (tbv.opts.tools && Array.isArray(tbv.opts.tools) && tbv.opts.tools.length > 0) {
                         tbv.v.includedVisualisations = tbv.opts.tools;
                     }
-
-                    console.log("%cLoading - kb config loaded", "color: blue");
-                });
+                })
             pAll.push(p);
 
             //This function returns a promise which fulfills when all KB files are loaded

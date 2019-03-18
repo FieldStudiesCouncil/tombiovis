@@ -8,4 +8,4 @@ test-*
 .vs/
 kb/*
 !kb/biscuits
-kb/biscuits/*.csv
+kb/biscuits/~*
