@@ -100,12 +100,10 @@
         //First build an array of all the Taxonomy characters.
         taxonRanks = [];
         tbv.d.characters.forEach(function (c) {
-            if (c.Group == "Taxonomy" || c.Character == "Taxon"){
+            if (c.Group.toLowerCase() == "taxonomy" || c.Character == "taxon"){
                 taxonRanks.push(c.Character);
             }
         })
-
-        console.log("taxonRanks", taxonRanks)
 
         function findEntry(stratTable, rankValue) {
             //This function is to replace stratTable.find(function (entry) { return entry.name == rankValue })
@@ -139,10 +137,10 @@
                         rankColumn: r,
                         rank: tbv.d.oCharacters[r].Label,
                         abbrv: [rankValue,
-                            getAbbrv(rankValue, 1, (r == "Taxon")),
-                            getAbbrv(rankValue, 2, (r == "Taxon")),
-                            getAbbrv(rankValue, 3, (r == "Taxon"))],
-                        taxon: r == "Taxon" ? t : null
+                            getAbbrv(rankValue, 1, (r == "taxon")),
+                            getAbbrv(rankValue, 2, (r == "taxon")),
+                            getAbbrv(rankValue, 3, (r == "taxon"))],
+                        taxon: r == "taxon" ? t : null
                         //order: iT
                     })
                 }
@@ -170,7 +168,7 @@
 
         //Weed out all higher level ranks from the flat version
         var filteredChildren = taxaRootFlat.children.filter(function (child) {
-            return child.data.rankColumn == "Taxon";
+            return child.data.rankColumn == "taxon";
         })
         taxaRootFlat.children = filteredChildren;
 
@@ -217,7 +215,7 @@
 
             tbv.gui.main.contextMenu.addItem("Ignore higher taxa", function () {
                 taxaRootCurrent = taxaRootFlat;
-                displayTextForRank("Taxon");
+                displayTextForRank("taxon");
                 _this.refresh();
             }, false, [_this.visName]);
 
@@ -233,7 +231,7 @@
         } else if (taxonRanks.length > 1 && taxaRootCurrent == taxaRootFlat) {
             tbv.gui.main.contextMenu.addItem("Show higher taxa", function () {
                 taxaRootCurrent = taxaRoot;
-                displayTextForRank("Taxon");
+                displayTextForRank("taxon");
                 _this.refresh();
             }, false, [_this.visName]);
 
@@ -403,7 +401,7 @@
             //First time in, therefore zoom to root
             zoomToView([root.x, root.y, root.r * 2 + margin], [root.x, root.y, root.r * 2 + margin], transitionRefresh, true);
             //First time in, display taxa text
-            displayTextForRank("Taxon");
+            displayTextForRank("taxon");
         }
 
         highlightTopScorers(transitionRefresh);
@@ -474,7 +472,6 @@
         //Responsible for hiding all gui elements of this tool
         $("#vis5").hide();
 
-        console.log("hiding ", vis5.inputControl.divSel) 
         $(vis5.inputControl.divSel).hide();
     }
 
@@ -517,12 +514,12 @@
             })
             .style("stroke", function(d) {
                 if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "black";
-                if (_this.selectedRank == "Taxon") return "black";
+                if (_this.selectedRank == "taxon") return "black";
                 return null;
             })
             .style("stroke-width", function(d) {
                 if (maxOverall > 0 && d.data.data.taxon.visState.score.overall == maxOverall) return "2px";
-                if (_this.selectedRank == "Taxon") return "1px";
+                if (_this.selectedRank == "taxon") return "1px";
                 return "0px";
             })
             .style("stroke-linecap", function(d) {
@@ -561,11 +558,11 @@
         if (transitionRefresh) {
             g.selectAll("circle,text").transition(transitionRefresh)
                 .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
-                .attr("r", function (d) { console.log("d.r 1", d.r); return d.r * k; });
+                .attr("r", function (d) { return d.r * k });
         } else {
             g.selectAll("circle,text")
                 .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
-                .attr("r", function (d) { console.log("d.r 2", d.r); return d.r * k; });
+                .attr("r", function (d) { return d.r * k });
         }
 
         //If the new view and end view match, then this is not called by a tween and
@@ -735,8 +732,6 @@
     }
 
     function displayTextForRank(rank) {
-
-        console.log("displayTextForRank", rank)
 
         _this.selectedRank = rank;
 

@@ -110,19 +110,16 @@
         if (tbv.d.config.columns) {
             requiredFields.forEach(function (f) {
                 if ($.inArray(f, tbv.d.config.columns) == -1) {
-                    errors.append($('<li class="tombioValid2">').html("The column <b>'" + f + "'</b> is missing, invalidating the whole config. Identikit can function without it by providing some dummy values."));
+                    errors.append($('<li class="tombioValid3">').html("The mandatory column <b>'" + f + "'</b> is missing."));
                     metadata = false;
-                    generateDefaultConfigValues();
                 }
             })
         } else {
             //No value for tbv.d.media.columns indicates that it is likely that the CSV was missing
             errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it by providing some dummy values."));
             metadata = false;
-            generateDefaultConfigValues();
-        }
 
-        function generateDefaultConfigValues() {
+            //Generate default values
             tbv.d.config.columns = requiredFields;
             var now = new Date();
             var year = now.getYear();
@@ -292,7 +289,7 @@
         //Characters
         errors = $('<ul>');
         requiredFields = ["Group", "Character", "Label", "Help", "Status", "ValueType", "ControlType", "Params", "Weight"];
-        optionalFields = ["HelpShort", "Latitude"];
+        optionalFields = ["HelpShort"];
         if (tbv.d.characters.columns) {
 
             tbv.d.characters.forEach(function (char) {
@@ -306,13 +303,13 @@
             //No value for tbv.d.characters.columns indicates that it is likely that the CSV was missing
             errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it by providing some default values, but you will need to use it to make use of many Identikit features."));
             characters = false;
-            tbv.d.characters.columns = [...requiredFields, ...optionalFields];
+            tbv.d.characters.columns = [...requiredFields, ...optionalFields, "Latitude"];
 
             tbv.d.taxa.columns.forEach(function(c) {
 
                 tbv.d.characters.push({
 
-                    Group: c.toLowerCase() == "taxon" ? "Taxonomy" : "None",
+                    Group: c.toLowerCase() == "taxon" ? "taxonomy" : "None",
                     Character: c.toLowerCase(),
                     Label: c,
                     Help: "",
@@ -354,16 +351,41 @@
         }
  
         //Check that Taxon column has a Group value of Taxonomy
-        var taxonRows = tbv.d.characters.filter(function (c) { return (c.Character == "Taxon") });
-        if (taxonRows.length > 0 && taxonRows[0].Group != "Taxonomy") {
-            errors.append($('<li class="tombioValid3">').html("The Taxon character must have a Group value of 'Taxonomy'. It is currently set to '" + taxonRows[0].Group + "'."));
+        var taxonRows = tbv.d.characters.filter(function (c) { return (c.Character == "taxon") });
+        if (taxonRows.length > 0 && taxonRows[0].Group.toLowerCase() != "taxonomy") {
+            errors.append($('<li class="tombioValid2">').html("The Taxon character must have a Group value of 'Taxonomy'. It is currently set to '" + taxonRows[0].Group + "'. Identikit will use 'Taxonomy' instead."));
             characters = false;
+            taxonRows[0].Group = "taxonomy";
         }
         //Check that all characters (column headers) on the taxa tab have corresponding values in the characters tab.
         charactersFromTaxaTab.forEach(function (character, iCol) {
             if (charactersFromCharactersTab.indexOf(character) == -1) {
-                errors.append($('<li class="tombioValid3">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Names are case sensitive. Note that rows will not be seen unless the <b>Status</b> column has a value."));
-                characters = false;
+                if (character == "taxon") {
+                    //Add the taxon column silently. Before version 1.9.0 the column "taxon"
+                    //had to be added to the characters worksheet, but from 1.9.0 it doesn't have
+                    //to be there.
+                    tbv.d.characters.push({
+                        Group: "taxonomy",
+                        Character: "taxon"
+                    })
+                } else {
+                    errors.append($('<li class="tombioValid2">').html("There is no row on the <i>characters</i> worksheet for the character <b>'" + character + "'</b> represented by a column (column " + (iCol + 1) + ") on the <i>taxa</i> worksheet. All columns on the <i>taxa</i> tab must be represented by a row in the <i>characters</i> worksheet regardless of whether or not they are used. Identikit will add default values, but to take full advantage of some facilities you wil need to add a row to the knowledge-base."));
+                    characters = false;
+                    tbv.d.characters.columns.push(character)
+                    tbv.d.characters.push({
+                        Group: "None",
+                        Character: character,
+                        Label: character,
+                        Help: "",
+                        HelpShort: "",
+                        Status: "key",
+                        ValueType: "text",
+                        ControlType: "single",
+                        Params: "",
+                        Weight: "10",
+                        Latitude: ""
+                    })
+                } 
             }
         })
         //Check that all characters in the characters tab have corresponding columns in the taxa tab.
@@ -464,12 +486,8 @@
             
             requiredFields.forEach(function (f) {
                 if ($.inArray(f, tbv.d.values.columns) == -1) {
-                    errors.append($('<li class="tombioValid2">').html("The madatory column <b>'" + f + "'</b> is missing. Identikit will add it, with empty values."));
+                    errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
                     values = false;
-                    tbv.d.values.columns.push(f); //Add the column and empty values
-                    tbv.d.values.forEach(function(v) {
-                        v[f] = "";
-                    })
                 }
             })
             
@@ -523,12 +541,8 @@
             requiredFields.forEach(function (f) {
                 if ($.inArray(f, tbv.d.media.columns) == -1) {
                     defaultValue = defaultValues[f] ? defaultValues[f]  : ""; 
-                    errors.append($('<li class="tombioValid2">').html("The madatory column <b>'" + f + "'</b> is missing. Identikit will add it, with default value (\"" + defaultValue + "\")."));
+                    errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f + "'</b> is missing."));
                     media = false;
-                    tbv.d.media.columns.push(f); //Add the column and empty values
-                    tbv.d.media.forEach(function(m) {
-                        m[f] = defaultValue;
-                    })
                 }
             })
             
@@ -575,13 +589,27 @@
 
         //Taxonomy checks
         errors = $('<ul>');
-        var taxonomyCharacters = tbv.d.characters.filter(function (c) { return (c.Group == "Taxonomy") });
+        var taxonomyCharacters = tbv.d.characters.filter(function (c) { return (c.Group.toLowerCase() == "taxonomy") });
         var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
         //Check that the row representing Taxon is the last Taxonomy group column on the Characters tab
-        if (lastTaxonomyCol && lastTaxonomyCol != "Taxon") {
+        if (lastTaxonomyCol && lastTaxonomyCol != "taxon") {
             errors.append($('<li class="tombioValid3">').html("The last Taxonomy row representing '" + lastTaxonomyCol + "' on the characters worksheet appears below the row representing 'Taxon' - it must come above."));
             taxonomy = false;
         }
+        //Sort characters so that taxonomy types (Group == Taxonomy) always appear last 
+        //and therefore after other Taxonomy types.
+        tbv.d.characters.sort(function(a, b){
+            if (a.Character == "taxon") {
+                return 1;
+            } else if (a.Group.toLowerCase() == "taxonomy" && b.Group.toLowerCase() != "taxonomy") {
+                return -1;
+            } else {
+                return 0;
+            }
+        })
+
+        console.log ("Sorted", tbv.d.characters)
+
         //Check that we have a strict hierarchical taxonomy
         //console.log(lastTaxonomyCol, taxonomyCharacters.length)
         if (lastTaxonomyCol == "Taxon" && taxonomyCharacters.length > 2) {

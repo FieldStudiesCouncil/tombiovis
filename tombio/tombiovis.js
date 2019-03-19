@@ -1744,7 +1744,7 @@
         tbv.d.characters.forEach(function (character) {
             //if (character.Status == "key" && (character.ValueType == "text" || character.ValueType == "ordinal")) {
 
-            if (character.Group == "Taxonomy" || (character.Status == "key" && (character.ValueType == "text"))) {
+            if (character.Group.toLowerCase() == "taxonomy" || (character.Status == "key" && (character.ValueType == "text"))) {
                 tbv.d.taxa.forEach(function (taxon) {
                     var allstates = taxon[character.Character].getStates("");
                     allstates.forEach(function (state) {
