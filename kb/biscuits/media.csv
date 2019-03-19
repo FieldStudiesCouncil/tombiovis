@@ -1,4 +1,4 @@
-URI,SmallURI,LargeURI,ImageWidth,Type,Priority,Caption,Taxon,Character,State,UseFor,TipStyle
+ï»¿URI,SmallURI,LargeURI,ImageWidth,Type,Priority,Caption,Taxon,Character,State,UseFor,TipStyle
 # 'Words' character help images,,,,,,,,,,,
 resources/images/BourbonTop.jpg,,,100%,image-local,,Words on the top of a Bourbon,,Words,,,
 # 'FillingColour' character state help,,,,,,,,,,,
@@ -13,7 +13,7 @@ resources/images/MCC1.jpg,,,100%,image-local,,A photo showing a top down view of
 resources/images/MCC2.jpg,,,100%,image-local,,A photo showing an oblique view of a Choc Chip Cookie    ,Choc Chip Cookie,,,,
 https://www.handletheheat.com/wp-content/uploads/2018/02/BAKERY-STYLE-CHOCOLATE-CHIP-COOKIES-9-768x768.jpg,,,100%,image-web,,Web photo of Choc Chip,Choc Chip Cookie,,,,
 ,,,,,,,,,,,
-# Taxon HTML files…,,,,,,,,,,,
+# Taxon HTML filesâ€¦,,,,,,,,,,,
 resources/text/DigestivesHist.html,,,,html-local,2,History of the Digestive ,Milk Chocolate Digestive,,,,
 resources/text/DigestivesRecipe.html,,,,html-local,1,Recipe for a Digestive,Milk Chocolate Digestive,,,,
 resources/text/Bourbon.html,,,,html-local,1,About the Bourbon biscuit,Bourbon Cream,,,,
@@ -88,4 +88,4 @@ resources/images/MCDSide.jpg,,,100%,image-local,3,Side view of a Milk Chocolate 
 ,,,,,,,,,,,
 resources/images/ShortcakeTop.jpg,,,100%,image-local,,Top view of a Shortcake,Shortcake,,,,
 resources/images/ShortcakeOblique.jpg,,,100%,image-local,,Oblique view of a Shortcake,Shortcake,,,,
-resources/images/ShortcakeOblique.jpg,,,100%,image-local,,Köhler’s Medizinal-Pflanzen,Shortcake,,,,
+resources/images/ShortcakeOblique.jpg,,,100%,image-local,,KÃ¶hlerâ€™s Medizinal-Pflanzen,Shortcake,,,,

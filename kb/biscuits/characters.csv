@@ -1,6 +1,4 @@
-Group,Character,Label,Help,HelpShort,Status,ValueType,ControlType,Params,Weight,Latitude
-Taxonomy,Taxon,,,,,,,,,
-Taxonomy,TopTen,,,,,,,,,
+﻿Group,Character,Label,Help,HelpShort,Status,ValueType,ControlType,Params,Weight,Latitude
 Structure,Shape,Shape,"The actual shape of the biscuit can be a useful feature for identification.  There are only three options - round (circular), rectangular (or squarish), or cigar (sausage) shaped.",The actual shape of the biscuit can be a useful feature for identification.  ,key,text,single,,10,
 Structure,SingleDouble,Single or Double Biscuit,"Is the biscuit a single layer, or is it a double biscuit i.e. two biscuit layers sandwiched together with a filling?",,key,text,single,,10,
 Structure,Coating,Coating,Does the biscuit have a chocolate coating on any part of it?,,key,text,single,,8,
@@ -13,4 +11,4 @@ Size,Width,Width,"The width of the biscuit, measured in mm. If the biscuit is re
 Size,Length,Length,"The length of the biscuit, measured in mm. If the biscuit is rectangular, measure the length along the longest side.",,key,numeric,spin,"1,100,1",8,10
 Taste,ChocTaste,How chocolatey?,Indicate how <i>chocolatey</i> the biscuit is by selecting the best match from the list.,,key,ordinal,single,,10,2
 Other,Availability,Availability,When was the biscuit 'found'?!,,key,ordinalCircular,multi,,10,4
-#Other,TopTen,Top ten biscuit?,,,display,,,,,
+Taxonomy,TopTen,Top ten biscuit?,,,display,,,,,

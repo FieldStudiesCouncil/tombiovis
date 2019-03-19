@@ -589,27 +589,29 @@
 
         //Taxonomy checks
         errors = $('<ul>');
+        //Sort characters so that taxonomy types (Group == Taxonomy) always appear before 
+        //other Taxonomy types and before the taxon character.
+        tbv.d.characters.sort(function(a, b){
+            let score = c => {
+                if (c.Character == "taxon") {
+                    return 2;
+                } else if (c.Group.toLowerCase() == "taxonomy") {
+                    return 1;
+                } else {
+                    return 3;
+                }
+            }
+            return score(a) - score(b)
+        })
+
         var taxonomyCharacters = tbv.d.characters.filter(function (c) { return (c.Group.toLowerCase() == "taxonomy") });
         var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
         //Check that the row representing Taxon is the last Taxonomy group column on the Characters tab
         if (lastTaxonomyCol && lastTaxonomyCol != "taxon") {
             errors.append($('<li class="tombioValid3">').html("The last Taxonomy row representing '" + lastTaxonomyCol + "' on the characters worksheet appears below the row representing 'Taxon' - it must come above."));
-            taxonomy = false;
+            taxonomy = false; //Previous sorting should now make this redundant.
         }
-        //Sort characters so that taxonomy types (Group == Taxonomy) always appear last 
-        //and therefore after other Taxonomy types.
-        tbv.d.characters.sort(function(a, b){
-            if (a.Character == "taxon") {
-                return 1;
-            } else if (a.Group.toLowerCase() == "taxonomy" && b.Group.toLowerCase() != "taxonomy") {
-                return -1;
-            } else {
-                return 0;
-            }
-        })
-
-        console.log ("Sorted", tbv.d.characters)
-
+        
         //Check that we have a strict hierarchical taxonomy
         //console.log(lastTaxonomyCol, taxonomyCharacters.length)
         if (lastTaxonomyCol == "Taxon" && taxonomyCharacters.length > 2) {
