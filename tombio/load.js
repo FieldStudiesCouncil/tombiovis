@@ -531,6 +531,9 @@
                 }).then(function (data) {
                     tbv.d.characters = data;
                     console.log("%cLoading - kb characters loaded", "color: blue");
+                }).catch (function(){
+                    //Error reading CSV file, create empty array
+                    tbv.d.characters = [];
                 });
             pAll.push(p);
 

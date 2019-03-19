@@ -290,25 +290,51 @@
         }
 
         //Characters
-        //If Group value is missing, replace with 'None'
-        //Fix for https://github.com/burkmarr/tombiovis/issues/43
-        tbv.d.characters.forEach(function (char) {
-            if (char.Group == "") {
-                char.Group = "None";
-            }
-        });
-
         errors = $('<ul>');
-
-        //Check that required columns are present on the characters tab  
         requiredFields = ["Group", "Character", "Label", "Help", "Status", "ValueType", "ControlType", "Params", "Weight"];
+        optionalFields = ["HelpShort", "Latitude"];
+        if (tbv.d.characters.columns) {
+
+            tbv.d.characters.forEach(function (char) {
+                //If Group value is missing, replace with 'None'
+                //Fix for https://github.com/burkmarr/tombiovis/issues/43
+                if (char.Group == "") {
+                    char.Group = "None";
+                }
+            });
+        } else {
+            //No value for tbv.d.characters.columns indicates that it is likely that the CSV was missing
+            errors.append($('<li class="tombioValid2">').html("No CSV file was found. Identikit can function without it by providing some default values, but you will need to use it to make use of many Identikit features."));
+            characters = false;
+            tbv.d.characters.columns = [...requiredFields, ...optionalFields];
+
+            tbv.d.taxa.columns.forEach(function(c) {
+
+                tbv.d.characters.push({
+
+                    Group: c.toLowerCase() == "taxon" ? "Taxonomy" : "None",
+                    Character: c.toLowerCase(),
+                    Label: c,
+                    Help: "",
+                    HelpShort: "",
+                    Status: c.toLowerCase() == "taxon" ? "" : "key",
+                    ValueType: "text",
+                    ControlType: "single",
+                    Params: "",
+                    Weight: "10",
+                    Latitude: ""
+                })             
+                charactersFromCharactersTab.push(c.toLowerCase());
+            }) 
+        }
+       
+        //Check that required columns are present on the characters tab  
         requiredFields.forEach(function (f) {
             if ($.inArray(f, tbv.d.characters.columns) == -1) {
                 errors.append($('<li class="tombioValid3">').html("The madatory column <b>'" + f +"'</b> is missing."));
                 characters = false;
             }
         })
-        optionalFields = ["HelpShort"];
         optionalFields.forEach(function (f) {
             if ($.inArray(f, tbv.d.characters.columns) == -1) {
                 errors.append($('<li class="tombioValid1">').html("The optional column <b>'" + f + "'</b> is missing."));

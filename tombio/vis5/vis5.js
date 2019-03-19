@@ -561,11 +561,11 @@
         if (transitionRefresh) {
             g.selectAll("circle,text").transition(transitionRefresh)
                 .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
-                .attr("r", function (d) { return d.r * k; });
+                .attr("r", function (d) { console.log("d.r 1", d.r); return d.r * k; });
         } else {
             g.selectAll("circle,text")
                 .attr("transform", function (d) { return "translate(" + (d.x - newView[0]) * k + "," + (d.y - newView[1]) * k + ")"; })
-                .attr("r", function (d) { return d.r * k; });
+                .attr("r", function (d) { console.log("d.r 2", d.r); return d.r * k; });
         }
 
         //If the new view and end view match, then this is not called by a tween and
