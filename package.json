@@ -1,12 +1,13 @@
 {
     "name": "fsc-identikit",
     "version": "2.0.0",
-    "main": "elecstart.js",
+    "main": "identikit/elecstart.js",
     "dependencies": {
         "electron-pdf-window": "^1.0.12"
     },
     "devDependencies": {
         "electron": "^3.0.11",
+        "electron-builder": "^20.39.0",
         "gulp": "^3.9.1",
         "gulp-clean-css": "^3.9.4",
         "gulp-rename": "^1.4.0",
@@ -14,6 +15,14 @@
         "pump": "^3.0.0"
     },
     "scripts": {
-        "start": "electron ."
+        "start": "electron .",
+        "dist": "build"
+    },
+    "build": {
+        "appId": "uk.identikit",
+        "win": {
+            "target": "nsis",
+            "icon": "build/icon.ico"
+        }
     }
 }

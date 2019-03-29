@@ -1,5 +1,5 @@
-documentation/*.docx export-ignore
+node_modules/documentation/*.docx export-ignore
 .gitignore export-ignore
 .gitattributes export-ignore
 gulpfile.js export-ignore
-tombio/visEarthworm export-ignore
+node_modules/tombio/visEarthworm export-ignore

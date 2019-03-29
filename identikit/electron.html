@@ -45,18 +45,18 @@
 
         var $divList = $("#identikit-kbs");
 
-        getDirectories('./kb').forEach((f) => {
+        getDirectories('./identikit/kb').forEach((f) => {
 
             var fMod = f.replace(/\\/g, "/") + "/"
 
             var $d = $("<p>");
-            var $a = $("<a>").attr("href", "vis.html?kb=" + fMod).text(fMod);
+            var $a = $("<a>").attr("href", "vis.html?kb=../" + fMod).text(fMod);
             $d.append($a);
             $d.append(" with the <b>standard</b> interface");
             $divList.append($d); 
 
             $d = $("<p>");
-            $a = $("<a>").attr("href", "vism.html?kb=" + fMod).text(fMod);
+            $a = $("<a>").attr("href", "vism.html?kb=../" + fMod).text(fMod);
             $d.append($a);
             $d.append(" with the <b>mobile</b> interface");
             $divList.append($d); 

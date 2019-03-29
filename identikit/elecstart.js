@@ -11,7 +11,7 @@ function createWindow() {
     })
 
     // and load the index.html of the app.
-    win.loadFile('electron.html')
+    win.loadFile('identikit/electron.html')
 }
 
 app.on('ready', createWindow)
@@ -37,7 +37,7 @@ const template = [
       submenu: [
         { 
             label: 'Select knowledge-base',
-            click() {win.loadFile('electron.html')}
+            click() {win.loadFile('identikit/electron.html')}
         },
         { type: 'separator' },
         { role: 'reload' },
