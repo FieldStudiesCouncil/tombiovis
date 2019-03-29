@@ -514,6 +514,8 @@
                 }).then(function (data) {
                     tbv.d.taxa = data;
                     console.log("%cLoading - kb taxa loaded", "color: blue");
+                }).catch(function() {
+                    console.log("%cError loading taxa.csv", "color: red");
                 });
             pAll.push(p);
 
@@ -666,6 +668,7 @@
                             //properly. So we look for an undefined value and replace with empty string.
                             //row[key] = row[key].trim();
                             row[key] = row[key] ? row[key].trim() : "";
+                            if (row[key].substr(0, 1) == "#") row[key] = ""; //Remoeve any values that start with '#' characters
 
                             //Lone question marks are notation for KB developers only - they are treated
                             //as missing values by the software, so replace with empty string.

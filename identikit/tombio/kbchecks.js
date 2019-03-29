@@ -22,7 +22,9 @@
             tbv.opts.checkKB = tbv.d.kbconfig.checkValidity && tbv.d.kbconfig.checkValidity == "yes";
         }
         if (!tbv.opts.checkKB) {
-            return true;
+            //From version 1.9 we must go through checks because some modification is
+            //carried out here in case of missing data.
+            //return true;
         }
 
         //Create HTML report elements.
@@ -40,6 +42,45 @@
         var errors, errors2;
         var field, requiredFields, optionalFields;
         var defaultValue, defaultValues;
+
+        //Reload button to avoid cache when KB problems are fixed.
+        $('#tombioReload')
+          .click(function (event) {
+              //Force reload of entire page - ignoring cache.
+              window.location.reload(true);
+          })
+
+        //Continue button to force continue.
+        $('#tombioContinue')
+          .css("margin-left", "5px")
+          .click(function (event) {
+              $("#downloadspin").show();
+              $('#tombioKBReport').hide();
+              //If I don't use a setTimeout function here, the spinner doesn't re-appear
+              setTimeout(function () { tbv.f.loadcomplete("force") }, 100);
+          })
+
+        $('#tombioKBReport').append($('<h3>').text('First fix these knowledge-base problems...'));
+        $('#tombioKBReport').append($('<p>').html("Some problems were found with the knowledge-base. They should be easy enough to fix. Read on for more details and guidance."));
+        $('#tombioKBReport').append($('<p>').html("When you've fixed one or more problems, use the <i>Save worksheets as CSV</i> button on the KB to regenerate the CSVs and then click the <i>Reload</i> button above."));
+        $('#tombioKBReport').append($('<p>').html("The problems are colour-coded according to the schema shown below:"));
+        errors = $('<ul>');
+        errors.append($('<li class="tombioValid3">').html("These are serious problems that could cause the visualisation software to malfunction."));
+        errors.append($('<li class="tombioValid2">').html("These problems are not likely to cause the visualisation software to malfunction, but you might not see what you expect."));
+        errors.append($('<li class="tombioValid1">').html("These are for information only - it may be what you intended to do, but if not, you may as well sort them out. These will not cause the visualisation software to malfunction."));
+        $('#tombioKBReport').append(errors);
+
+        console.log("adsf")
+        errors = $('<ul>');
+        //If taxa.csv was missing, tbv.d.taxa will not be present
+        if (!tbv.d.taxa) {
+            console.log("ad")
+            errors.append($('<li class="tombioValid3">').html("The file 'taxa.csv' could not be found in the the knowledge-base folder '" + tbv.opts.tombiokbpath + "'"));
+            $('#tombioKBReport').append($('<h4>').text('On the taxa worksheet...'));
+            $('#tombioKBReport').append(errors);
+            $('#tombioKBReport').show();
+            return; //End checking here
+        }
 
         //Derive some variables for use later
         var charactersFromCharactersTab = tbv.d.characters.map(function (character) {
@@ -73,33 +114,6 @@
         }).map(function (character) {
             return character.Character;
         });
-
-        //Reload button to avoid cache when KB problems are fixed.
-        $('#tombioReload')
-          .click(function (event) {
-              //Force reload of entire page - ignoring cache.
-              window.location.reload(true);
-          })
-
-        //Continue button to force continue.
-        $('#tombioContinue')
-          .css("margin-left", "5px")
-          .click(function (event) {
-              $("#downloadspin").show();
-              $('#tombioKBReport').hide();
-              //If I don't use a setTimeout function here, the spinner doesn't re-appear
-              setTimeout(function () { tbv.f.loadcomplete("force") }, 100);
-          })
-
-        $('#tombioKBReport').append($('<h3>').text('First fix these knowledge-base problems...'));
-        $('#tombioKBReport').append($('<p>').html("Some problems were found with the knowledge-base. They should be easy enough to fix. Read on for more details and guidance."));
-        $('#tombioKBReport').append($('<p>').html("When you've fixed one or more problems, use the <i>Save worksheets as CSV</i> button on the KB to regenerate the CSVs and then click the <i>Reload</i> button above."));
-        $('#tombioKBReport').append($('<p>').html("The problems are colour-coded according to the schema shown below:"));
-        errors = $('<ul>');
-        errors.append($('<li class="tombioValid3">').html("These are serious problems that could cause the visualisation software to malfunction."));
-        errors.append($('<li class="tombioValid2">').html("These problems are not likely to cause the visualisation software to malfunction, but you might not see what you expect."));
-        errors.append($('<li class="tombioValid1">').html("These are for information only - it may be what you intended to do, but if not, you may as well sort them out. These will not cause the visualisation software to malfunction."));
-        $('#tombioKBReport').append(errors);
 
         //Metadata
         errors = $('<ul>');
@@ -164,6 +178,7 @@
 
         //Taxa
         errors = $('<ul>');
+
         //Taxon column must be present
         if (!tbv.d.taxa[0]["taxon"]) {
             errors.append($('<li class="tombioValid3">').html("There must be a column called <i>taxon</i> which stores the names of the taxa you are working with."));
@@ -566,15 +581,15 @@
                     errors.append($('<li class="tombioValid2">').html("An image is specified for the state value <b>'" + m.State + "'</b> on the media worksheet, but no character is specified."));
                     media = false;
                 }
-                if (m.State != "" && m.Character != "") {
-                    //If a character/value pair is not present on values tab or does not have an associated help value
-                    var values = tbv.d.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
+                // if (m.State != "" && m.Character != "") {
+                //     //If a character/value pair is not present on values tab or does not have an associated help value
+                //     var values = tbv.d.values.filter(function (v) { return (m.Character == v.Character && m.State == v.CharacterState) });
     
-                    if (values.length == 0 || values[0].StateHelp == "") {
-                        errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
-                        media = false;
-                    }
-                }
+                //     if (values.length == 0 || values[0].StateHelp == "") {
+                //         errors.append($('<li class="tombioValid2">').html("An image is specified for the character <b>'" + m.Character + "'</b> and state <b>'" + m.State + "'</b> on the media worksheet, but no corresponding pair is found with help text on the values worksheet, so it won't be displayed."));
+                //         media = false;
+                //     }
+                // }
             })
         } else {
             //No value for tbv.d.media.columns indicates that it is likely that the CSV was missing
@@ -656,9 +671,13 @@
         if (taxa && characters && values && media && metadata & taxonomy) {
             return true;
         } else {
-            $('#tombioKBReport').show();
-            $("#downloadspin").hide();
-            return false;
+            if (tbv.opts.checkKB) {
+                $('#tombioKBReport').show();
+                $("#downloadspin").hide();
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 

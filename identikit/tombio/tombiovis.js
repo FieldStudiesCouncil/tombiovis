@@ -1653,7 +1653,8 @@
 
         //Help text character states
         var charText = tbv.d.values.filter(function (v) {
-            if (v.Character == charName && v.StateHelp) return true;
+            //if (v.Character == charName && v.StateHelp) return true;
+            if (v.Character == charName) return true; //All included as of v1.9
         });
 
         charText.forEach(function (charState) {
@@ -1663,8 +1664,10 @@
             } else {
                 var charStateText = charState.CharacterState;
             }
+            if (charState.StateHelp) charStateText += ": ";
+
             var para = $('<p/>').appendTo($divHelp);
-            var spanState = $('<span/>', { text: charStateText + ": " }).css("font-weight", "Bold");
+            var spanState = $('<span/>', { text: charStateText}).css("font-weight", "Bold");
             para.append(spanState);
             var spanHelp = $('<span/>', { html: charState.StateHelp }).css("font-weight", "Normal");
             para.append(spanHelp);
