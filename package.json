@@ -8,6 +8,7 @@
     "devDependencies": {
         "electron": "^3.0.11",
         "electron-builder": "^20.39.0",
+        "electron-packager": "^13.1.1",
         "gulp": "^3.9.1",
         "gulp-clean-css": "^3.9.4",
         "gulp-rename": "^1.4.0",
@@ -16,13 +17,6 @@
     },
     "scripts": {
         "start": "electron .",
-        "dist": "build"
-    },
-    "build": {
-        "appId": "uk.identikit",
-        "win": {
-            "target": "nsis",
-            "icon": "build/icon.ico"
-        }
+        "build-win32": "electron-packager ./identikit -- version 3.0.11 --platform win32 --icon ./identikit/tombio/resources/icon.ico --out ./dist --overwrite"
     }
 }
