@@ -1,4 +1,4 @@
-Key,Type,Mandatory,Value,Date,Notes
+﻿Key,Type,Mandatory,Value,Date,Notes
 #Main metadata about the key (e.g. for citing the key),,,,,
 title,metadata,yes,Family Circle Biscuits,,
 year,metadata,yes,2016,,
