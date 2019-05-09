@@ -9,4 +9,3 @@ identikit/kb/*
 identikit/kb/biscuits/~*
 test-*
 .vs/
-node_modules/
