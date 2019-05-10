@@ -8,4 +8,5 @@ identikit/kb/*
 !identikit/kb/biscuits
 identikit/kb/biscuits/~*
 test-*
-.vs/
+.vs/*
+node-modules
