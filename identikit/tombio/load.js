@@ -384,10 +384,10 @@
         jsF.guiOnsenUi.requiresFirst = ["onsenui"];
 
         //Onsenui
-        jsF.add("onsenui", "dependencies/onsenui-2.10.3/js/onsenui.min.js");
-        jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui.min.css");
-        jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsen-css-components.min.css");
-        jsF.onsenui.addCSS("dependencies/onsenui-2.10.3/css/onsenui-fonts.css");
+        jsF.add("onsenui", "dependencies/onsenui-2.10.10/js/onsenui.min.js");
+        jsF.onsenui.addCSS("dependencies/onsenui-2.10.10/css/onsenui.min.css");
+        jsF.onsenui.addCSS("dependencies/onsenui-2.10.10/css/onsen-css-components.min.css");
+        jsF.onsenui.addCSS("dependencies/onsenui-2.10.10/css/onsenui-fonts.css");
 
         //Visualisation interface template
         jsF.add("visTemplate", "visTemplate/visTemplate.js");

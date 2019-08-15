@@ -2,7 +2,7 @@
     "use strict";
 
     //Important!!!!!
-    //This implementation depends on a modified version of onsenui-2.10.3.
+    //This implementation depends on a modified version of onsenui-2.10.10.
     //The javascript file onsenui.js has a couple of lines added in createClass(SlideListItemAnimator)
     //to fire events when an expandable list item is shown or hidden.
     //It is marked with the comment 'FSC Identikit'.

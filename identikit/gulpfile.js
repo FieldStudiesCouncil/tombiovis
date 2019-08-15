@@ -16,12 +16,12 @@ gulp.task("js", function () {
 gulp.task("onsenjs", function () {
     //This is required because a change has been made to onsenui to generate an event
     //when expandable list item is expanded.
-    return gulp.src('tombio/dependencies/onsenui-2.10.3/js/onsenui.js')
+    return gulp.src('tombio/dependencies/onsenui-2.10.10/js/onsenui.js')
         .pipe(rename(function(path){
             path.basename += ".min";
         }))
         .pipe(uglify(/* options */))
-        .pipe(gulp.dest("tombio/dependencies/onsenui-2.10.3/js"));
+        .pipe(gulp.dest("tombio/dependencies/onsenui-2.10.10/js"));
 });
 
 gulp.task('css', function () {
@@ -36,12 +36,12 @@ gulp.task('css', function () {
 
 gulp.task("onsencss", function () {
     //This is required because a change has been made to onsenui CSS to fix scrolling issues.
-    return gulp.src('tombio/dependencies/onsenui-2.10.3/css/onsenui.css')
+    return gulp.src('tombio/dependencies/onsenui-2.10.10/css/onsenui.css')
         .pipe(rename(function(path){
             path.basename += ".min";
         }))
         .pipe(cleanCSS(/* options */))
-        .pipe(gulp.dest("tombio/dependencies/onsenui-2.10.3/css"));
+        .pipe(gulp.dest("tombio/dependencies/onsenui-2.10.10/css"));
 });
 
 gulp.task('default', gulp.series('js', 'onsenjs', 'css', 'onsencss'));
