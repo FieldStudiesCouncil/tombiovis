@@ -261,7 +261,8 @@
     tbv.gui.keyInputOnsenUi.fn.toggleExpansion = function (event, character) {
 
         if ($('#tombioKiOui-' + character).attr("data-shown") == "false") {
-            document.querySelector('#tombioKiOui-' + character).showExpansion();
+            console.log("showing")
+            document.querySelector('#tombioKiOui-' + character).showExpansion(function(){console.log("shown")});
         } else {
             document.querySelector('#tombioKiOui-' + character).hideExpansion();
         }

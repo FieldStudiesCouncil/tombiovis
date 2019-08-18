@@ -69,8 +69,6 @@
         errors.append($('<li class="tombioValid2">').html("These problems are not likely to cause the visualisation software to malfunction, but you might not see what you expect."));
         errors.append($('<li class="tombioValid1">').html("These are for information only - it may be what you intended to do, but if not, you may as well sort them out. These will not cause the visualisation software to malfunction."));
         $('#tombioKBReport').append(errors);
-
-        console.log("adsf")
         errors = $('<ul>');
         //If taxa.csv was missing, tbv.d.taxa will not be present
         if (!tbv.d.taxa) {
