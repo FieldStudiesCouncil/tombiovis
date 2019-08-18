@@ -18,6 +18,7 @@
         "gulp-uglify-es": "^1.0.4"
     },
     "scripts": {
-        "start": "electron ."
+        "start": "electron .",
+        "minify": "gulp -f identikit/gulpfile.js"
     }
 }
