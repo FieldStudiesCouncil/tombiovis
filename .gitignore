@@ -9,5 +9,5 @@ identikit/kb/*
 identikit/kb/biscuits/~*
 test-*
 .vs/*
-node-modules
+node_modules
 identikit/tombio/dependencies/electron-pdf-window/node_modules
