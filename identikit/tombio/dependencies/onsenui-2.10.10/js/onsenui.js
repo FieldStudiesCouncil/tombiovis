@@ -18457,17 +18457,11 @@ var SlideListItemAnimator = function (_ListItemAnimator) {
     key: 'showExpansion',
     value: function showExpansion(listItem, callback) {
       this._animateExpansion(listItem, true, callback);
-
-      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
-      document.dispatchEvent(new CustomEvent('listAnimated', { detail: {listItem: listItem, action: 'show' }}));
     }
   }, {
     key: 'hideExpansion',
     value: function hideExpansion(listItem, callback) {
       this._animateExpansion(listItem, false, callback);
-
-      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
-      document.dispatchEvent(new CustomEvent('listAnimated', { detail: { listItem: listItem, action: 'hide' } }));
     }
   }, {
     key: '_animateExpansion',
