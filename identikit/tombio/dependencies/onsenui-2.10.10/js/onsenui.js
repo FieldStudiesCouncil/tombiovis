@@ -18457,16 +18457,25 @@ var SlideListItemAnimator = function (_ListItemAnimator) {
     key: 'showExpansion',
     value: function showExpansion(listItem, callback) {
       this._animateExpansion(listItem, true, callback);
+
+      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
+      document.dispatchEvent(new CustomEvent('listAnimated', { detail: {listItem: listItem, action: 'show' }}));
     }
   }, {
     key: 'hideExpansion',
     value: function hideExpansion(listItem, callback) {
       this._animateExpansion(listItem, false, callback);
+
+      //Inserted for FSC Identikit. Raise event when list item expanded or contracted.
+      document.dispatchEvent(new CustomEvent('listAnimated', { detail: { listItem: listItem, action: 'hide' } }));
     }
   }, {
     key: '_animateExpansion',
     value: function _animateExpansion(listItem, shouldOpen, callback) {
       var _animit;
+
+      //Identikit to avoid error - probably problem with onsen
+      if (!listItem.expandableContent) return;
 
       // To animate the opening of the expansion panel correctly, we need to know its
       // height. To calculate this, we set its height to auto, and then get the computed
