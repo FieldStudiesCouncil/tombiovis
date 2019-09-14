@@ -6,8 +6,9 @@
 
     var visName = "visTemplate";
     
+    //For actual visualisation, comment out first line blow and replace 
+    //the line below that.
     var visT = tbv.templates[visName] = Object.create(tombiovis.v.visP);
-    //For actual visualisation, comment out above and replace with below
     //var visT = tbv.v.visualisations[visName] = Object.create(tombiovis.v.visP);
 
     visT.visName = visName;
