@@ -261,7 +261,7 @@
 
                     $("#tombioEsbPopup").dialog('option', 'title', d.taxon.kbValue);
 
-                    injectMap(d.TVK.kbValue);
+                    injectMap(d.tvk.kbValue);
                 }
             });
 
