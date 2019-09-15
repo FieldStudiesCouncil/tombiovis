@@ -1,6 +1,6 @@
 ﻿//See comments at the end of description of caching strategy
 
-var cacheno = 8;
+var cacheno = 9;
 var kbCacheName = "tombio-kb-cache-" + cacheno;
 var kbImgStdCacheName = "tombio-kb-img-std-cache-" + cacheno;
 var kbImgSmlCacheName = "tombio-kb-img-sml-cache-" + cacheno;
