@@ -10,23 +10,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Deals intelligently with missing data. The Identikit is now much more robust in how
  it deals with missing data. In fact it will now operate with only a taxa.csv file. This
  makes it much easier to learn how to use the Identikit 
- (https://github.com/FieldStudiesCouncil/tombiovis/issues/61).
+ [issue 61](https://github.com/FieldStudiesCouncil/tombiovis/issues/61).
 ### Fixed
 The following bugs evident in version 1.9-alpha were fixed:
 
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/77.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/65.
+ - [issue 77](https://github.com/FieldStudiesCouncil/tombiovis/issues/77).
+ - [issue 65](https://github.com/FieldStudiesCouncil/tombiovis/issues/65).
 
 The following bugs evident in version 1.8.1 were fixed:
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/66.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/61.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/60.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/57.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/53.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/52.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/49.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/48.
- - https://github.com/FieldStudiesCouncil/tombiovis/issues/47.
+ - [issue 66](https://github.com/FieldStudiesCouncil/tombiovis/issues/66).
+ - [issue 61](https://github.com/FieldStudiesCouncil/tombiovis/issues/61).
+ - [issue 60](https://github.com/FieldStudiesCouncil/tombiovis/issues/60).
+ - [issue 57](https://github.com/FieldStudiesCouncil/tombiovis/issues/57).
+ - [issue 53](https://github.com/FieldStudiesCouncil/tombiovis/issues/53).
+ - [issue 52](https://github.com/FieldStudiesCouncil/tombiovis/issues/52).
+ - [issue 49](https://github.com/FieldStudiesCouncil/tombiovis/issues/49).
+ - [issue 48](https://github.com/FieldStudiesCouncil/tombiovis/issues/48).
+ - [issue 47](https://github.com/FieldStudiesCouncil/tombiovis/issues/47).
 ### Changed
  - Updated .gitignore and .gitattributes to prevent unecessary files from gulp minifying workflow being deployed to Git or included in the releases.
 ## [1.8.2] - 2018-11-14
