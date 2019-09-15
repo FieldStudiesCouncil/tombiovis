@@ -234,7 +234,7 @@
         //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
         if (tbv.opts.checkKB) {
             toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
-            if (tbv.d.oCharacters.TVK) {
+            if (tbv.d.oCharacters.tvk) {
                 toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
             }
         }
@@ -514,13 +514,13 @@
         var ul = $("<ul>").appendTo(tabs);
         ul.append("<li><a href='#tabs-1'>Knowledge-base</a></li>");
         ul.append("<li><a href='#tabs-2'>Images</a></li>");
-        if (tbv.d.oCharacters.TVK) {
+        if (tbv.d.oCharacters.tvk) {
             ul.append("<li><a href='#tabs-4'>NBN map</a></li>");
         }
         ul.append("<li><a href='#tabs-3'>Details</a></li>");
         var tab1 = $("<div>").attr("id", "tabs-1").appendTo(tabs);
         var tab2 = $("<div>").attr("id", "tabs-2").appendTo(tabs);
-        if (tbv.d.oCharacters.TVK) {
+        if (tbv.d.oCharacters.tvk) {
             //If the TVK character is in the kb, add a tab for NBN maps
             var tab4 = $("<div>").attr("id", "tabs-4").appendTo(tabs);
         }
@@ -568,9 +568,9 @@
         var img = tbv.f.addTaxonImagesToContainer({ taxon: taxon, container: tab2, height: tab2.height() });
 
         //NBN maps
-        if (tbv.d.oCharacters.TVK && tbv.d.oTaxa[taxon].TVK) {
+        if (tbv.d.oCharacters.tvk && tbv.d.oTaxa[taxon].tvk) {
             var $div = $("<div>").css("position", "relative").appendTo(tab4);
-            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].TVK, $div);
+            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].tvk, $div);
         }
 
         //HTML files

@@ -306,7 +306,7 @@
         if (tbv.opts.checkKB) {
             toolOptions.push($('<ons-list-item value="reloadkb" class="html" data-class="wrench">' + icon + 'Reload KB</ons-list-item>'));
             toolOptions.push($('<ons-list-item value="mediaFilesCheck" class="html" data-class="wrench">' + icon + 'Check media files</ons-list-item>'));
-            if (tbv.d.oCharacters.TVK) {
+            if (tbv.d.oCharacters.tvk) {
                 toolOptions.push($('<ons-list-item value="tvkCheck" class="html" data-class="wrench">' + icon + 'Check TVKs</ons-list-item>'));
             }
         }
@@ -599,7 +599,7 @@
             html += '</ons-tab>';
             html += '<ons-tab page="tombioOnsFullDetailsTab2Template" label="Images" icon="md-image">';
             html += '</ons-tab>';
-            if (tbv.d.oCharacters.TVK) {
+            if (tbv.d.oCharacters.tvk) {
                 html += '<ons-tab page="tombioOnsFullDetailsTab3Template" label="NBN Atlas" icon="md-map">';
                 html += '</ons-tab>';
             }
@@ -652,7 +652,7 @@
                 }
                 if (event.target.matches('#tombioOnsFullDetailsTab3')) {
                     $('#tombioOnsFullDetailsTab3Content').html("");
-                    tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].TVK, $('#tombioOnsFullDetailsTab3Content'));
+                    tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].tvk, $('#tombioOnsFullDetailsTab3Content'));
                     $("#tombioNbnMapImage").css("height", $('#tombioOnsFullDetailsTab3').height() - 10);
                 }
                 if (event.target.matches('#tombioOnsFullDetailsTab4')) {

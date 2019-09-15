@@ -1,6 +1,6 @@
 # The FSC Identikit
 
-**We now have a forum: https://forum.fscbiodiversity.uk/c/identikit.
+**We now have a [forum](https://forum.fscbiodiversity.uk/c/identikit).
 Join us there to ask for help using Identikit, help with creating
 resources, discuss features, bugs, or anything else related to the
 software.**
@@ -35,5 +35,12 @@ sub-folder and includes the following:
 * Notes for coders (only for programmers who want to extend or
   contribute to the Identikit)
 
-An interactive guide to the Identikit is available here:
-https://www.fscbiodiversity.uk/identikit
+We are also working on moving the documentation online so that it will be available here. Currently the following is available:
+
+* [Quickstart Guide](docs/quickstart.md)
+
+## Other information
+
+* [Change log](CHANGELOG.md)
+* [Release notes](ReleaseNotes.md)
+* [Support](SUPPORT.md)
