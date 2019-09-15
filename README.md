@@ -21,6 +21,12 @@ collaborative venture.
 (Prior to March 2018, The FSC Identikit was referred to as 'The Tom.bio
 ID Visualisation Framework', or variations thereof.)
 
+## Try it out
+
+Try the software out:
+* With the [standard interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vis.html).
+* With the [mobile interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vism.html).
+
 ## Documentation
 
 All documentation for this project is found in the 'documentation'
