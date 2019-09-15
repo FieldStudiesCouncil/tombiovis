@@ -603,19 +603,22 @@
         //Taxonomy checks
         errors = $('<ul>');
         //Sort characters so that taxonomy types (Group == Taxonomy) always appear before 
-        //other Taxonomy types and before the taxon character.
+        //other Taxonomy types and before the taxon character. Otherwise keep the existing
+        //order - specified by temporary atttribute sortIndex.
+        tbv.d.characters.forEach((c,i)=>c.sortIndex = i);
         tbv.d.characters.sort(function(a, b){
             let score = c => {
                 if (c.Character == "taxon") {
-                    return 2;
+                    return 2000 + c.sortIndex;
                 } else if (c.Group.toLowerCase() == "taxonomy") {
-                    return 1;
+                    return 1000 + c.sortIndex;
                 } else {
-                    return 3;
+                    return 3000 + c.sortIndex;
                 }
             }
-            return score(a) - score(b)
+            return score(a) - score(b);
         })
+        tbv.d.characters.forEach((c,i)=>delete c.sortIndex);
 
         var taxonomyCharacters = tbv.d.characters.filter(function (c) { return (c.Group.toLowerCase() == "taxonomy") });
         var lastTaxonomyCol = taxonomyCharacters.length > 1 ? taxonomyCharacters[taxonomyCharacters.length - 1].Character : null;
@@ -624,7 +627,7 @@
             errors.append($('<li class="tombioValid3">').html("The last Taxonomy row representing '" + lastTaxonomyCol + "' on the characters worksheet appears below the row representing 'Taxon' - it must come above."));
             taxonomy = false; //Previous sorting should now make this redundant.
         }
-        
+
         //Check that we have a strict hierarchical taxonomy
         //console.log(lastTaxonomyCol, taxonomyCharacters.length)
         if (lastTaxonomyCol == "Taxon" && taxonomyCharacters.length > 2) {
@@ -731,17 +734,17 @@
         //Using Promises
         var pAll = [];
 
-        if (!tbv.d.oCharacters.TVK) {
+        if (!tbv.d.oCharacters.tvk) {
             fComplete();
             return;
         }
 
         tbv.d.taxa.forEach(function (t) {
-            if (t.TVK.kbValue) {
+            if (t.tvk.kbValue) {
                 var p = new Promise(function (resolve, reject) {
 
                     $.ajax({
-                        url: "https://species-ws.nbnatlas.org/species/" + t.TVK.kbValue,
+                        url: "https://species-ws.nbnatlas.org/species/" + t.tvk.kbValue,
                         dataType: "json",
                         success: function () {
                             resolve(t);

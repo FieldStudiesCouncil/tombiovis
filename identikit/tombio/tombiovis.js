@@ -1150,10 +1150,10 @@
 
         tbv.f.tvkCheck(
             function (t) {
-                $('#tombioTvkFound').append($('<p>').html("TVK '" + t.TVK + "' found."));
+                $('#tombioTvkFound').append($('<p>').html("TVK '" + t.tvk + "' found."));
             },
             function (t) {
-                $('#tombioTvkNotFound').append($('<p>').html("TVK '" + t.TVK + "' for '" + t.taxon + "' cannot be found."));
+                $('#tombioTvkNotFound').append($('<p>').html("TVK '" + t.tvk + "' for '" + t.taxon + "' cannot be found."));
             },
             function () {
                 divProgress.text("Completed checking TVKs");

@@ -125,7 +125,7 @@
         //The option *values* mediaFilesCheck & tvkCheck have software-wide meaning, not just this gui
         if (tbv.opts.checkKB) {
             toolOptions.push($('<option value="mediaFilesCheck" class="html" data-class="wrench">Check media files</option>'));
-            if (tbv.d.oCharacters.TVK) {
+            if (tbv.d.oCharacters.tvk) {
                 toolOptions.push($('<option value="tvkCheck" class="html" data-class="wrench">Check TVKs</option>'));
             }
         }
@@ -261,9 +261,9 @@
         tbv.f.addTaxonImagesToContainer({ taxon: taxon, container: $divImages, height: 300 });
 
         //NBN maps
-        if (tbv.d.oCharacters.TVK && tbv.d.oTaxa[taxon].TVK) {
+        if (tbv.d.oCharacters.tvk && tbv.d.oTaxa[taxon].tvk) {
             var $divNbn = $("<div>").css("position", "relative");
-            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].TVK, $divNbn);
+            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxon].tvk, $divNbn);
         }
 
         //HTML files

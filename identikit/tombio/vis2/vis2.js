@@ -191,7 +191,7 @@
                         //Check if there are any images for this taxon
                         var charImages = tbv.d.media.filter(function (m) {
                             //Return images for matching taxon
-                            if (m.taxon == d.taxon.kbValue) return true;
+                            if (m.Taxon == d.taxon.kbValue) return true;
                         });
                         if (charImages.length > 0) {
                             return null;

@@ -1,9 +1,11 @@
 # The FSC Identikit
 
-**We now have a forum: https://forum.fscbiodiversity.uk/c/identikit.
+**We now have a [forum](https://forum.fscbiodiversity.uk/c/identikit).
 Join us there to ask for help using Identikit, help with creating
 resources, discuss features, bugs, or anything else related to the
 software.**
+
+To get started quickly, follow our [Quickstart Guide](docs/quickstart.md).
 
 The FSC Identikit is a framework for creating online biological
 identification resources, including multi-access keys. The genesis of
@@ -18,6 +20,19 @@ collaborative venture.
 
 (Prior to March 2018, The FSC Identikit was referred to as 'The Tom.bio
 ID Visualisation Framework', or variations thereof.)
+
+## Try it out
+
+Try the software out:
+* With the [standard interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vis.html).
+* With the [mobile interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vism.html).
+
+## Developers
+The repostitory can be cloned thus: ```git clone https://github.com/FieldStudiesCouncil/tombiovis.git```.
+
+If the clone fails, try the following: ```git clone https://github.com/FieldStudiesCouncil/tombiovis.git --depth 1 --no-single-branch```.
+
+The second git command clones the repostiory with a truncated history. This should be fine for most purposes.
 
 ## Documentation
 
@@ -35,5 +50,12 @@ sub-folder and includes the following:
 * Notes for coders (only for programmers who want to extend or
   contribute to the Identikit)
 
-An interactive guide to the Identikit is available here:
-https://www.fscbiodiversity.uk/identikit
+We are also working on moving the documentation online so that it will be available here. Currently the following is available:
+
+* [Quickstart Guide](docs/quickstart.md)
+
+## Other information
+
+* [Change log](CHANGELOG.md)
+* [Release notes](ReleaseNotes.md)
+* [Support](SUPPORT.md)

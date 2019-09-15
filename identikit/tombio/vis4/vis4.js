@@ -56,7 +56,7 @@
         function createCheckBox(id, label, parent) {
 
             //Only create NBN map checkbox if TVK field is present in kb
-            if (id == "tbVis4NbnMap" && !tbv.d.oCharacters.TVK) {
+            if (id == "tbVis4NbnMap" && !tbv.d.oCharacters.tvk) {
                 return;
             }
 
@@ -214,7 +214,7 @@
         var htmlFiles = tbv.f.getTaxonHtmlFiles(taxonName);
         includeText = includeText && htmlFiles.length > 0;
         includeImages = includeImages && tbv.f.getTaxonImages(taxonName).length > 0;
-        includeNbnMap = includeNbnMap && tbv.d.oTaxa[taxonName].TVK;
+        includeNbnMap = includeNbnMap && tbv.d.oTaxa[taxonName].tvk;
 
         //Image display
         if (includeImages) {
@@ -248,7 +248,7 @@
             } else {
                 $mapDiv.attr("class", "vis4ImageNoText");
             }
-            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxonName].TVK, $mapDiv);
+            tbv.f.addNBNMapToContainer(tbv.d.oTaxa[taxonName].tvk, $mapDiv);
         }
 
         //HTML files

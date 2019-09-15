@@ -1,6 +1,12 @@
 # Release notes for existing knoweldge-base developers
 These notes are intended to help existing knowledge-base developers move from one version of the FSC Identikit to another. These notes were first released with version 1.7.0 of the Identikit and will be updated on each succeeding release.
 
+## Release 1.9.0
+The main feature of this new release is that Identikit is much more resilient to missing data
+in knolwedge-bases; so much so that it will now work on a knowledge-base which consists
+solely of a taxa.csv file. This makes it easier to start learning how to use. It is also more resilient to differences in case, e.g. BodyColour in taxa worksheet will now match bodycolour
+in characters worksheet.
+
 ## Release 1.8.2
 Release 1.8.2 addresses some minor issues evident when people deploy resources, particularly to CMS and also set the pwaSupress flag to true so that, by default, service worker does not kick in during knowledge-base development (which causes confusing caching issues). No implications for knowledge-base deveopers.
 

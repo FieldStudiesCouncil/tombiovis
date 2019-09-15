@@ -6,8 +6,9 @@ authors,metadata,yes,"Bell, C.",,
 publisher,metadata,no,Field Studies Council,,
 location,metadata,no,"Preston Montford, Shrewsbury",,
 contact,metadata,no,,,
-version,metadata,yes,1.8.0,,
+version,metadata,yes,1.9.0,,
 #Releases - keep track of the release history below this line. Most recent releases at the top. The version code in the 'value' column below this line should match that of the current release above it.,,,,,
+release,history,no,1.9.0,9/15/2019,Minor changes.
 release,history,no,1.8.0,10/24/2018,Minor changes.
 release,history,no,1.7.1,6/1/2018,Minor fix to add new media fields.
 release,history,no,1.7,6/1/2018,Modified by RB to complement version 1.7.0 release of Identikit.
