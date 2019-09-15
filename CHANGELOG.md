@@ -14,19 +14,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 The following bugs evident in version 1.9-alpha were fixed:
 
- - [issue 77](https://github.com/FieldStudiesCouncil/tombiovis/issues/77).
- - [issue 65](https://github.com/FieldStudiesCouncil/tombiovis/issues/65).
+ - [Issue 77](https://github.com/FieldStudiesCouncil/tombiovis/issues/77).
+ - [Issue 65](https://github.com/FieldStudiesCouncil/tombiovis/issues/65).
 
 The following bugs evident in version 1.8.1 were fixed:
- - [issue 66](https://github.com/FieldStudiesCouncil/tombiovis/issues/66).
- - [issue 61](https://github.com/FieldStudiesCouncil/tombiovis/issues/61).
- - [issue 60](https://github.com/FieldStudiesCouncil/tombiovis/issues/60).
- - [issue 57](https://github.com/FieldStudiesCouncil/tombiovis/issues/57).
- - [issue 53](https://github.com/FieldStudiesCouncil/tombiovis/issues/53).
- - [issue 52](https://github.com/FieldStudiesCouncil/tombiovis/issues/52).
- - [issue 49](https://github.com/FieldStudiesCouncil/tombiovis/issues/49).
- - [issue 48](https://github.com/FieldStudiesCouncil/tombiovis/issues/48).
- - [issue 47](https://github.com/FieldStudiesCouncil/tombiovis/issues/47).
+ - [Issue 66](https://github.com/FieldStudiesCouncil/tombiovis/issues/66).
+ - [Issue 61](https://github.com/FieldStudiesCouncil/tombiovis/issues/61).
+ - [Issue 60](https://github.com/FieldStudiesCouncil/tombiovis/issues/60).
+ - [Issue 57](https://github.com/FieldStudiesCouncil/tombiovis/issues/57).
+ - [Issue 53](https://github.com/FieldStudiesCouncil/tombiovis/issues/53).
+ - [Issue 52](https://github.com/FieldStudiesCouncil/tombiovis/issues/52).
+ - [Issue 49](https://github.com/FieldStudiesCouncil/tombiovis/issues/49).
+ - [Issue 48](https://github.com/FieldStudiesCouncil/tombiovis/issues/48).
+ - [Issue 47](https://github.com/FieldStudiesCouncil/tombiovis/issues/47).
 ### Changed
  - Updated .gitignore and .gitattributes to prevent unecessary files from gulp minifying workflow being deployed to Git or included in the releases.
 ## [1.8.2] - 2018-11-14

@@ -5,6 +5,8 @@ Join us there to ask for help using Identikit, help with creating
 resources, discuss features, bugs, or anything else related to the
 software.**
 
+To get started quickly, follow our [Quickstart Guide](docs/quickstart.md).
+
 The FSC Identikit is a framework for creating online biological
 identification resources, including multi-access keys. The genesis of
 the project was the Field Studies Council's (FSC) Tomorrow's
