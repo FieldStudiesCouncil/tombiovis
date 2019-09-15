@@ -104,8 +104,8 @@
             authors: "Burkmar, R.",
             publisher: "Field Studies Council",
             location: "Shrewsbury, England",
-            contact: "r.burkmar@field-studies-council.org",
-            version: "1.8.1"
+            contact: "rburkmar@ceh.ac.uk",
+            version: "1.9.0"
         }
 
         //Variables for the tools to be included
