@@ -27,6 +27,13 @@ Try the software out:
 * With the [standard interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vis.html).
 * With the [mobile interface](https://fieldstudiescouncil.github.io/tombiovis/identikit/vism.html).
 
+## Developers
+The repostitory can be cloned thus: ```git clone https://github.com/FieldStudiesCouncil/tombiovis.git```.
+
+If the clone fails, try the following: ```git clone https://github.com/FieldStudiesCouncil/tombiovis.git --depth 1 --no-single-branch```.
+
+The second git command clones the repostiory with a truncated history. This should be fine for most purposes.
+
 ## Documentation
 
 All documentation for this project is found in the 'documentation'
