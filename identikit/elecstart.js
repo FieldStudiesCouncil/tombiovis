@@ -7,7 +7,10 @@ function createWindow() {
     win = new BrowserWindow({ 
         width: 1000, 
         height: 800,
-        icon: __dirname + '/tombio/resources/electron-icon.png'
+        icon: __dirname + '/tombio/resources/electron-icon.png',
+        webPreferences: {
+          nodeIntegration: true
+        }
     })
 
     // and load the index.html of the app.
@@ -15,7 +18,6 @@ function createWindow() {
 }
 
 app.on('ready', createWindow)
-
 
 const template = [
     // {
