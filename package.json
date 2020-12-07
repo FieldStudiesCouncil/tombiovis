@@ -10,7 +10,7 @@
   "dependencies": {
     "electron": "^10.1.6",
     "electron-pdf-window": "file:identikit/tombio/dependencies/electron-pdf-window",
-    "snyk": "^1.426.0"
+    "snyk": "^1.427.0"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
