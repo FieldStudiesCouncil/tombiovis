@@ -320,27 +320,48 @@
         //Add the required visualisation tools
         tbv.v.includedVisualisations.forEach(function (toolName, iTool) {
 
+            // User can override default toolname in options
+            if (tbv.opts.toolconfig[toolName] && tbv.opts.toolconfig[toolName].name) {
+                var displayName = tbv.opts.toolconfig[toolName].name
+            } else {
+                var displayName = tbv.js.jsFiles[toolName].toolName
+            }
+
             var selOpt = $('<ons-list-item>')
                 .attr("value", toolName)
                 .attr("data-class", "vis")
-                .text(tbv.js.jsFiles[toolName].toolName);
+                //.text(tbv.js.jsFiles[toolName].toolName);
+                .text(displayName);
 
             selOpt.append($(icon))
 
             toolOptions.push(selOpt);
         })
 
-        toolOptions.push($('<ons-list-header>Help &amp; Information</ons-list-header>'));
-
+        if (!tbv.opts.dd || 
+            (tbv.opts.dd.indexOf("help") > -1) ||
+            (tbv.opts.dd.indexOf("kb") > -1) ||
+            (tbv.opts.dd.indexOf("identikit") > -1) ||
+            (tbv.opts.dd.indexOf("citation") > -1))  {
+            toolOptions.push($('<ons-list-header>Help &amp; Information</ons-list-header>'));
+        }
         //Add the various info tools
 
         //The option *values* currentVisInfo, kbInfo, visInfo & tombioCitation have software-wide meaning, not just this gui
         icon = '<div class="left"><ons-icon icon="md-info" class="list-item__icon"></ons-icon></div>'
 
-        toolOptions.push($('<ons-list-item id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info">' + icon + 'Using the...</ons-list-item>'));
-        toolOptions.push($('<ons-list-item value="kbInfo" class="html" data-class="info">' + icon + 'About the Knowledge-base</ons-list-item>'));
-        toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
-        toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("help") > -1) {
+            toolOptions.push($('<ons-list-item id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info">' + icon + 'Using the...</ons-list-item>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("kb") > -1) {
+            toolOptions.push($('<ons-list-item value="kbInfo" class="html" data-class="info">' + icon + 'About the Knowledge-base</ons-list-item>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("identikit") > -1) {
+            toolOptions.push($('<ons-list-item value="visInfo" class="html" data-class="info">' + icon + 'About FSC Identikit</ons-list-item>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("citation") > -1) {
+            toolOptions.push($('<ons-list-item value="tombioCitation" class="html" data-class="info">' + icon + 'Get citation text</ons-list-item>'));
+        }
         toolOptions.push($('<ons-list-item id="optPdfInfo" style="display: none">' + icon + '<a href="' + tbv.opts.tombiokbpath + "info.pdf" + '">About this resource PDF</a></ons-list-item>'));
 
         //Show the PDF Info option if info.pdf file is found
@@ -354,18 +375,19 @@
         });
 
         //If developer's section added above, then add a header for standard reload and download
-        toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
-
+        if (tbv.opts.pwa || (!tbv.opts.dd || tbv.opts.dd.indexOf("reload") > -1)) {
+            toolOptions.push($('<ons-list-header>Other</ons-list-header>'));
+        }
         //Add option for offline options
         if (tbv.opts.pwa) {
             var icon = '<div class="left"><ons-icon icon="md-download" class="list-item__icon"></ons-icon></div>'
             toolOptions.push($('<ons-list-item value="offline" class="html" data-class="?">' + icon + 'Offline options</ons-list-item>'));
         }
-        
         //Add reload option
-        var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
-        toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload app</ons-list-item>'));
-
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("reload") > -1) {
+            var icon = '<div class="left"><ons-icon icon="md-redo" class="list-item__icon"></ons-icon></div>'
+            toolOptions.push($('<ons-list-item value="reload" class="html" data-class="reload">' + icon + 'Reload app</ons-list-item>'));
+        }
 
         //Add click event to the menu items
         toolOptions.forEach(function (i) {

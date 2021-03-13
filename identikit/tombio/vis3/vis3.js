@@ -32,89 +32,6 @@
             tbv.opts.tombiopath + "common/taxon-select-help.html"
         ]
 
-        //Helper functions
-        function addTop(n) {
-
-            var sortedTaxa = [];
-            tbv.d.taxa.forEach(function (taxon) {
-                sortedTaxa.push(taxon);
-            });
-            tbv.f.sortTaxa(sortedTaxa);
-
-            if (sortedTaxa.length > n) {
-                var slicedTaxa = sortedTaxa.slice(0, n);
-            } else {
-                var slicedTaxa = sortedTaxa;
-            }
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
-
-            //Match taxon selection control to selection
-            taxSel.deselectAllTaxa();
-            _this.vis3Taxa.forEach(function (t) {
-                taxSel.taxonClick(t);
-            })
-        }
-
-        function matchFirst(topNo) {
-            //If topNo is null, only those currently displayed will
-            //be used.
-
-            //Examine the pqgrid column model to get the currently displayed taxa
-            var orderedTaxa = [];
-            $("#visType3Grid").pqGrid("getColModel").forEach(function (col) {
-                if (col.dataIndx != "group" && col.dataIndx != "character") {
-                    orderedTaxa.push(tbv.d.oTaxa[col.dataIndx]);
-                }
-            });
-
-            //We can only work if at least one taxon is already displayed
-            if (orderedTaxa.length == 0) return;
-
-            var taxon0 = orderedTaxa[0];
-
-            //If topNo is specified, then we need to compare all taxa
-            if (topNo) {
-                orderedTaxa = tbv.d.taxa
-            }
-
-            //Reorder those currently displayed matching each against the first.
-            orderedTaxa.forEach(function (taxon) {
-
-                if (taxon.taxon == taxon0.taxon) {
-                    taxon.vis3CompScore = 999999; //Top score!
-                } else {
-                    taxon.vis3CompScore = 0;
-                    tbv.d.characters.forEach(function (character) {
-                        if (character.Status == "key") {
-                            taxon.vis3CompScore += matchingScore(taxon0, taxon, character);
-                        }
-                    });
-                }
-            });
-            //Sort the array
-            orderedTaxa.sort(function (a, b) {
-                if (a.vis3CompScore > b.vis3CompScore) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            });
-            //Slice the array if topNo specified
-            if (topNo) {
-                var slicedTaxa = orderedTaxa.slice(0, topNo + 1);
-            } else {
-                var slicedTaxa = orderedTaxa;
-            }
-
-            _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
-
-            //Match taxon selection control to selection
-            taxSel.deselectAllTaxa();
-            _this.vis3Taxa.forEach(function (t) {
-                taxSel.taxonClick(t);
-            })
-        }
-
         function taxonSelectCallback(retValue) {
 
             if (retValue.selected && _this.vis3Taxa.indexOf(retValue.selected) == -1) {
@@ -552,12 +469,103 @@
         //Responsible for showing all gui elements of this tool
         $("#vis3").show();
         taxSel.$div.show();
+
+        //Initialise the view if set within options
+        if (tbv.opts.toolconfig.vis3.init) {
+            try {
+                eval(tbv.opts.toolconfig.vis3.init)
+            } catch {
+                console.log(tbv.opts.toolconfig.vis3.init, 'not a valid function call.')
+            }
+        }
     }
 
     vis3.hide = function () {
         //Responsible for hiding all gui elements of this tool
         $("#vis3").hide();
         taxSel.$div.hide();
+    }
+
+    function addTop(n) {
+
+        var sortedTaxa = [];
+        tbv.d.taxa.forEach(function (taxon) {
+            sortedTaxa.push(taxon);
+        });
+        tbv.f.sortTaxa(sortedTaxa);
+
+        if (sortedTaxa.length > n) {
+            var slicedTaxa = sortedTaxa.slice(0, n);
+        } else {
+            var slicedTaxa = sortedTaxa;
+        }
+        _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
+
+        //Match taxon selection control to selection
+        taxSel.deselectAllTaxa();
+        _this.vis3Taxa.forEach(function (t) {
+            taxSel.taxonClick(t);
+        })
+    }
+
+    function matchFirst(topNo) {
+        //If topNo is null, only those currently displayed will
+        //be used.
+
+        //Examine the pqgrid column model to get the currently displayed taxa
+        var orderedTaxa = [];
+        $("#visType3Grid").pqGrid("getColModel").forEach(function (col) {
+            if (col.dataIndx != "group" && col.dataIndx != "character") {
+                orderedTaxa.push(tbv.d.oTaxa[col.dataIndx]);
+            }
+        });
+
+        //We can only work if at least one taxon is already displayed
+        if (orderedTaxa.length == 0) return;
+
+        var taxon0 = orderedTaxa[0];
+
+        //If topNo is specified, then we need to compare all taxa
+        if (topNo) {
+            orderedTaxa = tbv.d.taxa
+        }
+
+        //Reorder those currently displayed matching each against the first.
+        orderedTaxa.forEach(function (taxon) {
+
+            if (taxon.taxon == taxon0.taxon) {
+                taxon.vis3CompScore = 999999; //Top score!
+            } else {
+                taxon.vis3CompScore = 0;
+                tbv.d.characters.forEach(function (character) {
+                    if (character.Status == "key") {
+                        taxon.vis3CompScore += matchingScore(taxon0, taxon, character);
+                    }
+                });
+            }
+        });
+        //Sort the array
+        orderedTaxa.sort(function (a, b) {
+            if (a.vis3CompScore > b.vis3CompScore) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        //Slice the array if topNo specified
+        if (topNo) {
+            var slicedTaxa = orderedTaxa.slice(0, topNo + 1);
+        } else {
+            var slicedTaxa = orderedTaxa;
+        }
+
+        _this.vis3Taxa = slicedTaxa.map(function (taxon) { return taxon.taxon.kbValue });
+
+        //Match taxon selection control to selection
+        taxSel.deselectAllTaxa();
+        _this.vis3Taxa.forEach(function (t) {
+            taxSel.taxonClick(t);
+        })
     }
 
     function getViewURL() {

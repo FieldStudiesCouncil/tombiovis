@@ -245,21 +245,38 @@
         //Add the required visualisation tools
         tbv.v.includedVisualisations.forEach(function (toolName, iTool) {
 
+            // User can override default toolname in options
+            if (tbv.opts.toolconfig[toolName] && tbv.opts.toolconfig[toolName].name) {
+                var displayName = tbv.opts.toolconfig[toolName].name
+            } else {
+                var displayName = tbv.js.jsFiles[toolName].toolName
+            }
+
             var selOpt = $('<option class="needsclick">')
                 .attr("value", toolName)
                 .attr("data-class", "vis")
                 .addClass("visualisation")
-                .text(tbv.js.jsFiles[toolName].toolName);
+                //.text(tbv.js.jsFiles[toolName].toolName);
+                .text(displayName);
 
             toolOptions.push(selOpt);
         })
 
         //Add the various info tools
         //The option *values* currentVisInfo, kbInfo, visInfo & tombioCitation have software-wide meaning, not just this gui
-        toolOptions.push($('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>'));
-        toolOptions.push($('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>'));
-        toolOptions.push($('<option value="visInfo" class="html" data-class="info">About FSC Identikit</option>'));
-        toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
+
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("help") > -1) {
+            toolOptions.push($('<option id="optCurrentVisInfo" value="currentVisInfo" class="html" data-class="info"></option>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("kb") > -1) {
+            toolOptions.push($('<option value="kbInfo" class="html" data-class="info">About the Knowledge-base</option>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("identikit") > -1) {
+            toolOptions.push($('<option value="visInfo" class="html" data-class="info">About FSC Identikit</option>'));
+        }
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("citation") > -1) {
+            toolOptions.push($('<option value="tombioCitation" class="html" data-class="info">Get citation text</option>'));
+        }
 
         //Loop through options marked default as selected
         toolOptions.forEach(function (opt) {
@@ -274,7 +291,9 @@
         }
 
         //Add reload app option
-        toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload app</option>'));
+        if (!tbv.opts.dd || tbv.opts.dd.indexOf("reload") > -1) {
+            toolOptions.push($('<option value="reload" class="html" data-class="reload">Reload app</option>'));
+        }
 
         //Append options to select control
         $("#tombioGuiLargeJqueryUiVisualisation").append(toolOptions);
