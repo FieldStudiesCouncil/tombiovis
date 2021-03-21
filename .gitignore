@@ -11,3 +11,4 @@ test-*
 .vs/*
 node_modules
 identikit/tombio/dependencies/electron-pdf-window/node_modules
+vistest.html

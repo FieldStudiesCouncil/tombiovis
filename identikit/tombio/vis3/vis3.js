@@ -469,13 +469,19 @@
         //Responsible for showing all gui elements of this tool
         $("#vis3").show();
         taxSel.$div.show();
-
+        
         //Initialise the view if set within options
         if (tbv.opts.toolconfig.vis3.init) {
             try {
                 eval(tbv.opts.toolconfig.vis3.init)
+                for (var i = 0; i < 5; i++) {
+                    setTimeout(function() {
+                        console.log("Refresh pqgrid");
+                        $("#visType3Grid").pqGrid("refresh");
+                    }, 1000 * i);
+                }
             } catch {
-                console.log(tbv.opts.toolconfig.vis3.init, 'not a valid function call.')
+                console.log(tbv.opts.toolconfig.vis3.init, 'not a valid call.')
             }
         }
     }
