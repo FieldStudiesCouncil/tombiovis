@@ -16,7 +16,7 @@
     "gulp": "^4.0.2",
     "gulp-clean-css": "^3.9.4",
     "gulp-rename": "^1.4.0",
-    "gulp-uglify-es": "^1.0.4"
+    "gulp-uglify-es": "^3.0.0"
   },
   "scripts": {
     "start": "electron .",
