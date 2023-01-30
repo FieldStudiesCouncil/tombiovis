@@ -1,6 +1,6 @@
 # The FSC Identikit
 
-**We now have a [forum](https://forum.fscbiodiversity.uk/c/identikit).
+**We now have a [forum](https://github.com/FieldStudiesCouncil/tombiovis/discussions).
 Join us there to ask for help using Identikit, help with creating
 resources, discuss features, bugs, or anything else related to the
 software.**
