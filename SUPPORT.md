@@ -3,7 +3,7 @@
 The best way to get support for the Identikit project is to post a message onto
 the forum:
 
-- [https://forum.fscbiodiversity.uk/c/identikit](https://github.com/FieldStudiesCouncil/tombiovis/discussions)
+- https://github.com/FieldStudiesCouncil/tombiovis/discussions
 
 This forum is monitored by Identikit creator Rich Burkmar and members of the Field Studies Council biodiversity team, so this is the fastest way to get a response.
 
