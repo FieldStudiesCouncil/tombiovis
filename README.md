@@ -1,25 +1,29 @@
 # The FSC Identikit
 
-**We now have a [forum](https://github.com/FieldStudiesCouncil/tombiovis/discussions).
-Join us there to ask for help using Identikit, help with creating
-resources, discuss features, bugs, or anything else related to the
-software.**
+> **Note**
+> 
+> **We have a [forum](https://github.com/FieldStudiesCouncil/tombiovis/discussions)**.
+>
+> Join us there to ask for help using Identikit, help with creating resources,
+discuss features, bugs, or anything else related to the software.
+
+**The FSC Identikit is an open-source project which anyone is free to get
+involved in. It is provided as-is and Field Studies Council is not able to provide any support or development
+for it at this time.**
 
 To get started quickly, follow our [Quickstart Guide](docs/quickstart.md).
 
-The FSC Identikit is a framework for creating online biological
-identification resources, including multi-access keys. The genesis of
-the project was the Field Studies Council's (FSC) Tomorrow's
-Biodiversity project (funded by Esmée Fairbairn 2013-2017 inclusive).
-Esmée Fairbairn funded a further year's development of the Identikit
-(covering 2018) to facilitate rolling the work forward into the
-HLF-funded FSC BioLinks project which runs from 2018 to 2022 inclusive.
-The Field Studies Council is a UK-based environmental education charity.
-We are committed to moving FSC Identikit forward as an open-source
-collaborative venture.
+The FSC Identikit is a framework for creating online biological identification
+resources, including multi-access keys.
 
-(Prior to March 2018, The FSC Identikit was referred to as 'The Tom.bio
-ID Visualisation Framework', or variations thereof.)
+The genesis of the project was the Field Studies Council's (FSC) Tomorrow's
+Biodiversity project (funded by Esmée Fairbairn 2013-2017 inclusive). Esmée
+Fairbairn funded a further year's development of the Identikit (covering 2018)
+to facilitate rolling the work forward into the HLF-funded FSC BioLinks project
+which ran from 2018 to the end of 2022.
+
+_Prior to March 2018, The FSC Identikit was referred to as 'The Tom.bio
+ID Visualisation Framework', or variations thereof._
 
 ## Try it out
 
