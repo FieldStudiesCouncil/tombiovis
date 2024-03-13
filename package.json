@@ -8,7 +8,7 @@
   },
   "license": "GPL-3.0",
   "dependencies": {
-    "electron": "^27.3.4",
+    "electron": "^27.3.5",
     "electron-pdf-window": "file:identikit/tombio/dependencies/electron-pdf-window",
     "snyk": "^1.1064.0"
   },
